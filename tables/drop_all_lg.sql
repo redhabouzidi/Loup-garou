@@ -1,0 +1,8 @@
+use lg_db;
+DROP TABLE IF EXISTS Amis;
+DROP TABLE IF EXISTS SauvegardePartie;
+DROP TABLE IF EXISTS Statistiques;
+DROP TABLE IF EXISTS actions;
+DROP TABLE IF EXISTS partie;
+DROP TABLE IF EXISTS Utilisateurs;
+#DROP SCHEMA IF EXISTS lg_db;
