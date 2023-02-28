@@ -2,7 +2,6 @@ using BCrypt.Net;
 using Dapper;
 using MySql.Data.MySqlClient;
 class Login{
-
     public int login_user(MySqlConnection conn,string pseudo,string motdepasse){
         conn.Open();
         string mdp_hash = conn.QueryFirstOrDefault<string>("SELECT motdepasse FROM Utilisateurs WHERE pseudo = @Pseudo", new { Pseudo= pseudo });
