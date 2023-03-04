@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS Utilisateurs (
   email VARCHAR(255) NOT NULL UNIQUE,
   pseudo VARCHAR(50) NOT NULL UNIQUE,
   motdepasse VARCHAR(128) NOT NULL,
-  CONSTRAINT CK_MDP CHECK (motdepasse REGEXP ("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])[a-zA-Z0-9!@#\$%\^&\*]{8,}$")),
   CONSTRAINT CK_UTILISATEURS_EMAIL CHECK (email REGEXP ("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")),
   CONSTRAINT CK_PSEUDO CHECK (pseudo REGEXP "^[a-zA-Z][a-zA-Z0-9_]{5,50}$")
 );
@@ -53,10 +52,6 @@ ALTER TABLE SauvegardePartie ADD CONSTRAINT FK_Sauvegarde_IdUsers FOREIGN KEY (I
 ALTER TABLE SauvegardePartie ADD CONSTRAINT FK_Sauvegarde_IdPartie FOREIGN KEY (IdPartie) REFERENCES Partie (IdPartie) ON DELETE CASCADE;
 
 
-#1 ->ALTER TABLE Partie ADD CONSTRAINT FK_Partie_idUsers FOREIGN KEY (idUsers) REFERENCES Utilisateurs (idUsers) ON DELETE CASCADE;
-
-
-#2-->ALTER TABLE Statistiques ADD CONSTRAINT FK_Statistiques_idPartie FOREIGN KEY (IdPartie) REFERENCES Partie (IdPartie) ON DELETE CASCADE;
 ALTER TABLE Statistiques ADD CONSTRAINT FK_Statistiques_idPartie FOREIGN KEY (idUsers) REFERENCES Utilisateurs (IdUsers) ON DELETE CASCADE;
 
 
