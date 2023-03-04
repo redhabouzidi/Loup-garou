@@ -53,7 +53,3 @@ ALTER TABLE SauvegardePartie ADD CONSTRAINT FK_Sauvegarde_IdPartie FOREIGN KEY (
 
 
 ALTER TABLE Statistiques ADD CONSTRAINT FK_Statistiques_idPartie FOREIGN KEY (idUsers) REFERENCES Utilisateurs (IdUsers) ON DELETE CASCADE;
-
-
-INSERT INTO Utilisateurs VALUES(1,"sididiop094@gmail.com","Sidy71","Farmata50@");
-INSERT INTO Utilisateurs VALUES(2,"ckkkskdskdsk_28@gmail.com","tomb_72122","ck71Kk29912272!!dkw");
