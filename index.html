@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mon site</title>
+  <link href="style.css" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Roboto Condensed' rel='stylesheet'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="banner">
+    <div id="logo">
+      <a href="#"><img src="logo-test.png" alt="Background of Werewolf"></a>
+    </div>
+    <div id="nav">
+      <img id="menu-button" src="menu.svg" alt="Icon menu">
+      <ul id="menu">
+        <li><a class="buttonNav" href="#">Accueil</a></li>
+        <li><a class="buttonNav" href="#roles">Rôles</a></li>
+        <li><a class="buttonNav" href="#">Services</a></li>
+        <li><a class="buttonNav" href="#">Contact</a></li>
+        <li><a id="play-now" href="#">Télécharger</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="mid">
+    <div>
+      <h1>REJOIGNEZ L'AVENTURE !</h1>
+      <h3>Découvrez un jeu Loup-Garou unique.</h3>
+    </div>
+  </div>
+
+  
+  <div id="footerMainPage">
+    <div>
+      <h4>Disponible sur :</h4>
+      <ul id="os-icons">
+        <li><img src="windows-icon.png" alt="Windows"></li>
+        <li><img src="linux-icon.png" alt="Linux"></li>
+        <li><img src="android-icon.png" alt="Android"></li>
+      </ul>
+    </div>
+    <div>
+      <ul id="social-icons">
+        <li><a href="google.com"><img src="twitter-icon.png" alt="Twitter"></a></li>
+        <li><a href="https://www.instagram.com/loup_garou_unistra/"><img src="instagram-icon.png" alt="Instagram"></a></li>
+        <li><a href="https://www.facebook.com/profile.php?id=100090454696589"><img src="facebook-icon.png" alt="Facebook"></a></li>
+        <li><a href="https://discord.gg/Fc7CqruF"><img src="discord-icon.png" alt="Discord"></a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="roles">
+    <div id="container-caroussel">
+        <div class="items">
+          <h3>Villageois</h3>
+          <div class="item active">
+            <img src="villageois.png">
+          </div>
+          <div class="description descriptionActive">
+            <h4>Les Villageois doivent gagner avec le village</h4>
+            <p>Il n’a aucune compétence particulière. Ses seules armes sont la
+              capacité d’analyse des comportements pour identifier
+              les Loups-Garous, et la force de conviction pour
+              empêcher l’exécution de l’innocent qu’il est.</p>
+          </div>
+          <h3>Loup-Garou</h3>
+          <div class=" item next">
+            <img src="loup.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Les Loups-Garous doivent prendre le dessus sur le village</h4>
+            <p>Chaque nuit, ils dévorent
+              un Villageois. Le jour, ils essaient de masquer
+              leur identité nocturne pour échapper à la vindicte 
+              populaire. Leur nombre peut varier suivant
+              le nombre de joueurs. En aucun cas un loup-garou
+              ne peut dévorer un autre loup-garou.</p>
+          </div>
+          <h3>Sorcière</h3>
+          <div class="item">
+            <img src="sorciere.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>La Sorcière aide le village à vaincre les Loups-Garous</h4>
+            <p>Elle sait concocter 2 potions extrêmement
+              puissantes : Une potion de Guérison,
+              pour ressusciter le joueur dévoré par les
+              Loups-Garous Une potion d’Empoisonnement,
+              utilisé la nuit pour éliminer un joueur. La
+              Sorcière doit utiliser chaque potion une seul fois
+              dans la partie. Elle ne peut pas se servir de ses deux
+              potions la même nuit. Le matin, suivant la
+              potion utilisée, il pourra y avoir deux joueurs
+              éliminés ou aucun ! La Sorcière peut également
+              utiliser la potion de guérison à son profit, et donc
+              se guérir elle-même si elle vient d’être dévorée par
+              les Loups-Garous.</p>       
+          </div>
+          <h3>Voyante</h3>
+          <div class="item">
+            <img src="voyante.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>La Voyante aide le village à vaincre les Loups-Garous</h4>
+            <p>Chaque nuit, elle voit la carte
+              d’un joueur de son choix. Elle doit aider les autres
+              Villageois, mais rester discrète pour ne pas être
+              démasquée par les Loups-Garous.</p>
+          </div>
+          <h3>Cupidon</h3>
+          <div class="item prev">
+            <img src="cupidon.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Cupidon aide le village à vaincre les Loups-Garous</h4>
+            <p>En décrochant ses célèbres flèches
+              magiques, Cupidon a le pouvoir de rendre 2
+              personnes amoureuses à jamais. La première nuit, il
+              désigne les 2 joueurs amoureux. Cupidon peut, s’il
+              le veut se désigner comme l’un des deux Amoureux.
+               Si l’un des Amoureux est éliminé, l’autre
+              meurt de chagrin immédiatement. Un Amoureux
+              ne doit jamais éliminer son aimé, ni lui porter aucun préjudice.</p>
+          </div>
+          <div class="button-container">
+            <div class="button"><i class="fas fa-angle-left"></i></div>
+            <div class="button"><i class="fas fa-angle-right"></i></div>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="services">
+
+  </div>
+
+  <script src="script.js"></script>
+  <script src="https://kit.fontawesome.com/b56a723a53.js" crossorigin="anonymous"></script>
+</body>
+</html>
