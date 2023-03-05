@@ -1,0 +1,26 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+
+# MonoDevelop generated
+/*.pidb
+/*.userprefs
+
+# Build generated
+/[Bb]uild/
+
+# Visual Studio Code generated
+/.vscode/
+
+# Rider generated
+.idea/
+*.csproj
+
+# Others
+*.sln
+*.suo
+*.user
+*.unitypackage
+*.DS_Store
