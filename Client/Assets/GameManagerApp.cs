@@ -13,14 +13,14 @@ public class GameManagerApp : MonoBehaviour
 
     public static List<player> players;
 
-    public TMP_InputField inputFConnEmail; 
+    public TMP_InputField inputFConnEmail;
     public TMP_InputField inputFConnPassword;
 
     public TMP_InputField inputFRegEmail;
     public TMP_InputField inputFRegPseudo;
     public TMP_InputField inputFRegPassword;
     public TMP_InputField inputFRegConfirmPassword;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,7 +33,8 @@ public class GameManagerApp : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape)){
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
             Application.Quit();
         }
     }
@@ -47,22 +48,29 @@ public class GameManagerApp : MonoBehaviour
             this.name = name;
         }
     }
-    private void OnButtonClickQuit(){
+    private void OnButtonClickQuit()
+    {
         Application.Quit();
     }
 
-    private void OnButtonClickConnection(){
+    private void OnButtonClickConnection()
+    {
         // connexion au serveur
 
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
         // envoyer des donnees au serveur
         // hash password avant
-        NetworkManager.login(NetworkManager.client,email,password);
+        NetworkManager.login(NetworkManager.client, email, password);
     }
 
-    private void OnButtonClickRegsitration(){
-        LoadScene("game_scene");
+    private void OnButtonClickRegsitration()
+    {
+        string email = inputFRegEmail.text;
+        string pseudo = inputFRegPseudo.text;
+        string password = inputFRegPassword.text;
+        Debug.Log("ok");
+        NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
     }
 
     public void LoadScene(string sceneName)
