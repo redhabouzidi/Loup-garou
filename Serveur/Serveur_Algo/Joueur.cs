@@ -91,11 +91,13 @@ public class Joueur
     {
         return $"Joueur[{pseudo}]";
     }
-    public bool GetEnVie(){
+    public bool GetEnVie()
+    {
         return enVie;
     }
 
-    public void SetEnVie(bool b){
+    public void SetEnVie(bool b)
+    {
         enVie = b;
     }
 

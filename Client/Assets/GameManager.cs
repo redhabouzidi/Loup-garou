@@ -59,23 +59,46 @@ public class GameManager : MonoBehaviour
             switch (p.GetRole())
             {
                 case 1:
-                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1,p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        player_role.text = "Villageois";
+                    }
                     break;
                 case 2:
-                    listPlayer.Add(new Player(p.GetUsername(), "Cupidon", 2, true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Cupidon", 2, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        player_role.text = "Cupidon";
+                    }
                     break;
                 case 3:
-                    listPlayer.Add(new Player(p.GetUsername(), "Voyante", 3, true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Voyante", 3, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        player_role.text = "Voyante";
+                    }
                     break;
                 case 4:
-                    listPlayer.Add(new Player(p.GetUsername(), "Loup-Garou", 4, true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Loup-Garou", 4, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        player_role.text = "Loup-Garou";
+                    }
                     break;
                 case 5:
-                    listPlayer.Add(new Player(p.GetUsername(), "Sorciere", 5, true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Sorciere", 5, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        player_role.text = "Sorciere";
+
+                    }
                     break;
             }
+            
 
         }
+        
 
         AfficheCard();
         AfficheWinScreen();
@@ -266,6 +289,7 @@ public class GameManager : MonoBehaviour
             //if(listPlayer[selectedId].id == p.id && p.id.getRole() != "Cupidon") SendMessageToChat("Tu ne peux pas voter pour toi meme", Message.MsgType.system);
             SendMessageToChat("Tu as voté pour " + listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
             NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
+            Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
         }
         else
         {
@@ -315,10 +339,11 @@ public class Player
     private int roleId;
     public Player() { }
 
-    public Player(string p, string r, int rid, bool alive = true)
+    public Player(string p, string r, int rid,int id, bool alive = true)
     {
         pseudo = p;
         role = r;
+        this.id = id;
         roleId = rid;
         isAlive = alive;
     }

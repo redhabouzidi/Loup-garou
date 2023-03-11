@@ -1,16 +1,75 @@
-﻿using Server;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
+using Server;
 namespace LGproject;
 
 public class Cupidon : Role
 {
     private new const int IdRole = 2;
+
     public Cupidon()
     {
         name = "Cupidon";
         description = "blabla";
     }
-    public (int, int,int) gameVote(List<Joueur> listJoueurs, Socket reveille)
+
+    public override void Action(List<Joueur> listJoueurs)
+    {
+        // écrire l'action du Cupidon
+        // choix des amoureux
+        bool boucle = true;
+        Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        reveille.Connect(Game.listener.LocalEndPoint);
+        Socket vide;
+        vide = Game.listener.Accept();
+        Task t = Task.Run(() =>
+        {
+            Thread.Sleep(GetDelaiAlarme() * 1000);
+            vide.Send(new byte[1] { 0 });
+            boucle = false;
+        });
+
+        int? idJCupidon = null;
+
+        foreach (Joueur j in listJoueurs)
+        {
+            if (j.GetRole() is Cupidon)
+            {
+                idJCupidon = j.GetId();
+            }
+        }
+
+        int v, c1, c2;
+        Joueur? amoureux = null;
+        Joueur? amoureux2 = null;
+        bool boolAmoureux = false;
+        while (boucle)
+        {
+            (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
+            if (v == idJCupidon)
+            {
+                boolAmoureux = false;
+                amoureux = listJoueurs.Find(j => j.GetId() == c1);
+                amoureux2 = listJoueurs.Find(j => j.GetId() == c2);
+                if (amoureux != null && amoureux2 != null && amoureux.GetId() != amoureux2.GetId())
+                {
+                    boolAmoureux = true;
+                }
+            }
+        }
+
+        if (boolAmoureux)
+        {
+            amoureux.SetAmoureux(amoureux2);
+            amoureux2.SetAmoureux(amoureux);
+        }
+    }
+
+    public override int GetIdRole()
+    {
+        return IdRole;
+    }
+
+    public (int, int, int) gameVoteCupidon(List<Joueur> listJoueurs, int idRole, Socket reveille)
     {
         Dictionary<Socket, Joueur> dictJoueur = new Dictionary<Socket, Joueur>();
         List<Socket> role = new List<Socket>();
@@ -36,7 +95,7 @@ public class Cupidon : Role
             Socket.Select(read, null, null, -1);
             if (read.Contains(reveille))
             {
-                return (-1, -1,-1);
+                return (-1, -1, -1);
             }
             else
             {
@@ -61,7 +120,7 @@ public class Cupidon : Role
                                 int idVoted2 = server.decodeInt(message, size);
                                 if (idVoter == dictJoueur[sock].GetId())
                                 {
-                                    return (idVoter, idVoted,idVoted2);
+                                    return (idVoter, idVoted, idVoted2);
                                 }
 
                             }
@@ -79,56 +138,5 @@ public class Cupidon : Role
                 }
             }
         }
-    }
-    public override void Action(List<Joueur> listJoueurs)
-    { // écrire l'action du Cupidon
-        // choix des amoureux
-        bool boucle = true;
-        Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
-        Socket vide;
-        vide = Game.listener.Accept();
-        Task t = Task.Run(() =>
-        {
-            Thread.Sleep(GetDelaiAlarme() * 1000);
-            vide.Send(new byte[1] { 0 });
-            boucle = false;
-        });
-
-
-        int? idJCupidon = null;
-        int[] couple = new int[2] { -1, -1 };
-        foreach (Joueur j in listJoueurs)
-        {
-            if (j.GetRole() is Cupidon)
-            {
-                idJCupidon = j.GetId();
-            }
-        }
-        int v1, v2, c1, c2;
-        Joueur? player = null;
-        Joueur? player2 = null;
-        while (boucle)
-        {
-            (v1, c1) = gameVote(listJoueurs,reveille) ;
-            if (v1 == idJCupidon)
-            {
-                player = listJoueurs.Find(j => j.GetId() == c1);
-                if (player != null)
-                {
-                    couple[0] = c1;
-
-                }
-            }
-        }
-        Joueur? amoureux1 = listJoueurs.Find(j => j.GetId() == couple[0]);
-        Joueur? amoureux2 = listJoueurs.Find(j => j.GetId() == couple[1]);
-        amoureux1.SetAmoureux(amoureux2);
-        amoureux2.SetAmoureux(amoureux1);
-    }
-
-    public override int GetIdRole()
-    {
-        return IdRole;
     }
 }

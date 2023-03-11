@@ -1,12 +1,9 @@
-﻿using System.Net.Sockets;
-using System.Net;
-
+﻿using Server;
+using System.Net.Sockets;
 namespace LGproject;
 
 public class Loup : Role
 {
-    
-    private bool passe = false;
     private new const int IdRole = 4;
     public Loup()
     {
@@ -18,22 +15,9 @@ public class Loup : Role
     { // écrire l'action du loup
         bool boucle = true;
 
-        // on définit une "alarme" qui modifie la valeur du boolean
-        Console.WriteLine("appel aux loups");
-
-        Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
-        Socket vide;
-        vide = Game.listener.Accept();
-        Task t = Task.Run(() =>
-        {
-            Thread.Sleep(GetDelaiAlarme() * 1000);
-            vide.Send(new byte[1] {0});
-            boucle = false;
-        });
         List<int> votant = new List<int>();
         List<int> cible = new List<int>();
-        foreach (Joueur j in  listJoueurs)
+        foreach (Joueur j in listJoueurs)
         {
             if (j.GetRole() is Loup)
             {
@@ -42,33 +26,65 @@ public class Loup : Role
             }
         }
 
-        int index, v, c;
-        while(boucle)
+        // on définit une "alarme" qui modifie la valeur du boolean
+        Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        reveille.Connect(Game.listener.LocalEndPoint);
+        Socket vide;
+        vide = Game.listener.Accept();
+        bool reduceTimer = false;
+        Task t = Task.Run(() =>
         {
-            
-            (v,c) = gameVote(listJoueurs,reveille);
-            
-            
+
+            Thread.Sleep(GetDelaiAlarme() * 750);
+            reduceTimer = true;
+            Thread.Sleep(GetDelaiAlarme() * 250);
+            Console.WriteLine("hey sleep loup");
+            vide.Send(new byte[1] { 0 });
+            boucle = false;
+        });
+
+        int index, v, c;
+        while (boucle)
+        {
+            (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            Console.WriteLine(v + " et " + c);
             if (v != -1)
             {
-                Console.WriteLine(v + "  " + c);
-                
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
-                Console.WriteLine(player);
                 if (player != null)
                 {
-                    Console.WriteLine("ici c'ets les loups");
                     if (player.GetRole() is not Loup && player.GetEnVie())
                     {
-                        Console.WriteLine("apres ?");
                         index = votant.IndexOf(v);
                         cible[index] = c;
-                        
+                        bool allVote = true;
+                        for (int i = 0; i < cible.Count; i++)
+                        {
+                            if (cible[i] == -1)
+                            {
+                                allVote = false;
+                            }
+                        }
+
+                        Console.WriteLine("je check ici");
+                        if (allVote && !reduceTimer)
+                        {
+                            Console.WriteLine("je passe ici");
+                            t.Dispose();
+                            t = Task.Run(() =>
+                            {
+                                Thread.Sleep(GetDelaiAlarme() * 250);
+                                Console.WriteLine("les deux loups ont votés, ça passe à 5sec d'attente");
+                                vide.Send(new byte[1] { 0 });
+                                boucle = false;
+                            });
+                        }
+
                     }
                 }
             }
         }
-        
+
         // ici on a le résultat final du vote des loups
         Dictionary<int, int> occurrences = new Dictionary<int, int>();
         for (int i = 0; i < cible.Count; i++)
@@ -88,7 +104,7 @@ public class Loup : Role
                 }
             }
         }
-        
+
         // determine la cible qui possède le + de votes
         int victime = -1;
         int maxVotes = 0;
@@ -101,7 +117,7 @@ public class Loup : Role
                 maxVotes = pair.Value;
             }
         }
-        
+
         // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
         if (victime != -1)
         {
@@ -123,15 +139,16 @@ public class Loup : Role
                 Random random = new Random();
                 victime = tiedVictims[random.Next(tiedVictims.Count)];
             }
-            
+
             Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
             playerVictime.SetDoitMourir(true);
         }
-        
+
     }
-    
-    public override int GetIdRole() {
-        return IdRole; 
+
+    public override int GetIdRole()
+    {
+        return IdRole;
     }
-    
+
 }
