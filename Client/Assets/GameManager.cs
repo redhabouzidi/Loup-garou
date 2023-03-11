@@ -95,10 +95,8 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
-            
 
         }
-        
 
         AfficheCard();
         AfficheWinScreen();
@@ -287,16 +285,16 @@ public class GameManager : MonoBehaviour
                 }
             }
             //if(listPlayer[selectedId].id == p.id && p.id.getRole() != "Cupidon") SendMessageToChat("Tu ne peux pas voter pour toi meme", Message.MsgType.system);
-            SendMessageToChat("Tu as voté pour " + listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
+            SendMessageToChat("Tu as votÃ© pour " + listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
             NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
             Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
         }
         else
         {
-            SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
+            SendMessageToChat("Tu as votÃ© pour personne, pitiÃ© vote >:(", Message.MsgType.system);
         }
         // id du joueur sur le client -> p.GetId();
-        // id du joueur voté listPlayer[selectedId].GetId();
+        // id du joueur votÃ© listPlayer[selectedId].GetId();
         // Envoyer l'id du joueur vote et du votant au reseau        
     }
 
@@ -375,7 +373,7 @@ public class Player
     public void SetRole(int rid)
     {
         roleId = rid;
-        switch(rid)
+        switch (rid)
         {
             case 1:
                 role = "Villageois";
