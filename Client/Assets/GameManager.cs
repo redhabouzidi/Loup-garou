@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
             switch (p.GetRole())
             {
                 case 1:
-                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1,p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
                         player_role.text = "Villageois";
@@ -98,9 +98,9 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
+
         }
 
-        AfficherJour();
         AfficheCard();
     }
 
@@ -354,7 +354,7 @@ public class Player
     private int roleId;
     public Player() { }
 
-    public Player(string p, string r, int rid, int id, bool alive = true)
+    public Player(string p, string r, int rid,int id, bool alive = true)
     {
         pseudo = p;
         role = r;

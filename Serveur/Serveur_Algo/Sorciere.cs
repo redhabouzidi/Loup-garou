@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Server;
 
 namespace LGproject;
 
@@ -18,16 +19,17 @@ public class Sorciere : Role
     }
 
     public override void Action(List<Joueur> listJoueurs)
-    { // écrire l'action de la sorciere
+    {
+        // écrire l'action de la sorciere
         Console.WriteLine("Appel à la sorcière !");
-        Socket? socketSorciere = null;
+        Joueur? joueurSorciere = null;
 
         // On récupère la Socket de la sorcière
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetRole() is Sorciere)
             {
-                socketSorciere = j.GetSocket();
+                joueurSorciere = j;
                 break;
             }
         }
@@ -36,25 +38,27 @@ public class Sorciere : Role
         idJoueurVise = -1;
         if (potionSoin != 0)
         {
-            potionUse = PotionVie(listJoueurs, socketSorciere);
+            potionUse = PotionVie(listJoueurs, joueurSorciere);
         }
+
         if (potionKill != 0 && !potionUse)
         {
-            PotionMort(listJoueurs, socketSorciere);
+            PotionMort(listJoueurs, joueurSorciere);
         }
     }
-    public bool PotionVie(List<Joueur> listJoueurs, Socket? socketSorciere)
+
+    public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
         bool retour = false;
+        int v, c;
         for (int i = 0; i < listJoueurs.Count; i++)
         {
             if (listJoueurs[i].GetDoitMourir())
             {
-
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
-                Server.server.EnvoieInformation(socketSorciere, idJoueurVise);
+                server.EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
 
                 bool boucle = true;
 
@@ -73,14 +77,19 @@ public class Sorciere : Role
 
                 while (boucle)
                 {
-                    var result = gameVote(listJoueurs,reveille);
-                    if (result.Item2 == 1)
+                    // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
+                    (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+                    if (v == joueurSorciere.GetId())
                     {
-                        listJoueurs[i].SetDoitMourir(false);
-                    }
-                    else if (result.Item2 == 0)
-                    {
-                        listJoueurs[i].SetDoitMourir(true);
+                        switch (c)
+                        {
+                            case 0:
+                                listJoueurs[i].SetDoitMourir(true);
+                                break;
+                            case 1:
+                                listJoueurs[i].SetDoitMourir(false);
+                                break;
+                        }
                     }
                 }
             }
@@ -99,7 +108,7 @@ public class Sorciere : Role
         return retour;
     }
 
-    public void PotionMort(List<Joueur> listJoueurs, Socket? socketSorciere)
+    public void PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
         bool boucle = true;
         // on définit une "alarme" qui modifie la valeur du boolean
@@ -117,17 +126,20 @@ public class Sorciere : Role
 
         Joueur? cible = null;
 
+        int v, c;
         while (boucle)
         {
-            var result = gameVote(listJoueurs,reveille);
-            if (result.Item2 != -1)
+            (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if (v == joueurSorciere.GetId() && c != -1)
             {
                 if (cible != null)
                 {
                     cible.SetDoitMourir(false);
                 }
-                cible = listJoueurs.FirstOrDefault(player => player.GetId() == result.Item2);
-                if (cible != null && cible.GetRole() is not Sorciere && (idJoueurVise == -1 || cible.GetId() != idJoueurVise) && cible.GetEnVie())
+
+                cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);
+                if (cible != null && cible.GetRole() is not Sorciere &&
+                    (idJoueurVise == -1 || cible.GetId() != idJoueurVise) && cible.GetEnVie())
                 {
                     cible.SetDoitMourir(true);
                 }
