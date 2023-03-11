@@ -27,3 +27,5 @@ server
 *.user
 *.unitypackage
 *.DS_Store
+
+*.meta
