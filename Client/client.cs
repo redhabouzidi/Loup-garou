@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
@@ -48,10 +48,10 @@ public class Client
             return;
         }
         string ia = args[1];*/
-        // int port = 18000;
-        int port = 10000;
-        string ia = "127.0.0.1";
-        // string ia = "185.155.93.105";
+        //int port = 18002;
+        int port = 18000;
+        string ia = "185.155.93.105";
+        //string ia = "185.155.93.105";
         bool a = true, reading = true;
         IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -70,11 +70,16 @@ public class Client
 
                     if (messageAsync.Equals("ajout"))
                     {
-                        ajoutAmi(client, id, 1);
-                    }else
+                        ajoutAmi(client, id, "jean");
+                    }
+                    else
                     if (messageAsync.Equals("vote"))
                     {
-                        Vote(client, id, "jean");
+                        Console.Write("Votez pour :");
+                        string val = Console.ReadLine();
+                        int b = int.Parse(val);
+                        Console.WriteLine(b + "   " + id);
+                        Vote(client, id, b);
                     }
                     else
                     if (messageAsync.Equals("leave"))
@@ -92,21 +97,21 @@ public class Client
                     else
                     if (messageAsync.Equals("login"))
                     {
-                        login(client, "mahmoud", "jesuisunmotdepasse");
+                        login(client, "demono", "Azerty1*");
                     }
                     else
                     if (messageAsync.Equals("signin"))
                     {
-                        sendInscription(client, "mahmoud", "Jesuisunmotdepasse0@", "moumouh.atm@gmail.com");
+                        sendInscription(client, "mahmoud", "jesuisunmotdepasse", "mail");
                     }
                     else
                     if (messageAsync.Equals("join"))
                     {
-                        join(client, id, 0, username);
+                        join(client, 0, id, username+id);
                     }
                     else if (messageAsync.Equals("love"))
                     {
-                        ChooseLovers(client, 0, 1);
+                        ChooseLovers(client, 1, 2);
                     }
                     else
                     {
@@ -282,9 +287,6 @@ public class Client
                     idp = decode(message, size);
                     Console.WriteLine("vous etes amoureux avec {0} et son role est {1}", idPlayer, idp);
                     return new answer(false, 0, 0, null);
-                case 8:
-                    Console.WriteLine("afficher le mort pour la sorciere");
-                    return new answer(false, 0, 0, null);
                 case 101:
                     size[0] = 1;
                     name = decodeString(message, size);
@@ -304,19 +306,7 @@ public class Client
                     return new answer(false, 0, 0, null);
                 case 102:
                     size[0] = 1;
-                    bool answer = decodeBool(message, size);
-                    if (answer == false)
-                    {
-                        setInformationCompte(false, 0, "");
-                        return new answer(true, 1, 0, null);
-                    }
-                    else
-                    {
-                        id = decode(message, size);
-                        string temp = decodeString(message, size);
-                        setInformationCompte(true, id, temp);
                         return new answer(false, 0, 0, null);
-                    }
                 case 103:
                     size[0] = 1;
                     tableSize = decode(message, size);
@@ -344,8 +334,7 @@ public class Client
                     {
                         id = decode(message, size);
                         username = decodeString(message, size);
-
-                        Console.WriteLine($"l'utilisateur {username} avec l'id {pid} s'est connecté  ");
+                        Console.WriteLine($"l'utilisateur {username} avec l'id {id} s'est connecté  ");
                     }
                     else
                     {
@@ -422,6 +411,7 @@ public class Client
 
     public static int Vote(Socket server, int idUser, int idVote)
     {
+        Console.WriteLine("vote=" + idUser + "voted = " + idVote);
         byte[] message = new byte[1 + 2 * sizeof(int)];
         message[0] = 1;
         int[] size = new int[1] { 1 };
@@ -524,9 +514,10 @@ public class Client
     }
     public static int ChooseLovers(Socket server, int id1, int id2)
     {
-        byte[] message = new byte[1 + 2 * sizeof(int)];
+        byte[] message = new byte[1 + 3 * sizeof(int)];
         message[0] = 6;
         int[] index = new int[1] { 1 };
+        encode(message, id, index);
         encode(message, id1, index);
         encode(message, id2, index);
         return SendMessageToServer(server, message);
