@@ -342,7 +342,7 @@ public class NetworkManager : MonoBehaviour
                         Console.WriteLine("C'est la nuit");
                     }
 
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 6:
                     size[0] = 1;
                     idPlayer = decode(message, size);
