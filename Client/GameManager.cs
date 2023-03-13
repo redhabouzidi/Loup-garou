@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
 
 
 public class GameManager : MonoBehaviour
@@ -34,7 +35,7 @@ public class GameManager : MonoBehaviour
     public GameObject winPanelLeft, winPanelRight, textWinPlayer;
     List<TextMeshProUGUI> listTextwin = new List<TextMeshProUGUI>();
     public TextMeshProUGUI groupWin;
-    
+
     public GameObject gamePage, winScreenPage;
 
 
@@ -115,19 +116,26 @@ public class GameManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                SendMessageToChat(p.GetPseudo() + ": " + inputChat.text, Message.MsgType.player);
+                SendMessageToChat(p.GetPseudo() + ": " + inputChat.text.ToString(), Message.MsgType.player);
                 inputChat.text = "";
                 inputChat.ActivateInputField();
             }
         }
-        if(gameover){
+        if (gameover)
+        {
             gamePage.transform.gameObject.SetActive(false);
             winScreenPage.transform.gameObject.SetActive(true);
             AfficheWinScreen();
             gameover = false;
         }
         AfficherJour();
-        MiseAJourAffichage();
+        while (NetworkManager.rep.Count != 0)
+        {
+            NetworkManager.treatMessage(NetworkManager.rep[0]);
+            NetworkManager.rep.RemoveAt(0);
+        }
+
+        // MiseAJourAffichage();
     }
 
 
@@ -199,22 +207,31 @@ public class GameManager : MonoBehaviour
             Destroy(msgList[0].textComponent.gameObject);
             msgList.Remove(msgList[0]);
         }
-
+        Debug.Log("chat here1");
         GameObject newText = Instantiate(textComponent, chatPanel.transform);
+        Debug.Log("chat here11111");
 
         Message newMsg = new Message();
+        Debug.Log("chat here2");
         newMsg.msg = text;
         newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
+        Debug.Log("chat here3");
         newMsg.textComponent.text = newMsg.msg;
+        Debug.Log("chat here4");
+
         newMsg.textComponent.color = MessageColor(type);
+        Debug.Log("chat here5");
         msgList.Add(newMsg);
+        Debug.Log("chat here6");
     }
 
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")
         {
-            SendMessageToChat(p.GetPseudo() + ": " + inputChat.text, Message.MsgType.player);
+            string msg =/*p.GetPseudo()+": "+*/inputChat.text.ToString();
+            NetworkManager.sendchatMessage(NetworkManager.client, msg);
+            // SendMessageToChat(msg, Message.MsgType.player);
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
@@ -256,7 +273,7 @@ public class GameManager : MonoBehaviour
         GameObject newCard = Instantiate(cardComponent, cardContainer.transform);
         Toggle toggleCard = newCard.transform.Find("Toggle-Card").GetComponent<Toggle>();
         toggleCard.group = cardContainer.GetComponent<ToggleGroup>();
-        TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI text = newCard.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         text.text = listPlayer[id].GetPseudo();
 
         listCard.Add(newCard);
@@ -291,7 +308,7 @@ public class GameManager : MonoBehaviour
         else
         {
             SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
-        }    
+        }
     }
 
     public void OnOff()
@@ -305,10 +322,14 @@ public class GameManager : MonoBehaviour
         inputChat.interactable = !inputChat.interactable;
     }
 
-    public void MiseAJourCarte(int indice){
+    public void MiseAJourCarte(int indice)
+    {
+        Debug.Log(listCard.Count);
         Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
-        TextMeshProUGUI text =  listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
-        if(!listPlayer[indice].GetIsAlive()) {
+
+        TextMeshProUGUI text = listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        if (!listPlayer[indice].GetIsAlive())
+        {
             text.text = listPlayer[indice].GetPseudo() + " - mort\n" + listPlayer[indice].GetRole();
             text.color = colorRed;
             toggleCard.interactable = false;
@@ -320,11 +341,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void MiseAJourAffichage(){
-        for(int i=0; i<nbPlayer; i++){
+    public void MiseAJourAffichage()
+    {
+        for (int i = 0; i < nbPlayer; i++)
+        {
             MiseAJourCarte(i);
         }
     }
+
 
 }
 
