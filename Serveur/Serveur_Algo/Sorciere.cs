@@ -20,6 +20,8 @@ public class Sorciere : Role
 
     public override void Action(List<Joueur> listJoueurs)
     {
+        
+
         // écrire l'action de la sorciere
         Console.WriteLine("Appel à la sorcière !");
         Joueur? joueurSorciere = null;
@@ -59,7 +61,10 @@ public class Sorciere : Role
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
                 server.EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
-
+                foreach (Joueur j in listJoueurs)
+                {
+                    server.sendTurn(j.GetSocket(), GetIdRole());
+                }
                 bool boucle = true;
 
                 // on définit une "alarme" qui modifie la valeur du boolean
@@ -68,6 +73,10 @@ public class Sorciere : Role
                 reveille.Connect(Game.listener.LocalEndPoint);
                 Socket vide;
                 vide = Game.listener.Accept();
+                foreach (Joueur j in listJoueurs)
+                {
+                    server.sendTime(j.GetSocket(), GetDelaiAlarme());
+                }
                 Task t = Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 500);
@@ -110,6 +119,10 @@ public class Sorciere : Role
 
     public void PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTurn(j.GetSocket(), GetIdRole());
+        }
         bool boucle = true;
         // on définit une "alarme" qui modifie la valeur du boolean
         // valeur arbitraire => 10 secondes
@@ -117,6 +130,10 @@ public class Sorciere : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTime(j.GetSocket(), GetDelaiAlarme());
+        }
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 500);

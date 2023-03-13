@@ -13,6 +13,10 @@ public class Loup : Role
 
     public override void Action(List<Joueur> listJoueurs)
     { // écrire l'action du loup
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTurn(j.GetSocket(), GetIdRole());
+        }
         bool boucle = true;
 
         List<int> votant = new List<int>();
@@ -32,6 +36,10 @@ public class Loup : Role
         Socket vide;
         vide = Game.listener.Accept();
         bool reduceTimer = false;
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTime(j.GetSocket(), GetDelaiAlarme());
+        }
         Task t = Task.Run(() =>
         {
 

@@ -73,7 +73,7 @@ public class GameManagerApp : MonoBehaviour
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
         string password2 = inputFRegConfirmPassword.text;
-        
+
         if (password == password2)
         {
             NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);

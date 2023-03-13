@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System;
@@ -529,17 +528,14 @@ namespace Server
             encode(message, email, size);
             return sendMessage(bdd, message);
         }
-        public static int etatGame(List<Socket> clients, bool day)
+        public static int etatGame(Socket client, bool day)
         {
             int msgSize = 1 + sizeof(bool);
             byte[] message = new byte[msgSize];
             message[0] = 5;
             int[] size = new int[1] { 1 };
             encode(message, day, size);
-            foreach (Socket client in clients)
-            {
-                client.Send(message);
-            }
+            client.Send(message);
             return 0;
         }
         public static int annonceMort(Socket client, int id, int role)
@@ -574,8 +570,10 @@ namespace Server
             {
                 case 0://chat message
                     size[0] = 1;
-                    chat = decodeString(message, size);
-                    sendChatMessage(list, chat);
+                    foreach (Socket s in list)
+                    {
+                        sendMessage(s, message);
+                    }
                     break;
                 case 1://voter
                     size[0] = 1;
@@ -614,6 +612,13 @@ namespace Server
             int idPlayer, vote;
             switch (message[0])
             {
+                case 0://chat message
+                    foreach (Socket s in connected)
+                    {
+                        sendMessage(s, message);
+                    }
+                    break;
+
                 case 3:
                     size[0] = 1;
 
@@ -794,15 +799,35 @@ namespace Server
             sendMessage(player1, message);
             return 0;
         }
-        public static void EnvoieInformation(Socket client, int id)
+        public static int EnvoieInformation(Socket client, int id)
         {
             byte[] message = new byte[1 + sizeof(int)];
             message[0] = 8;
             int[] size = new int[1] { 1 };
             encode(message, id, size);
 
-            sendMessage(client, message);
-            return;
+            return sendMessage(client, message);
+            
+        }
+        public static int sendTurn(Socket client, int roleId)
+        {
+            byte[] message = new byte[1 + sizeof(int)];
+            message[0] = 11;
+            int[] size = new int[1] { 1 };
+            encode(message, roleId, size);
+            return sendMessage(client, message);
+
+            
+        }
+        public static int sendTime(Socket client, int time)
+        {
+            byte[] message = new byte[1 + sizeof(int)];
+            message[0] = 12;
+            int[] size = new int[1] { 1 };
+            encode(message, time, size);
+            return sendMessage(client, message);
+
+            
         }
         // public (int, int) gameVote(List<Joueur> listJoueurs)
         // {

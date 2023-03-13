@@ -192,12 +192,11 @@ public class NetworkManager : MonoBehaviour
 
     public static void setGameInfo(string name, int[] idPlayers, string[] playerNames)
     {
+        players = new WPlayer[idPlayers.Length];
         for (int i = 0; i < idPlayers.Length; i++)
         {
-            Debug.Log("username = " + playerNames[i] + " id = " + idPlayers[i]);
-            ws.addplayer(playerNames[i], idPlayers[i]);
+            players[i] = new WPlayer(username[i], id[i]);
         }
-        Debug.Log("heyyyyyy");
     }
 
     public static void addGameInfo(int id, string username)

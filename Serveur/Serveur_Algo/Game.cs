@@ -93,6 +93,9 @@ public class Game
 
 
         int checkWin;
+
+        bool day = false;
+
         while (true)
         {
             // boucle qui affiche pour check si tout va bien
@@ -108,20 +111,30 @@ public class Game
             }
             // ICI : broadcast du serveur : c'est la nuit
 
+            foreach (Joueur j in _joueurs)
+            {
+                server.etatGame(j.GetSocket(), day);
+            }
+            day = !day;
             // appeller Voyante si il y en a un
             LanceAction(typeof(Voyante));
-                Console.WriteLine("début vote loup");
+            Console.WriteLine("début vote loup");
             // appeller Loup si il y en a un
             LanceAction(typeof(Loup));
-                Console.WriteLine("fin du vote des loups");
+            Console.WriteLine("fin du vote des loups");
             // appeller Sorciere si il y en a un
             LanceAction(typeof(Sorciere));
 
             // ICI : broadcast du serveur : c'est la journée
-
+            foreach (Joueur j in _joueurs)
+            {
+                server.etatGame(j.GetSocket(), day);
+            }
+            day = !day;
+            ///////////////////////////////////
             GestionMorts(_joueurs);
 
-                        for (int i = 0; i < _joueurs.Count; i++)
+            for (int i = 0; i < _joueurs.Count; i++)
             {
                 Console.WriteLine(_joueurs[i].GetPseudo() + " a comme rôle : " + _joueurs[i].GetRole() +
                                   " status enVie : " + _joueurs[i].GetEnVie() + " status doitMourir : " +
@@ -222,6 +235,10 @@ public class Game
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
+        foreach (Joueur j in _joueurs)
+        {
+            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() * 3);
+        }
         Task t = Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 3000);
@@ -232,7 +249,7 @@ public class Game
         int index, v, c;
         while (boucle)
         {
-            (v, c) = Role.gameVote(listJoueurs, 1,reveille);
+            (v, c) = Role.gameVote(listJoueurs, 1, reveille);
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
@@ -312,16 +329,17 @@ public class Game
         // mélanger le tableau roles aléatoirement
         Random random = new Random();
         int[] id = new int[_joueurs.Count];
-                int[] roles = new int[_joueurs.Count];
-                        for (int i = 0; i < _joueurs.Count; i++) {
-                                            _joueurs[i].SetRole(_roles[i]);
-                                                        id[i]=_joueurs[i].GetId();
-                                                                    roles[i] = _joueurs[i].GetRole().GetIdRole();
-                                                                            }
-                                foreach (Joueur j in _joueurs)
-                                                {
-                                                                    server.sendRoles(j.GetSocket(),id,roles);
-                                                                            }
+        int[] roles = new int[_joueurs.Count];
+        for (int i = 0; i < _joueurs.Count; i++)
+        {
+            _joueurs[i].SetRole(_roles[i]);
+            id[i] = _joueurs[i].GetId();
+            roles[i] = _joueurs[i].GetRole().GetIdRole();
+        }
+        foreach (Joueur j in _joueurs)
+        {
+            server.sendRoles(j.GetSocket(), id, roles);
+        }
 
         // appeller Cupidon si il y en a un
         LanceAction(typeof(Cupidon));

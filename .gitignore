@@ -29,3 +29,11 @@ server
 *.DS_Store
 
 *.meta
+
+Client/Documents/
+Client/Library/
+Client/Logs/
+Client/Packages/
+Client/ProjectSettings/
+Client/Temp/
+Client/UserSettings/

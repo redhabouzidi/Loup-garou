@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Server;
 namespace LGproject;
 
 public class Voyante : Role
@@ -12,11 +13,20 @@ public class Voyante : Role
 
     public override void Action(List<Joueur> listJoueurs)
     { // écrire l'action de la Voyante
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTurn(j.GetSocket(), GetIdRole());
+        }
+        
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTime(j.GetSocket(), GetDelaiAlarme());
+        }
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 1000);
@@ -49,7 +59,7 @@ public class Voyante : Role
                     {
                         JoueuraVoircarte = player.GetRole();
                         // envoyer l'information JoueuraVoircarte sur la Socket de la voyante
-                        revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
+                        server.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
 
                     }
                 }
