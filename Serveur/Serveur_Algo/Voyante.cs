@@ -49,7 +49,8 @@ public class Voyante : Role
                     {
                         JoueuraVoircarte = player.GetRole();
                         // envoyer l'information JoueuraVoircarte sur la Socket de la voyante
-                        // socket voyante = JoueurVoyante.GetSocket()
+                        revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
+
                     }
                 }
             }

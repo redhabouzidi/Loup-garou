@@ -546,6 +546,16 @@ namespace Server
         {
             int msgSize = 1 + sizeof(int) * 2;
             byte[] message = new byte[msgSize];
+            message[0] = 10;
+            int[] size = new int[1] { 1 };
+            encode(message, id, size);
+            encode(message, role, size);
+            return sendMessage(client, message);
+        }
+        public static int revelerRole(Socket client, int id, int role)
+        {
+            int msgSize = 1 + sizeof(int) * 2;
+            byte[] message = new byte[msgSize];
             message[0] = 7;
             int[] size = new int[1] { 1 };
             encode(message, id, size);
