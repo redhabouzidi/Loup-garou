@@ -135,7 +135,7 @@ public class GameManager : MonoBehaviour
             NetworkManager.rep.RemoveAt(0);
         }
 
-        // MiseAJourAffichage();
+        MiseAJourAffichage();
     }
 
 
