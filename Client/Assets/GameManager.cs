@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> listCard = new List<GameObject>();
     public GameObject cardContainer, cardComponent;
     [SerializeField]
-    private bool isNight = true;
+    public static bool isNight = true;
     [SerializeField]
     private int tour = 0;
 

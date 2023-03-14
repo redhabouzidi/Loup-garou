@@ -590,6 +590,15 @@ public class NetworkManager : MonoBehaviour
                     gm.SendMessageToChat(decodeString(r.message, size), Message.MsgType.player);
                     Debug.Log("I am over here");
                     break;
+
+                case 5:
+                    bool day = decodeBool(r.message,size);
+                    if(day){
+                        GameManager.isNight=false;
+                    }else{
+                        GameManager.isNight=true;
+                    }
+                    break;
                 case 7:
 
                     int val = decode(r.message, size);
@@ -640,13 +649,13 @@ public class NetworkManager : MonoBehaviour
                     switch (tour)
                     {
                         case 2:
-                            gm.SendMessageToChat("C'est le tour du Loup", Message.MsgType.system);
+                            gm.SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
                             break;
                             case 3:
                             gm.SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
                             break;
                             case 4:
-                            gm.SendMessageToChat("C'est le tour de la Voyante", Message.MsgType.system);
+                            gm.SendMessageToChat("C'est le tour de la Loup", Message.MsgType.system);
                             break;
                             case 5:
                             gm.SendMessageToChat("C'est le tour de la sorciere", Message.MsgType.system);
