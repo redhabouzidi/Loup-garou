@@ -2,16 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 using System.IO;
 using System.Linq;
+
 public class WaitingScreen : MonoBehaviour
 {
-    public bool isStart = false;
-    private int nbjoueur_rest = NetworkManager.nbplayeres;
     public TextMeshProUGUI status;
+    //public bool isStart = false;
+
+    private int nbjoueur_rest = NetworkManager.nbplayeres;
+
     public int max_player;
     public int index_desc = 0;
+
+    // description des roles
     public Image image_carte;
     public Button right_button;
     public Button left_button;
@@ -19,39 +25,48 @@ public class WaitingScreen : MonoBehaviour
     public TextMeshProUGUI descripts;
     private string[] roles = { "Loup", "Villageois", "Cupidon", "Sorciere", "Voyante" };
     private string[] description = { "Desc Loup", "Desc Villageois", "Desc Cupidon", "Desc Sorciere", "Desc Voyante" };
-    private List<TextMeshProUGUI> textObjects;
+
     public List<WPlayer> players_waiting;
     private int no_players = 0;
+
+    // affichage des cartes des joueurs
+    public GameObject cardContainer, cardComponent;
+    private List<GameObject> listCard = new List<GameObject>();
+    public Color colorNone, colorCard;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        textObjects = new List<TextMeshProUGUI>();
         players_waiting = new List<WPlayer>();
-        Debug.Log("waitingscren");
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
         descripts.text = description[index_desc];
         role_name.text = roles[index_desc];
         change_image();//Charger le premier image
-                       //Liste de TextMeshProUGUI pour stocker les cartes
-        GameObject[] allObjects = GameObject.FindGameObjectsWithTag("waitinguname");
-        foreach (GameObject obj in allObjects)//pour chaque objet trouve avec ce tag:
-        {
-            //recuperer le composant TextMeshpro
-            TextMeshProUGUI textObj = obj.GetComponent<TextMeshProUGUI>();
 
-            if (textObj != null && textObj.name == "uname")
-            {
-                textObjects.Add(textObj);
-            }
-        }
-        Debug.Log(textObjects[0].text);
-        isStart = true;
+        AfficheCard();    
+
+        //isStart = true;
         foreach(WPlayer p in NetworkManager.players)
         {
             addplayer(p.GetUsername(), p.GetId());
         }
-        //quitplayer("Tt");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //verifier nombre de joeurs reste pour commencer la partie
+        if (nbjoueur_rest != 0)
+        {
+            status.text = nbjoueur_rest + " remaining...";
+        } 
+        else 
+        {
+            status.text = "Game ready to start.";
+            SceneManager.LoadScene("game_scene");
+        }
     }
 
     //Fonction permettant d'obtenir le role suivant en cliquant le button droite
@@ -72,49 +87,57 @@ public class WaitingScreen : MonoBehaviour
         role_name.text = roles[index_desc];
         change_image();
     }
-    // Update is called once per frame
-    void Update()
-    {
-        if (nbjoueur_rest != 0) status.text = nbjoueur_rest + " remaining...";//chaque frame, verifier nombre de joeurs reste pour commencer la partie
-        else status.text = "Game ready to start.";
-    }
 
     //Fonction permettant de ajouter un joueur avec son nom d'utilisateur
     public void addplayer(string username, int id)
     {
-        // if(players_waiting.Count==max_player)return; //si lobby plein, rien fait
+        if(players_waiting.Count >= max_player){
+            return;
+        }
         players_waiting.Add(new WPlayer(username, id));
         no_players++;
-        if (nbjoueur_rest != 0) nbjoueur_rest--;
-        foreach (TextMeshProUGUI el in textObjects)
-        {//pour chaque textmeshpro dans cartes, trouver un champs vide et ecrire le nom d'utilisateur
-            Debug.Log(el.text == "");
-            if (el.text == "")
-            {
-                el.text = username;
-                Image parent = el.transform.parent.GetComponent<Image>();
-                if (parent != null) parent.color = Color.red;
-                return;
-            }
-        }
 
+        if (nbjoueur_rest != 0) nbjoueur_rest--;
+
+        Debug.Log(no_players.ToString()+"Fonction addplayer " +username);
+        AffichageUsernameText(); 
     }
+
     //Fonction permettant de supprimer un joueur avec son nom d'utilisateur
     void quitplayer(string username)
     {
         if (players_waiting.Count == 0) return;
-        players_waiting.RemoveAll(player => player.GetUsername() == username);//trouver un utilisateur avec le nom d'utilisateur = 'username' et le supprimer
+
+        //trouver un utilisateur avec son nom et le supprimer
+        players_waiting.RemoveAll(player => player.GetUsername() == username);
         no_players--;
         nbjoueur_rest++;
+
         Debug.Log(no_players.ToString());
-        foreach (TextMeshProUGUI el in textObjects)
-        {//pour chaque textmeshpro dans cartes, trouver un champs avec un nom d'utilisateur = 'username' et remplacer par ""
-            if (el.text == username)
-            {
-                el.text = "";
-                Image parent = el.transform.parent.GetComponent<Image>();
-                if (parent != null) parent.color = Color.white;
-            }
+
+        AffichageUsernameText();
+    }
+
+    public void AffichageUsernameText(){
+        for (int i=0; i<no_players; i++){
+            listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
+            listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
+        }
+        for (int i=no_players; i<max_player; i++){
+            listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
+            listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = "";
+        }
+
+    }
+
+    public void AjoutCarte(int id){
+        GameObject newCard = Instantiate(cardComponent, cardContainer.transform);
+        listCard.Add(newCard);
+    }
+
+    public void AfficheCard(){
+        for (int i=0; i<max_player; i++){
+            AjoutCarte(i);
         }
     }
 
@@ -126,6 +149,7 @@ public class WaitingScreen : MonoBehaviour
 
         image_carte.sprite = sprite;//attribuer
     }
+
     //Fonction retournant une image png qui se situe dans le chemin 'path' passÃ© en parametre
     Texture2D LoadPNG(string path)
     {
