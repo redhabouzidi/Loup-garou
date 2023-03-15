@@ -8,7 +8,7 @@ using System.Linq;
 public class WaitingScreen : MonoBehaviour
 {
     public bool isStart = false;
-    private int nbjoueur_rest = 2;
+    private int nbjoueur_rest = NetworkManager.nbplayeres;
     public TextMeshProUGUI status;
     public int max_player;
     public int index_desc = 0;

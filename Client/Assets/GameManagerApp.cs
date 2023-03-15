@@ -31,16 +31,33 @@ public class GameManagerApp : MonoBehaviour
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
     }
-
+    private void OnApplicationQuitting()
+    {
+        
+    }
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Application.Quit();
+                    // Stop play mode in the editor
+                    exitGame();
+                    // Quit the game
+                    
+
         }
     }
-
+    public static void exitGame(){
+        Debug.Log("close");
+        NetworkManager.prog=false;
+        #if UNITY_EDITOR
+                    // Stop play mode in the editor
+                    UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                    // Quit the game
+                    Application.Quit();
+            #endif
+    }
     public struct player
     {
         public int id;

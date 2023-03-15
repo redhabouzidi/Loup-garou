@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     private Player p;
 
     // jeu
-    private int nbPlayer = 2;
+    private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     public GameObject cardContainer, cardComponent;
@@ -129,11 +129,6 @@ public class GameManager : MonoBehaviour
             gameover = false;
         }
         AfficherJour();
-        while (NetworkManager.rep.Count != 0)
-        {
-            NetworkManager.treatMessage(NetworkManager.rep[0]);
-            NetworkManager.rep.RemoveAt(0);
-        }
 
         // MiseAJourAffichage();
     }

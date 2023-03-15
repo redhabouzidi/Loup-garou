@@ -10,6 +10,8 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
+    public static int nbplayeres=2;
+    public static bool prog = true;
     public static List<answer> rep;
     public static Socket client;
     public static int id;
@@ -45,7 +47,10 @@ public class NetworkManager : MonoBehaviour
         }
     }
     //unity variables
-
+    private void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -87,7 +92,7 @@ public class NetworkManager : MonoBehaviour
             return;
         }
         string ia = args[1];*/
-        bool a = true;
+        
         if (!connected)
         {
             try
@@ -108,7 +113,7 @@ public class NetworkManager : MonoBehaviour
             catch (Exception e)
             {
                 Console.Write(e.Message);
-                a = false;
+                prog = false;
             }
         }
         /*var inputTask = Task.Run(() =>
@@ -167,12 +172,14 @@ public class NetworkManager : MonoBehaviour
 
 
 
-        while (a)
+        while (prog)
         {
             answer r = recvMessage(client);
+            if(r!=null){
             rep.Add(r);
-            Debug.Log("dans le while " + rep.Count);
+            }
         }
+        client.Close();
     }
 
     public static void LoadScene(string sceneName)
@@ -312,24 +319,18 @@ public class NetworkManager : MonoBehaviour
         int[] size = new int[1], idPlayers;
         byte[] message = new byte[5000];
         int dataSize, tableSize, recvSize, idPlayer, idp, code = 0, errType = 0;
+        server.Poll(-1, SelectMode.SelectRead);
+        if(server.Available ==0){
+                    return new answer(true,0,255,null);
+        }
         recvSize = server.Receive(message);
         Debug.Log("recv" + message[0]);
-        if (message.Length == 0)
-        {
-            Application.Quit();
-            return new answer(true, 0, 0, null);
-        }
-        else
-        {
             code = message[0];
             switch (message[0])
             {
-                case 0:
-                    Debug.Log("test");
-                    break;
                 case 1:
                     vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 5:
                     break;
                 case 6:
@@ -337,10 +338,10 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
                     Console.WriteLine("vous etes amoureux avec {0} et son role est {1}", idPlayer, idp);
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 8:
                     Console.WriteLine("afficher le mort pour la sorciere");
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 9:
                     break;
                 case 101:
@@ -423,7 +424,6 @@ public class NetworkManager : MonoBehaviour
 
             }
             return new answer(error, errType, code, message);
-        }
     }
 
     public static int SendMessageToServer(Socket server, byte[] message)
@@ -577,6 +577,8 @@ public class NetworkManager : MonoBehaviour
             {
                 LoadScene("jeu");
 
+            }else if(r.code==255){
+                GameManagerApp.exitGame();
             }
         }
         else
