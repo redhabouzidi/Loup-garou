@@ -1,5 +1,5 @@
 ﻿using System.Net.Sockets;
-
+using Server;
 namespace LGproject;
 
 public class Joueur
@@ -9,9 +9,8 @@ public class Joueur
     private string pseudo;
     private Role role;
     private Joueur? amoureux;
-    public bool aEteSave; // pour le rôle du garde plus tard
+    private bool aEteSave; // pour le rôle du garde plus tard
     private bool enVie;
-    private bool reveille;
     private bool doitMourir;
 
     public Joueur(int ClientId, Socket socketClient, string name)
@@ -22,32 +21,36 @@ public class Joueur
         amoureux = null;
         socket = socketClient;
         pseudo = name;
+        aEteSave = false;
     }
 
     public void FaireAction(List<Joueur> ListJoueurs)
     {
-        reveille = true;
         role.Action(ListJoueurs);
-        reveille = false;
     }
 
-    public void TuerJoueur(Joueur j)
+    public void TuerJoueur(List<Joueur> ListJoueurs)
     {
         enVie = false;
-        if (j.GetAmoureux() != null)
+        foreach (Joueur p in ListJoueurs)
         {
-            AmoureuxTuerJoueur(j.GetAmoureux());
+            server.annonceMort(p.GetSocket(), GetId(), GetRole().GetIdRole());
+        }
+        if (GetAmoureux() != null)
+        {
+            AmoureuxTuerJoueur(GetAmoureux(), ListJoueurs);
+            SetAmoureux(null); 
         }
         // if (role = Chasseur)
     }
 
-    public void AmoureuxTuerJoueur(Joueur j)
+    public void AmoureuxTuerJoueur(Joueur j, List<Joueur> ListJoueurs)
     {
         j.SetAmoureux(null);
-        TuerJoueur(j);
+        j.TuerJoueur(ListJoueurs);
     }
 
-    public void SetAmoureux(Joueur j)
+    public void SetAmoureux(Joueur? j)
     {
         amoureux = j;
     }
@@ -104,6 +107,14 @@ public class Joueur
     public int GetId()
     {
         return id;
+    }
+
+    public void SetAEteSave(bool b) {
+        aEteSave = b;
+    }
+
+    public bool GetAEteSave() {
+        return aEteSave;
     }
 
 }

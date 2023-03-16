@@ -35,20 +35,21 @@ public class Loup : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        bool reduceTimer = false;
+        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         foreach (Joueur j in listJoueurs)
         {
             server.sendTime(j.GetSocket(), GetDelaiAlarme());
         }
-        Task t = Task.Run(() =>
+        Task.Run(() =>
         {
-
-            Thread.Sleep(GetDelaiAlarme() * 750);
+            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
             reduceTimer = true;
-            Thread.Sleep(GetDelaiAlarme() * 250);
-            Console.WriteLine("hey sleep loup");
-            vide.Send(new byte[1] { 0 });
-            boucle = false;
+            if (reduceTimer && !LaunchThread2)
+            {
+                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
+                vide.Send(new byte[1] { 0 });
+                boucle = false;
+            }
         });
 
         int index, v, c;
@@ -75,11 +76,11 @@ public class Loup : Role
                         }
 
                         Console.WriteLine("je check ici");
-                        if (allVote && !reduceTimer)
+                        if (allVote && !reduceTimer && firstTime)
                         {
-                            Console.WriteLine("je passe ici");
-                            t.Dispose();
-                            t = Task.Run(() =>
+                            firstTime = false;
+                            LaunchThread2 = true;
+                            Task.Run(() =>
                             {
                                 Thread.Sleep(GetDelaiAlarme() * 250);
                                 Console.WriteLine("les deux loups ont votés, ça passe à 5sec d'attente");
