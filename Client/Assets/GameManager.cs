@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
     public static bool isNight = true;
     [SerializeField]
     private int tour = 0;
-
     public Color colorRed, colorWhite, colorBlack;
     public TextMeshProUGUI text_day;
     public TextMeshProUGUI player_role;
@@ -128,9 +127,32 @@ public class GameManager : MonoBehaviour
             AfficheWinScreen();
             gameover = false;
         }
+        if (NetworkManager.tour != 0)
+        {
+            switch (NetworkManager.tour)
+            {
+                case 1:
+                    SendMessageToChat("C'est le tour du village", Message.MsgType.system);
+                    break;
+                case 2:
+                    SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
+                    break;
+                case 3:
+                    SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
+                    break;
+                case 4:
+                    SendMessageToChat("C'est le tour du Loup", Message.MsgType.system);
+                    break;
+                case 5:
+                    SendMessageToChat("C'est le tour de la sorciere", Message.MsgType.system);
+
+                    break;
+            }
+            NetworkManager.tour = 0;
+        }
         AfficherJour();
 
-        // MiseAJourAffichage();
+        MiseAJourAffichage();
     }
 
 
@@ -319,7 +341,6 @@ public class GameManager : MonoBehaviour
 
     public void MiseAJourCarte(int indice)
     {
-        Debug.Log(listCard.Count);
         Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
 
         TextMeshProUGUI text = listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();

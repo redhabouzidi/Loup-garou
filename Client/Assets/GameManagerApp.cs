@@ -48,7 +48,6 @@ public class GameManagerApp : MonoBehaviour
         }
     }
     public static void exitGame(){
-        Debug.Log("close");
         NetworkManager.prog=false;
         #if UNITY_EDITOR
                     // Stop play mode in the editor

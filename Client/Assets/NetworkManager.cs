@@ -10,11 +10,11 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=2;
+    public static int nbplayeres=2,time;
     public static bool prog = true;
-    public static List<answer> rep;
+    public static List<byte[]> rep;
     public static Socket client;
-    public static int id;
+    public static int id,tour;
     public static string username;
     static bool connected = false;
     public static GameObject canvas;
@@ -54,7 +54,7 @@ public class NetworkManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rep = new List<answer>();
+        rep = new List<byte[]>();
         canvas = GameObject.Find("Canvas");
 
         sp = canvas.transform.Find("StartPage").gameObject;
@@ -73,7 +73,6 @@ public class NetworkManager : MonoBehaviour
         while (rep.Count != 0)
         {
             treatMessage(rep[0]);
-            rep.RemoveAt(0);
         }
 
     }
@@ -174,10 +173,7 @@ public class NetworkManager : MonoBehaviour
 
         while (prog)
         {
-            answer r = recvMessage(client);
-            if(r!=null){
-            rep.Add(r);
-            }
+            recvMessage(client);
         }
         client.Close();
     }
@@ -313,88 +309,175 @@ public class NetworkManager : MonoBehaviour
 
 
 
-    public static answer recvMessage(Socket server)
+    public static void recvMessage(Socket server)
     {
-        bool error = false;
-        int[] size = new int[1], idPlayers;
+        
         byte[] message = new byte[5000];
-        int dataSize, tableSize, recvSize, idPlayer, idp, code = 0, errType = 0;
+        int recvSize;
         server.Poll(-1, SelectMode.SelectRead);
         if(server.Available ==0){
-                    return new answer(true,0,255,null);
+                    prog=false;
+                    return;
         }
         recvSize = server.Receive(message);
-        Debug.Log("recv" + message[0]);
-            code = message[0];
+        Debug.Log("recv =" + message[0]);
+        byte[] newMessage=new byte[recvSize];
+        Array.Copy(message, 0, newMessage, 0,recvSize);
+        rep.Add(newMessage);
+            return;
+            
+    }
+    public static void treatMessage(byte[] message)
+    {
+        rep.RemoveAt(0);
+        Dictionary<int, int> dictJoueur;
+        bool read=true;
+        int[] idPlayers,ids,roles,nbPlayers,gameId;
+        string[] playerNames,gameName;
+        int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP;
+        string name,usernameP;
+        
+        while(read)
+        {
+            Debug.Log("code == " + message[0]);
+            int[] size = new int[1] { 1 };
             switch (message[0])
             {
+                case 0:
+                    Debug.Log("I'm here");
+                    gm.SendMessageToChat(decodeString(message, size), Message.MsgType.player);
+                    Debug.Log("I am over here");
+                    break;
                 case 1:
+                    size[0]=sizeof(int)*2+1;
                     vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
                     break;
                 case 5:
+                    GameManager.isNight = !decodeBool(message, size);
                     break;
                 case 6:
-                    size[0] = 1;
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
                     Console.WriteLine("vous etes amoureux avec {0} et son role est {1}", idPlayer, idp);
                     break;
-                case 8:
-                    Console.WriteLine("afficher le mort pour la sorciere");
-                    break;
                 case 9:
+                    val = decode(message, size);
+                    ids = new int[val];
+                    for (int i = 0; i < val; i++)
+                    {
+                        ids[i] = decode(message, size);
+                    }
+                    val = decode(message, size);
+                    roles = new int[val];
+                    dictJoueur = new Dictionary<int, int>();
+                    for (int i = 0; i < val; i++)
+                    {
+                        roles[i] = decode(message, size);
+                        dictJoueur[ids[i]] = roles[i];
+                    }
+
+                    for (int i = 0; i < ws.players_waiting.Count; i++)
+                    {
+
+                        ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
+                    }
+                    players = new WPlayer[ws.players_waiting.Count];
+                    ws.players_waiting.CopyTo(players);
+                    LoadScene("game_scene");
+
+                    break;
+                case 10:
+                    val = decode(message, size);
+                    role = decode(message, size);
+                    foreach (Player p in gm.listPlayer)
+                    {
+                        if (p.GetId() == val)
+                        {
+                            p.SetRole(role);
+                            p.SetIsAlive(false);
+                        }
+                        Debug.Log(p.GetIsAlive());
+                    }
+                    break;
+                case 11:
+                    tour = decode(message, size);
+                    
+                    
+                    break;
+                case 12:
+                    time=decode(message,size);
                     break;
                 case 101:
+                    sp.SetActive(false);
+                    wso.SetActive(true);
+                    name = decodeString(message, size);
+                    tableSize = decode(message, size);
+                    idPlayers = new int[tableSize];
+                    playerNames = new string[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        idPlayers[i] = decode(message, size);
+                    }
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        playerNames[i] = decodeString(message, size);
+
+                    }
+                    setGameInfo(name, idPlayers, playerNames);
                     break;
                 case 102:
+                    idP = decode(message, size);
+                    usernameP = decodeString(message, size);
+                    addGameInfo(idP, usernameP);
                     break;
                 case 103:
-                    size[0] = 1;
                     tableSize = decode(message, size);
-                    int[] nbPlayers = new int[tableSize];
+                    nbPlayers = new int[tableSize];
                     for (int i = 0; i < tableSize; i++)
                     {
                         nbPlayers[i] = decode(message, size);
                     }
                     tableSize = decode(message, size);
-                    int[] gameId = new int[tableSize];
+                    gameId = new int[tableSize];
                     for (int i = 0; i < tableSize; i++)
                     {
                         gameId[i] = decode(message, size);
                     }
-                    string[] gameName = new string[tableSize];
+                    gameName = new string[tableSize];
                     for (int i = 0; i < tableSize; i++)
                     {
                         gameName[i] = decodeString(message, size);
                     }
                     SetCurrentGame(nbPlayers, gameId, gameName);
-                    return new answer();
-                case 105:
-                    size[0] = 1;
-                    if (decodeBool(message, size))
-                    {
-                        NetworkManager.id = decode(message, size);
-                        NetworkManager.username = decodeString(message, size);
-
-                    }
-                    else
-                    {
-                        error = true;
-                        errType = 1;
-                    }
                     break;
                 case 104:
-                    size[0] = 1;
                     if (decodeBool(message, size))
                     {
-                        Console.WriteLine($"l'utilisateur  s'est inscrit");
                     }
                     else
                     {
-                        Console.WriteLine("non connect�");
                     }
+                    decode(message, size);
                     break;
 
+                
+                case 105:
+                    Debug.Log("hey");
+                    if (decodeBool(message, size))
+                    {
+                        id = decode(message, size);
+                        username = decodeString(message, size);
+                        join(client, 0, id, username);
+
+                    }
+                    else
+                    {
+                        decode(message, size);
+                        decodeString(message, size);
+                        LoadScene("jeu");
+                    }
+                    
+                    break;
                 case 110:
                     dataSize = decode(message, size);
                     idPlayers = new int[dataSize];
@@ -403,29 +486,34 @@ public class NetworkManager : MonoBehaviour
                         idPlayers[i] = decode(message, size);
                     }
                     dataSize = decode(message, size);
-                    int[] role = new int[dataSize];
+                    roles = new int[dataSize];
                     for (int i = 0; i < dataSize; i++)
                     {
-                        role[i] = decode(message, size);
+                        roles[i] = decode(message, size);
                     }
-                    return new answer();
-                case 153:
-                    Console.WriteLine("ajout");
-                    break;
-                case 154:
-                    Console.WriteLine("supprimer");
-                    break;
-                case 155:
-                    Console.WriteLine("reponse");
-                    break;
-                case 255:
-                    Console.WriteLine("une erreur est survenue");
                     break;
 
+                default:
+                    Debug.Log("problem message");
+                    break;
+                
+            
+                
             }
-            return new answer(error, errType, code, message);
+            
+            msgSize += size[0];
+            Debug.Log("message = "+message[0] + "and "+ msgSize + " == " + message.Length);
+            if (message.Length != msgSize)
+            {
+                Array.Copy(message, msgSize, message, 0, message.Length - msgSize);
+            }
+            else
+            {
+                read = false;
+            }
+        }
+        
     }
-
     public static int SendMessageToServer(Socket server, byte[] message)
     {
         Console.WriteLine("msgsize=" + message.Length);
@@ -565,145 +653,5 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(server, message);
     }
 
-    public static void treatMessage(answer r)
-    {
-
-        // if (r.code != 0)
-        // {
-        Debug.Log("code == " + r.code);
-        if (r.error)
-        {
-            if (r.code == 105)
-            {
-                LoadScene("jeu");
-
-            }else if(r.code==255){
-                GameManagerApp.exitGame();
-            }
-        }
-        else
-        {
-            int[] size = new int[1] { 1 };
-            switch (r.code)
-            {
-                case 0:
-                    // addChatMessage(Encoding.ASCII.GetString(message, size[0], message.Length - size[0]));
-                    Debug.Log("I'm here");
-                    gm.SendMessageToChat(decodeString(r.message, size), Message.MsgType.player);
-                    Debug.Log("I am over here");
-                    break;
-
-                case 5:
-                    bool day = decodeBool(r.message,size);
-                    if(day){
-                        GameManager.isNight=false;
-                    }else{
-                        GameManager.isNight=true;
-                    }
-                    break;
-                case 7:
-
-                    int val = decode(r.message, size);
-                    int role = decode(r.message, size);
-                    foreach (Player p in gm.listPlayer)
-                    {
-                        if (p.GetId() == val)
-                        {
-                            p.SetRole(role);
-                            p.SetIsAlive(false);
-                        }
-                        Debug.Log(p.GetIsAlive());
-                    }
-                    break;
-                case 9:
-
-                    val = decode(r.message, size);
-                    int[] ids = new int[val];
-                    for (int i = 0; i < val; i++)
-                    {
-                        ids[i] = decode(r.message, size);
-                    }
-                    val = decode(r.message, size);
-                    int[] roles = new int[val];
-                    Dictionary<int, int> dictJoueur = new Dictionary<int, int>();
-                    for (int i = 0; i < val; i++)
-                    {
-                        roles[i] = decode(r.message, size);
-                        dictJoueur[ids[i]] = roles[i];
-                    }
-
-                    for (int i = 0; i < ws.players_waiting.Count; i++)
-                    {
-
-                        ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
-                    }
-                    players = new WPlayer[ws.players_waiting.Count];
-                    ws.players_waiting.CopyTo(players);
-                    LoadScene("game_scene");
-
-                    break;
-                case 10:
-
-                    break;
-
-                case 11:
-                    int tour = decode(r.message, size);
-                    switch (tour)
-                    {
-                        case 2:
-                            gm.SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
-                            break;
-                            case 3:
-                            gm.SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
-                            break;
-                            case 4:
-                            gm.SendMessageToChat("C'est le tour de la Loup", Message.MsgType.system);
-                            break;
-                            case 5:
-                            gm.SendMessageToChat("C'est le tour de la sorciere", Message.MsgType.system);
-
-                            break;
-                    }
-                    
-                    break;
-                case 12:
-
-                    break;
-                case 101:
-                    sp.SetActive(false);
-                    wso.SetActive(true);
-
-                    string name = decodeString(r.message, size);
-                    int tableSize = decode(r.message, size);
-                    int[] idPlayers = new int[tableSize];
-                    string[] playerNames = new string[tableSize];
-                    for (int i = 0; i < tableSize; i++)
-                    {
-                        idPlayers[i] = decode(r.message, size);
-                    }
-                    for (int i = 0; i < tableSize; i++)
-                    {
-                        playerNames[i] = decodeString(r.message, size);
-
-                    }
-                    setGameInfo(name, idPlayers, playerNames);
-                    break;
-                case 102:
-
-                    int idP = decode(r.message, size);
-                    string usernameP = decodeString(r.message, size);
-                    addGameInfo(idP, usernameP);
-                    break;
-                case 105:
-
-                    join(client, 0, id, username);
-                    break;
-                
-
-                
-                
-                
-            }
-        }
-    }
+    
 }
