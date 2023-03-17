@@ -118,6 +118,7 @@ public class Game
             day = !day;
             // appeller Voyante si il y en a un
             LanceAction(typeof(Voyante));
+            LanceAction(typeof(Garde));
             Console.WriteLine("début vote loup");
             // appeller Loup si il y en a un
             LanceAction(typeof(Loup));
@@ -173,11 +174,14 @@ public class Game
         {
             if (_joueurs[i].GetDoitMourir())
             {
-                _joueurs[i].SetDoitMourir(false);
-                _joueurs[i].SetEnVie(false);
-                foreach (Joueur p in _joueurs)
+                if (_joueurs[i].GetAEteSave())
                 {
-                    server.annonceMort(p.GetSocket(), _joueurs[i].GetId(), _joueurs[i].GetRole().GetIdRole());
+                    _joueurs[i].SetAEteSave(false);
+                    _joueurs[i].SetDoitMourir(false);
+                }
+                else
+                {
+                    _joueurs[i].TuerJoueur(listJoueurs);
                 }
             }
         }
@@ -326,8 +330,8 @@ public class Game
 
     private void InitiateGame()
     {
-        // mélanger le tableau roles aléatoirement
         Random random = new Random();
+        _roles = _roles.OrderBy(r => random.Next()).ToList();
         int[] id = new int[_joueurs.Count];
         int[] roles = new int[_joueurs.Count];
         for (int i = 0; i < _joueurs.Count; i++)

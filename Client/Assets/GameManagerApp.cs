@@ -31,22 +31,22 @@ public class GameManagerApp : MonoBehaviour
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
     }
-    private void OnApplicationQuitting()
-    {
-        
-    }
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-                    // Stop play mode in the editor
-                    exitGame();
-                    // Quit the game
-                    
-
+            // Stop play mode in the editor
+            exitGame();
+            // Quit the game
         }
     }
+
+    private void OnApplicationQuitting()
+    {
+        
+    }
+
     public static void exitGame(){
         NetworkManager.prog=false;
         #if UNITY_EDITOR
@@ -57,6 +57,7 @@ public class GameManagerApp : MonoBehaviour
                     Application.Quit();
             #endif
     }
+
     public struct player
     {
         public int id;
@@ -70,7 +71,8 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickQuit()
     {
-        Application.Quit();
+        exitGame();
+        //Application.Quit();
     }
 
     private void OnButtonClickConnection()
@@ -94,10 +96,5 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
         }
-    }
-
-    public void LoadScene(string sceneName)
-    {
-        SceneManager.LoadScene(sceneName);
     }
 }

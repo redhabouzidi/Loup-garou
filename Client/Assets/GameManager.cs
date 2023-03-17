@@ -17,21 +17,25 @@ public class GameManager : MonoBehaviour
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     public GameObject cardContainer, cardComponent;
-    [SerializeField]
     public static bool isNight = true;
-    [SerializeField]
     private int tour = 0;
-    public Color colorRed, colorWhite, colorBlack;
-    public TextMeshProUGUI text_day;
-    public TextMeshProUGUI player_role;
+    public TextMeshProUGUI timer;
+    public float value_timer;
+    // timer pour le texte qui s'affiche a l'ecran
+    private float timer_text_screen = 2f;
+    private bool text_screen_active = false;
 
-    // voter
+    public Color colorRed, colorWhite, colorBlack;
+    public TextMeshProUGUI text_day, player_role, text_screen;
+    public GameObject panel_text_screen;
+
     public Button buttonValiderVote;
+    public GameObject GO_buttonAfficheCarte;
 
     // win screen
     public bool gameover = false;
     public bool isVillageWin = true;
-    public GameObject winPanelLeft, winPanelRight, textWinPlayer;
+    public GameObject winPanel, textWinPlayer;
     List<TextMeshProUGUI> listTextwin = new List<TextMeshProUGUI>();
     public TextMeshProUGUI groupWin;
 
@@ -39,12 +43,16 @@ public class GameManager : MonoBehaviour
 
 
     // variable pour le chat
-    private int maxMsg = 30;
+    private int maxMsg = 50;
     List<Message> msgList = new List<Message>();
     public GameObject chatPanel, textComponent;
     public TMP_InputField inputChat;
     public Button sendChat;
     public Color playerC, systemC;
+
+    // choix pendant l'action
+    public Button buttonOui, buttonNon;
+    public GameObject choixAction;
 
     // options page
     public Button buttonLeaveGame;
@@ -55,6 +63,10 @@ public class GameManager : MonoBehaviour
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
         buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
+        Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
+        buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
+        GO_buttonAfficheCarte.SetActive(false);
+        panel_text_screen.SetActive(false);
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         foreach (WPlayer p in NetworkManager.players)
@@ -151,8 +163,35 @@ public class GameManager : MonoBehaviour
             NetworkManager.tour = 0;
         }
         AfficherJour();
+        AfficheTimer();
+        Timer_text_screen();
+        // MiseAJourAffichage();
+    }
 
-        MiseAJourAffichage();
+    private void OnButtonClickSendMsg()
+    {
+        if (inputChat.text != "")
+        {
+            string msg =/*p.GetPseudo()+": "+*/inputChat.text.ToString();
+            NetworkManager.sendchatMessage(NetworkManager.client, msg);
+            // SendMessageToChat(msg, Message.MsgType.player);
+            inputChat.text = "";
+            inputChat.ActivateInputField();
+        }
+    }
+
+    private void OnButtonClickLeave()
+    {
+        LoadScene("jeu");
+    }
+
+    private void OnButtonClickVote()
+    {
+        Vote();
+    }
+
+    private void OnButtonClickAffiche(){
+        AfficheVoyante();
     }
 
 
@@ -169,6 +208,19 @@ public class GameManager : MonoBehaviour
             text_day.text = "Night " + tour;
             text_day.color = colorRed;
             player_role.color = colorRed;
+
+            // quand c'est au tour de la voyante
+            if(player_role.text == "Voyante"){
+                GO_buttonAfficheCarte.SetActive(true);
+            }
+        }
+    }
+
+    public void AfficheTimer(){
+        if (value_timer > 0)
+        {
+            value_timer -= Time.deltaTime; 
+            timer.text = "" + Mathf.Round(value_timer); 
         }
     }
 
@@ -203,15 +255,9 @@ public class GameManager : MonoBehaviour
             groupWin.text = "Loup-garou win";
             groupWin.color = colorRed;
         }
-
-        int playerGauche = nbPlayer / 2;
-        for (int i = 0; i < playerGauche; i++)
+        for (int i = 0; i < nbPlayer; i++)
         {
-            AjoutTextWin(winPanelLeft, i);
-        }
-        for (int i = playerGauche; i < nbPlayer; i++)
-        {
-            AjoutTextWin(winPanelRight, i);
+            AjoutTextWin(winPanel, i);
         }
 
     }
@@ -241,29 +287,6 @@ public class GameManager : MonoBehaviour
         msgList.Add(newMsg);
         Debug.Log("chat here6");
     }
-
-    private void OnButtonClickSendMsg()
-    {
-        if (inputChat.text != "")
-        {
-            string msg =/*p.GetPseudo()+": "+*/inputChat.text.ToString();
-            NetworkManager.sendchatMessage(NetworkManager.client, msg);
-            // SendMessageToChat(msg, Message.MsgType.player);
-            inputChat.text = "";
-            inputChat.ActivateInputField();
-        }
-    }
-
-    private void OnButtonClickLeave()
-    {
-        LoadScene("jeu");
-    }
-
-    private void OnButtonClickVote()
-    {
-        Vote();
-    }
-
 
     private Color MessageColor(Message.MsgType type)
     {
@@ -365,7 +388,45 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Change_text_screen(string msg) {
+        timer_text_screen = 2;
+        text_screen.text = msg;
+        text_screen_active = true;
+    }
 
+    public void Timer_text_screen(){
+        if(text_screen_active){
+            if(timer_text_screen > 0){
+                timer_text_screen -= Time.deltaTime;
+            }
+            else{
+                text_screen.text = "";
+                panel_text_screen.SetActive(false);
+                text_screen_active = false;
+            }
+        }
+    }
+
+    public void AfficheVoyante() {
+        int selectedId = -1;
+        if(player_role.text == "Voyante" && isNight) {
+            if(cardContainer.GetComponent<ToggleGroup>().AnyTogglesOn()) {
+                for(int i = 0; i < nbPlayer; i++) 
+                {
+                    if(listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn) {
+                        selectedId = i;
+                    }
+                }
+                if(selectedId != -1 && selectedId < nbPlayer)
+                {
+                    GO_buttonAfficheCarte.SetActive(false);
+                    SendMessageToChat(listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole(), Message.MsgType.system);
+                    panel_text_screen.SetActive(true);
+                    Change_text_screen(listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole());
+                }
+            }
+        } 
+    }
 }
 
 [System.Serializable]
