@@ -8,19 +8,11 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit;
-    public Button buttonLogin;
-    public Button buttonRegistration;
-
+    public Button buttonQuit, buttonLogin, buttonRegistration;
+    public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
-
-    public TMP_InputField inputFConnEmail;
-    public TMP_InputField inputFConnPassword;
-
-    public TMP_InputField inputFRegEmail;
-    public TMP_InputField inputFRegPseudo;
-    public TMP_InputField inputFRegPassword;
-    public TMP_InputField inputFRegConfirmPassword;
+    public TMP_InputField inputFConnEmail, inputFConnPassword;
+    public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
 
     // Start is called before the first frame update
     void Start()
@@ -77,16 +69,26 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickConnection()
     {
-        // connexion au serveur
+        bool isSuccess = true;
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
 
         // hash password avant
         NetworkManager.login(NetworkManager.client, email, password);
+        //isSuccess = ??
+        if (isSuccess){
+            box_error.SetActive(false);
+            loginPage.SetActive(false);
+            waitPage.SetActive(true);
+        }
+        else{
+            AfficheError("Error: Email/Pseudo or password is invalide");
+        }
     }
 
     private void OnButtonClickRegistration()
     {
+        bool isSuccess = true;
         string email = inputFRegEmail.text;
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
@@ -95,6 +97,24 @@ public class GameManagerApp : MonoBehaviour
         if (password == password2)
         {
             NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
+            //isSuccess = retour du serveur / bdd
+            if (isSuccess){
+                box_error.SetActive(false);
+                registrationPage.SetActive(false);
+                loginPage.SetActive(true);
+            }
+            else {
+                AfficheError("Error: Dire ce qu'il va pas");
+            }
         }
+        else {
+            AfficheError("Error: the password is not the same");
+        }
+    }
+    
+    public void AfficheError (string msg){
+        box_error.SetActive(true);
+        TextMeshProUGUI text_error = box_error.transform.Find("Text_error").GetComponent<TextMeshProUGUI>();
+        text_error.text = msg;
     }
 }

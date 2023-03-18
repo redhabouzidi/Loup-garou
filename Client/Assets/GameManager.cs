@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
+    private int toggleCount = 0;
     public GameObject cardContainer, cardComponent;
     public static bool isNight = true;
     private int tour = 0;
@@ -51,7 +52,6 @@ public class GameManager : MonoBehaviour
     public Color playerC, systemC;
 
     // choix pendant l'action
-    public Button buttonOui, buttonNon;
     public GameObject choixAction;
 
     // options page
@@ -60,13 +60,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
+        Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
+        Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
+        buttonNon.onClick.AddListener(OnButtonClickNon);
+        buttonOui.onClick.AddListener(OnButtonClickOui);
         buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
-        Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
-        GO_buttonAfficheCarte.SetActive(false);
-        panel_text_screen.SetActive(false);
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         foreach (WPlayer p in NetworkManager.players)
@@ -194,6 +196,16 @@ public class GameManager : MonoBehaviour
         AfficheVoyante();
     }
 
+    private void OnButtonClickNon() {
+        choixAction.SetActive(false);
+        // envoyer au serveur NON
+    }
+
+    private void OnButtonClickOui() {
+        choixAction.SetActive(false);
+        // envoyer au serveur OUI
+    }
+
 
     public void AfficherJour()
     {
@@ -312,7 +324,7 @@ public class GameManager : MonoBehaviour
     {
         GameObject newCard = Instantiate(cardComponent, cardContainer.transform);
         Toggle toggleCard = newCard.transform.Find("Toggle-Card").GetComponent<Toggle>();
-        toggleCard.group = cardContainer.GetComponent<ToggleGroup>();
+        toggleCard.onValueChanged.AddListener(delegate {OnToggleValueChanged(toggleCard);});
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
         text.text = listPlayer[id].GetPseudo();
 
@@ -328,34 +340,89 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void Vote()
-    {
-        int selectedId = -1;
-        if (cardContainer.GetComponent<ToggleGroup>().AnyTogglesOn())
-        {
-            for (int i = 0; i < nbPlayer; i++)
-            {
-                if (listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn)
-                {
-                    selectedId = i;
+    public void OnToggleValueChanged(Toggle change){
+        bool value = change.isOn;
+        if(value){
+            toggleCount++;
+            if(p.GetRole() == "Cupidon" && isNight){
+                if (toggleCount > 2){
+                    change.isOn = false;
                 }
             }
-            //if(listPlayer[selectedId].id == p.id && p.id.getRole() != "Cupidon") SendMessageToChat("Tu ne peux pas voter pour toi meme", Message.MsgType.system);
-            SendMessageToChat("Tu as voté pour " + listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
-            NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
-            Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
+            else{
+                if (toggleCount > 1){
+                    change.isOn = false;
+                }
+            }
         }
-        else
-        {
-            SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
+        else{
+            toggleCount--;
         }
+    }
+
+    public int GetIndiceToggleOn(){
+        int indice = -1;
+        for(int i = 0; i < nbPlayer; i++) {
+            if(listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn) {
+                indice = i;
+            }
+        }
+        return indice;
+    }
+
+    public void AllToggleOff(){
+        for(int i = 0; i < nbPlayer; i++) {
+            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
+        }
+    }
+
+    public void actionCupidon(){
+        int indice1, indice2, id1, id2;
+        string msg;
+
+        indice1 = GetIndiceToggleOn();
+        if (indice1 != -1){
+            listCard[indice1].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
+            id1 = listPlayer[indice1].GetId();
+        }
+
+        indice2 = GetIndiceToggleOn();
+        if (indice2 != -1){
+            id2 = listPlayer[indice2].GetId();
+            msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
+            SendMessageToChat(msg, Message.MsgType.system);
+            // vote(voté = id1, votant = p.GetId());
+            // vote(voté = id2, votant = p.GetId());
+            
+        }
+        else {
+            SendMessageToChat("Tu dois choisir deux personnes a marier!", Message.MsgType.system);
+        }
+    }
+
+    public void Vote()
+    {
+        if(p.GetRole() == "Cupidon" && isNight){
+            actionCupidon();
+        }
+        else{
+            int selectedId = GetIndiceToggleOn();
+            if(selectedId != -1){
+                SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
+                NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
+                Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
+            } else{
+                SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
+            } 
+        }
+
+        AllToggleOff();
     }
 
     public void OnOff()
     {
-        cardContainer.GetComponent<ToggleGroup>().SetAllTogglesOff();
-        for (int i = 0; i < nbPlayer; i++)
-        {
+        for(int i=0; i<nbPlayer; i++){
+            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
             listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable = !listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable;
         }
         sendChat.interactable = !sendChat.interactable;
@@ -408,24 +475,42 @@ public class GameManager : MonoBehaviour
     }
 
     public void AfficheVoyante() {
-        int selectedId = -1;
+        int selectedId = GetIndiceToggleOn();
         if(player_role.text == "Voyante" && isNight) {
-            if(cardContainer.GetComponent<ToggleGroup>().AnyTogglesOn()) {
-                for(int i = 0; i < nbPlayer; i++) 
-                {
-                    if(listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn) {
-                        selectedId = i;
-                    }
-                }
-                if(selectedId != -1 && selectedId < nbPlayer)
-                {
-                    GO_buttonAfficheCarte.SetActive(false);
-                    SendMessageToChat(listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole(), Message.MsgType.system);
-                    panel_text_screen.SetActive(true);
-                    Change_text_screen(listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole());
-                }
+            if(selectedId != -1 && selectedId < nbPlayer)
+            {
+                GO_buttonAfficheCarte.SetActive(false);
+                panel_text_screen.SetActive(true);
+
+                string msg = listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole();
+                SendMessageToChat(msg, Message.MsgType.system);
+                Change_text_screen(msg);
+
+                AllToggleOff();
             }
         } 
+    }
+
+    public void affiche_choix_action(string msg){
+        choixAction.SetActive(true);
+        TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
+        text_action.text = msg;
+    }
+
+    public void ActionSorciere(int id){
+        int indice = chercheIndiceJoueurId(id);
+        if (indice == -1) return;   // erreur l'id du joueur ne correspond a aucun joueur
+        string msg = "" + listPlayer[id].GetPseudo() + " est mort. Veux-tu utiliser ta potion de vie?";
+        affiche_choix_action(msg);
+    }
+
+    public int chercheIndiceJoueurId (int id){
+        for(int i=0; i<listPlayer.Count; i++){
+            if(listPlayer[i].GetId() == id){
+                return i;
+            }
+        }
+        return -1;
     }
 }
 
