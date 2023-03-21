@@ -7,10 +7,17 @@ namespace dataBase
     {
         public static int login_user(MySqlConnection conn, string pseudo, string motdepasse)
         {
-            conn.Open();
             string mdp_hash = conn.QueryFirstOrDefault<string>("SELECT motdepasse FROM Utilisateurs WHERE pseudo = @Pseudo", new { Pseudo = pseudo });
-            if (mdp_hash == null || mdp_hash.Length == 0) return 1;//Pseudo incorrect
-            if (Login.Verifier_Mdp(motdepasse, mdp_hash)) return 0;//Motdepasse incorrect
+            if (mdp_hash == null || mdp_hash.Length == 0)
+            {
+                return 1;//Pseudo incorrect
+            }
+
+            if (Login.Verifier_Mdp(motdepasse, mdp_hash))
+            {
+                return 0;//Motdepasse correct
+            }
+
             return 2;
 
         }

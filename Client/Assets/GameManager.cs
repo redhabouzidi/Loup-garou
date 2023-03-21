@@ -167,7 +167,7 @@ public class GameManager : MonoBehaviour
         AfficherJour();
         AfficheTimer();
         Timer_text_screen();
-        // MiseAJourAffichage();
+        MiseAJourAffichage();
     }
 
     private void OnButtonClickSendMsg()
@@ -198,11 +198,13 @@ public class GameManager : MonoBehaviour
 
     private void OnButtonClickNon() {
         choixAction.SetActive(false);
+        NetworkManager.Vote(NetworkManager.client, NetworkManager.id,0);
         // envoyer au serveur NON
     }
 
     private void OnButtonClickOui() {
         choixAction.SetActive(false);
+        NetworkManager.Vote(NetworkManager.client, NetworkManager.id, 1);
         // envoyer au serveur OUI
     }
 
@@ -377,7 +379,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void actionCupidon(){
-        int indice1, indice2, id1, id2;
+        int indice1, indice2, id1=-1, id2=-1;
         string msg;
 
         indice1 = GetIndiceToggleOn();
@@ -391,9 +393,9 @@ public class GameManager : MonoBehaviour
             id2 = listPlayer[indice2].GetId();
             msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
             SendMessageToChat(msg, Message.MsgType.system);
-            // vote(voté = id1, votant = p.GetId());
-            // vote(voté = id2, votant = p.GetId());
-            
+            NetworkManager.ChooseLovers(NetworkManager.client, NetworkManager.id, id1, id2);
+
+
         }
         else {
             SendMessageToChat("Tu dois choisir deux personnes a marier!", Message.MsgType.system);
@@ -479,14 +481,8 @@ public class GameManager : MonoBehaviour
         if(player_role.text == "Voyante" && isNight) {
             if(selectedId != -1 && selectedId < nbPlayer)
             {
-                GO_buttonAfficheCarte.SetActive(false);
-                panel_text_screen.SetActive(true);
+                NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
 
-                string msg = listPlayer[selectedId].GetPseudo()+ " est " + listPlayer[selectedId].GetRole();
-                SendMessageToChat(msg, Message.MsgType.system);
-                Change_text_screen(msg);
-
-                AllToggleOff();
             }
         } 
     }
@@ -500,7 +496,7 @@ public class GameManager : MonoBehaviour
     public void ActionSorciere(int id){
         int indice = chercheIndiceJoueurId(id);
         if (indice == -1) return;   // erreur l'id du joueur ne correspond a aucun joueur
-        string msg = "" + listPlayer[id].GetPseudo() + " est mort. Veux-tu utiliser ta potion de vie?";
+        string msg = "" + listPlayer[indice].GetPseudo() + " est mort. Veux-tu utiliser ta potion de vie?";
         affiche_choix_action(msg);
     }
 
@@ -511,6 +507,39 @@ public class GameManager : MonoBehaviour
             }
         }
         return -1;
+    }
+    public void affiche_text_role(int id, int idrole)
+    {
+        GO_buttonAfficheCarte.SetActive(false);
+        panel_text_screen.SetActive(true);
+        int indice = chercheIndiceJoueurId(id);
+        string msg = listPlayer[indice].GetPseudo() + " est " + idRoleToStringRole(idrole);
+        SendMessageToChat(msg, Message.MsgType.system);
+        Change_text_screen(msg);
+    }
+
+    public string idRoleToStringRole(int idRole)
+    {
+        string role="";
+        switch (idRole)
+        {
+            case 1:
+                role = "Villageois";
+                break;
+            case 2:
+                role = "Cupidon";
+                break;
+            case 3:
+                role = "Voyante";
+                break;
+            case 4:
+                role = "Loup-garou";
+                break;
+            case 5:
+                role = "Sorciere";
+                break;
+        }
+        return role;
     }
 }
 
@@ -573,6 +602,7 @@ public class Player
     {
         isAlive = alive;
     }
+
     public void SetRole(int rid)
     {
         roleId = rid;

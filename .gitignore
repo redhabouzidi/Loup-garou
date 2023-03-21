@@ -36,3 +36,7 @@ Client/Packages/
 Client/ProjectSettings/
 Client/Temp/
 Client/UserSettings/
+Serveur/Serveur_Algo/bin/
+Serveur/Serveur_Algo/obj/
+Serveur/Serveur_Bdd/bin/
+Serveur/Serveur_Bdd/obj/
