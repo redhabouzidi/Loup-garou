@@ -3953,6 +3953,7 @@ GameObject:
   - component: {fileID: 404978934}
   - component: {fileID: 404978936}
   - component: {fileID: 404978935}
+  - component: {fileID: 404978937}
   m_Layer: 5
   m_Name: WaitingScreen
   m_TagString: Untagged
@@ -4025,6 +4026,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 404978933}
   m_CullTransparentMesh: 0
+--- !u!114 &404978937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404978933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60afb9d004699f4f9dd91781010ddf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  status: {fileID: 1736376916}
+  max_player: 8
+  index_desc: 0
+  image_carte: {fileID: 1382151521}
+  right_button: {fileID: 1587421622}
+  left_button: {fileID: 1280778111}
+  role_name: {fileID: 917954568}
+  descripts: {fileID: 1469473979}
+  cardContainer: {fileID: 478001514}
+  cardComponent: {fileID: 2504628310605923534, guid: eb7821d7c90dfa74c8f48b1d4461a24d, type: 3}
+  colorNone: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.19607843}
+  colorCard: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.78431374}
 --- !u!1 &405271154
 GameObject:
   m_ObjectHideFlags: 0
@@ -8113,7 +8138,6 @@ GameObject:
   m_Component:
   - component: {fileID: 894909610}
   - component: {fileID: 894909608}
-  - component: {fileID: 894909611}
   m_Layer: 0
   m_Name: GameManagerApp
   m_TagString: Untagged
@@ -8161,30 +8185,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &894909611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 894909607}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b60afb9d004699f4f9dd91781010ddf6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  status: {fileID: 1736376916}
-  max_player: 8
-  index_desc: 0
-  image_carte: {fileID: 1382151521}
-  right_button: {fileID: 1587421622}
-  left_button: {fileID: 1280778111}
-  role_name: {fileID: 917954568}
-  descripts: {fileID: 1469473979}
-  cardContainer: {fileID: 478001514}
-  cardComponent: {fileID: 2504628310605923534, guid: eb7821d7c90dfa74c8f48b1d4461a24d, type: 3}
-  colorNone: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.19607843}
-  colorCard: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.78431374}
 --- !u!1 &902612465
 GameObject:
   m_ObjectHideFlags: 0
