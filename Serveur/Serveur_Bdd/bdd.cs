@@ -8,7 +8,8 @@ using MySql.Data.MySqlClient;
 
 public class bdd
 {
-    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=10006;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
+    public static int id = 0;
+    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='admin';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
         return client.Send(message, message.Length, SocketFlags.None);
@@ -113,7 +114,7 @@ public class bdd
 
     public static Socket setupSocketServer()
     {
-        string ia = "192.168.100.116";
+        string ia = "127.0.0.1";
         IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10001);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         client.Connect(iep);
@@ -166,10 +167,10 @@ public class bdd
         string username = decodeString(message, size);
         string password = decodeString(message, size);
         Console.WriteLine($"l'utilisateur {username} avec l'id 5 et le mdp {password} s'est connecté");
-        if (Login.login_user(conn, username, password) == 2)
-            connexionAnswer(bdd, queueId, true, 1, "mahmoud");
+        if (Login.login_user(conn, username, password) == 0)
+            connexionAnswer(bdd, queueId, true, id++, username);
         else
-            connexionAnswer(bdd, queueId, false, 1, "mahmoud");
+            connexionAnswer(bdd, queueId, false, 0, username);
     }
 
     public static int ajoutAmi(Socket bdd, byte[] message)
@@ -256,4 +257,3 @@ public class bdd
     }
 
 }
-

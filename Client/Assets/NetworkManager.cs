@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=2,time;
+    public static int nbplayeres=5,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -97,10 +97,10 @@ public class NetworkManager : MonoBehaviour
             try
             {
 
-                int port = 18000;
-                /*int port = 10000;*/
-                /*string ia = "127.0.0.1";*/
-                string ia = "185.155.93.105";
+                /*int port = 18000;*/
+                /*string ia = "185.155.93.105";*/
+                int port = 10000;
+                string ia = "127.0.0.1";
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -360,8 +360,21 @@ public class NetworkManager : MonoBehaviour
                     idp = decode(message, size);
                     Console.WriteLine("vous etes amoureux avec {0} et son role est {1}", idPlayer, idp);
                     break;
+                case 7:
+                    idPlayer = decode(message, size);
+                    role = decode(message, size);
+                    gm.affiche_text_role(idPlayer, role);
+                    break;
+                case 8:
+                    idPlayer = decode(message, size);
+                    gm.ActionSorciere(idPlayer);
+                    break;
                 case 9:
                     val = decode(message, size);
+                    if (val == 5)
+                    {
+                        gm.affiche_choix_action("Potion de mort");
+                    }
                     ids = new int[val];
                     for (int i = 0; i < val; i++)
                     {
@@ -405,7 +418,7 @@ public class NetworkManager : MonoBehaviour
                     
                     break;
                 case 12:
-                    time=decode(message,size);
+                    gm.value_timer = decode(message,size);
                     break;
                 case 101:
                     sp.SetActive(false);
@@ -643,11 +656,12 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(server, message);
     }
 
-    public static int ChooseLovers(Socket server, int id1, int id2)
+    public static int ChooseLovers(Socket server,int id, int id1, int id2)
     {
-        byte[] message = new byte[1 + 2 * sizeof(int)];
+        byte[] message = new byte[1 + 3 * sizeof(int)];
         message[0] = 6;
         int[] index = new int[1] { 1 };
+        encode(message, id, index);
         encode(message, id1, index);
         encode(message, id2, index);
         return SendMessageToServer(server, message);

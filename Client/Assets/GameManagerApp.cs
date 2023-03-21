@@ -76,14 +76,14 @@ public class GameManagerApp : MonoBehaviour
         // hash password avant
         NetworkManager.login(NetworkManager.client, email, password);
         //isSuccess = ??
-        if (isSuccess){
+        /*if (isSuccess){
             box_error.SetActive(false);
             loginPage.SetActive(false);
             waitPage.SetActive(true);
         }
         else{
             AfficheError("Error: Email/Pseudo or password is invalide");
-        }
+        }*/
     }
 
     private void OnButtonClickRegistration()
@@ -98,14 +98,14 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
             //isSuccess = retour du serveur / bdd
-            if (isSuccess){
+            /*if (isSuccess){
                 box_error.SetActive(false);
                 registrationPage.SetActive(false);
                 loginPage.SetActive(true);
             }
             else {
                 AfficheError("Error: Dire ce qu'il va pas");
-            }
+            }*/
         }
         else {
             AfficheError("Error: the password is not the same");

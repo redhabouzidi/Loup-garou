@@ -10,7 +10,7 @@ namespace dataBase
     {
         public static int inscription_user(MySqlConnection conn, string pseudo, string email, string motdepasse)
         {
-            Console.WriteLine("pseudo =" + pseudo + " email=" + email + "motdepasse=" + motdepasse);
+            Console.WriteLine("pseudo =" + pseudo + " email=" + email + "  motdepasse=" + motdepasse);
             try
             {
                 Console.WriteLine("1");
@@ -34,6 +34,7 @@ namespace dataBase
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+                Console.WriteLine("je suis la ");
                 if (e.Message.Contains("PRIMARY")) return 2;//Erreur clé primaire dupliqué
                 if (e.Message.Contains("email")) return 3;//Erreur email dupliqué
                 if (e.Message.Contains("pseudo")) return 4;//Erreur pseudo dupliqué
