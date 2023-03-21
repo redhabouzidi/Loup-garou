@@ -51,6 +51,8 @@ public class Garde : Role
 
         int v,c;
         Joueur? player = null;
+
+        Console.WriteLine("Le Garde executera on rôle");
         while(boucle) {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v == JoueurGarde.GetId()) {

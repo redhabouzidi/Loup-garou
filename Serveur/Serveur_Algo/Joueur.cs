@@ -13,6 +13,7 @@ public class Joueur
     private bool enVie;
     private bool doitMourir;
 
+
     public Joueur(int ClientId, Socket socketClient, string name)
     {
         id = ClientId;
@@ -116,5 +117,4 @@ public class Joueur
     public bool GetAEteSave() {
         return aEteSave;
     }
-
 }
