@@ -28,7 +28,6 @@ server
 *.unitypackage
 *.DS_Store
 
-*.meta
 
 Client/Documents/
 Client/Library/
