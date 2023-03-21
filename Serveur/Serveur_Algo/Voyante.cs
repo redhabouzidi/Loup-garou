@@ -23,15 +23,21 @@ public class Voyante : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
+        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         foreach (Joueur j in listJoueurs)
         {
             server.sendTime(j.GetSocket(), GetDelaiAlarme());
         }
-        Task t = Task.Run(() =>
+        Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 1000);
-            vide.Send(new byte[1] { 0 });
-            boucle = false;
+            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
+            reduceTimer = true;
+            if (reduceTimer && !LaunchThread2)
+            {
+                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
+                vide.Send(new byte[1] { 0 });
+                boucle = false;
+            }
         });
 
         Joueur JoueurVoyante = null;
@@ -47,6 +53,8 @@ public class Voyante : Role
 
         int v, c;
         Joueur? player = null;
+        Console.WriteLine("la voyante commencera son action");
+
         while (boucle)
         {
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
@@ -61,6 +69,18 @@ public class Voyante : Role
                         // envoyer l'information JoueuraVoircarte sur la Socket de la voyante
                         server.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
 
+                        if (!reduceTimer && firstTime)
+                        {
+                            firstTime = false;
+                            LaunchThread2 = true;
+                            Task.Run(() =>
+                            {
+                                Thread.Sleep(GetDelaiAlarme() * 250);
+                                Console.WriteLine("la voyante a voté, ça passe à 5sec d'attente");
+                                vide.Send(new byte[1] { 0 });
+                                boucle = false;
+                            });
+                        }
                     }
                 }
             }

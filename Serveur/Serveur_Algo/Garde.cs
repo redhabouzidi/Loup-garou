@@ -5,7 +5,6 @@ using System.Net.Sockets;
 public class Garde : Role
 {
     private new const int IdRole = 8;
-    private int Idsave = -1;
     public Garde()
     {
         name = "Garde";
@@ -52,6 +51,8 @@ public class Garde : Role
 
         int v,c;
         Joueur? player = null;
+
+        Console.WriteLine("Le Garde executera on rôle");
         while(boucle) {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v == JoueurGarde.GetId()) {
@@ -59,10 +60,8 @@ public class Garde : Role
                     player.SetAEteSave(false);
                 }
                 player = listJoueurs.Find(j => j.GetId() == c);
-                if(player != null && player.GetEnVie() && player.GetId() != Idsave) {
-
+                if(player != null && player.GetEnVie()) {
                     player.SetAEteSave(true);
-
                     if (!reduceTimer && firstTime)
                     {
                         firstTime = false;
@@ -78,10 +77,6 @@ public class Garde : Role
                 }
 
             }
-        }
-
-        if(player != null) {
-            Idsave = player.GetId();
         }
     }
 

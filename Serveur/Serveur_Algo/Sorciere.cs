@@ -77,13 +77,15 @@ public class Sorciere : Role
                 {
                     server.sendTime(j.GetSocket(), GetDelaiAlarme());
                 }
+                
                 Task t = Task.Run(() =>
                 {
-                    Thread.Sleep(GetDelaiAlarme() * 500);
+                    Thread.Sleep(GetDelaiAlarme() * 375);
                     vide.Send(new byte[1] { 0 });
                     boucle = false;
                 });
 
+                Console.WriteLine("On attends la réponse de la sorcière si elle souhaite ressusciter le joueur");
                 while (boucle)
                 {
                     // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
@@ -94,11 +96,14 @@ public class Sorciere : Role
                         {
                             case 0:
                                 listJoueurs[i].SetDoitMourir(true);
+                                Console.WriteLine("La sorcière décide de ne pas sauver !");
                                 break;
                             case 1:
                                 listJoueurs[i].SetDoitMourir(false);
+                                Console.WriteLine("La sorcière décide de sauver le joueur !");
                                 break;
                         }
+                        boucle = false;
                     }
                 }
             }
@@ -124,6 +129,7 @@ public class Sorciere : Role
             server.sendTurn(j.GetSocket(), GetIdRole());
         }
         bool boucle = true;
+        bool wantToKill = false;
         // on définit une "alarme" qui modifie la valeur du boolean
         // valeur arbitraire => 10 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -134,39 +140,98 @@ public class Sorciere : Role
         {
             server.sendTime(j.GetSocket(), GetDelaiAlarme());
         }
+        
+        
         Task t = Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 500);
+            Thread.Sleep(GetDelaiAlarme() * 375);
             vide.Send(new byte[1] { 0 });
             boucle = false;
         });
-
-        Joueur? cible = null;
-
+        
         int v, c;
+        Console.WriteLine("La sorcière souhaite-elle utiliser sa potion de kill ?");
         while (boucle)
         {
+            // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
-            if (v == joueurSorciere.GetId() && c != -1)
+            if (v == joueurSorciere.GetId())
             {
-                if (cible != null)
+                switch (c)
                 {
-                    cible.SetDoitMourir(false);
+                    case 0:
+                        wantToKill = false;
+                        Console.WriteLine("La sorcière décide de ne pas utiliser sa potion");
+                        break;
+                    case 1:
+                        wantToKill = true;
+                        Console.WriteLine("La sorcière décide d'utiliser sa potion de kill !");
+                        break;
                 }
-
-                cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);
-                if (cible != null && cible.GetRole() is not Sorciere &&
-                    (idJoueurVise == -1 || cible.GetId() != idJoueurVise) && cible.GetEnVie())
-                {
-                    cible.SetDoitMourir(true);
-                }
+                boucle = false;
             }
         }
 
-        if (cible != null && cible.GetDoitMourir())
+        if (wantToKill)
         {
-            potionKill -= 1;
+            bool boucleKill = true;
+            bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
+            Joueur? cible = null;
+            
+            Task.Run(() =>
+            {
+                Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
+                reduceTimer = true;
+                if (reduceTimer && !LaunchThread2)
+                {
+                    Thread.Sleep(GetDelaiAlarme() * 125); // 2,30 secondes
+                    vide.Send(new byte[1] { 0 });
+                    boucleKill = false;
+                }
+            });
+
+
+            while (boucleKill)
+            {
+                (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+                if (v == joueurSorciere.GetId() && c != -1)
+                {
+                    if (cible != null)
+                    {
+                        cible.SetDoitMourir(false);
+                    }
+
+                    cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);
+                    if (cible != null && cible.GetRole() is not Sorciere &&
+                        (idJoueurVise == -1 || cible.GetId() != idJoueurVise) && cible.GetEnVie())
+                    {
+                        cible.SetDoitMourir(true);
+                    }
+                    
+                    if (!reduceTimer && firstTime)
+                    {
+                        firstTime = false;
+                        LaunchThread2 = true;
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(GetDelaiAlarme() * 125);
+                            Console.WriteLine("le Garde a voté, ça passe à 2,30sec d'attente");
+                            vide.Send(new byte[1] { 0 });
+                            boucleKill = false;
+                        });
+                    }
+
+                    
+                }
+            }
+
+            if (cible != null && cible.GetDoitMourir())
+            {
+                potionKill -= 1;
+            }
         }
+
+        
     }
 
     public override int GetIdRole()

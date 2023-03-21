@@ -29,11 +29,17 @@ public class Cupidon : Role
         {
             server.sendTime(j.GetSocket(), GetDelaiAlarme());
         }
-        Task t = Task.Run(() =>
+        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
+        Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 1000);
-            vide.Send(new byte[1] { 0 });
-            boucle = false;
+            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
+            reduceTimer = true;
+            if (reduceTimer && !LaunchThread2)
+            {
+                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
+                vide.Send(new byte[1] { 0 });
+                boucle = false;
+            }
         });
 
         int? idJCupidon = null;
@@ -50,6 +56,8 @@ public class Cupidon : Role
         Joueur? amoureux = null;
         Joueur? amoureux2 = null;
         bool boolAmoureux = false;
+        
+        Console.WriteLine("Le cupidon va faire son rôle");
         while (boucle)
         {
             (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
@@ -61,6 +69,18 @@ public class Cupidon : Role
                 if (amoureux != null && amoureux2 != null && amoureux.GetId() != amoureux2.GetId())
                 {
                     boolAmoureux = true;
+                    if (!reduceTimer && firstTime)
+                    {
+                        firstTime = false;
+                        LaunchThread2 = true;
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(GetDelaiAlarme() * 250);
+                            Console.WriteLine("le Cupidon a voté, ça passe à 5sec d'attente");
+                            vide.Send(new byte[1] { 0 });
+                            boucle = false;
+                        });
+                    }
                 }
             }
         }
