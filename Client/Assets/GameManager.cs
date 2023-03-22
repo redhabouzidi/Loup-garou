@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
 
+
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -79,6 +80,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
+                        this.p=new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true);
                         player_role.text = "Villageois";
                     }
                     break;
@@ -86,6 +88,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Cupidon", 2, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
+                        this.p=new Player(p.GetUsername(), "Cupidon", p.GetRole(), p.GetId(), true);
                         player_role.text = "Cupidon";
                     }
                     break;
@@ -93,6 +96,8 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Voyante", 3, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
+                        this.p=new Player(p.GetUsername(), "Voyante", p.GetRole(), p.GetId(), true);
+
                         player_role.text = "Voyante";
                     }
                     break;
@@ -100,6 +105,8 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Loup-Garou", 4, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
+                        this.p=new Player(p.GetUsername(), "Loup-Garou", p.GetRole(), p.GetId(), true);
+
                         player_role.text = "Loup-Garou";
                     }
                     break;
@@ -107,6 +114,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Sorciere", 5, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
+                        this.p=new Player(p.GetUsername(), "Sorciere", p.GetRole(), p.GetId(), true);
                         player_role.text = "Sorciere";
 
                     }
@@ -284,22 +292,19 @@ public class GameManager : MonoBehaviour
             Destroy(msgList[0].textComponent.gameObject);
             msgList.Remove(msgList[0]);
         }
-        Debug.Log("chat here1");
         GameObject newText = Instantiate(textComponent, chatPanel.transform);
-        Debug.Log("chat here11111");
+
 
         Message newMsg = new Message();
-        Debug.Log("chat here2");
+
         newMsg.msg = text;
         newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
-        Debug.Log("chat here3");
+
         newMsg.textComponent.text = newMsg.msg;
-        Debug.Log("chat here4");
+
 
         newMsg.textComponent.color = MessageColor(type);
-        Debug.Log("chat here5");
         msgList.Add(newMsg);
-        Debug.Log("chat here6");
     }
 
     private Color MessageColor(Message.MsgType type)

@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=5,time;
+    public static int nbplayeres=2,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -97,10 +97,10 @@ public class NetworkManager : MonoBehaviour
             try
             {
 
-                /*int port = 18000;*/
-                /*string ia = "185.155.93.105";*/
-                int port = 10000;
-                string ia = "127.0.0.1";
+                int port = 18000;
+                string ia = "185.155.93.105";
+                // int port = 10000;
+                // string ia = "127.0.0.1";
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -329,7 +329,7 @@ public class NetworkManager : MonoBehaviour
     }
     public static void treatMessage(byte[] message)
     {
-        rep.RemoveAt(0);
+        
         Dictionary<int, int> dictJoueur;
         bool read=true;
         int[] idPlayers,ids,roles,nbPlayers,gameId;
@@ -525,6 +525,7 @@ public class NetworkManager : MonoBehaviour
                 read = false;
             }
         }
+        rep.RemoveAt(0);
         
     }
     public static int SendMessageToServer(Socket server, byte[] message)
