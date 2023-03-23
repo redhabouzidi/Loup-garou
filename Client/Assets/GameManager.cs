@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
-    private int toggleCount = 0;
+    private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent;
     public static bool isNight = true;
     private int tour = 0;
@@ -361,20 +361,21 @@ public class GameManager : MonoBehaviour
     public void OnToggleValueChanged(Toggle change){
         bool value = change.isOn;
         if(value){
-            toggleCount++;
+            toggleOn.Add(change);
             if(p.GetRole() == "Cupidon" && isNight){
-                if (toggleCount > 2){
-                    change.isOn = false;
+                if (toggleOn.Count > 2){
+                    toggleOn[0].isOn = false;
+                    Debug.Log(toggleOn.Count);
                 }
             }
             else{
-                if (toggleCount > 1){
-                    change.isOn = false;
+                if (toggleOn.Count > 1){
+                    toggleOn[0].isOn = false;
                 }
             }
         }
         else{
-            toggleCount--;
+            toggleOn.RemoveAll(Toggle => Toggle == change);
         }
     }
 
