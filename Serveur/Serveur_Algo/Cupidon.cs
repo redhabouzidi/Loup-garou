@@ -56,7 +56,7 @@ public class Cupidon : Role
         Joueur? amoureux = null;
         Joueur? amoureux2 = null;
         bool boolAmoureux = false;
-        
+
         Console.WriteLine("Le cupidon va faire son rôle");
         while (boucle)
         {
@@ -73,6 +73,10 @@ public class Cupidon : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
+                        foreach (Joueur j in listJoueurs)
+                        {
+                            server.sendTime(j.GetSocket(), GetDelaiAlarme() / 4);
+                        }
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
@@ -160,7 +164,8 @@ public class Cupidon : Role
                     }
                     else
                     {
-                        server.recvMessageGame(sock, sockets);
+                        int recvSize = sock.Receive(message);
+                        server.recvMessageGame(sockets, message, recvSize);
 
                     }
                 }

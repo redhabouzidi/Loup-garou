@@ -209,7 +209,10 @@ namespace Server
             return client.Send(message, message.Length, SocketFlags.None);
 
         }
-
+        public static int sendMessage(Socket client, byte[] message, int recvSize)
+        {
+            return client.Send(message, recvSize, SocketFlags.None);
+        }
         //fonction qui renvoie le nombre de caractere total dans un tableau de chaine de caractere
         public static int getStringLength(string[] tab)
         {
@@ -559,20 +562,19 @@ namespace Server
             return sendMessage(client, message);
         }
 
-        public static answer recvMessageGame(Socket client, List<Socket> list)
+        public static answer recvMessageGame(List<Socket> list, byte[] message, int receivedBytes)
         {
-            byte[] message = new byte[2048];
             int[] size = new int[1];
             string chat;
             int idPlayer, vote, idUser;
-            int receivedBytes = client.Receive(message);
             switch (message[0])
             {
                 case 0://chat message
+                    Console.WriteLine("chat marche");
                     size[0] = 1;
                     foreach (Socket s in list)
                     {
-                        sendMessage(s, message);
+                        sendMessage(s, message, receivedBytes);
                     }
                     break;
                 case 1://voter
@@ -612,12 +614,6 @@ namespace Server
             int idPlayer, vote;
             switch (message[0])
             {
-                case 0://chat message
-                    foreach (Socket s in connected)
-                    {
-                        sendMessage(s, message);
-                    }
-                    break;
 
                 case 3:
                     size[0] = 1;
@@ -805,9 +801,9 @@ namespace Server
             message[0] = 8;
             int[] size = new int[1] { 1 };
             encode(message, id, size);
-
+            Console.WriteLine("information envoyé a la sorciere");
             return sendMessage(client, message);
-            
+
         }
         public static int sendTurn(Socket client, int roleId)
         {
@@ -817,7 +813,7 @@ namespace Server
             encode(message, roleId, size);
             return sendMessage(client, message);
 
-            
+
         }
         public static int sendTime(Socket client, int time)
         {
@@ -827,7 +823,7 @@ namespace Server
             encode(message, time, size);
             return sendMessage(client, message);
 
-            
+
         }
         // public (int, int) gameVote(List<Joueur> listJoueurs)
         // {

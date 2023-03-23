@@ -17,7 +17,7 @@ public class Voyante : Role
         {
             server.sendTurn(j.GetSocket(), GetIdRole());
         }
-        
+
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -73,6 +73,10 @@ public class Voyante : Role
                         {
                             firstTime = false;
                             LaunchThread2 = true;
+                            foreach (Joueur j in listJoueurs)
+                            {
+                                server.sendTime(j.GetSocket(), GetDelaiAlarme() / 4);
+                            }
                             Task.Run(() =>
                             {
                                 Thread.Sleep(GetDelaiAlarme() * 250);

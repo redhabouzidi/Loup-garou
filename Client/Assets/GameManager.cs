@@ -137,9 +137,14 @@ public class GameManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                SendMessageToChat(p.GetPseudo() + ": " + inputChat.text.ToString(), Message.MsgType.player);
-                inputChat.text = "";
-                inputChat.ActivateInputField();
+                
+                if (inputChat.text != "")
+                {
+                    string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+                    NetworkManager.sendchatMessage(NetworkManager.client, msg);
+                    inputChat.text = "";
+                    inputChat.ActivateInputField();
+                }
             }
         }
         if (gameover)
@@ -157,10 +162,10 @@ public class GameManager : MonoBehaviour
                     SendMessageToChat("C'est le tour du village", Message.MsgType.system);
                     break;
                 case 2:
-                    SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
+                    SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
                     break;
                 case 3:
-                    SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
+                    SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
                     break;
                 case 4:
                     SendMessageToChat("C'est le tour du Loup", Message.MsgType.system);
@@ -175,16 +180,15 @@ public class GameManager : MonoBehaviour
         AfficherJour();
         AfficheTimer();
         Timer_text_screen();
-        MiseAJourAffichage();
+        
     }
 
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")
         {
-            string msg =/*p.GetPseudo()+": "+*/inputChat.text.ToString();
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
             NetworkManager.sendchatMessage(NetworkManager.client, msg);
-            // SendMessageToChat(msg, Message.MsgType.player);
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
@@ -239,6 +243,11 @@ public class GameManager : MonoBehaviour
     }
 
     public void AfficheTimer(){
+        if (NetworkManager.time != 0)
+        {
+            value_timer = NetworkManager.time;
+            NetworkManager.time = 0;
+        }
         if (value_timer > 0)
         {
             value_timer -= Time.deltaTime; 
@@ -340,8 +349,10 @@ public class GameManager : MonoBehaviour
 
     public void AfficheCard()
     {
+        Debug.Log("nbp="+nbPlayer);
         for (int i = 0; i < nbPlayer; i++)
         {
+            Debug.Log("i=    " + i);
             AjoutCarte(i);
         }
 
@@ -438,6 +449,7 @@ public class GameManager : MonoBehaviour
 
     public void MiseAJourCarte(int indice)
     {
+
         Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
 
         TextMeshProUGUI text = listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();

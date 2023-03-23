@@ -139,7 +139,7 @@ public class Game
             {
                 Console.WriteLine(_joueurs[i].GetPseudo() + " a comme rôle : " + _joueurs[i].GetRole() +
                                   " status enVie : " + _joueurs[i].GetEnVie() + " status doitMourir : " +
-                                  _joueurs[i].GetDoitMourir());
+                                  _joueurs[i].GetDoitMourir() + " et possède l'id : " + _joueurs[i].GetId());
                 if (_joueurs[i].GetAmoureux() is not null)
                 {
                     Console.WriteLine("\t en + ce mec est amoureux !");
@@ -165,6 +165,7 @@ public class Game
             }
         }
         Console.WriteLine("La game est finie");
+        server.games.Add(0, new Game());
         // ICI : check la valeur de checkWin si on veut envoyer qui a gagné
     }
 

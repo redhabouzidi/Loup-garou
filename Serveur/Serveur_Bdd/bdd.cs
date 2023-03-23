@@ -9,7 +9,7 @@ using MySql.Data.MySqlClient;
 public class bdd
 {
     public static int id = 0;
-    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='admin';Pooling=true;charset='utf8'");
+    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
         return client.Send(message, message.Length, SocketFlags.None);
@@ -82,10 +82,10 @@ public class bdd
         byte[] message = new byte[4096];
         while (true)
         {
+
+            bdd.Poll(-1, SelectMode.SelectRead);
             if (bdd.Available != 0)
             {
-                server.Add(bdd);
-                Socket.Select(server, null, null, -1);
                 int val = bdd.Receive(message);
 
                 switch (message[0])
@@ -108,13 +108,18 @@ public class bdd
 
                 }
             }
+            else
+            {
+                bdd.Close();
+                break;
+            }
         }
 
     }
 
     public static Socket setupSocketServer()
     {
-        string ia = "127.0.0.1";
+        string ia = "192.168.100.116";
         IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10001);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         client.Connect(iep);

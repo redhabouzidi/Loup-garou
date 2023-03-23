@@ -25,6 +25,7 @@ public abstract class Role
         List<Socket> sockets = new List<Socket>(), read = new List<Socket>();
         Console.WriteLine("vote");
         sockets.Add(reveille);
+        Console.WriteLine("ici c'est 1");
         foreach (Joueur j in listJoueurs)
         {
             sockets.Add(j.GetSocket());
@@ -40,6 +41,7 @@ public abstract class Role
             }
 
         }
+        Console.WriteLine("ici c'est 2");
         while (true)
         {
             foreach (Socket socket in sockets)
@@ -47,9 +49,11 @@ public abstract class Role
                 read.Add(socket);
             }
             Socket.Select(read, null, null, -1);
+            Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
                 reveille.Receive(new byte[1]);
+                Console.WriteLine("on va sortir");
                 return (-1, -1);
             }
             else
@@ -67,9 +71,11 @@ public abstract class Role
                         }
                         else
                         {
-                            sock.Receive(message);
+                            Console.WriteLine("ici c'est 4");
+                            int recvSize = sock.Receive(message);
                             if (message[0] == 1)
                             {
+                                Console.WriteLine("ici c'est 5");
                                 int idVoter = server.decodeInt(message, size);
                                 int idVoted = server.decodeInt(message, size);
                                 Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
@@ -79,20 +85,22 @@ public abstract class Role
                                 }
 
                             }
-                            else
+                            else if (message[0] == 0)
                             {
-
+                                server.recvMessageGame(sockets, message, recvSize);
                             }
                         }
                     }
                     else
                     {
-                        server.recvMessageGame(sock, sockets);
+                        int recvSize = sock.Receive(message);
+                        server.recvMessageGame(sockets, message, recvSize);
 
                     }
                 }
             }
         }
+        Console.WriteLine("ici c'est la fin de game vote");
         return (-1, -1);
     }
 

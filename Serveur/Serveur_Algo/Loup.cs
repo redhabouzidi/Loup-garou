@@ -44,6 +44,7 @@ public class Loup : Role
         {
             Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
             reduceTimer = true;
+            Console.WriteLine("Je viens de faire 15 secondes d'attente et je check si je relance 5 secondes ou si y'a déjà thread 2 d'envoyé");
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
@@ -80,8 +81,13 @@ public class Loup : Role
                         {
                             firstTime = false;
                             LaunchThread2 = true;
+                            foreach (Joueur j in listJoueurs)
+                            {
+                                server.sendTime(j.GetSocket(), GetDelaiAlarme() / 4);
+                            }
                             Task.Run(() =>
                             {
+
                                 Thread.Sleep(GetDelaiAlarme() * 250);
                                 Console.WriteLine("les deux loups ont votés, ça passe à 5sec d'attente");
                                 vide.Send(new byte[1] { 0 });

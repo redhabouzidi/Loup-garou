@@ -20,7 +20,7 @@ public class Sorciere : Role
 
     public override void Action(List<Joueur> listJoueurs)
     {
-        
+
 
         // écrire l'action de la sorciere
         Console.WriteLine("Appel à la sorcière !");
@@ -57,6 +57,7 @@ public class Sorciere : Role
         {
             if (listJoueurs[i].GetDoitMourir())
             {
+                Console.WriteLine("Le joueur suivant doit mourir : " + listJoueurs[i].GetPseudo());
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
@@ -75,9 +76,8 @@ public class Sorciere : Role
                 vide = Game.listener.Accept();
                 foreach (Joueur j in listJoueurs)
                 {
-                    server.sendTime(j.GetSocket(), GetDelaiAlarme());
+                    server.sendTime(j.GetSocket(), GetDelaiAlarme()*375/1000);
                 }
-                
                 Task t = Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 375);
@@ -138,17 +138,17 @@ public class Sorciere : Role
         vide = Game.listener.Accept();
         foreach (Joueur j in listJoueurs)
         {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
+            server.sendTime(j.GetSocket(), GetDelaiAlarme()*375/1000);
         }
-        
-        
+
+
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 375);
             vide.Send(new byte[1] { 0 });
             boucle = false;
         });
-        
+
         int v, c;
         Console.WriteLine("La sorcière souhaite-elle utiliser sa potion de kill ?");
         while (boucle)
@@ -177,7 +177,10 @@ public class Sorciere : Role
             bool boucleKill = true;
             bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
             Joueur? cible = null;
-            
+            foreach(Joueur j in listJoueurs)
+            {
+                    server.sendTime(j.GetSocket(),GetDelaiAlarme()/2);
+            }
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
@@ -207,11 +210,15 @@ public class Sorciere : Role
                     {
                         cible.SetDoitMourir(true);
                     }
-                    
+
                     if (!reduceTimer && firstTime)
                     {
                         firstTime = false;
                         LaunchThread2 = true;
+                        foreach(Joueur j in listJoueurs)
+                        {
+                                server.sendTime(j.GetSocket(),GetDelaiAlarme()/8);
+                        }
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 125);
@@ -221,7 +228,7 @@ public class Sorciere : Role
                         });
                     }
 
-                    
+
                 }
             }
 
@@ -231,7 +238,7 @@ public class Sorciere : Role
             }
         }
 
-        
+
     }
 
     public override int GetIdRole()

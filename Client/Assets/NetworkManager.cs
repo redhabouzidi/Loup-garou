@@ -72,7 +72,15 @@ public class NetworkManager : MonoBehaviour
 
         while (rep.Count != 0)
         {
+            if (rep[0] == null)
+            {
+                rep.RemoveAt(0 );
+                GameManagerApp.exitGame();
+            }
+            else
+            {
             treatMessage(rep[0]);
+            }
         }
 
     }
@@ -175,6 +183,7 @@ public class NetworkManager : MonoBehaviour
         {
             recvMessage(client);
         }
+        
         client.Close();
     }
 
@@ -316,27 +325,27 @@ public class NetworkManager : MonoBehaviour
         int recvSize;
         server.Poll(-1, SelectMode.SelectRead);
         if(server.Available ==0){
-                    prog=false;
-                    return;
+            prog=false;
+            rep.Add(null);
+            return;
         }
         recvSize = server.Receive(message);
         Debug.Log("recv =" + message[0]);
         byte[] newMessage=new byte[recvSize];
         Array.Copy(message, 0, newMessage, 0,recvSize);
         rep.Add(newMessage);
-            return;
+        return;
             
     }
     public static void treatMessage(byte[] message)
     {
-        
+        Debug.Log(message==null);
         Dictionary<int, int> dictJoueur;
         bool read=true;
         int[] idPlayers,ids,roles,nbPlayers,gameId;
         string[] playerNames,gameName;
         int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP;
         string name,usernameP;
-        
         while(read)
         {
             Debug.Log("code == " + message[0]);
@@ -411,6 +420,7 @@ public class NetworkManager : MonoBehaviour
                         }
                         Debug.Log(p.GetIsAlive());
                     }
+                    gm.MiseAJourAffichage();
                     break;
                 case 11:
                     tour = decode(message, size);
@@ -418,7 +428,7 @@ public class NetworkManager : MonoBehaviour
                     
                     break;
                 case 12:
-                    gm.value_timer = decode(message,size);
+                    time = decode(message,size);
                     break;
                 case 101:
                     sp.SetActive(false);
