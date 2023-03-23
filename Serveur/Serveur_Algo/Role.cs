@@ -8,7 +8,7 @@ public abstract class Role
     protected string? description;
     protected int IdRole;
     // on définit de manière arbitraire 20 secondes pour jouer à chaque rôle
-    private const int delaiAlarme = 1000;
+    private const int delaiAlarme = 20;
 
     public override string ToString()
     {
