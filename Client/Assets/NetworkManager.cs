@@ -380,10 +380,7 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 9:
                     val = decode(message, size);
-                    if (val == 5)
-                    {
-                        gm.affiche_choix_action("Potion de mort");
-                    }
+
                     ids = new int[val];
                     for (int i = 0; i < val; i++)
                     {
@@ -424,7 +421,11 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     tour = decode(message, size);
-                    
+                    if (tour==5 && gm.p.GetRoleId() == 5)
+                    {
+                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
+                        gm.affiche_choix_action("Veux tu tuer une personne?");
+                    }
                     
                     break;
                 case 12:

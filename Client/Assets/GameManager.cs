@@ -10,7 +10,7 @@ using System;
 public class GameManager : MonoBehaviour
 {
     // joueur
-    private Player p;
+    public Player p;
 
     // jeu
     private int nbPlayer = NetworkManager.nbplayeres;
