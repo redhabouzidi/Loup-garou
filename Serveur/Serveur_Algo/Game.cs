@@ -13,7 +13,7 @@ public class Game
 
     public Game()
     {
-        _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
+        _nbrJoueursManquants = 5; // A ENLEVER PLUS TARD "=6"
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
@@ -21,7 +21,10 @@ public class Game
         Role[] startingRoles = new Role[]
         {
             new Loup(),
-            new Sorciere()
+            new Sorciere(),
+	    new Voyante(),
+	    new Villageois(),
+	    new Villageois()
         };
 
         foreach (Role role in startingRoles)
@@ -165,7 +168,6 @@ public class Game
             }
         }
         Console.WriteLine("La game est finie");
-        server.games.Add(0, new Game());
         // ICI : check la valeur de checkWin si on veut envoyer qui a gagné
     }
 
@@ -257,10 +259,11 @@ public class Game
             (v, c) = Role.gameVote(listJoueurs, 1, reveille);
             if (v != -1)
             {
+		    Console.WriteLine(v+" a vote pour "+c);
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
                 if (player != null)
                 {
-                    if (player.GetRole() is not Loup && player.GetEnVie())
+                    if (player.GetEnVie())
                     {
                         index = votant.IndexOf(v);
                         cible[index] = c;

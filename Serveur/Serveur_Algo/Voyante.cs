@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using Server;
 namespace LGproject;
 
@@ -12,7 +12,7 @@ public class Voyante : Role
     }
 
     public override void Action(List<Joueur> listJoueurs)
-    { // écrire l'action de la Voyante
+    { // Ã©crire l'action de la Voyante
         foreach (Joueur j in listJoueurs)
         {
             server.sendTurn(j.GetSocket(), GetIdRole());
@@ -23,21 +23,15 @@ public class Voyante : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         foreach (Joueur j in listJoueurs)
         {
             server.sendTime(j.GetSocket(), GetDelaiAlarme());
         }
         Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
-            reduceTimer = true;
-            if (reduceTimer && !LaunchThread2)
-            {
-                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
-                boucle = false;
-            }
+            Thread.Sleep(GetDelaiAlarme() * 1000); // 20 secondes
+            vide.Send(new byte[1] { 0 });
+            boucle = false;
         });
 
         Joueur JoueurVoyante = null;
@@ -69,22 +63,7 @@ public class Voyante : Role
                         // envoyer l'information JoueuraVoircarte sur la Socket de la voyante
                         server.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
 
-                        if (!reduceTimer && firstTime)
-                        {
-                            firstTime = false;
-                            LaunchThread2 = true;
-                            foreach (Joueur j in listJoueurs)
-                            {
-                                server.sendTime(j.GetSocket(), GetDelaiAlarme() / 4);
-                            }
-                            Task.Run(() =>
-                            {
-                                Thread.Sleep(GetDelaiAlarme() * 250);
-                                Console.WriteLine("la voyante a voté, ça passe à 5sec d'attente");
-                                vide.Send(new byte[1] { 0 });
-                                boucle = false;
-                            });
-                        }
+                        boucle = false;
                     }
                 }
             }

@@ -33,6 +33,7 @@ public class Joueur
     public void TuerJoueur(List<Joueur> ListJoueurs)
     {
         enVie = false;
+	doitMourir = false;
         foreach (Joueur p in ListJoueurs)
         {
             server.annonceMort(p.GetSocket(), GetId(), GetRole().GetIdRole());
