@@ -269,7 +269,7 @@ public class Game
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
                 if (player != null)
                 {
-                    if (player.GetRole() is not Loup && player.GetEnVie())
+                    if (player.GetEnVie())
                     {
                         index = votant.IndexOf(v);
                         cible[index] = c;
