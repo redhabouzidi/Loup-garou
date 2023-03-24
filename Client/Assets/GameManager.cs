@@ -429,7 +429,7 @@ public class GameManager : MonoBehaviour
             if(selectedId != -1){
                 SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
-                Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
+                Debug.Log($"joueur {NetworkManager. id} vote pour {listPlayer[selectedId].GetId()}");
             } else{
                 SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
             } 

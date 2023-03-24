@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=2,time;
+    public static int nbplayeres=5,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
