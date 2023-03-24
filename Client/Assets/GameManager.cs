@@ -475,25 +475,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Change_text_screen(string msg) {
-        timer_text_screen = 2;
-        text_screen.text = msg;
-        text_screen_active = true;
-    }
-
-    public void Timer_text_screen(){
-        if(text_screen_active){
-            if(timer_text_screen > 0){
-                timer_text_screen -= Time.deltaTime;
-            }
-            else{
-                text_screen.text = "";
-                panel_text_screen.SetActive(false);
-                text_screen_active = false;
-            }
-        }
-    }
-
     public void AfficheVoyante() {
         int selectedId = GetIndiceToggleOn();
         if(player_role.text == "Voyante" && isNight) {
@@ -526,6 +507,26 @@ public class GameManager : MonoBehaviour
         }
         return -1;
     }
+
+    public void Change_text_screen(string msg) {
+        timer_text_screen = 2;
+        text_screen.text = msg;
+        text_screen_active = true;
+    }
+
+    public void Timer_text_screen(){
+        if(text_screen_active){
+            if(timer_text_screen > 0){
+                timer_text_screen -= Time.deltaTime;
+            }
+            else{
+                text_screen.text = "";
+                panel_text_screen.SetActive(false);
+                text_screen_active = false;
+            }
+        }
+    }
+
     public void affiche_text_role(int id, int idrole)
     {
         GO_buttonAfficheCarte.SetActive(false);

@@ -33,12 +33,7 @@ public class GameManagerApp : MonoBehaviour
             // Quit the game
         }
     }
-
-    private void OnApplicationQuitting()
-    {
-        
-    }
-
+    
     public static void exitGame(){
         NetworkManager.prog=false;
         #if UNITY_EDITOR
