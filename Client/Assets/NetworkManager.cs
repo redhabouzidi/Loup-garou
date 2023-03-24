@@ -367,7 +367,26 @@ public class NetworkManager : MonoBehaviour
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
-                    Console.WriteLine("vous etes amoureux avec {0} et son role est {1}", idPlayer, idp);
+                    string msg = "vous etes amoureux avec {0} et son role est {1}" + idPlayer + " et son role est " ;
+                    switch (idp)
+                    {
+                        case 1:
+                            msg+="Villageois";
+                            break;
+                        case 2:
+                            msg+="Cupidon";
+                            break;
+                        case 3:
+                            msg+="Voyante";
+                            break;
+                        case 4:
+                            msg+="Loup-garou";
+                            break;
+                        case 5:
+                            msg+="Sorciere";
+                            break;
+                    }
+                    gm.SendMessageToChat(msg,Message.MsgType.player);
                     break;
                 case 7:
                     idPlayer = decode(message, size);
@@ -421,6 +440,10 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     tour = decode(message, size);
+                    if (tour==2 && gm.p.GetRoleId() == 2)
+                    {
+                        gm.actionCupidon();
+                    }
                     if (tour==5 && gm.p.GetRoleId() == 5)
                     {
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
