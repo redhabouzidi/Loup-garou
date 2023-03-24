@@ -76,31 +76,7 @@ namespace Server
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
             Queue queue = new Queue();
-            var inputTask = Task.Run(() =>
-            {
-
-                while (reading)
-                {
-
-                    byte[] messageBytesAsync;
-                    string messageAsync = Console.ReadLine();
-                    int[] idPlayers = new int[5] { 1, 2, 3, 4, 5 };
-                    int[] nbPlayers = new int[5] { 4, 5, 3, 9, 8 };
-                    int[] gameId = new int[5] { 1, 2, 3, 4, 5 };
-                    string[] name = new string[5] { "artorias", "heaven", "casablanca", "tartarus", "asgard" };
-                    //SendAccountInfo(server, true, 5, "rocky");
-                    //sendChatMessage(list, "azul fellawen");
-                    //sendVote(clients, 4, 2);
-                    //sendEndState(list, idPlayers, idPlayers);
-                    foreach (Socket s in clients)
-                    {
-                        Console.WriteLine(s.RemoteEndPoint);
-                        SendCurrentGame(s, nbPlayers, gameId, name);
-
-                    }
-                }
-            });
-            int i = 0;
+	    int i=0;
             while (a)
             {
 
@@ -162,8 +138,7 @@ namespace Server
                         recvMessage(fd, bdd, list, connected, queue);
                     }
                 }
-            }
-            inputTask.Dispose();
+	    }
 
 
         }
@@ -206,11 +181,13 @@ namespace Server
         //fonction qui envoie un message a un socket donne en parametre
         public static int sendMessage(Socket client, byte[] message)
         {
+		Console.WriteLine("Message[0]="+message[0]);
             return client.Send(message, message.Length, SocketFlags.None);
 
         }
 	public static int sendMessage(Socket client,byte [] message , int recvSize)
 	{
+		Console.WriteLine("Message[0]="+message[0]);
 		return client.Send(message,recvSize,SocketFlags.None);
 	}
         //fonction qui renvoie le nombre de caractere total dans un tableau de chaine de caractere
