@@ -177,10 +177,11 @@ public class GameManager : MonoBehaviour
             }
             NetworkManager.tour = 0;
         }
-        AfficherJour();
+        
         AfficheTimer();
         Timer_text_screen();
-        
+        AfficherJour();
+
     }
 
     private void OnButtonClickSendMsg()
