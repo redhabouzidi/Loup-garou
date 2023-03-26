@@ -436,9 +436,15 @@ public class NetworkManager : MonoBehaviour
                     {
                         if (p.GetId() == val)
                         {
+                            if (p.GetId() == gm.p.GetId())
+                            {
+                                Debug.Log("mort");
+                                gm.p.SetIsAlive(false);
+                            }
                             p.SetRole(role);
                             p.SetIsAlive(false);
                         }
+                        
                         Debug.Log(p.GetIsAlive());
                     }
                     gm.MiseAJourAffichage();
@@ -550,8 +556,15 @@ public class NetworkManager : MonoBehaviour
                     {
                         roles[i] = decode(message, size);
                     }
+                    if (win == 1)
+                    {
+                        gm.isVillageWin = true;
+                    }else if(win == 2)
+                    {
+                        gm.isVillageWin = false;
+                    }
                     gm.gameover = true;
-                    gm.isVillageWin = true;
+                    
                     break;
 
                 default:
