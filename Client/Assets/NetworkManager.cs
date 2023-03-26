@@ -445,6 +445,7 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     tour = decode(message, size);
+                    gm.choixAction.SetActive(false);
                     if (tour==2 && gm.p.GetRoleId() == 2)
                     {
                         gm.actionCupidon();
@@ -454,6 +455,10 @@ public class NetworkManager : MonoBehaviour
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
                         gm.affiche_choix_action("Veux tu tuer une personne?");
                     }
+                    /*
+                    if(tour!=5){
+                        gm.choixAction.SetActive(false);
+                    }*/
                     
                     break;
                 case 12:
