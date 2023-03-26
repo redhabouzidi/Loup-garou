@@ -41,7 +41,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI groupWin;
 
     public GameObject gamePage, winScreenPage;
-
+    //Cupidon
+    int lover1_id=-1;
+    int lover2_id=-1;
 
     // variable pour le chat
     private int maxMsg = 50;
@@ -184,6 +186,7 @@ public class GameManager : MonoBehaviour
         Timer_text_screen();
         AfficherJour();
         LITTERALLYDIE();
+        AfficheAmoureux();
     }
 
     private void OnButtonClickSendMsg()
@@ -295,7 +298,20 @@ public class GameManager : MonoBehaviour
         }
 
     }
-
+    public void AfficheAmoureux(){
+        if(lover1_id==-1||lover2_id==-1)return;
+        if(p.GetRole()=="Cupidon"||p.GetId()==lover1_id||p.GetId()==lover2_id){
+            GameObject[]  textpseudos= GameObject.FindGameObjectsWithTag("Pseudos");
+            foreach(GameObject go in textpseudos){
+                TextMeshProUGUI texto = go.GetComponent<TextMeshProUGUI>();
+                if(texto!=null){
+                    if(texto.text==listPlayer[lover1_id].GetPseudo()||texto.text==listPlayer[lover2_id].GetPseudo()){
+                        texto.color=Color.magenta;
+                        };
+                }
+            }
+        }
+    }
 
     public void SendMessageToChat(string text, Message.MsgType type)
     {
@@ -345,6 +361,7 @@ public class GameManager : MonoBehaviour
         Toggle toggleCard = newCard.transform.Find("Toggle-Card").GetComponent<Toggle>();
         toggleCard.onValueChanged.AddListener(delegate {OnToggleValueChanged(toggleCard);});
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        text.tag="Pseudos";
         text.text = listPlayer[id].GetPseudo();
 
         listCard.Add(newCard);
@@ -406,12 +423,14 @@ public class GameManager : MonoBehaviour
         if (indice1 != -1){
             listCard[indice1].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
             id1 = listPlayer[indice1].GetId();
+            lover1_id=indice1;
         }
 
         indice2 = GetIndiceToggleOn();
         if (indice2 != -1){
             id2 = listPlayer[indice2].GetId();
             msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
+            lover2_id=indice2;
             SendMessageToChat(msg, Message.MsgType.system);
             NetworkManager.ChooseLovers(NetworkManager.client, NetworkManager.id, id1, id2);
 
