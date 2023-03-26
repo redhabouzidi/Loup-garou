@@ -372,6 +372,8 @@ public class NetworkManager : MonoBehaviour
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
+                    gm.lover1_id = gm.p.GetId();
+                    gm.lover2_id = idp;
                     string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
                     switch (idp)
                     {

@@ -42,8 +42,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject gamePage, winScreenPage;
     //Cupidon
-    int lover1_id=-1;
-    int lover2_id=-1;
+    public int lover1_id=-1;
+    public int lover2_id=-1;
 
     // variable pour le chat
     private int maxMsg = 50;
@@ -283,6 +283,7 @@ public class GameManager : MonoBehaviour
 
     public void AfficheWinScreen()
     {
+        GO_dead_bg.SetActive(false);
         foreach (TextMeshProUGUI text in listTextwin)
         {
             Destroy(text.gameObject);

@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 856923600238024090}
   m_Layer: 5
   m_Name: Text-Card
-  m_TagString: Untagged
+  m_TagString: Pseudos
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
