@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=2,time;
+    public static int nbplayeres=3,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -352,7 +352,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(BitConverter.ToString(message));
         while (read)
         {
-            Debug.Log("code == " + message[0]);
+            Debug.Log("code == " + message[size[0]]);
 
             switch (message[size[0]++])
             {
