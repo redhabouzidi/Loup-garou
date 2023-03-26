@@ -2032,7 +2032,7 @@ MonoBehaviour:
   listCard: []
   cardContainer: {fileID: 1016397993}
   cardComponent: {fileID: 2351142076144636269, guid: d2a06c63f6b23bc4aacda8584d2e1a91, type: 3}
-  GO_dead_bg: {fileID: 0}
+  GO_dead_bg: {fileID: 1061884524}
   timer: {fileID: 1096054381}
   value_timer: 15
   colorRed: {r: 0.44705883, g: 0, b: 0, a: 1}
