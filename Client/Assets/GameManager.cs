@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
-    public GameObject cardContainer, cardComponent;
+    public GameObject cardContainer, cardComponent, GO_dead_bg;
     public static bool isNight = true;
     private int tour = 0;
     public TextMeshProUGUI timer;
@@ -60,6 +60,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Image dead_bg = GO_dead_bg.GetComponent<Image>();
+        dead_bg.enabled = false;
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
         Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
         Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
@@ -181,7 +183,7 @@ public class GameManager : MonoBehaviour
         AfficheTimer();
         Timer_text_screen();
         AfficherJour();
-
+        LITTERALLYDIE();
     }
 
     private void OnButtonClickSendMsg()
@@ -561,7 +563,14 @@ public class GameManager : MonoBehaviour
         }
         return role;
     }
+
+    public void LITTERALLYDIE() {
+        Image dead_bg = GO_dead_bg.GetComponent<Image>();
+        if(p.GetIsAlive() == false) dead_bg.enabled = true;
+    }
 }
+
+
 
 [System.Serializable]
 public class Message
