@@ -104,12 +104,12 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case 4:
-                    listPlayer.Add(new Player(p.GetUsername(), "Loup-Garou", 4, p.GetId(), true));
+                    listPlayer.Add(new Player(p.GetUsername(), "Loup-garou", 4, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p=new Player(p.GetUsername(), "Loup-Garou", p.GetRole(), p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Loup-garou", p.GetRole(), p.GetId(), true);
 
-                        player_role.text = "Loup-Garou";
+                        player_role.text = "Loup-garou";
                     }
                     break;
                 case 5:
@@ -264,8 +264,10 @@ public class GameManager : MonoBehaviour
         GameObject newPlayer = Instantiate(textWinPlayer, panel.transform);
         newText = newPlayer.GetComponent<TextMeshProUGUI>();
         newText.text = listPlayer[num].GetPseudo() + ": " + listPlayer[num].GetRole();
+        Debug.Log(listPlayer[num].GetRole());
         if (listPlayer[num].GetRole() == "Loup-garou")
         {
+            
             newText.color = colorRed;
         }
         if (listPlayer[num].GetIsAlive() == false)
@@ -289,6 +291,7 @@ public class GameManager : MonoBehaviour
             groupWin.text = "Loup-garou win";
             groupWin.color = colorRed;
         }
+        
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutTextWin(winPanel, i);
@@ -355,7 +358,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("nbp="+nbPlayer);
         for (int i = 0; i < nbPlayer; i++)
         {
-            Debug.Log("i=    " + i);
             AjoutCarte(i);
         }
 
@@ -565,6 +567,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void LITTERALLYDIE() {
+        Debug.Log("mort fonct");
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         if(p.GetIsAlive() == false) dead_bg.enabled = true;
     }
