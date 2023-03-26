@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=7,time;
+    public static int nbplayeres=6,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -372,7 +372,7 @@ public class NetworkManager : MonoBehaviour
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
-                    string msg = $"vous etes amoureux avec {0} et son role est {1}" + idPlayer + " et son role est " ;
+                    string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
                         case 1:
