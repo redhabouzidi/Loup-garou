@@ -17,9 +17,9 @@ public class GameManager : MonoBehaviour
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
-    public GameObject cardContainer, cardComponent, GO_dead_bg;
+    public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant;
     public static bool isNight = true;
-    private int tour = 0;
+    private int tour = 0; 
     public TextMeshProUGUI timer;
     public float value_timer;
     // timer pour le texte qui s'affiche a l'ecran
@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
     public Color colorRed, colorWhite, colorBlack;
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
+    public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
+
 
     public Button buttonValiderVote;
     public GameObject GO_buttonAfficheCarte;
@@ -186,6 +188,7 @@ public class GameManager : MonoBehaviour
         Timer_text_screen();
         AfficherJour();
         LITTERALLYDIE();
+        listerRoles();
         AfficheAmoureux();
     }
 
@@ -365,9 +368,27 @@ public class GameManager : MonoBehaviour
         Toggle toggleCard = newCard.transform.Find("Toggle-Card").GetComponent<Toggle>();
         toggleCard.onValueChanged.AddListener(delegate {OnToggleValueChanged(toggleCard);});
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
-        text.tag="Pseudos";
+	    text.tag="Pseudos";
+        Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         text.text = listPlayer[id].GetPseudo();
-
+        switch(listPlayer[id].GetRole()) {
+            case "Loup-garou":
+                roleImg.sprite = LoupSprite;
+                break;
+            case "Voyante":
+                roleImg.sprite = VoyanteSprite;
+                break;
+            case "Cupidon":
+                roleImg.sprite = CupidonSprite;
+                break;
+            case "Sorcière":
+                roleImg.sprite = SorciereSprite;
+                break;
+            default:
+                roleImg.sprite = VillageoisSprite;
+                break;
+        }
+        roleImg.enabled = false;
         listCard.Add(newCard);
     }
 
@@ -477,18 +498,35 @@ public class GameManager : MonoBehaviour
     {
 
         Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
+        TextMeshProUGUI text =  listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
+        Image eyeImg = toggleCard.transform.Find("eye").GetComponent<Image>();
+        Image lgIcon = toggleCard.transform.Find("lg-icon").GetComponent<Image>();
 
-        TextMeshProUGUI text = listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        eyeImg.enabled = false;
+        lgIcon.enabled = false;
+
         if (!listPlayer[indice].GetIsAlive())
         {
             text.text = listPlayer[indice].GetPseudo() + " - mort\n" + listPlayer[indice].GetRole();
             text.color = colorRed;
             toggleCard.interactable = false;
+            roleImg.enabled = true;
+
 
             // changer la couleur de la carte
             ColorBlock colors = toggleCard.colors;
             colors.disabledColor = colorBlack;
             toggleCard.colors = colors;
+        }
+
+        if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
+            roleImg.enabled = true;
+            eyeImg.enabled = true;            
+        }
+
+        if(p.GetRole() == "Loup-garou" && listPlayer[indice].GetRole() == "Loup-garou") {
+            lgIcon.enabled = true;
         }
     }
 
@@ -506,7 +544,7 @@ public class GameManager : MonoBehaviour
             if(selectedId != -1 && selectedId < nbPlayer)
             {
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
-
+                listPlayer[selectedId].SetSeen(true);
             }
         } 
     }
@@ -591,6 +629,39 @@ public class GameManager : MonoBehaviour
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         if(p.GetIsAlive() == false) dead_bg.enabled = true;
     }
+
+    public void listerRoles() {
+        List<string> roleList = new List<string>();
+        List<int> nb = new List<int>();
+        List<string> nbRoleList = new List<string>();
+        int count = 0;
+
+        for(int i = 0; i<nbPlayer; i++) {
+            if(!roleList.Contains(listPlayer[i].GetRole()) && listPlayer[i].GetIsAlive()) {
+                roleList.Add(listPlayer[i].GetRole());
+                for(int j = 0; j<nbPlayer; j++) {
+                    if(listPlayer[j].GetRole() == listPlayer[i].GetRole()) count ++;
+                }
+                nb.Add(count);
+                count = 0;
+            }
+        }
+
+
+        //SendMessageToChat("Il y a :", Message.MsgType.system);
+        for(int i = 0; i<roleList.Count; i++) {
+            SendMessageToChat("" + nb[i] + " " + roleList[i], Message.MsgType.system);
+            nbRoleList.Add("" + nb[i] + " " + roleList[i]);
+        }
+        string txt = "";
+        for(int i = 0; i<nbRoleList.Count; i++) {
+            txt += nbRoleList[i];
+            txt += "\n";
+        }
+
+        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.GetComponent<TextMeshProUGUI>();
+        textRolesRestant.text = txt;
+    }
 }
 
 
@@ -619,9 +690,11 @@ public class Player
     private bool isAlive = true;
     private int id;
     private int roleId;
+    private bool seen = false;
+
     public Player() { }
 
-    public Player(string p, string r, int rid, int id, bool alive = true)
+    public Player(string p, string r, int rid, int id, bool alive = true, bool seen = false)
     {
         pseudo = p;
         role = r;
@@ -649,6 +722,12 @@ public class Player
     public int GetId()
     {
         return id;
+    }
+    public bool GetSeen(){
+        return seen;
+    }
+    public void SetSeen(bool s){
+        seen = s;
     }
     public void SetIsAlive(bool alive)
     {
