@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true;
-    private int tour = 0; 
+    private int tour = 1; 
     public TextMeshProUGUI timer;
     public float value_timer;
     // timer pour le texte qui s'affiche a l'ecran
@@ -266,6 +266,7 @@ public class GameManager : MonoBehaviour
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
             player_role.color = colorWhite;
+            tour++;
         }
         else
         {
@@ -484,14 +485,14 @@ public class GameManager : MonoBehaviour
         if (indice1 != -1){
             listCard[indice1].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
             id1 = listPlayer[indice1].GetId();
-            lover1_id=indice1;
+            lover1_id=id1;
         }
 
         indice2 = GetIndiceToggleOn();
         if (indice2 != -1){
             id2 = listPlayer[indice2].GetId();
             msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
-            lover2_id=indice2;
+            lover2_id=id2;
             SendMessageToChat(msg, Message.MsgType.system);
             NetworkManager.ChooseLovers(NetworkManager.client, NetworkManager.id, id1, id2);
 
