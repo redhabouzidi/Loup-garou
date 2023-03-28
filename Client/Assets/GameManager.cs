@@ -11,13 +11,13 @@ public class GameManager : MonoBehaviour
 {
     // joueur
     public Player p;
-
+    bool finished = false;
     // jeu
     private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
-    public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant;
+    public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true;
     private int tour = 0; 
     public TextMeshProUGUI timer;
@@ -127,14 +127,20 @@ public class GameManager : MonoBehaviour
                     break;
             }
         }
-
+        
         AfficherJour();
         AfficheCard();
+        listerRoles();
+        finished = true;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (finished)
+        {
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             LoadScene("jeu");
@@ -162,8 +168,15 @@ public class GameManager : MonoBehaviour
         }
         if (NetworkManager.tour != 0)
         {
+            GO_tourRoles.SetActive(false);
+            choixAction.SetActive(false);
+            if (p.GetRoleId()==tour)
+            {
+                GO_tourRoles.SetActive(false);
+            }
             switch (NetworkManager.tour)
             {
+                
                 case 1:
                     SendMessageToChat("C'est le tour du village", Message.MsgType.system);
                     break;
@@ -178,7 +191,11 @@ public class GameManager : MonoBehaviour
                     break;
                 case 5:
                     SendMessageToChat("C'est le tour de la sorciere", Message.MsgType.system);
-
+                    if (p.GetRoleId() == 5)
+                    {
+                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
+                        affiche_choix_action("Veux tu tuer une personne?");
+                    }
                     break;
             }
             NetworkManager.tour = 0;
@@ -188,8 +205,9 @@ public class GameManager : MonoBehaviour
         Timer_text_screen();
         AfficherJour();
         LITTERALLYDIE();
-        listerRoles();
+        MiseAJourAffichage();
         AfficheAmoureux();
+        }
     }
 
     private void OnButtonClickSendMsg()
@@ -388,7 +406,15 @@ public class GameManager : MonoBehaviour
                 roleImg.sprite = VillageoisSprite;
                 break;
         }
-        roleImg.enabled = false;
+        if (listPlayer[id].GetId() == p.GetId())
+        {
+            roleImg.enabled = true;
+        }
+        else
+        {
+            roleImg.enabled = false;
+        }
+        
         listCard.Add(newCard);
     }
 
@@ -532,7 +558,7 @@ public class GameManager : MonoBehaviour
 
     public void MiseAJourAffichage()
     {
-        for (int i = 0; i < nbPlayer; i++)
+        for (int i = 0; i < listPlayer.Count; i++)
         {
             MiseAJourCarte(i);
         }
@@ -544,7 +570,6 @@ public class GameManager : MonoBehaviour
             if(selectedId != -1 && selectedId < nbPlayer)
             {
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
-                listPlayer[selectedId].SetSeen(true);
             }
         } 
     }
@@ -596,6 +621,7 @@ public class GameManager : MonoBehaviour
         panel_text_screen.SetActive(true);
         int indice = chercheIndiceJoueurId(id);
         string msg = listPlayer[indice].GetPseudo() + " est " + idRoleToStringRole(idrole);
+        listPlayer[indice].SetSeen(true);
         SendMessageToChat(msg, Message.MsgType.system);
         Change_text_screen(msg);
     }
@@ -659,7 +685,9 @@ public class GameManager : MonoBehaviour
             txt += "\n";
         }
 
-        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent <TextMeshProUGUI>();
+        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
+        
         textRolesRestant.text = txt;
     }
 }

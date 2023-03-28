@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=6,time;
+    public static int nbplayeres=3,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -453,20 +453,12 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     tour = decode(message, size);
-                    gm.choixAction.SetActive(false);
+                    
                     if (tour==2 && gm.p.GetRoleId() == 2)
                     {
                         gm.actionCupidon();
                     }
-                    if (tour==5 && gm.p.GetRoleId() == 5)
-                    {
-                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
-                        gm.affiche_choix_action("Veux tu tuer une personne?");
-                    }
-                    /*
-                    if(tour!=5){
-                        gm.choixAction.SetActive(false);
-                    }*/
+                    
                     
                     break;
                 case 12:
