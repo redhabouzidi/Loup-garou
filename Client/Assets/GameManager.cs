@@ -138,7 +138,8 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (finished)
+
+        if(finished)
         {
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -169,28 +170,23 @@ public class GameManager : MonoBehaviour
         if (NetworkManager.tour != 0)
         {
             GO_tourRoles.SetActive(false);
-            choixAction.SetActive(false);
-            if (p.GetRoleId()==tour)
-            {
-                GO_tourRoles.SetActive(false);
-            }
             switch (NetworkManager.tour)
             {
                 
                 case 1:
-                    SendMessageToChat("C'est le tour du village", Message.MsgType.system);
+                    affiche_tour_role("C'est le tour du village",NetworkManager.tour);
                     break;
                 case 2:
-                    SendMessageToChat("C'est le tour du Cupidon", Message.MsgType.system);
+                    affiche_tour_role("C'est le tour du Cupidon", NetworkManager.tour);
                     break;
                 case 3:
-                    SendMessageToChat("C'est le tour du Voyante", Message.MsgType.system);
+                    affiche_tour_role("C'est le tour du Voyante", NetworkManager.tour);
                     break;
                 case 4:
-                    SendMessageToChat("C'est le tour du Loup", Message.MsgType.system);
+                    affiche_tour_role("C'est le tour du loup", NetworkManager.tour);
                     break;
                 case 5:
-                    SendMessageToChat("C'est le tour de la sorciere", Message.MsgType.system);
+                    affiche_tour_role("C'est le tour de la sorciere", NetworkManager.tour);
                     if (p.GetRoleId() == 5)
                     {
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
@@ -198,6 +194,7 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
+            
             NetworkManager.tour = 0;
         }
         
@@ -208,6 +205,7 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
         AfficheAmoureux();
         }
+
     }
 
     private void OnButtonClickSendMsg()
@@ -247,11 +245,24 @@ public class GameManager : MonoBehaviour
         // envoyer au serveur OUI
     }
 
-
+    public void affiche_tour_role(string msg,int tour)
+    {
+        if (p.GetRoleId() != tour && tour!= 1)
+        {
+            GO_tourRoles.SetActive(true);
+        }
+        
+        SendMessageToChat(msg, Message.MsgType.system);
+        TextMeshProUGUI text_role = GO_tourRoles.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+        text_role.text = msg;
+    }
     public void AfficherJour()
     {
+        
         if (isNight == false)
         {
+            Debug.Log("choixAction");
+            choixAction.SetActive(false);
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
             player_role.color = colorWhite;
