@@ -271,39 +271,35 @@ public class Game
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
-                if (player != null)
+                if (player != null && player.GetEnVie() && player.GetId() != v)
                 {
-                    if (player.GetEnVie())
+                    index = votant.IndexOf(v);
+                    cible[index] = c;
+
+                    bool allVote = true;
+                    for (int i = 0; i < cible.Count; i++)
                     {
-                        index = votant.IndexOf(v);
-                        cible[index] = c;
-
-                        bool allVote = true;
-                        for (int i = 0; i < cible.Count; i++)
+                        if (cible[i] == -1)
                         {
-                            if (cible[i] == -1)
-                            {
-                                allVote = false;
-                            }
+                            allVote = false;
                         }
+                    }
 
-                        if (allVote && !reduceTimer && firstTime)
+                    if (allVote && !reduceTimer && firstTime)
+                    {
+                        firstTime = false;
+                        LaunchThread2 = true;
+                        foreach (Joueur j in listJoueurs)
                         {
-                            firstTime = false;
-                            LaunchThread2 = true;
-                            foreach (Joueur j in listJoueurs)
-                            {
-                                server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() / 2);
-                            }
-                            Task.Run(() =>
-                            {
-                                Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
-                                Console.WriteLine("tout le monde a voté, ça passe à 10sec d'attente");
-                                vide.Send(new byte[1] { 0 });
-                                boucle = false;
-                            });
+                            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() / 2);
                         }
-
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
+                            Console.WriteLine("tout le monde a voté, ça passe à 10sec d'attente");
+                            vide.Send(new byte[1] { 0 });
+                            boucle = false;
+                        });
                     }
                 }
             }
