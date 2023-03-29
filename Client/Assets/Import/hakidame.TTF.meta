@@ -1,2 +1,22 @@
 fileFormatVersion: 2
 guid: 885817cdbd537cf4d92519e7238c0765
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - hakidame
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: e469682bce3e31640a67e4e89cf9a9a4, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

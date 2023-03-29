@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=5,time;
+    public static int nbplayeres=2,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -241,6 +241,7 @@ public class NetworkManager : MonoBehaviour
     public static string decodeString(byte[] message, int[] size)
     {
         int dataSize = decode(message, size);
+        Debug.Log("data =" + dataSize);
         string name = Encoding.ASCII.GetString(message, size[0], dataSize);
         size[0] += dataSize;
 
@@ -344,13 +345,16 @@ public class NetworkManager : MonoBehaviour
         bool read=true;
         int[] idPlayers,ids,roles,nbPlayers,gameId;
         string[] playerNames,gameName;
-        int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP;
+        int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP,win;
         string name,usernameP;
-        while(read)
+        int[] size = new int[1] { 0 };
+        string result="";
+        Debug.Log(BitConverter.ToString(message));
+        while (read)
         {
-            Debug.Log("code == " + message[0]);
-            int[] size = new int[1] { 1 };
-            switch (message[0])
+            Debug.Log("code == " + message[size[0]]);
+
+            switch (message[size[0]++])
             {
                 case 0:
                     Debug.Log("I'm here");
@@ -362,12 +366,15 @@ public class NetworkManager : MonoBehaviour
                     vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
                     break;
                 case 5:
-                    GameManager.isNight = !decodeBool(message, size);
+                    bool ra=decodeBool(message, size);
+                    GameManager.isNight = !ra;
                     break;
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
-                    string msg = "vous etes amoureux avec {0} et son role est {1}" + idPlayer + " et son role est " ;
+                    gm.lover1_id = gm.p.GetId();
+                    gm.lover2_id = idPlayer;
+                    string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
                         case 1:
@@ -386,7 +393,7 @@ public class NetworkManager : MonoBehaviour
                             msg+="Sorciere";
                             break;
                     }
-                    gm.SendMessageToChat(msg,Message.MsgType.player);
+                    gm.SendMessageToChat(msg,Message.MsgType.system);
                     break;
                 case 7:
                     idPlayer = decode(message, size);
@@ -431,28 +438,33 @@ public class NetworkManager : MonoBehaviour
                     {
                         if (p.GetId() == val)
                         {
+                            if (p.GetId() == gm.p.GetId())
+                            {
+                                Debug.Log("mort");
+                                gm.p.SetIsAlive(false);
+                            }
                             p.SetRole(role);
                             p.SetIsAlive(false);
                         }
+                        
                         Debug.Log(p.GetIsAlive());
                     }
                     gm.MiseAJourAffichage();
                     break;
                 case 11:
                     tour = decode(message, size);
+                    
                     if (tour==2 && gm.p.GetRoleId() == 2)
                     {
                         gm.actionCupidon();
                     }
-                    if (tour==5 && gm.p.GetRoleId() == 5)
-                    {
-                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
-                        gm.affiche_choix_action("Veux tu tuer une personne?");
-                    }
+                    
                     
                     break;
                 case 12:
+                    
                     time = decode(message,size);
+                    Debug.Log("time=" + time);
                     break;
                 case 101:
                     sp.SetActive(false);
@@ -521,11 +533,11 @@ public class NetworkManager : MonoBehaviour
                     {
                         decode(message, size);
                         decodeString(message, size);
-                        LoadScene("jeu");
                     }
                     
                     break;
                 case 110:
+                    win = decode(message, size);
                     dataSize = decode(message, size);
                     idPlayers = new int[dataSize];
                     for (int i = 0; i < dataSize; i++)
@@ -538,6 +550,15 @@ public class NetworkManager : MonoBehaviour
                     {
                         roles[i] = decode(message, size);
                     }
+                    if (win == 1)
+                    {
+                        gm.isVillageWin = true;
+                    }else if(win == 2)
+                    {
+                        gm.isVillageWin = false;
+                    }
+                    gm.gameover = true;
+                    
                     break;
 
                 default:
@@ -548,16 +569,12 @@ public class NetworkManager : MonoBehaviour
                 
             }
             
-            msgSize += size[0];
-            Debug.Log("message = "+message[0] + "and "+ msgSize + " == " + message.Length);
-            if (message.Length != msgSize)
-            {
-                Array.Copy(message, msgSize, message, 0, message.Length - msgSize);
-            }
-            else
+            Debug.Log("message = "+message[0] + "and "+ size[0] + " == " + message.Length);
+            if (message.Length == size[0])
             {
                 read = false;
             }
+            
         }
         rep.RemoveAt(0);
         

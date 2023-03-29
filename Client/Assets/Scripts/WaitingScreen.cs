@@ -61,11 +61,6 @@ public class WaitingScreen : MonoBehaviour
         if (nbjoueur_rest != 0)
         {
             status.text = nbjoueur_rest + " remaining...";
-        } 
-        else 
-        {
-            status.text = "Game ready to start.";
-            SceneManager.LoadScene("game_scene");
         }
     }
 
