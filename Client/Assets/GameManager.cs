@@ -5,8 +5,6 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
-using System.Threading.Tasks;
-using System.Threading;
 
 
 public class GameManager : MonoBehaviour
@@ -21,7 +19,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true;
-    public int tour = 1;
+    public static int tour = 0; 
     public TextMeshProUGUI timer;
     public float value_timer;
     // timer pour le texte qui s'affiche a l'ecran
@@ -46,8 +44,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject gamePage, winScreenPage;
     //Cupidon
-    public int lover1_id = -1;
-    public int lover2_id = -1;
+    public int lover1_id=-1;
+    public int lover2_id=-1;
 
     // variable pour le chat
     private int maxMsg = 50;
@@ -88,7 +86,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true);
                         player_role.text = "Villageois";
                     }
                     break;
@@ -96,7 +94,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Cupidon", 2, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Cupidon", p.GetRole(), p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Cupidon", p.GetRole(), p.GetId(), true);
                         player_role.text = "Cupidon";
                     }
                     break;
@@ -104,7 +102,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Voyante", 3, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Voyante", p.GetRole(), p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Voyante", p.GetRole(), p.GetId(), true);
 
                         player_role.text = "Voyante";
                     }
@@ -113,7 +111,7 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Loup-garou", 4, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Loup-garou", p.GetRole(), p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Loup-garou", p.GetRole(), p.GetId(), true);
 
                         player_role.text = "Loup-garou";
                     }
@@ -122,25 +120,17 @@ public class GameManager : MonoBehaviour
                     listPlayer.Add(new Player(p.GetUsername(), "Sorciere", 5, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Sorciere", p.GetRole(), p.GetId(), true);
+                        this.p=new Player(p.GetUsername(), "Sorciere", p.GetRole(), p.GetId(), true);
                         player_role.text = "Sorciere";
 
                     }
                     break;
             }
         }
-
+        
         AfficherJour();
         AfficheCard();
         listerRoles();
-        Task.Run(()=>{
-            while(NetworkManager.prog)
-            if (timer_text_screen != 0)
-            {
-                timer_text_screen--;
-            }
-            Thread.Sleep(1000);
-        });
         finished = true;
 
     }
@@ -149,71 +139,71 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        if (finished)
+        if(finished)
         {
 
-            if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            LoadScene("jeu");
+        }
+        if (inputChat.text != "")
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
             {
-                LoadScene("jeu");
-            }
-            if (inputChat.text != "")
-            {
-                if (Input.GetKeyDown(KeyCode.Return))
+                
+                if (inputChat.text != "")
                 {
-
-                    if (inputChat.text != "")
+                    string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+                    NetworkManager.sendchatMessage(NetworkManager.client, msg);
+                    inputChat.text = "";
+                    inputChat.ActivateInputField();
+                }
+            }
+        }
+        if (gameover)
+        {
+            gamePage.transform.gameObject.SetActive(false);
+            winScreenPage.transform.gameObject.SetActive(true);
+            AfficheWinScreen();
+            gameover = false;
+        }
+        if (NetworkManager.tour != 0)
+        {
+            GO_tourRoles.SetActive(false);
+            switch (NetworkManager.tour)
+            {
+                
+                case 1:
+                    affiche_tour_role("C'est le tour du village",NetworkManager.tour);
+                    break;
+                case 2:
+                    affiche_tour_role("C'est le tour du Cupidon", NetworkManager.tour);
+                    break;
+                case 3:
+                    affiche_tour_role("C'est le tour du Voyante", NetworkManager.tour);
+                    break;
+                case 4:
+                    affiche_tour_role("C'est le tour du loup", NetworkManager.tour);
+                    break;
+                case 5:
+                    affiche_tour_role("C'est le tour de la sorciere", NetworkManager.tour);
+                    if (p.GetRoleId() == 5)
                     {
-                        string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-                        NetworkManager.sendchatMessage(NetworkManager.client, msg);
-                        inputChat.text = "";
-                        inputChat.ActivateInputField();
+                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
+                        affiche_choix_action("Veux tu tuer une personne?");
                     }
-                }
+                    break;
             }
-            if (gameover)
-            {
-                gamePage.transform.gameObject.SetActive(false);
-                winScreenPage.transform.gameObject.SetActive(true);
-                AfficheWinScreen();
-                gameover = false;
-            }
-            if (NetworkManager.tour != 0)
-            {
-                switch (NetworkManager.tour)
-                {
-
-                    case 1:
-                        affiche_tour_role("C'est le tour du village", NetworkManager.tour);
-                        break;
-                    case 2:
-                        affiche_tour_role("C'est le tour du Cupidon", NetworkManager.tour);
-                        break;
-                    case 3:
-                        affiche_tour_role("C'est le tour du Voyante", NetworkManager.tour);
-                        break;
-                    case 4:
-                        affiche_tour_role("C'est le tour du loup", NetworkManager.tour);
-                        break;
-                    case 5:
-                        affiche_tour_role("C'est le tour de la sorciere", NetworkManager.tour);
-                        if (p.GetRoleId() == 5)
-                        {
-                            GO_tourRoles.SetActive(false);
-                            Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
-                            affiche_choix_action("Veux tu tuer une personne?");
-                        }
-                        break;
-                }
-
-                NetworkManager.tour = 0;
-            }
-
-            AfficheTimer();
-            Timer_text_screen();
-            AfficherJour();
-            LITTERALLYDIE();
-            MiseAJourAffichage();
-            AfficheAmoureux();
+            
+            NetworkManager.tour = 0;
+        }
+        
+        AfficheTimer();
+        Timer_text_screen();
+        AfficherJour();
+        LITTERALLYDIE();
+        MiseAJourAffichage();
+        //AfficheAmoureux();
         }
 
     }
@@ -239,43 +229,36 @@ public class GameManager : MonoBehaviour
         Vote();
     }
 
-    private void OnButtonClickAffiche()
-    {
+    private void OnButtonClickAffiche(){
         AfficheVoyante();
     }
 
-    private void OnButtonClickNon()
-    {
+    private void OnButtonClickNon() {
         choixAction.SetActive(false);
-        NetworkManager.Vote(NetworkManager.client, NetworkManager.id, 0);
+        NetworkManager.Vote(NetworkManager.client, NetworkManager.id,0);
         // envoyer au serveur NON
     }
 
-    private void OnButtonClickOui()
-    {
+    private void OnButtonClickOui() {
         choixAction.SetActive(false);
         NetworkManager.Vote(NetworkManager.client, NetworkManager.id, 1);
         // envoyer au serveur OUI
     }
 
-    public void affiche_tour_role(string msg, int tour)
+    public void affiche_tour_role(string msg,int tour)
     {
-        if (p.GetRoleId() != tour && tour != 1)
+        if (p.GetRoleId() != tour && tour!= 1)
         {
             GO_tourRoles.SetActive(true);
         }
-        else
-        {
-            GO_tourRoles.SetActive(false);
-        }
-
+        
         SendMessageToChat(msg, Message.MsgType.system);
         TextMeshProUGUI text_role = GO_tourRoles.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         text_role.text = msg;
     }
     public void AfficherJour()
     {
-
+        
         if (isNight == false)
         {
             Debug.Log("choixAction");
@@ -291,21 +274,22 @@ public class GameManager : MonoBehaviour
             player_role.color = colorRed;
 
             // quand c'est au tour de la voyante
-            if (player_role.text == "Voyante")
-            {
+            if(player_role.text == "Voyante"){
                 GO_buttonAfficheCarte.SetActive(true);
             }
         }
     }
 
-    public void AfficheTimer()
-    {
+    public void AfficheTimer(){
         if (NetworkManager.time != 0)
         {
             value_timer = NetworkManager.time;
-            Debug.Log(NetworkManager.time);
             NetworkManager.time = 0;
-            
+        }
+        if (value_timer > 0)
+        {
+            value_timer -= Time.deltaTime; 
+            timer.text = "" + Mathf.Round(value_timer); 
         }
     }
 
@@ -318,7 +302,7 @@ public class GameManager : MonoBehaviour
         Debug.Log(listPlayer[num].GetRole());
         if (listPlayer[num].GetRole() == "Loup-garou")
         {
-
+            
             newText.color = colorRed;
         }
         if (listPlayer[num].GetIsAlive() == false)
@@ -343,28 +327,24 @@ public class GameManager : MonoBehaviour
             groupWin.text = "Loup-garou win";
             groupWin.color = colorRed;
         }
-
+        
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutTextWin(winPanel, i);
         }
 
     }
-    public void AfficheAmoureux()
-    {
-        if (lover1_id == -1 || lover2_id == -1) return;
-        if (p.GetRole() == "Cupidon" || p.GetId() == lover1_id || p.GetId() == lover2_id)
-        {
-            GameObject[] textpseudos = GameObject.FindGameObjectsWithTag("Pseudos");
-            foreach (GameObject go in textpseudos)
-            {
+    public void AfficheAmoureux(){
+        if(lover1_id==-1||lover2_id==-1)return;
+        if(p.GetRole()=="Cupidon"||p.GetId()==lover1_id||p.GetId()==lover2_id){
+            GameObject[]  textpseudos= GameObject.FindGameObjectsWithTag("Pseudos");
+            foreach(GameObject go in textpseudos){
                 TextMeshProUGUI texto = go.GetComponent<TextMeshProUGUI>();
-                if (texto != null)
-                {
-                    if (texto.text == listPlayer[lover1_id].GetPseudo() || texto.text == listPlayer[lover2_id].GetPseudo())
-                    {
-                        texto.color = Color.magenta;
-                    };
+                if(texto!=null){
+                    int id1 = chercheIndiceJoueurId(lover1_id), id2 = chercheIndiceJoueurId(lover2_id);
+                    if(texto.text==listPlayer[id1].GetPseudo()||texto.text==listPlayer[id2].GetPseudo()){
+                        texto.color=Color.magenta;
+                        };
                 }
             }
         }
@@ -416,13 +396,12 @@ public class GameManager : MonoBehaviour
     {
         GameObject newCard = Instantiate(cardComponent, cardContainer.transform);
         Toggle toggleCard = newCard.transform.Find("Toggle-Card").GetComponent<Toggle>();
-        toggleCard.onValueChanged.AddListener(delegate { OnToggleValueChanged(toggleCard); });
+        toggleCard.onValueChanged.AddListener(delegate {OnToggleValueChanged(toggleCard);});
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
-        text.tag = "Pseudos";
+	    text.tag="Pseudos";
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         text.text = listPlayer[id].GetPseudo();
-        switch (listPlayer[id].GetRole())
-        {
+        switch(listPlayer[id].GetRole()) {
             case "Loup-garou":
                 roleImg.sprite = LoupSprite;
                 break;
@@ -447,13 +426,13 @@ public class GameManager : MonoBehaviour
         {
             roleImg.enabled = false;
         }
-
+        
         listCard.Add(newCard);
     }
 
     public void AfficheCard()
     {
-        Debug.Log("nbp=" + nbPlayer);
+        Debug.Log("nbp="+nbPlayer);
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutCarte(i);
@@ -461,104 +440,83 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void OnToggleValueChanged(Toggle change)
-    {
+    public void OnToggleValueChanged(Toggle change){
         bool value = change.isOn;
-        if (value)
-        {
+        if(value){
             toggleOn.Add(change);
-            if (p.GetRole() == "Cupidon" && isNight)
-            {
-                if (toggleOn.Count > 2)
-                {
+            if(p.GetRole() == "Cupidon" && isNight){
+                if (toggleOn.Count > 2){
                     toggleOn[0].isOn = false;
                     Debug.Log(toggleOn.Count);
                 }
             }
-            else
-            {
-                if (toggleOn.Count > 1)
-                {
+            else{
+                if (toggleOn.Count > 1){
                     toggleOn[0].isOn = false;
                 }
             }
         }
-        else
-        {
+        else{
             toggleOn.RemoveAll(Toggle => Toggle == change);
         }
     }
 
-    public int GetIndiceToggleOn()
-    {
+    public int GetIndiceToggleOn(){
         int indice = -1;
-        for (int i = 0; i < nbPlayer; i++)
-        {
-            if (listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn)
-            {
+        for(int i = 0; i < nbPlayer; i++) {
+            if(listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn) {
                 indice = i;
             }
         }
         return indice;
     }
 
-    public void AllToggleOff()
-    {
-        for (int i = 0; i < nbPlayer; i++)
-        {
+    public void AllToggleOff(){
+        for(int i = 0; i < nbPlayer; i++) {
             listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
         }
     }
 
-    public void actionCupidon()
-    {
-        int indice1, indice2, id1 = -1, id2 = -1;
+    public void actionCupidon(){
+        int indice1, indice2, id1=-1, id2=-1;
         string msg;
 
         indice1 = GetIndiceToggleOn();
-        if (indice1 != -1)
-        {
+        if (indice1 != -1){
             listCard[indice1].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
             id1 = listPlayer[indice1].GetId();
-            lover1_id = id1;
+            lover1_id= indice1;
         }
 
         indice2 = GetIndiceToggleOn();
-        if (indice2 != -1)
-        {
+        if (indice2 != -1){
             id2 = listPlayer[indice2].GetId();
             msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
-            lover2_id = id2;
+            lover2_id= indice2;
             SendMessageToChat(msg, Message.MsgType.system);
             NetworkManager.ChooseLovers(NetworkManager.client, NetworkManager.id, id1, id2);
 
 
         }
-        else
-        {
+        else {
             SendMessageToChat("Tu dois choisir deux personnes a marier!", Message.MsgType.system);
         }
     }
 
     public void Vote()
     {
-        if (p.GetRole() == "Cupidon" && isNight)
-        {
+        if(p.GetRole() == "Cupidon" && isNight){
             actionCupidon();
         }
-        else
-        {
+        else{
             int selectedId = GetIndiceToggleOn();
-            if (selectedId != -1)
-            {
-                SendMessageToChat("Tu as voté pour " + listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
+            if(selectedId != -1){
+                SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
-                Debug.Log($"joueur {NetworkManager.id} vote pour {listPlayer[selectedId].GetId()}");
-            }
-            else
-            {
+                Debug.Log($"joueur {NetworkManager. id} vote pour {listPlayer[selectedId].GetId()}");
+            } else{
                 SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
-            }
+            } 
         }
 
         AllToggleOff();
@@ -566,8 +524,7 @@ public class GameManager : MonoBehaviour
 
     public void OnOff()
     {
-        for (int i = 0; i < nbPlayer; i++)
-        {
+        for(int i=0; i<nbPlayer; i++){
             listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
             listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable = !listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable;
         }
@@ -579,7 +536,7 @@ public class GameManager : MonoBehaviour
     {
 
         Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
-        TextMeshProUGUI text = listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI text =  listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         Image eyeImg = toggleCard.transform.Find("eye").GetComponent<Image>();
         Image lgIcon = toggleCard.transform.Find("lg-icon").GetComponent<Image>();
@@ -601,14 +558,12 @@ public class GameManager : MonoBehaviour
             toggleCard.colors = colors;
         }
 
-        if (p.GetRole() == "Voyante" && listPlayer[indice].GetSeen())
-        {
+        if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
             roleImg.enabled = true;
-            eyeImg.enabled = true;
+            eyeImg.enabled = true;            
         }
 
-        if (p.GetRole() == "Loup-garou" && listPlayer[indice].GetRole() == "Loup-garou")
-        {
+        if(p.GetRole() == "Loup-garou" && listPlayer[indice].GetRole() == "Loup-garou") {
             lgIcon.enabled = true;
         }
     }
@@ -621,62 +576,50 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AfficheVoyante()
-    {
+    public void AfficheVoyante() {
         int selectedId = GetIndiceToggleOn();
-        if (player_role.text == "Voyante" && isNight)
-        {
-            if (selectedId != -1 && selectedId < nbPlayer)
+        if(player_role.text == "Voyante" && isNight) {
+            if(selectedId != -1 && selectedId < nbPlayer)
             {
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
             }
-        }
+        } 
     }
 
-    public void affiche_choix_action(string msg)
-    {
+    public void affiche_choix_action(string msg){
         choixAction.SetActive(true);
-        TextMeshProUGUI text_action = choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
         text_action.text = msg;
     }
 
-    public void ActionSorciere(int id)
-    {
+    public void ActionSorciere(int id){
         int indice = chercheIndiceJoueurId(id);
         if (indice == -1) return;   // erreur l'id du joueur ne correspond a aucun joueur
         string msg = "" + listPlayer[indice].GetPseudo() + " est mort. Veux-tu utiliser ta potion de vie?";
         affiche_choix_action(msg);
     }
 
-    public int chercheIndiceJoueurId(int id)
-    {
-        for (int i = 0; i < listPlayer.Count; i++)
-        {
-            if (listPlayer[i].GetId() == id)
-            {
+    public int chercheIndiceJoueurId (int id){
+        for(int i=0; i<listPlayer.Count; i++){
+            if(listPlayer[i].GetId() == id){
                 return i;
             }
         }
         return -1;
     }
 
-    public void Change_text_screen(string msg)
-    {
+    public void Change_text_screen(string msg) {
         timer_text_screen = 2;
         text_screen.text = msg;
         text_screen_active = true;
     }
 
-    public void Timer_text_screen()
-    {
-        if (text_screen_active)
-        {
-            if (timer_text_screen > 0)
-            {
+    public void Timer_text_screen(){
+        if(text_screen_active){
+            if(timer_text_screen > 0){
                 timer_text_screen -= Time.deltaTime;
             }
-            else
-            {
+            else{
                 text_screen.text = "";
                 panel_text_screen.SetActive(false);
                 text_screen_active = false;
@@ -697,7 +640,7 @@ public class GameManager : MonoBehaviour
 
     public string idRoleToStringRole(int idRole)
     {
-        string role = "";
+        string role="";
         switch (idRole)
         {
             case 1:
@@ -719,28 +662,23 @@ public class GameManager : MonoBehaviour
         return role;
     }
 
-    public void LITTERALLYDIE()
-    {
+    public void LITTERALLYDIE() {
         Debug.Log("mort fonct");
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        if (p.GetIsAlive() == false) dead_bg.enabled = true;
+        if(p.GetIsAlive() == false) dead_bg.enabled = true;
     }
 
-    public void listerRoles()
-    {
+    public void listerRoles() {
         List<string> roleList = new List<string>();
         List<int> nb = new List<int>();
         List<string> nbRoleList = new List<string>();
         int count = 0;
 
-        for (int i = 0; i < nbPlayer; i++)
-        {
-            if (!roleList.Contains(listPlayer[i].GetRole()) && listPlayer[i].GetIsAlive())
-            {
+        for(int i = 0; i<nbPlayer; i++) {
+            if(!roleList.Contains(listPlayer[i].GetRole()) && listPlayer[i].GetIsAlive()) {
                 roleList.Add(listPlayer[i].GetRole());
-                for (int j = 0; j < nbPlayer; j++)
-                {
-                    if (listPlayer[j].GetRole() == listPlayer[i].GetRole()) count++;
+                for(int j = 0; j<nbPlayer; j++) {
+                    if(listPlayer[j].GetRole() == listPlayer[i].GetRole()) count ++;
                 }
                 nb.Add(count);
                 count = 0;
@@ -749,21 +687,19 @@ public class GameManager : MonoBehaviour
 
 
         //SendMessageToChat("Il y a :", Message.MsgType.system);
-        for (int i = 0; i < roleList.Count; i++)
-        {
+        for(int i = 0; i<roleList.Count; i++) {
             SendMessageToChat("" + nb[i] + " " + roleList[i], Message.MsgType.system);
             nbRoleList.Add("" + nb[i] + " " + roleList[i]);
         }
         string txt = "";
-        for (int i = 0; i < nbRoleList.Count; i++)
-        {
+        for(int i = 0; i<nbRoleList.Count; i++) {
             txt += nbRoleList[i];
             txt += "\n";
         }
 
-        TextMeshProUGUI textRolesRestant = GO_rolesRestant.transform.Find("TexteRole").GetComponent<TextMeshProUGUI>();
-        Debug.Log("text role restant = " + GO_rolesRestant.GetComponent<TextMeshProUGUI>());
-
+        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent <TextMeshProUGUI>();
+        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
+        
         textRolesRestant.text = txt;
     }
 }
@@ -827,12 +763,10 @@ public class Player
     {
         return id;
     }
-    public bool GetSeen()
-    {
+    public bool GetSeen(){
         return seen;
     }
-    public void SetSeen(bool s)
-    {
+    public void SetSeen(bool s){
         seen = s;
     }
     public void SetIsAlive(bool alive)
