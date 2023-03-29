@@ -33,16 +33,17 @@ public class GameManagerApp : MonoBehaviour
             // Quit the game
         }
     }
-    
-    public static void exitGame(){
-        NetworkManager.prog=false;
-        #if UNITY_EDITOR
+
+    public static void exitGame()
+    {
+        NetworkManager.prog = false;
+#if UNITY_EDITOR
                     // Stop play mode in the editor
                     UnityEditor.EditorApplication.isPlaying = false;
-            #else
-                    // Quit the game
-                    Application.Quit();
-            #endif
+#else
+        // Quit the game
+        Application.Quit();
+#endif
     }
 
     public struct player
@@ -102,12 +103,14 @@ public class GameManagerApp : MonoBehaviour
                 AfficheError("Error: Dire ce qu'il va pas");
             }*/
         }
-        else {
+        else
+        {
             AfficheError("Error: the password is not the same");
         }
     }
-    
-    public void AfficheError (string msg){
+
+    public void AfficheError(string msg)
+    {
         box_error.SetActive(true);
         TextMeshProUGUI text_error = box_error.transform.Find("Text_error").GetComponent<TextMeshProUGUI>();
         text_error.text = msg;
