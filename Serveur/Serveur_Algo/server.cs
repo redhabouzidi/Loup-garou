@@ -181,13 +181,22 @@ namespace Server
         //fonction qui envoie un message a un socket donne en parametre
         public static int sendMessage(Socket client, byte[] message)
         {
-		Console.WriteLine("Message[0]="+message[0]);
+		foreach (byte b in message)
+		{
+		Console.Write(b+" ");
+		}
+		Console.WriteLine("");
+		
             return client.Send(message, message.Length, SocketFlags.None);
 
         }
 	public static int sendMessage(Socket client,byte [] message , int recvSize)
 	{
-		Console.WriteLine("Message[0]="+message[0]);
+		foreach(byte b in message)
+		{
+			Console.Write(b+" ");
+		}
+		Console.WriteLine("");
 		return client.Send(message,recvSize,SocketFlags.None);
 	}
         //fonction qui renvoie le nombre de caractere total dans un tableau de chaine de caractere
@@ -423,13 +432,14 @@ namespace Server
         }
 
         //fonctions qui envoie les roles de tous les joueurs a la fin de la partie
-        public static int sendEndState(List<Socket> clients, int[] idJoueur, int[] role)
+        public static int sendEndState(List<Socket> clients,int win, int[] idJoueur, int[] role)
         {
             int[] size = new int[1] { 0 };
-            int byteSize = 1 + sizeof(int) + idJoueur.Length * sizeof(int) + sizeof(int) + role.Length * sizeof(int);
+            int byteSize = 1 + sizeof(int)*2 + idJoueur.Length * sizeof(int) + sizeof(int) + role.Length * sizeof(int);
             byte[] message = new byte[byteSize];
             message[0] = 110;
             size[0] += 1;
+	    encode(message,win,size);
             encode(message, idJoueur.Length, size);
             for (int i = 0; i < idJoueur.Length; i++)
             {
@@ -440,8 +450,6 @@ namespace Server
             {
                 encode(message, role[i], size);
             }
-            for (int i = 0; i < message.Length; i++)
-                Console.WriteLine(message[i]);
             foreach (Socket socket in clients)
             {
                 sendMessage(socket, message);

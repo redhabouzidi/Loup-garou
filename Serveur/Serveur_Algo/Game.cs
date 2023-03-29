@@ -13,7 +13,7 @@ public class Game
 
     public Game()
     {
-        _nbrJoueursManquants = 5; // A ENLEVER PLUS TARD "=6"
+        _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
@@ -21,16 +21,20 @@ public class Game
         Role[] startingRoles = new Role[]
         {
             new Loup(),
-            new Sorciere(),
-	    new Voyante(),
-	    new Villageois(),
-	    new Villageois()
+		new Sorciere()
+	
         };
 
         foreach (Role role in startingRoles)
         {
             _roles.Add(role);
         }
+
+        if (!checkRoles())
+        {
+            Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
+        }
+        
         _joueurs = new List<Joueur>();
     }
 
@@ -388,5 +392,105 @@ public class Game
     public int GetJoueurManquant()
     {
         return _nbrJoueursManquants;
+    }
+    
+    public bool checkRoles()
+    {
+        int[,] myArrayRoleMax = new int[,] { { 1, 3, 1, 0, 0, 0, 0, 0 }, { 1, 4, 1, 1, 1, 0, 0, 0 }, { 2, 4, 1, 1, 1, 1, 0, 0 }, { 2, 5, 1, 2, 2, 1, 2, 2 }, { 2, 6, 1, 3, 3, 1, 3, 3 }, { 3, 6, 1, 1, 1, 1, 1, 1 }, { 3, 7, 1, 1, 1, 1, 1, 1 }, { 3, 8, 1, 1, 1, 1, 1, 1 }, { 4, 8, 1, 1, 1, 1, 1, 1 } };
+        int[] myArrayVillageoisMin = new int[] { 2, 2, 1, 1, 1, 0, 1, 2, 2 };
+        int nb_villageois = 0;
+        int index = _nbrJoueursManquants - 4;
+        bool retour = true;
+        if (_roles.Count == _nbrJoueursManquants && _nbrJoueursManquants > 3 && _nbrJoueursManquants < 13)
+        {
+            foreach (var r in _roles)
+            {
+                if (r is Loup && myArrayRoleMax[index, 0] > 0)
+                {
+                    myArrayRoleMax[index, 0] -= 1;
+                }
+                else if (r is Villageois && myArrayRoleMax[index, 1] > 0)
+                {
+                    myArrayRoleMax[index, 1] -= 1;
+                    nb_villageois++;
+                }
+                else if (r is Voyante && myArrayRoleMax[index, 2] > 0)
+                {
+                    myArrayRoleMax[index, 2] -= 1;
+                }
+                else if (r is Chasseur && myArrayRoleMax[index, 3] > 0)
+                {
+                    if (_nbrJoueursManquants == 5 || _nbrJoueursManquants == 6)
+                    {
+                        myArrayRoleMax[index, 4] -= 1;
+                    }
+                    else if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
+                    {
+                        myArrayRoleMax[index, 4] -= 1;
+                        myArrayRoleMax[index, 6] -= 1;
+                        myArrayRoleMax[index, 7] -= 1;
+                    }
+                    myArrayRoleMax[index, 3] -= 1;
+                }
+                else if (r is Sorciere && myArrayRoleMax[index, 4] > 0)
+                {
+                    if (_nbrJoueursManquants == 5 || _nbrJoueursManquants == 6)
+                    {
+                        myArrayRoleMax[index, 3] -= 1;
+                    }
+                    else if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
+                    {
+                        myArrayRoleMax[index, 3] -= 1;
+                        myArrayRoleMax[index, 6] -= 1;
+                        myArrayRoleMax[index, 7] -= 1;
+                    }
+                    myArrayRoleMax[index, 4] -= 1;
+                }
+                else if (r is Cupidon && myArrayRoleMax[index, 5] > 0)
+                {
+                    myArrayRoleMax[index, 5] -= 1;
+                }
+                else if (r is Dictateur && myArrayRoleMax[index, 6] > 0)
+                {
+                    if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
+                    {
+                        myArrayRoleMax[index, 3] -= 1;
+                        myArrayRoleMax[index, 4] -= 1;
+                        myArrayRoleMax[index, 7] -= 1;
+                    }
+                    myArrayRoleMax[index, 6] -= 1;
+                }
+                else if (r is Garde && myArrayRoleMax[index, 7] > 0)
+                {
+                    if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
+                    {
+                        myArrayRoleMax[index, 3] -= 1;
+                        myArrayRoleMax[index, 4] -= 1;
+                        myArrayRoleMax[index, 6] -= 1;
+                    }
+                    myArrayRoleMax[index, 7] -= 1;
+                }
+                else
+                {
+                    retour = false;
+                    break;
+                }
+            }
+
+            if (myArrayRoleMax[index, 0] != 0)
+            {
+                retour = false;
+            }
+        }
+	else{
+		return false;
+	}
+
+        if (myArrayVillageoisMin[index] > nb_villageois && index != 5)
+        {
+            retour = false;
+        }
+
+        return retour;
     }
 }

@@ -23,7 +23,7 @@ public class Loup : Role
         List<int> cible = new List<int>();
         foreach (Joueur j in listJoueurs)
         {
-            if (j.GetRole() is Loup)
+            if (j.GetRole() is Loup  && j.GetEnVie() && j.GetEnVie())
             {
                 votant.Add(j.GetId());
                 cible.Add(-1);

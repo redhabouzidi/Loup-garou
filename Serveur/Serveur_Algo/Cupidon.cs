@@ -93,7 +93,8 @@ public class Cupidon : Role
         {
             amoureux.SetAmoureux(amoureux2);
             amoureux2.SetAmoureux(amoureux);
-        }
+       	    server.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
+       	}
     }
 
     public override int GetIdRole()
