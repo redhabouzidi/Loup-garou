@@ -354,6 +354,7 @@ public class NetworkManager : MonoBehaviour
                     gm.affiche_text_role(idPlayer, role);
                     break;
                 case 8:
+                    tour = 5;
                     idPlayer = decode(message, size);
                     gm.ActionSorciere(idPlayer);
                     break;
