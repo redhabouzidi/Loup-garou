@@ -10,11 +10,11 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres = 2, time;
-    public static bool prog = true, inst = false;
+    public static int nbplayeres=2,time;
+    public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
-    public static int id, tour;
+    public static int id,tour;
     public static string username;
     static bool connected = false;
     public static GameObject canvas;
@@ -69,17 +69,17 @@ public class NetworkManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
         while (rep.Count != 0)
         {
             if (rep[0] == null)
             {
-                rep.RemoveAt(0);
+                rep.RemoveAt(0 );
                 GameManagerApp.exitGame();
             }
             else
             {
-                treatMessage(rep[0]);
+            treatMessage(rep[0]);
             }
         }
 
@@ -99,7 +99,7 @@ public class NetworkManager : MonoBehaviour
             return;
         }
         string ia = args[1];*/
-
+        
         if (!connected)
         {
             try
@@ -123,6 +123,59 @@ public class NetworkManager : MonoBehaviour
                 prog = false;
             }
         }
+        /*var inputTask = Task.Run(() =>
+        {
+            while (reading)
+            {
+                byte[] messageBytesAsync;
+                string messageAsync = Console.ReadLine();
+
+                if (messageAsync.Equals("ajout"))
+                {
+                    ajoutAmi(client, id, 1);
+                }else
+                if (messageAsync.Equals("vote"))
+                {
+                    Vote(client, id, "jean");
+                }
+                else
+                if (messageAsync.Equals("leave"))
+                {
+                    messageBytesAsync = BitConverter.GetBytes(1);
+
+                    int bytesSentAsync = client.Send(messageBytesAsync);
+                    Console.WriteLine("sent {0} bytes to the server", bytesSentAsync);
+                }
+                else
+                if (messageAsync.Equals("create"))
+                {
+                    createGame(client, id, "demo", "asgard");
+                }
+                else
+                if (messageAsync.Equals("login"))
+                {
+                    login(client, "mahmoud", "jesuisunmotdepasse");
+                }
+                else
+                if (messageAsync.Equals("signin"))
+                {
+                    sendInscription(client, "mahmoud", "Jesuisunmotdepasse0@", "moumouh.atm@gmail.com");
+                }
+                else
+                if (messageAsync.Equals("join"))
+                {
+                    join(client, id, 0, username);
+                }
+                else if (messageAsync.Equals("love"))
+                {
+                    ChooseLovers(client, 0, 1);
+                }
+                else
+                {
+                    sendchatMessage(client, messageAsync);
+                }
+            }
+        });*/
 
 
 
@@ -130,7 +183,7 @@ public class NetworkManager : MonoBehaviour
         {
             recvMessage(client);
         }
-
+        
         client.Close();
     }
 
@@ -268,35 +321,34 @@ public class NetworkManager : MonoBehaviour
 
     public static void recvMessage(Socket server)
     {
-
+        
         byte[] message = new byte[5000];
         int recvSize;
         server.Poll(-1, SelectMode.SelectRead);
-        if (server.Available == 0)
-        {
-            prog = false;
+        if(server.Available ==0){
+            prog=false;
             rep.Add(null);
             return;
         }
         recvSize = server.Receive(message);
         Debug.Log("recv =" + message[0]);
-        byte[] newMessage = new byte[recvSize];
-        Array.Copy(message, 0, newMessage, 0, recvSize);
+        byte[] newMessage=new byte[recvSize];
+        Array.Copy(message, 0, newMessage, 0,recvSize);
         rep.Add(newMessage);
         return;
-
+            
     }
     public static void treatMessage(byte[] message)
     {
-        Debug.Log(message == null);
+        Debug.Log(message==null);
         Dictionary<int, int> dictJoueur;
-        bool read = true;
-        int[] idPlayers, ids, roles, nbPlayers, gameId;
-        string[] playerNames, gameName;
-        int dataSize, tableSize, idPlayer, idp, msgSize = 0, val, role, idP, win;
-        string name, usernameP;
+        bool read=true;
+        int[] idPlayers,ids,roles,nbPlayers,gameId;
+        string[] playerNames,gameName;
+        int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP,win;
+        string name,usernameP;
         int[] size = new int[1] { 0 };
-        string result = "";
+        string result="";
         Debug.Log(BitConverter.ToString(message));
         while (read)
         {
@@ -310,43 +362,43 @@ public class NetworkManager : MonoBehaviour
                     Debug.Log("I am over here");
                     break;
                 case 1:
-                    size[0] = sizeof(int) * 2 + 1;
+                    size[0]=sizeof(int)*2+1;
                     vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
                     break;
                 case 5:
-                    bool ra = decodeBool(message, size);
+                    tour = 1;
+                    bool ra=decodeBool(message, size);
                     GameManager.isNight = !ra;
                     if (!ra)
                     {
-                        gm.tour++;
+                        GameManager.tour++;
                     }
-                    tour = 1;
                     break;
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
                     gm.lover1_id = gm.p.GetId();
-                    gm.lover2_id = idPlayer;
+                    gm.lover2_id = idp;
                     string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
                         case 1:
-                            msg += "Villageois";
+                            msg+="Villageois";
                             break;
                         case 2:
-                            msg += "Cupidon";
+                            msg+="Cupidon";
                             break;
                         case 3:
-                            msg += "Voyante";
+                            msg+="Voyante";
                             break;
                         case 4:
-                            msg += "Loup-garou";
+                            msg+="Loup-garou";
                             break;
                         case 5:
-                            msg += "Sorciere";
+                            msg+="Sorciere";
                             break;
                     }
-                    gm.SendMessageToChat(msg, Message.MsgType.system);
+                    gm.SendMessageToChat(msg,Message.MsgType.system);
                     break;
                 case 7:
                     idPlayer = decode(message, size);
@@ -354,7 +406,7 @@ public class NetworkManager : MonoBehaviour
                     gm.affiche_text_role(idPlayer, role);
                     break;
                 case 8:
-                    tour = 5;
+                    gm.GO_tourRoles.SetActive(false);
                     idPlayer = decode(message, size);
                     gm.ActionSorciere(idPlayer);
                     break;
@@ -400,24 +452,24 @@ public class NetworkManager : MonoBehaviour
                             p.SetRole(role);
                             p.SetIsAlive(false);
                         }
-
+                        
                         Debug.Log(p.GetIsAlive());
                     }
                     gm.MiseAJourAffichage();
                     break;
                 case 11:
                     tour = decode(message, size);
-
-                    if (tour == 2 && gm.p.GetRoleId() == 2)
+                    
+                    if (tour==2 && gm.p.GetRoleId() == 2)
                     {
                         gm.actionCupidon();
                     }
-
-
+                    
+                    
                     break;
                 case 12:
-
-                    time = decode(message, size);
+                    
+                    time = decode(message,size);
                     Debug.Log("time=" + time);
                     break;
                 case 101:
@@ -473,7 +525,7 @@ public class NetworkManager : MonoBehaviour
                     decode(message, size);
                     break;
 
-
+                
                 case 105:
                     Debug.Log("hey");
                     if (decodeBool(message, size))
@@ -488,7 +540,7 @@ public class NetworkManager : MonoBehaviour
                         decode(message, size);
                         decodeString(message, size);
                     }
-
+                    
                     break;
                 case 110:
                     win = decode(message, size);
@@ -507,32 +559,31 @@ public class NetworkManager : MonoBehaviour
                     if (win == 1)
                     {
                         gm.isVillageWin = true;
-                    }
-                    else if (win == 2)
+                    }else if(win == 2)
                     {
                         gm.isVillageWin = false;
                     }
                     gm.gameover = true;
-
+                    
                     break;
 
                 default:
                     Debug.Log("problem message");
                     break;
-
-
-
+                
+            
+                
             }
-
-            Debug.Log("message = " + message[0] + "and " + size[0] + " == " + message.Length);
+            
+            Debug.Log("message = "+message[0] + "and "+ size[0] + " == " + message.Length);
             if (message.Length == size[0])
             {
                 read = false;
             }
-
+            
         }
         rep.RemoveAt(0);
-
+        
     }
     public static int SendMessageToServer(Socket server, byte[] message)
     {
@@ -663,7 +714,7 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(server, message);
     }
 
-    public static int ChooseLovers(Socket server, int id, int id1, int id2)
+    public static int ChooseLovers(Socket server,int id, int id1, int id2)
     {
         byte[] message = new byte[1 + 3 * sizeof(int)];
         message[0] = 6;
@@ -674,5 +725,5 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(server, message);
     }
 
-
+    
 }
