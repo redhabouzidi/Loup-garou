@@ -406,7 +406,7 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     role = decode(message, size);
                     gm.affiche_text_role(idPlayer, role);
-                    gm.LITTERALLYDIE();
+                    
                     break;
                 case 8:
                     gm.GO_tourRoles.SetActive(false);
@@ -459,6 +459,7 @@ public class NetworkManager : MonoBehaviour
                         
                         Debug.Log(p.GetIsAlive());
                     }
+                    gm.LITTERALLYDIE();
                     gm.MiseAJourAffichage();
                     break;
                 case 11:
