@@ -378,7 +378,7 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
                     gm.lover1_id = gm.p.GetId();
-                    gm.lover2_id = idp;
+                    gm.lover2_id = idPlayer;
                     string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
@@ -399,16 +399,21 @@ public class NetworkManager : MonoBehaviour
                             break;
                     }
                     gm.SendMessageToChat(msg,Message.MsgType.system);
+                    gm.AfficheAmoureux();
+                    gm.MiseAJourAffichage();
                     break;
                 case 7:
                     idPlayer = decode(message, size);
                     role = decode(message, size);
                     gm.affiche_text_role(idPlayer, role);
+                    gm.LITTERALLYDIE();
+                    gm.MiseAJourAffichage();
                     break;
                 case 8:
                     gm.GO_tourRoles.SetActive(false);
                     idPlayer = decode(message, size);
                     gm.ActionSorciere(idPlayer);
+
                     break;
                 case 9:
                     val = decode(message, size);
@@ -470,7 +475,6 @@ public class NetworkManager : MonoBehaviour
                 case 12:
                     
                     time = decode(message,size);
-                    Debug.Log("time=" + time);
                     break;
                 case 101:
                     sp.SetActive(false);

@@ -201,9 +201,7 @@ public class GameManager : MonoBehaviour
         AfficheTimer();
         Timer_text_screen();
         AfficherJour();
-        LITTERALLYDIE();
         MiseAJourAffichage();
-        //AfficheAmoureux();
         }
 
     }
@@ -342,6 +340,7 @@ public class GameManager : MonoBehaviour
                 TextMeshProUGUI texto = go.GetComponent<TextMeshProUGUI>();
                 if(texto!=null){
                     int id1 = chercheIndiceJoueurId(lover1_id), id2 = chercheIndiceJoueurId(lover2_id);
+                    Debug.Log("id1= " + id1 + "id2 = " + id2+"lvid= "+ lover1_id+" lvid= "+ lover2_id);
                     if(texto.text==listPlayer[id1].GetPseudo()||texto.text==listPlayer[id2].GetPseudo()){
                         texto.color=Color.magenta;
                         };
@@ -663,7 +662,6 @@ public class GameManager : MonoBehaviour
     }
 
     public void LITTERALLYDIE() {
-        Debug.Log("mort fonct");
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         if(p.GetIsAlive() == false) dead_bg.enabled = true;
     }
