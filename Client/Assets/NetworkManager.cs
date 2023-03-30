@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=2,time;
+    public static int nbplayeres=4,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -366,7 +366,7 @@ public class NetworkManager : MonoBehaviour
                     vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
                     break;
                 case 5:
-                    tour = 1;
+                    GameManager.turn = 1;
                     bool ra=decodeBool(message, size);
                     GameManager.isNight = !ra;
                     if (!ra)
@@ -379,7 +379,7 @@ public class NetworkManager : MonoBehaviour
                     idp = decode(message, size);
                     gm.lover1_id = gm.p.GetId();
                     gm.lover2_id = idPlayer;
-                    string msg = "vous etes amoureux avec " + gm.listPlayer[idPlayer].GetPseudo() + " et son role est ";
+                    string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
                         case 1:
@@ -463,13 +463,10 @@ public class NetworkManager : MonoBehaviour
                     gm.MiseAJourAffichage();
                     break;
                 case 11:
-                    tour = decode(message, size);
+                    GameManager.turn = decode(message, size);
                     
-                    if (tour==2 && gm.p.GetRoleId() == 2)
-                    {
-                        gm.actionCupidon();
-                    }
                     
+
                     
                     break;
                 case 12:

@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 {
     // joueur
     public Player p;
-    bool finished = false;
+    bool finished = false,again=true;
     // jeu
     private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
@@ -19,9 +19,9 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true;
-    public static int tour = 0; 
+    public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
-    public float value_timer;
+    public static float value_timer;
     // timer pour le texte qui s'affiche a l'ecran
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
@@ -131,6 +131,7 @@ public class GameManager : MonoBehaviour
         AfficherJour();
         AfficheCard();
         listerRoles();
+        MiseAJourAffichage();
         finished = true;
 
     }
@@ -167,26 +168,27 @@ public class GameManager : MonoBehaviour
             AfficheWinScreen();
             gameover = false;
         }
-        if (NetworkManager.tour != 0)
+        if (turn != 0)
         {
-            GO_tourRoles.SetActive(false);
-            switch (NetworkManager.tour)
+                
+                switch (turn)
             {
                 
                 case 1:
-                    affiche_tour_role("C'est le tour du village",NetworkManager.tour);
+                    affiche_tour_role("C'est le tour du village", turn);
                     break;
                 case 2:
-                    affiche_tour_role("C'est le tour du Cupidon", NetworkManager.tour);
-                    break;
+                    affiche_tour_role("C'est le tour du Cupidon", turn);
+                        actionCupidon();
+                        break;
                 case 3:
-                    affiche_tour_role("C'est le tour du Voyante", NetworkManager.tour);
+                    affiche_tour_role("C'est le tour du Voyante", turn);
                     break;
                 case 4:
-                    affiche_tour_role("C'est le tour du loup", NetworkManager.tour);
+                    affiche_tour_role("C'est le tour du loup", turn);
                     break;
                 case 5:
-                    affiche_tour_role("C'est le tour de la sorciere", NetworkManager.tour);
+                    affiche_tour_role("C'est le tour de la sorciere", turn);
                     if (p.GetRoleId() == 5)
                     {
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
@@ -194,14 +196,12 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
-            
-            NetworkManager.tour = 0;
-        }
-        
+                turn = 0;
+
+            }
         AfficheTimer();
         Timer_text_screen();
         AfficherJour();
-        MiseAJourAffichage();
         }
 
     }
@@ -249,17 +249,20 @@ public class GameManager : MonoBehaviour
         {
             GO_tourRoles.SetActive(true);
         }
+        else
+        {
+            GO_tourRoles.SetActive(false);
+        }
         
-        SendMessageToChat(msg, Message.MsgType.system);
         TextMeshProUGUI text_role = GO_tourRoles.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         text_role.text = msg;
+        
     }
     public void AfficherJour()
     {
         
         if (isNight == false)
         {
-            Debug.Log("choixAction");
             choixAction.SetActive(false);
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
