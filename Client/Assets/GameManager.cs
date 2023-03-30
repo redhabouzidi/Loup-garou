@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 {
     // joueur
     public Player p;
-    bool finished = false,again=true;
+    bool finished = false;
     // jeu
     private int nbPlayer = NetworkManager.nbplayeres;
     public List<Player> listPlayer = new List<Player>();
@@ -179,7 +179,10 @@ public class GameManager : MonoBehaviour
                     break;
                 case 2:
                     affiche_tour_role("C'est le tour du Cupidon", turn);
-                        actionCupidon();
+                        if (p.GetRoleId() == 2)
+                        {
+                            actionCupidon();
+                        }
                         break;
                 case 3:
                     affiche_tour_role("C'est le tour du Voyante", turn);
@@ -201,7 +204,7 @@ public class GameManager : MonoBehaviour
             }
         AfficheTimer();
         Timer_text_screen();
-        AfficherJour();
+        
         }
 
     }
@@ -336,7 +339,7 @@ public class GameManager : MonoBehaviour
 
     }
     public void AfficheAmoureux(){
-        if(lover1_id==-1||lover2_id==-1)return;
+         if(lover1_id==-1||lover2_id==-1)return;
         if(p.GetRole()=="Cupidon"||p.GetId()==lover1_id||p.GetId()==lover2_id){
             GameObject[]  textpseudos= GameObject.FindGameObjectsWithTag("Pseudos");
             foreach(GameObject go in textpseudos){

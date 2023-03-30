@@ -65,7 +65,6 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickConnection()
     {
-        bool isSuccess = true;
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
 
@@ -84,7 +83,6 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickRegistration()
     {
-        bool isSuccess = true;
         string email = inputFRegEmail.text;
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;

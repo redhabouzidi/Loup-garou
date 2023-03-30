@@ -345,10 +345,9 @@ public class NetworkManager : MonoBehaviour
         bool read=true;
         int[] idPlayers,ids,roles,nbPlayers,gameId;
         string[] playerNames,gameName;
-        int dataSize, tableSize, idPlayer, idp,msgSize=0,val,role,idP,win;
+        int dataSize, tableSize, idPlayer, idp,val,role,idP,win;
         string name,usernameP;
         int[] size = new int[1] { 0 };
-        string result="";
         Debug.Log(BitConverter.ToString(message));
         while (read)
         {
@@ -373,6 +372,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         GameManager.tour++;
                     }
+                    gm.AfficherJour();
                     break;
                 case 6:
                     idPlayer = decode(message, size);
@@ -407,7 +407,6 @@ public class NetworkManager : MonoBehaviour
                     role = decode(message, size);
                     gm.affiche_text_role(idPlayer, role);
                     gm.LITTERALLYDIE();
-                    gm.MiseAJourAffichage();
                     break;
                 case 8:
                     gm.GO_tourRoles.SetActive(false);
