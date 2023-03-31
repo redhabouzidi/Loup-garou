@@ -81,7 +81,10 @@ public class Joueur
     {
         return socket;
     }
-
+    public void SetSocket(Socket socket)
+    {
+        this.socket = socket;
+    }
     public void SetDoitMourir(bool etat)
     {
         doitMourir = etat;

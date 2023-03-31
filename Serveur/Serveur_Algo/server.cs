@@ -92,7 +92,7 @@ namespace Server
                     fds.Add(input.Key);
                 }
 
-                Socket.Select(fds, null, null, -1);
+                Socket.Select(fds, null, null, 500);
                 //Testing
                 int[] idPlayers = new int[5] { 1, 2, 3, 4, 5 };
                 int[] nbPlayers = new int[5] { 4, 5, 3, 9, 8 };
@@ -166,7 +166,7 @@ namespace Server
         }
         public static Socket setupSocketGame()
         {
-            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 10007);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 2000);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             server.Bind(iep);
             server.Listen(100);
@@ -546,6 +546,31 @@ namespace Server
             encode(message, role, size);
             return sendMessage(client, message);
         }
+        public static void leaveLobby(Socket client, List<Socket> clients,int id)
+        {
+            int msgSize = 1 + sizeof(int);
+            byte[] message = new byte[msgSize];
+            int[] size = new int[1] { 1 };
+            message[0] = 13;
+            encode(message, id, size);
+            foreach(Socket sock in clients)
+            {
+                sendMessage(sock, message);
+            }
+        }
+        public static void ready(Socket client, List<Socket> clients, int id,bool status)
+        {
+            int msgSize = 1 + sizeof(int)+sizeof(bool);
+            byte[] message = new byte[msgSize];
+            int[] size = new int[1] { 1 };
+            message[0] = 14;
+            encode(message, id, size);
+            encode(message, status, size);
+            foreach (Socket sock in clients)
+            {
+                sendMessage(sock, message);
+            }
+        }
 
         public static answer recvMessageGame(List<Socket> list,byte[] message , int receivedBytes)
         {
@@ -599,6 +624,7 @@ namespace Server
             }
             return false;
         }
+        
         public static answer recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
@@ -625,7 +651,7 @@ namespace Server
                     }
                     else
                     {
-                        Console.WriteLine("game created");
+                        Console.WriteLine("game not created");
                         sendMessage(client, new byte[] { 255 });
                     }
 
@@ -653,11 +679,20 @@ namespace Server
                             else
                             {
                                 Console.WriteLine("already Playing");
+                                    foreach(Joueur j in gameId[gameId]._joueurs)
+                                    {
+                                        if (j.GetId() == idj)
+                                        {
+                                            j.SetSocket(client);
+                                        }
+                                    }
+                                    //envoyer les information déjà connue
                             }
+                                connected.Remove(client);
                             }
                             else
                             {
-                                Console.WriteLine("Not connected");
+                                Console.WriteLine("Already connected(shouldn't be possible)");
                             }
                         }
                         else

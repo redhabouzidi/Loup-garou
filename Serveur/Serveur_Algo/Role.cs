@@ -9,7 +9,6 @@ public abstract class Role
     protected int IdRole;
     // on définit de manière arbitraire 20 secondes pour jouer à chaque rôle
     private const int delaiAlarme = 20;
-
     public override string ToString()
     {
         return name;
@@ -49,7 +48,7 @@ public abstract class Role
                 read.Add(socket);
             }
 	    Console.WriteLine("bah on attends alors");
-            Socket.Select(read, null, null, -1);
+            Socket.Select(read, null, null, 2000);
 	    Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
@@ -62,9 +61,22 @@ public abstract class Role
                 Console.WriteLine("vote marche");
                 foreach (Socket sock in read)
                 {
+                    if (sock.Available == 0)
+                    {
+                        sockets.Remove(sock);
+                        foreach(Joueur j in listJoueurs)
+                        {
+                            if (j.GetSocket() == sock)
+                            {
+                                j.SetSocket(null);
+                                break;
+                            }
+                        }
+                    }
                     int[] size = new int[1] { 1 };
                     byte[] message = new byte[4096];
-			int recvSize=sock.Receive(message);	    
+			int recvSize=sock.Receive(message);
+                    
                     if (role.Contains(sock))
                     {
             
