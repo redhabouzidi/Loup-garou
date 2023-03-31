@@ -5,27 +5,28 @@ using UnityEngine.UI;
 
 public class ButtonClick : MonoBehaviour
 {
-    [SerializeField]
-    private bool hide = false;
-    private GameObject chat;
-    private Image seeHide;
+    public static bool isHide = false;
+    public GameObject chat, chatNotification;
+    public Image imageSeeHide;
+    public Button buttonSeeHide;
     
     void Start()
     {
-        chat = GameObject.Find("Chat");
-        seeHide = GameObject.Find("Button-see-hide-chat").GetComponent<Image>();
+        buttonSeeHide.onClick.AddListener(OnButtonClickSeeHideChat);
     }
 
-    public void ButtonSeeHideChat()
+    public void OnButtonClickSeeHideChat()
     {
-        // Code pour l'action à effectuer lorsque le bouton est cliqué
-        if (!hide){
-            seeHide.rectTransform.anchoredPosition = new Vector2(-30, 315);
+        if (!isHide){
+            imageSeeHide.rectTransform.anchoredPosition = new Vector2(255, 250);
+            imageSeeHide.transform.localScale = new Vector3(-1,1,1);
         }
         else {
-            seeHide.rectTransform.anchoredPosition = new Vector2(-557, 315);
+            imageSeeHide.rectTransform.anchoredPosition = new Vector2(-206, 250);
+            chatNotification.SetActive(false);
+            imageSeeHide.transform.localScale = new Vector3(1,1,1);
         }
         chat.gameObject.SetActive(!chat.gameObject.activeSelf);
-        hide = !hide;
+        isHide = !isHide;
     }
 }

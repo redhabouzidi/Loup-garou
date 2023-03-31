@@ -377,6 +377,9 @@ public class NetworkManager : MonoBehaviour
                 case 6:
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
+                    
+                    gm.setAmoureux(idPlayer, idp);
+
                     gm.lover1_id = gm.p.GetId();
                     gm.lover2_id = idPlayer;
                     string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
@@ -399,7 +402,6 @@ public class NetworkManager : MonoBehaviour
                             break;
                     }
                     gm.SendMessageToChat(msg,Message.MsgType.system);
-                    gm.AfficheAmoureux();
                     gm.MiseAJourAffichage();
                     break;
                 case 7:

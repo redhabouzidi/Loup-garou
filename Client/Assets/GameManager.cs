@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
 
 
-    public Button buttonValiderVote;
+    public Button buttonValiderVote, buttonRole;
     public GameObject GO_buttonAfficheCarte;
 
     // win screen
@@ -48,9 +48,9 @@ public class GameManager : MonoBehaviour
     public int lover2_id=-1;
 
     // variable pour le chat
-    private int maxMsg = 50;
+    private int maxMsg = 100;
     List<Message> msgList = new List<Message>();
-    public GameObject chatPanel, textComponent;
+    public GameObject chatPanel, textComponent, chatNotification;
     public TMP_InputField inputChat;
     public Button sendChat;
     public Color playerC, systemC;
@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
+        buttonRole.onClick.AddListener(OnButtonClickRole);
         buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
@@ -234,6 +235,11 @@ public class GameManager : MonoBehaviour
         AfficheVoyante();
     }
 
+    private void OnButtonClickRole(){
+        bool active = GO_rolesRestant.activeSelf;
+        GO_rolesRestant.SetActive(!active);
+    }
+
     private void OnButtonClickNon() {
         choixAction.SetActive(false);
         NetworkManager.Vote(NetworkManager.client, NetworkManager.id,0);
@@ -363,18 +369,22 @@ public class GameManager : MonoBehaviour
             msgList.Remove(msgList[0]);
         }
         GameObject newText = Instantiate(textComponent, chatPanel.transform);
-
-
         Message newMsg = new Message();
 
         newMsg.msg = text;
         newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
-
         newMsg.textComponent.text = newMsg.msg;
-
-
         newMsg.textComponent.color = MessageColor(type);
+
         msgList.Add(newMsg);
+
+        if(ButtonClick.isHide && type == Message.MsgType.player){
+            chatNotification.SetActive(true);
+        }
+        else{
+            chatNotification.SetActive(false);
+        }
+
     }
 
     private Color MessageColor(Message.MsgType type)
@@ -438,6 +448,10 @@ public class GameManager : MonoBehaviour
     public void AfficheCard()
     {
         Debug.Log("nbp="+nbPlayer);
+        if (nbPlayer > 10){
+            cardContainer.transform.localPosition = new Vector3(0, -93f, 0);
+        }
+
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutCarte(i);
@@ -508,6 +522,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void setAmoureux(int id1, int id2){
+        int indice1 = chercheIndiceJoueurId(id1);
+        int indice2 = chercheIndiceJoueurId(id2);
+        listPlayer[indice1].SetIsMarried(true);
+        listPlayer[indice2].SetIsMarried(true);
+    }
+
     public void Vote()
     {
         if(p.GetRole() == "Cupidon" && isNight){
@@ -544,24 +565,13 @@ public class GameManager : MonoBehaviour
         TextMeshProUGUI text =  listCard[indice].transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         Image eyeImg = toggleCard.transform.Find("eye").GetComponent<Image>();
-        Image lgIcon = toggleCard.transform.Find("lg-icon").GetComponent<Image>();
+        Image heart = toggleCard.transform.Find("heart").GetComponent<Image>();
+        GameObject skull = toggleCard.transform.Find("skull").gameObject;
+
 
         eyeImg.enabled = false;
-        lgIcon.enabled = false;
-
-        if (!listPlayer[indice].GetIsAlive())
-        {
-            text.text = listPlayer[indice].GetPseudo() + " - mort\n" + listPlayer[indice].GetRole();
-            text.color = colorRed;
-            toggleCard.interactable = false;
-            roleImg.enabled = true;
-
-
-            // changer la couleur de la carte
-            ColorBlock colors = toggleCard.colors;
-            colors.disabledColor = colorBlack;
-            toggleCard.colors = colors;
-        }
+        heart.enabled= false;
+        skull.SetActive(false);
 
         if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
             roleImg.enabled = true;
@@ -569,7 +579,25 @@ public class GameManager : MonoBehaviour
         }
 
         if(p.GetRole() == "Loup-garou" && listPlayer[indice].GetRole() == "Loup-garou") {
-            lgIcon.enabled = true;
+            roleImg.enabled = true;
+        }
+
+        if(p.GetRole() == "Cupidon" || p.GetIsMarried()){
+            heart.enabled = true;
+        }
+
+        if (!listPlayer[indice].GetIsAlive())
+        {
+            text.text = listPlayer[indice].GetPseudo() + " - mort\n" + listPlayer[indice].GetRole();
+            text.color = colorRed;
+            toggleCard.interactable = false;
+            roleImg.enabled = true;
+            skull.SetActive(true);
+
+            // changer la couleur de la carte
+            ColorBlock colors = toggleCard.colors;
+            colors.disabledColor = colorBlack;
+            toggleCard.colors = colors;
         }
     }
 
@@ -732,6 +760,7 @@ public class Player
     private string role = "Villageois";
     private string pseudo = "Pseudo";
     private bool isAlive = true;
+    private bool isMarried = false;
     private int id;
     private int roleId;
     private bool seen = false;
@@ -763,6 +792,9 @@ public class Player
     {
         return isAlive;
     }
+    public bool GetIsMarried(){
+        return isMarried;
+    }
     public int GetId()
     {
         return id;
@@ -777,7 +809,9 @@ public class Player
     {
         isAlive = alive;
     }
-
+    public void SetIsMarried(bool m){
+        isMarried = m;
+    }
     public void SetRole(int rid)
     {
         roleId = rid;
