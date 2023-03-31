@@ -71,12 +71,13 @@ namespace Server
             // {
             games.Add(0, new Game());
             bdd = serverbdd.Accept();
-            List<Socket> connected = new List<Socket>();
             List<Socket> clients = new List<Socket>();
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
+            Dictionary<int, Game> players = new Dictionary<int, Game>();
+            Dictionary<Socket,int> connected= new Dictionary<Socket ,int>();
             Queue queue = new Queue();
-	    int i=0;
+	        int i=0;
             while (a)
             {
 
@@ -86,9 +87,9 @@ namespace Server
                 {
                     fds.Add(fd);
                 }
-                foreach (Socket fd in connected)
+                foreach (KeyValuePair<Socket,int> input in connected)
                 {
-                    fds.Add(fd);
+                    fds.Add(input.Key);
                 }
 
                 Socket.Select(fds, null, null, -1);
@@ -135,7 +136,7 @@ namespace Server
                     }
                     else
                     {
-                        recvMessage(fd, bdd, list, connected, queue);
+                        recvMessage(fd, bdd, list, connected, queue, players);
                     }
                 }
 	    }
@@ -177,7 +178,6 @@ namespace Server
             clients.Add(server.Accept());
             return;
         }
-
         //fonction qui envoie un message a un socket donne en parametre
         public static int sendMessage(Socket client, byte[] message)
         {
@@ -588,7 +588,18 @@ namespace Server
             }
             return new answer();
         }
-        public static answer recvMessage(Socket client, Socket bdd, List<Socket> list, List<Socket> connected, Queue queue)
+        public static bool alreadyConnected(Dictionary<Socket,int> connected,int idPlayer)
+        {
+            foreach(KeyValuePair<Socket,int> input in connected)
+            {
+                if(input.Value == idPlayer)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static answer recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
             int dataSize, tableSize, id;
@@ -629,9 +640,25 @@ namespace Server
                     {
                         if (games[gameId].GetJoueurManquant() != 0)
                         {
-                            Console.WriteLine($"joins game {gameId}");
-                            Console.WriteLine("id joueur : " + idj);
-                            games[gameId].Join(new Client(idj, client, username));
+                            if (connected.ContainsKey(client))
+                            {
+
+                            if (!players.ContainsKey(connected[client]))
+                            {
+                                Console.WriteLine($"joins game {gameId}");
+                                Console.WriteLine("id joueur : " + idj);
+                                games[gameId].Join(new Client(idj, client, username));
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("already Playing");
+                            }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Not connected");
+                            }
                         }
                         else
                         {
@@ -652,7 +679,7 @@ namespace Server
                 case 100://disconnects
                     break;
                 case 103://informations des lobby
-                    if (connected.Contains(client))
+                    if (connected.ContainsKey(client))
                     {
                         getCurrentLobbies(bdd, queue.addVal(client));
                         return new answer(false, 0, 0, null);
@@ -667,7 +694,7 @@ namespace Server
 
                     break;
                 case 105://log in
-                    if (!connected.Contains(client))
+                    if (!connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     else
                         sendMessage(client, new byte[] { 255 });
@@ -678,15 +705,15 @@ namespace Server
                     // SendAccountInfo(client, true, 1, username);
                     break;
                 case 153:
-                    if (connected.Contains(client))
+                    if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     break;
                 case 154:
-                    if (connected.Contains(client))
+                    if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     break;
                 case 155:
-                    if (connected.Contains(client))
+                    if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     break;
                 default:
@@ -694,7 +721,7 @@ namespace Server
             }
             return new answer();
         }
-        public static int recvBddMessage(Socket bdd, Queue queue, List<Socket> list, List<Socket> connected)
+        public static int recvBddMessage(Socket bdd, Queue queue, List<Socket> list, Dictionary<Socket,int> connected)
         {
             int[] size = new int[1] { 1 };
             byte[] message = new byte[4096];
@@ -714,8 +741,12 @@ namespace Server
                     string username = decodeString(message, size);
                     if (answer)
                     {
-                        list.Remove(queue.queue[queueId]);
-                        connected.Add(queue.queue[queueId]);
+                        if (!alreadyConnected(connected,idPlayer))
+                        {
+                            list.Remove(queue.queue[queueId]);
+                            connected.Add(queue.queue[queueId],idPlayer);
+
+                        }
                     }
                     Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
