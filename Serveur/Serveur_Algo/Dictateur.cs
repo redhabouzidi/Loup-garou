@@ -30,10 +30,7 @@ public class Dictateur : Role
         Socket vide;
         vide = Game.listener.Accept();
         // bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+        sendTime(listJoueurs, GetDelaiAlarme());
         Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes

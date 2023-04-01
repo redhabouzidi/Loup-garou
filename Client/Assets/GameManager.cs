@@ -82,6 +82,14 @@ public class GameManager : MonoBehaviour
         {
             switch (p.GetRole())
             {
+                case 0:
+                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 0, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Villageois", 0, p.GetId(), true);
+                        player_role.text = "Villageois";
+                    }
+                    break;
                 case 1:
                     listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
@@ -204,7 +212,7 @@ public class GameManager : MonoBehaviour
             }
         AfficheTimer();
         Timer_text_screen();
-        
+        AfficherJour();
         }
 
     }
@@ -405,6 +413,7 @@ public class GameManager : MonoBehaviour
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
 	    text.tag="Pseudos";
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
+        Debug.Log("id == " + id);
         text.text = listPlayer[id].GetPseudo();
         switch(listPlayer[id].GetRole()) {
             case "Loup-garou":

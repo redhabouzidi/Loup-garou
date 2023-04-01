@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=4,time;
+    public static int nbplayeres=2,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
@@ -372,7 +372,6 @@ public class NetworkManager : MonoBehaviour
                     {
                         GameManager.tour++;
                     }
-                    gm.AfficherJour();
                     break;
                 case 6:
                     idPlayer = decode(message, size);
@@ -430,13 +429,13 @@ public class NetworkManager : MonoBehaviour
                         roles[i] = decode(message, size);
                         dictJoueur[ids[i]] = roles[i];
                     }
-
-                    for (int i = 0; i < ws.players_waiting.Count; i++)
+                    players = new WPlayer[ws.players_waiting.Count];
+                    for (int i = 0; i < val; i++)
                     {
 
                         ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
                     }
-                    players = new WPlayer[ws.players_waiting.Count];
+                    
                     ws.players_waiting.CopyTo(players);
                     LoadScene("game_scene");
 

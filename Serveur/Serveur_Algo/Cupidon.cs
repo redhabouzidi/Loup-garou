@@ -14,10 +14,7 @@ public class Cupidon : Role
 
     public override void Action(List<Joueur> listJoueurs)
     {
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTurn(j.GetSocket(), GetIdRole());
-        }
+        sendTurn(listJoueurs);
         // écrire l'action du Cupidon
         // choix des amoureux
         bool boucle = true;
@@ -25,10 +22,7 @@ public class Cupidon : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+        sendTime(listJoueurs, GetDelaiAlarme());
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
         {
@@ -73,10 +67,7 @@ public class Cupidon : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-			foreach(Joueur j in listJoueurs)
-			{
-				server.sendTime(j.GetSocket(),GetDelaiAlarme()/4);
-			}
+                        sendTime(listJoueurs, GetDelaiAlarme()/4);
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);

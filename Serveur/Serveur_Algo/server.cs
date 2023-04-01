@@ -666,35 +666,41 @@ namespace Server
                     Console.WriteLine("gameid=" + gameId);
                     if (games.ContainsKey(gameId))
                     {
-                        if (games[gameId].GetJoueurManquant() != 0)
-                        {
+                        
                             if (connected.ContainsKey(client))
                             {
 
                             if (!players.ContainsKey(connected[client]))
                             {
-                                Console.WriteLine($"joins game {gameId}");
-                                Console.WriteLine("id joueur : " + idj);
-                                games[gameId].Join(new Client(idj, client, username));
-                                players[idj] = games[gameId];
-
+                                if (games[gameId].GetJoueurManquant() != 0)
+                                {
+                                    Console.WriteLine($"joins game {gameId}");
+                                    Console.WriteLine("id joueur : " + idj);
+                                    games[gameId].Join(new Client(idj, client, username));
+                                    players[idj] = games[gameId];
+                                }
+                                else
+                                {
+                                    sendMessage(client, new byte[] { 255 });
+                                }
 
                             }
                             else
                             {
                                 Console.WriteLine("already Playing");
-
-                                    foreach(Joueur j in games[gameId].GetJoueurs())
+                                    Game g = players[connected[client]];
+                                    foreach (Joueur j in g.GetJoueurs())
                                     {
                                         if (j.GetId() == idj)
                                         {
                                             j.SetSocket(client);
-                                            games[gameId].sendRoles(j);
+                                            g.sendGameInfo(client);
+                                            g.sendRoles(j);
                                             //envoyer les information déjà connue
                                         }
                                     }
-                                    games[gameId].vide.Send(new byte[1] { 0 });
                                     connected.Remove(client);
+                                    g.vide.Send(new byte[1] { 0 });
                                     
                                 }
                             }
@@ -702,11 +708,8 @@ namespace Server
                             {
                                 Console.WriteLine("Not connected(shouldn't be possible)");
                             }
-                        }
-                        else
-                        {
-                            sendMessage(client, new byte[] { 255 });
-                        }
+                        
+                        
 
 
                     }

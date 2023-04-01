@@ -10,7 +10,7 @@ public class Game
     private List<Role> _roles;
     private int _nbrJoueursManquants;
     public static Socket listener = Server.server.setupSocketGame();
-    public Socket vide;
+    public Socket vide,reveille;
     public Game()
     {
         _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
@@ -66,14 +66,7 @@ public class Game
         {
             if (p == j)
             {
-                int[] id = new int[_joueurs.Count];
-                string[] name = new string[_joueurs.Count];
-                for (int i = 0; i < _joueurs.Count; i++)
-                {
-                    id[i] = _joueurs[i].GetId();
-                    name[i] = _joueurs[i].GetPseudo();
-                }
-                server.sendGameInfo(p.GetSocket(), "canon", id, name);
+                sendGameInfo(p.GetSocket());
             }
             else
             {
@@ -91,12 +84,9 @@ public class Game
         {
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie())
             {
-                _joueurs[i].GetRole().gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _joueurs[i].GetRole().gameListener.Connect(Game.listener.LocalEndPoint);
-                this.vide = listener.Accept();
+                _joueurs[i].GetRole().gameListener = reveille;
+
                 _joueurs[i].FaireAction(_joueurs);
-                _joueurs[i].GetRole().gameListener.Close();
-                this.vide.Close();
                 break;
             }
         }
@@ -106,10 +96,11 @@ public class Game
     {
         // mélange des rôles et répartition pour les joueurs
         InitiateGame();
-
-
+        reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        reveille.Connect(listener.LocalEndPoint);
+        vide = listener.Accept();
         int checkWin;
-
+        
         bool day = false;
 
         while (true)
@@ -127,10 +118,7 @@ public class Game
             }
             // ICI : broadcast du serveur : c'est la nuit
 
-            foreach (Joueur j in _joueurs)
-            {
-                server.etatGame(j.GetSocket(), day);
-            }
+            sendGameState(day);
             day = !day;
             // appeller Voyante si il y en a un
             LanceAction(typeof(Voyante));
@@ -143,10 +131,7 @@ public class Game
             LanceAction(typeof(Sorciere));
 
             // ICI : broadcast du serveur : c'est la journée
-            foreach (Joueur j in _joueurs)
-            {
-                server.etatGame(j.GetSocket(), day);
-            }
+            sendGameState(day);
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
@@ -238,6 +223,7 @@ public class Game
 
     private void Jour(List<Joueur> listJoueurs)
     {
+        Console.WriteLine("1");
         List<int> votant = new List<int>();
         List<int> cible = new List<int>();
         foreach (Joueur j in _joueurs)
@@ -248,19 +234,17 @@ public class Game
                 cible.Add(-1);
             }
         }
-
+        Console.WriteLine("2");
         bool boucle = true;
         // on définit une "alarme" sur 60 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
+        Console.WriteLine("3");
         vide = Game.listener.Accept();
-
+        Console.WriteLine("4");
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        foreach (Joueur j in _joueurs)
-        {
-            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() * 3);
-        }
+        r.sendTime(listJoueurs, GetDelaiAlarme()*3);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 2500); // 45 secondes
@@ -272,12 +256,18 @@ public class Game
                 boucle = false;
             }
         });
-
+        Console.WriteLine("5");
         int index, v, c;
+            Role r = new Villageois();
+        r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        r.gameListener.Connect(listener.LocalEndPoint);
+        this.vide = listener.Accept();
         while (boucle)
         {
-            Role r = new Villageois();
+            Console.WriteLine("6");
+            
             (v, c) = r.gameVote(listJoueurs, 1, reveille);
+            Console.WriteLine("7");
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
@@ -299,10 +289,7 @@ public class Game
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                        foreach (Joueur j in listJoueurs)
-                        {
-                            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() / 2);
-                        }
+                            r.sendTime(listJoueurs, GetDelaiAlarme()/2);
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
@@ -410,6 +397,24 @@ public class Game
             }
             server.sendRoles(j.GetSocket(), id, rolesToSend);
         
+    }
+    public void sendGameInfo(Socket sock)
+    {
+        int[] id = new int[_joueurs.Count];
+        string[] name = new string[_joueurs.Count];
+        for (int i = 0; i < _joueurs.Count; i++)
+        {
+            id[i] = _joueurs[i].GetId();
+            name[i] = _joueurs[i].GetPseudo();
+        }
+        server.sendGameInfo(sock, "canon", id, name);
+    }
+    public void sendGameState(bool day)
+    {
+        foreach (Joueur j in _joueurs)
+        {
+            server.etatGame(j.GetSocket(), day);
+        }
     }
     public int GetJoueurManquant()
     {

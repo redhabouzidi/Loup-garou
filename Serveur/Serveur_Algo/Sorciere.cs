@@ -71,10 +71,7 @@ public class Sorciere : Role
                 reveille.Connect(Game.listener.LocalEndPoint);
                 Socket vide;
                 vide = Game.listener.Accept();
-                foreach (Joueur j in listJoueurs)
-                {
-                    server.sendTime(j.GetSocket(), GetDelaiAlarme()*375/1000);
-                }
+                sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
                 Task t = Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 375);
@@ -121,10 +118,7 @@ public class Sorciere : Role
 
     public void PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTurn(j.GetSocket(), GetIdRole());
-        }
+        sendTurn(listJoueurs);
         bool boucle = true;
         bool wantToKill = false;
         // on définit une "alarme" qui modifie la valeur du boolean
@@ -133,10 +127,8 @@ public class Sorciere : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme()*375/1000);
-        }
+            sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
+        
         
         
         Task t = Task.Run(() =>
@@ -174,10 +166,8 @@ public class Sorciere : Role
             bool boucleKill = true;
             bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
             Joueur? cible = null;
-            foreach(Joueur j in listJoueurs)
-	    {
-		    server.sendTime(j.GetSocket(),GetDelaiAlarme()/2);
-	    }
+                sendTime(listJoueurs, GetDelaiAlarme()/2);
+            
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
@@ -212,10 +202,7 @@ public class Sorciere : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-			foreach(Joueur j in listJoueurs)
-			{
-				server.sendTime(j.GetSocket(),GetDelaiAlarme()/8);
-			}
+                            sendTime(listJoueurs, GetDelaiAlarme()/8);
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 125);

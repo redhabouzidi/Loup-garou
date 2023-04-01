@@ -8,7 +8,6 @@ using MySql.Data.MySqlClient;
 
 public class bdd
 {
-    public static int id = 0;
     public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
@@ -173,7 +172,10 @@ public class bdd
         string password = decodeString(message, size);
         Console.WriteLine($"l'utilisateur {username} avec l'id 5 et le mdp {password} s'est connecté");
         if (Login.login_user(conn, username, password) == 0)
-            connexionAnswer(bdd, queueId, true, id++, username);
+        {
+            int id=Login.get_id(conn, username);
+            connexionAnswer(bdd, queueId, true, id, username);
+        }
         else
             connexionAnswer(bdd, queueId, false, 0, username);
     }
