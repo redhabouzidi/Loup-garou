@@ -135,7 +135,7 @@ public abstract class Role
     {
         return delaiAlarme;
     }
-    public void sendTurn(List<Joueurs> listJoueurs)
+    public void sendTurn(List<Joueur> listJoueurs)
     {
         foreach (Joueur j in listJoueurs)
         {
@@ -143,7 +143,7 @@ public abstract class Role
                 server.sendTurn(j.GetSocket(), GetIdRole());
         }
     }
-    public static void sendTime(List<Joueurs> listJoueurs,int time)
+    public void sendTime(List<Joueur> listJoueurs,int time)
     {
         foreach (Joueur j in listJoueurs)
         {

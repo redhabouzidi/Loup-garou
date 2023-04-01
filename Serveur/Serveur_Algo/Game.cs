@@ -223,6 +223,7 @@ public class Game
 
     private void Jour(List<Joueur> listJoueurs)
     {
+        Role r = new Villageois();
         Console.WriteLine("1");
         List<int> votant = new List<int>();
         List<int> cible = new List<int>();
@@ -244,7 +245,7 @@ public class Game
         vide = Game.listener.Accept();
         Console.WriteLine("4");
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        r.sendTime(listJoueurs, GetDelaiAlarme()*3);
+        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 2500); // 45 secondes
@@ -258,7 +259,7 @@ public class Game
         });
         Console.WriteLine("5");
         int index, v, c;
-            Role r = new Villageois();
+            
         r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         r.gameListener.Connect(listener.LocalEndPoint);
         this.vide = listener.Accept();
@@ -289,7 +290,7 @@ public class Game
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                            r.sendTime(listJoueurs, GetDelaiAlarme()/2);
+                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2);
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10

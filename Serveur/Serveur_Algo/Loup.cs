@@ -75,7 +75,7 @@ public override void Action(List<Joueur> listJoueurs)
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-			            sendTime(listJoueurs, GetDelaiAlarme() /4)
+                            sendTime(listJoueurs, GetDelaiAlarme() / 4);
                         Task.Run(() =>
                         {
 			    	
