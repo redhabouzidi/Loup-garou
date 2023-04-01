@@ -47,8 +47,11 @@ namespace Server
 
         }
     }
+    
     public class server
     {
+        public static Dictionary<int, Game> players = new Dictionary<int, Game>();
+        public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
 
         public static void Main(string[] args)
@@ -74,8 +77,7 @@ namespace Server
             List<Socket> clients = new List<Socket>();
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
-            Dictionary<int, Game> players = new Dictionary<int, Game>();
-            Dictionary<Socket,int> connected= new Dictionary<Socket ,int>();
+            
             Queue queue = new Queue();
 	        int i=0;
             while (a)
@@ -92,7 +94,7 @@ namespace Server
                     fds.Add(input.Key);
                 }
 
-                Socket.Select(fds, null, null, 500);
+                Socket.Select(fds, null, null, -1);
                 //Testing
                 int[] idPlayers = new int[5] { 1, 2, 3, 4, 5 };
                 int[] nbPlayers = new int[5] { 4, 5, 3, 9, 8 };
@@ -674,28 +676,31 @@ namespace Server
                                 Console.WriteLine($"joins game {gameId}");
                                 Console.WriteLine("id joueur : " + idj);
                                 games[gameId].Join(new Client(idj, client, username));
+                                players[idj] = games[gameId];
+
 
                             }
                             else
                             {
                                 Console.WriteLine("already Playing");
 
-                                    foreach(Joueur j in gameId[gameId]._joueurs)
+                                    foreach(Joueur j in games[gameId].GetJoueurs())
                                     {
                                         if (j.GetId() == idj)
                                         {
                                             j.SetSocket(client);
+                                            games[gameId].sendRoles(j);
+                                            //envoyer les information déjà connue
                                         }
                                     }
-                                    gameId[gameId].vide.Send(new byte[1] { 0 });
-
-                                    //envoyer les information déjà connue
-                            }
-                                connected.Remove(client);
+                                    games[gameId].vide.Send(new byte[1] { 0 });
+                                    connected.Remove(client);
+                                    
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("Already connected(shouldn't be possible)");
+                                Console.WriteLine("Not connected(shouldn't be possible)");
                             }
                         }
                         else

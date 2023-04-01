@@ -44,7 +44,11 @@ public class Game
         // check si y'a assez de joueurs pour lancer la partie
         if (_nbrJoueursManquants == 0)
         {
-            Start();
+            foreach(Joueur j in _joueurs)
+                {
+                    server.connected.Remove(j.GetSocket());
+                }
+            Task.Run(() => Start());
         }
         else
         {
@@ -87,11 +91,11 @@ public class Game
         {
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie())
             {
-                _joueurs[i].gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _joueurs[i].gameListener.Connect(Game.listener.LocalEndPoint);
+                _joueurs[i].GetRole().gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _joueurs[i].GetRole().gameListener.Connect(Game.listener.LocalEndPoint);
                 this.vide = listener.Accept();
                 _joueurs[i].FaireAction(_joueurs);
-                _joueurs[i].gameListener.Close();
+                _joueurs[i].GetRole().gameListener.Close();
                 this.vide.Close();
                 break;
             }
@@ -272,7 +276,8 @@ public class Game
         int index, v, c;
         while (boucle)
         {
-            (v, c) = Role.gameVote(listJoueurs, 1, reveille);
+            Role r = new Villageois();
+            (v, c) = r.gameVote(listJoueurs, 1, reveille);
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
@@ -374,21 +379,37 @@ public class Game
     {
         Random random = new Random();
         _roles = _roles.OrderBy(r => random.Next()).ToList();
-        int[] id = new int[_joueurs.Count];
-        int[] roles = new int[_joueurs.Count];
+        
         for (int i = 0; i < _joueurs.Count; i++)
         {
             _joueurs[i].SetRole(_roles[i]);
-            id[i] = _joueurs[i].GetId();
-            roles[i] = _joueurs[i].GetRole().GetIdRole();
         }
         foreach (Joueur j in _joueurs)
         {
-            server.sendRoles(j.GetSocket(), id, roles);
+            sendRoles(j);
         }
-
         // appeller Cupidon si il y en a un
         LanceAction(typeof(Cupidon));
+    }
+    public void sendRoles(Joueur j)
+    {
+        int[] id = new int[_joueurs.Count];
+        int[] rolesToSend = new int[_joueurs.Count];
+        
+            for (int i = 0; i < _roles.Count; i++)
+            {
+                id[i] = _joueurs[i].GetId();
+                if (j.GetRole().GetIdRole() == _roles[i].GetIdRole())
+                {
+                    rolesToSend[i] = _roles[i].GetIdRole();
+                }
+                else
+                {
+                    rolesToSend[i] = 0;
+                }
+            }
+            server.sendRoles(j.GetSocket(), id, rolesToSend);
+        
     }
     public int GetJoueurManquant()
     {
@@ -493,5 +514,9 @@ public class Game
         }
 
         return retour;
+    }
+    public List<Joueur> GetJoueurs()
+    {
+        return _joueurs;
     }
 }

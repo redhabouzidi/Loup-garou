@@ -9,7 +9,7 @@ public abstract class Role
     protected int IdRole;
     // on définit de manière arbitraire 20 secondes pour jouer à chaque rôle
     private const int delaiAlarme = 20;
-    public Socke gameListener;
+    public Socket gameListener;
     public override string ToString()
     {
         return name;
@@ -18,14 +18,14 @@ public abstract class Role
     public abstract void Action(List<Joueur> listJoueurs);
 
 
-    public static (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)
+    public (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)
     {
         Dictionary<Socket, Joueur> dictJoueur = new Dictionary<Socket, Joueur>();
         List<Socket> role = new List<Socket>();
         List<Socket> sockets = new List<Socket>(), read = new List<Socket>();
         Console.WriteLine("vote");
         sockets.Add(reveille);
-        sockets.Add(gameListener);
+        sockets.Add(this.gameListener);
 	Console.WriteLine("ici c'est 1");
         foreach (Joueur j in listJoueurs)
         {
@@ -50,17 +50,17 @@ public abstract class Role
                 read.Add(socket);
             }
 	    Console.WriteLine("bah on attends alors");
-            Socket.Select(read, null, null, 2000);
+            Socket.Select(read, null, null, -1);
 	    Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
                 reveille.Receive(new byte[1]);
 		Console.WriteLine("on va sortir");
                 return (-1, -1);
-            }else if (read.Contains(gameListener))
+            }else if (read.Contains(this.gameListener))
             {
                 Console.WriteLine("joueur se reconnecte");
-                gameListener.Receive(new byte[1]);
+                this.gameListener.Receive(new byte[1]);
                 return (-1, -1);
             }
             else
@@ -82,7 +82,7 @@ public abstract class Role
                     }
                     int[] size = new int[1] { 1 };
                     byte[] message = new byte[4096];
-			int recvSize=sock.Receive(message);
+			        int recvSize=sock.Receive(message);
                     
                     if (role.Contains(sock))
                     {
