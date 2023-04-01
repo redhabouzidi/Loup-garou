@@ -679,6 +679,7 @@ namespace Server
                             else
                             {
                                 Console.WriteLine("already Playing");
+
                                     foreach(Joueur j in gameId[gameId]._joueurs)
                                     {
                                         if (j.GetId() == idj)
@@ -686,6 +687,8 @@ namespace Server
                                             j.SetSocket(client);
                                         }
                                     }
+                                    gameId[gameId].vide.Send(new byte[1] { 0 });
+
                                     //envoyer les information déjà connue
                             }
                                 connected.Remove(client);

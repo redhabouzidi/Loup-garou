@@ -10,7 +10,7 @@ public class Game
     private List<Role> _roles;
     private int _nbrJoueursManquants;
     public static Socket listener = Server.server.setupSocketGame();
-
+    public Socket vide;
     public Game()
     {
         _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
@@ -87,7 +87,12 @@ public class Game
         {
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie())
             {
+                _joueurs[i].gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _joueurs[i].gameListener.Connect(Game.listener.LocalEndPoint);
+                this.vide = listener.Accept();
                 _joueurs[i].FaireAction(_joueurs);
+                _joueurs[i].gameListener.Close();
+                this.vide.Close();
                 break;
             }
         }
