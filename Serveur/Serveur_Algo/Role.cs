@@ -145,11 +145,13 @@ public abstract class Role
     }
     public void sendTime(List<Joueur> listJoueurs,int time)
     {
+        Console.WriteLine("in");
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetSocket().Connected)
                 server.sendTime(j.GetSocket(),time);
         }
+        Console.WriteLine("out");
     }
 
     }

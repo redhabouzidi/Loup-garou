@@ -217,7 +217,23 @@ public class Game
         {
             retour = 1;
         }
-
+        if(retour != 0)
+        {
+            List<Socket> sockets = new List<Socket>();
+            int[] id = new int[listJoueurs.Count];
+            int[] idr = new int[listJoueurs.Count];
+            int i = 0; ;
+            foreach(Joueur j in listJoueurs)
+            {
+                id[i] = j.GetId();
+                idr[i] = j.GetRole().GetIdRole();
+                if (j.GetSocket().Connected)
+                {
+                    sockets.Add(j.GetSocket());
+                }
+            }
+            server.sendEndState(sockets, retour, id, idr);
+        }
         return retour;
     }
 
@@ -414,6 +430,7 @@ public class Game
     {
         foreach (Joueur j in _joueurs)
         {
+            if (j.GetSocket().Connected)
             server.etatGame(j.GetSocket(), day);
         }
     }

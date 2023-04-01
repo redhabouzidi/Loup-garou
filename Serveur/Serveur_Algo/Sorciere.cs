@@ -61,7 +61,7 @@ public class Sorciere : Role
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
-                server.EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
+                EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
                 
                 bool boucle = true;
 
@@ -168,6 +168,7 @@ public class Sorciere : Role
             Joueur? cible = null;
                 sendTime(listJoueurs, GetDelaiAlarme()/2);
             
+
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
@@ -217,7 +218,7 @@ public class Sorciere : Role
             }
 
             if (cible != null && cible.GetDoitMourir())
-            {
+            {   
                 potionKill -= 1;
             }
         }
@@ -228,5 +229,9 @@ public class Sorciere : Role
     public override int GetIdRole()
     {
         return IdRole;
+    }
+    public void EnvoieInformation(Socket socket,int cible)
+    {
+        server.EnvoieInformation(socket, cible);
     }
 }
