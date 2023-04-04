@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Sockets;
 using Server;
 namespace LGproject;
@@ -9,10 +10,15 @@ public class Game
     private List<Joueur> _joueurs;
     private List<Role> _roles;
     private int _nbrJoueursManquants;
+    public int _nbrJoueurs;
+    public string name;
+    private int _nbLoups;
+    private bool sorciere, voyante, cupidon;
     public static Socket listener = Server.server.setupSocketGame();
     public Socket vide,reveille;
     public Game()
     {
+        name = "village";
         _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
@@ -37,7 +43,56 @@ public class Game
         
         _joueurs = new List<Joueur>();
     }
+    public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon)
+    {
+        //Initialisation du nombre de joueurs
+        _nbrJoueursManquants = nbPlayers;
+        _nbrJoueurs = nbPlayers;
+        this.name = name;
+        // création de la liste de joueurs et de rôles
+        _roles = new List<Role>();
+        Role[] startingRoles = new Role[nbPlayers];
+        //affectation des parametres
+        this.sorciere = sorciere;
+        this.cupidon = cupidon;
+        this.voyante = voyante;
+        _nbLoups= nbLoups;
+        int i;
+        //initialisation des roles
+        for( i=0;i<nbLoups;i++)
+        {
+            startingRoles[i] = new Loup();
+        }
+        if (sorciere)
+        {
+            startingRoles[i++] = new Sorciere();
+        }
+        if(voyante)
+        {
+            startingRoles[i++] = new Voyante();
+        }
+        if (cupidon)
+        {
+            startingRoles[i++] = new Cupidon();
+        }
+        for (; i < nbPlayers; i++)
+        {
+            startingRoles[i] = new Villageois();
+        }
 
+        foreach (Role role in startingRoles)
+        {
+            _roles.Add(role);
+        }
+
+        if (!checkRoles())
+        {
+            Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
+        }
+
+        _joueurs = new List<Joueur>();
+        Join(c);
+    }
     public void Waiting_screen()
     {
         _nbrJoueursManquants--;
@@ -94,6 +149,11 @@ public class Game
 
     public void Start()
     {
+        foreach(Joueur j in _joueurs)
+        {
+            server.connected.Remove(j.GetSocket());
+        }
+        
         // mélange des rôles et répartition pour les joueurs
         InitiateGame();
         reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -424,7 +484,7 @@ public class Game
             id[i] = _joueurs[i].GetId();
             name[i] = _joueurs[i].GetPseudo();
         }
-        server.sendGameInfo(sock, "canon", id, name);
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon, this.name, id, name);
     }
     public void sendGameState(bool day)
     {

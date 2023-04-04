@@ -262,19 +262,24 @@ namespace Server
         }
 
         //fonction qui sert a envoyer les informztion d'une game a un client
-        public static void sendGameInfo(Socket client, string name, int[] idPlayers, string[] playerNames)
+        public static void sendGameInfo(Socket client,int nbPlayers,int nbLoup,bool sorciere,bool voyante,bool cupidon, string name, int[] idPlayers, string[] playerNames)
         {
             //variable d'index pour ne pas se perdre dans le tableau de bytes
             int[] size = new int[1] { 0 };
             //recuperer le nombre total de caracteres
             int pnsize = getStringLength(playerNames);
             //declarer un tableau de bytes avec le bon nombre de bytes
-            byte[] message = new byte[1 + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
+            byte[] message = new byte[1 + sizeof(int) + sizeof(int) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
             //mettre le code du message dans le premier byte
             message[0] = 101;
             //inrementer l'index
             size[0] += 1;
-            //ajouter le nom de la game dans le tableau de byte
+            //ajouter les parametres de la game dans le tableau de byte
+            encode(message, nbPlayers, size);
+            encode(message, nbLoup, size);
+            encode(message, sorciere, size);
+            encode(message, voyante, size);
+            encode(message, cupidon, size);
             encode(message, name, size);
             //ajouter le nombre d'elements du tableau idPlayers dans le message pour savoir combien il faut lire a la reception du packet
             encode(message, idPlayers.Length, size);
@@ -289,6 +294,7 @@ namespace Server
             {
                 encode(message, playerNames[i], size);
             }
+            //A RAJOUTER (PARAMETRES DE LA PARTIE)
             //envoyer le packet au client
             sendMessage(client, message);
         }
@@ -640,11 +646,18 @@ namespace Server
                     id = decodeInt(message, size);
                     username = decodeString(message, size);
                     string name = decodeString(message, size);
+                    int nbPlayers = decodeInt(message, size);
+                    int nbLoups = decodeInt(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
+
 
                     if (!games.ContainsKey(id))
                     {
                         Console.WriteLine("game created");
-                        games.Add(id, new Game());
+                        games.Add(id, new Game(new Client(id,client,username),name,nbPlayers,nbLoups,sorciere,voyante,cupidon));
+                        players.Add(id, games[id]);
                     }
                     else
                     {
@@ -694,7 +707,6 @@ namespace Server
                                             //envoyer les information déjà connue
                                         }
                                     }
-                                    connected.Remove(client);
                                     g.vide.Send(new byte[1] { 0 });
                                     
                                 }
@@ -722,7 +734,20 @@ namespace Server
                 case 103://informations des lobby
                     if (connected.ContainsKey(client))
                     {
-                        getCurrentLobbies(bdd, queue.addVal(client));
+                        int[] idGames = new int[games.Count];
+                        int[] nbPlayer = new int[games.Count];
+                        string[] gameNames = new string[games.Count];
+                        int i = 0;
+                        //charger toutes les information des parties dans les variables
+                        foreach (KeyValuePair<int,Game> data in games)
+                        {
+                            idGames[i]= data.Key; ;
+                            nbPlayer[i] = data.Value._nbrJoueurs;
+                            gameNames[i] = data.Value.name;
+                            i++;
+                        }
+                        //envoie
+                        SendCurrentGame(client, idGames, nbPlayer, gameNames);
                     }
 
                     break;
