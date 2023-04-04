@@ -377,8 +377,10 @@ namespace Server
             message[0] = 103;
             size[0] += 1;
             encode(message, nbPlayers.Length, size);
+            
             for (int i = 0; i < nbPlayers.Length; i++)
             {
+                Console.WriteLine("nb players = " + nbPlayers[i]);
                 encode(message, nbPlayers[i], size);
             }
             encode(message, gameId.Length, size);
@@ -760,7 +762,7 @@ namespace Server
                             gameNamesSend[j] = gameNames[j];
                         }
                         //envoie
-                        SendCurrentGame(client, idGamesSend, nbPlayerSend, gameNamesSend);
+                        SendCurrentGame(client, nbPlayerSend , idGamesSend, gameNamesSend);
                     }
 
                     break;

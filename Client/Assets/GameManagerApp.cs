@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit, buttonLogin, buttonRegistration;
+    public Button buttonQuit, buttonLogin, buttonRegistration,buttonJoin;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -22,6 +22,7 @@ public class GameManagerApp : MonoBehaviour
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
+        buttonJoin.onClick.AddListener(OnButtonClickJoin);
     }
     // Update is called once per frame
     void Update()
@@ -106,7 +107,10 @@ public class GameManagerApp : MonoBehaviour
             AfficheError("Error: the password is not the same");
         }
     }
-
+    private void OnButtonClickJoin()
+    {
+        NetworkManager.sendRequestGames(NetworkManager.client);
+    }
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);

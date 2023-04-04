@@ -18,7 +18,7 @@ public class NetworkManager : MonoBehaviour
     public static string username;
     static bool connected = false;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo,lo;
     public static WaitingScreen ws;
     public static WPlayer[] players;
     public class answer
@@ -57,6 +57,7 @@ public class NetworkManager : MonoBehaviour
         cpo = canvas.transform.Find("ConnectionPage").gameObject;
         sp = canvas.transform.Find("StartPage").gameObject;
         wso = canvas.transform.Find("WaitingScreen").gameObject;
+        lo = canvas.transform.Find("Lobby").gameObject;
         ws = wso.GetComponent<WaitingScreen>();
         Task.Run(() =>
         {
@@ -216,10 +217,7 @@ public class NetworkManager : MonoBehaviour
 
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
     {
-        for (int i = 0; i < nbPlayers.Length; i++)
-        {
-            Console.WriteLine($"the game {name[i]} is created by {gameId[i]} with {nbPlayers[i]} current players");
-        }
+
     }
 
     public static int decode(byte[] message, int[] size)
@@ -518,6 +516,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         gameName[i] = decodeString(message, size);
                     }
+                    lo.SetActive(true);
                     SetCurrentGame(nbPlayers, gameId, gameName);
                     break;
                 case 104:
@@ -613,7 +612,12 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(server, message);
     }
-
+    public static void sendRequestGames(Socket client)
+    {
+        byte[] message = new byte[1];
+        message[0] = 103;
+        SendMessageToServer(client,message);
+    }
     public static int Vote(Socket server, int idUser, int idVote)
     {
         byte[] message = new byte[1 + 2 * sizeof(int)];
