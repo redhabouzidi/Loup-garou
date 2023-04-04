@@ -26,14 +26,14 @@ public class GameManager : MonoBehaviour
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
 
-    public Color colorRed, colorWhite, colorBlack;
+    public Color colorRed, colorWhite, colorBlack, colorYellow;
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
 
 
     public Button buttonValiderVote, buttonRole;
-    public GameObject GO_buttonAfficheCarte;
+    public GameObject GO_buttonAfficheCarte, GO_potion;
 
     // win screen
     public bool gameover = false;
@@ -142,6 +142,8 @@ public class GameManager : MonoBehaviour
         AfficheCard();
         listerRoles();
         MiseAJourAffichage();
+        InitPotion();
+        EndVote();
         finished = true;
 
     }
@@ -213,8 +215,8 @@ public class GameManager : MonoBehaviour
 
             }
         AfficheTimer();
-        Timer_text_screen();
         AfficherJour();
+        Timer_text_screen();
         }
 
     }
@@ -238,6 +240,7 @@ public class GameManager : MonoBehaviour
     private void OnButtonClickVote()
     {
         Vote();
+        UpdateVote();
     }
 
     private void OnButtonClickAffiche(){
@@ -309,6 +312,12 @@ public class GameManager : MonoBehaviour
         {
             value_timer -= Time.deltaTime; 
             timer.text = "" + Mathf.Round(value_timer); 
+            if(Mathf.Round(value_timer) <= 5){
+                timer.color = colorYellow;
+            }
+            else{
+                timer.color = colorWhite;
+            }
         }
     }
 
@@ -461,7 +470,6 @@ public class GameManager : MonoBehaviour
         if (nbPlayer > 10){
             cardContainer.transform.localPosition = new Vector3(0, -93f, 0);
         }
-
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutCarte(i);
@@ -548,6 +556,7 @@ public class GameManager : MonoBehaviour
             int selectedId = GetIndiceToggleOn();
             if(selectedId != -1){
                 SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
+                p.SetVote(listPlayer[selectedId].GetId());
                 NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
                 Debug.Log($"joueur {NetworkManager. id} vote pour {listPlayer[selectedId].GetId()}");
             } else{
@@ -602,6 +611,7 @@ public class GameManager : MonoBehaviour
             text.color = colorRed;
             toggleCard.interactable = false;
             roleImg.enabled = true;
+            eyeImg.enabled = false;
             skull.SetActive(true);
 
             // changer la couleur de la carte
@@ -744,6 +754,69 @@ public class GameManager : MonoBehaviour
         
         textRolesRestant.text = txt;
     }
+
+    public void InitPotion(){
+        if (p.GetRoleId() == 5){
+            Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
+            Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
+            potionVideV.enabled = false;
+            potionVideM.enabled = false;
+        }
+        else{
+            GO_potion.SetActive(false);
+        }
+    }
+
+    public void UseHealthPotion(){
+        Image potionVie = GO_potion.transform.Find("Potion_vie").GetComponent<Image>();
+        Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
+        potionVie.enabled = false;
+        potionVideV.enabled = true;
+        SendMessageToChat("Tu as utilisé ta potion de vie!", Message.MsgType.system);
+    }
+
+    public void UseDeathPotion(){
+        Image potionMort = GO_potion.transform.Find("Potion_mort").GetComponent<Image>();
+        Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
+        potionMort.enabled = false;
+        potionVideM.enabled = true;
+        SendMessageToChat("Tu as utilisé ta potion de mort!", Message.MsgType.system);
+    }
+
+    public void EndVote(){
+        for(int i=0; i<nbPlayer; i++){
+            Toggle toggleCard = listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>();
+            GameObject cardVote = toggleCard.transform.Find("NbVote").gameObject;
+            TextMeshProUGUI nbVote = cardVote.transform.Find("TextNb").GetComponent<TextMeshProUGUI>();
+            nbVote.text = "0";
+
+            cardVote.SetActive(false);
+            listPlayer[i].SetVote(-1);
+        }
+    }
+
+    public void UpdateVote(){
+        for(int i=0; i<nbPlayer; i++){
+            Toggle toggleCard = listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>();
+            GameObject cardVote = toggleCard.transform.Find("NbVote").gameObject;
+            TextMeshProUGUI nbVote = cardVote.transform.Find("TextNb").GetComponent<TextMeshProUGUI>();
+            nbVote.text = "0";
+            cardVote.SetActive(false);
+        }
+        for(int i=0; i<nbPlayer; i++){
+            int vote = listPlayer[i].GetVote();
+            if(vote != -1){
+                int indice = chercheIndiceJoueurId(vote);
+                Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
+                GameObject cardVote = toggleCard.transform.Find("NbVote").gameObject;
+                TextMeshProUGUI nbVote = cardVote.transform.Find("TextNb").GetComponent<TextMeshProUGUI>();
+                nbVote.text = "" + (int.Parse(nbVote.text)+1);
+
+                cardVote.SetActive(true);
+            }
+        }
+    }
+
 }
 
 
@@ -774,6 +847,7 @@ public class Player
     private int id;
     private int roleId;
     private bool seen = false;
+    private int vote = -1;
 
     public Player() { }
 
@@ -812,6 +886,9 @@ public class Player
     public bool GetSeen(){
         return seen;
     }
+    public int GetVote(){
+        return vote;
+    }
     public void SetSeen(bool s){
         seen = s;
     }
@@ -821,6 +898,9 @@ public class Player
     }
     public void SetIsMarried(bool m){
         isMarried = m;
+    }
+    public void SetVote(int idvote){
+        vote = idvote;
     }
     public void SetRole(int rid)
     {
