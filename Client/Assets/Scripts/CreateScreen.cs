@@ -45,6 +45,7 @@ public class CreateScreen : MonoBehaviour
         prive = togglePrivate.isOn;
 
         // envoyer au serveur les données
+        NetworkManager.createGame(NetworkManager.client, NetworkManager.id, NetworkManager.username, name, nbPlayer, nbLG, seer, witch, cupidon);
     }
 
     private void OnToggleChangedPrivate(bool value){
