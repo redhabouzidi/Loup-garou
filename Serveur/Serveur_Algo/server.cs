@@ -742,13 +742,25 @@ namespace Server
                         //charger toutes les information des parties dans les variables
                         foreach (KeyValuePair<int,Game> data in games)
                         {
+                            if (!data.Value.GetStart())
+                            {
                             idGames[i]= data.Key; ;
                             nbPlayer[i] = data.Value._nbrJoueurs;
                             gameNames[i] = data.Value.name;
                             i++;
+                            }
+                        }
+                        int[] idGamesSend = new int[i];
+                        int[] nbPlayerSend = new int[i];
+                        string[] gameNamesSend = new string[i];
+                        for (int j = 0; j < i; j++)
+                        {
+                            idGamesSend[j] = idGames[j]; ;
+                            nbPlayerSend[j] = nbPlayer[j];
+                            gameNamesSend[j] = gameNames[j];
                         }
                         //envoie
-                        SendCurrentGame(client, idGames, nbPlayer, gameNames);
+                        SendCurrentGame(client, idGamesSend, nbPlayerSend, gameNamesSend);
                     }
 
                     break;
