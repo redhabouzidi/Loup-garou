@@ -537,7 +537,8 @@ public class NetworkManager : MonoBehaviour
                     {
                         id = decode(message, size);
                         username = decodeString(message, size);
-                        join(client,0,id,username);
+                        cpo.SetActive(false);
+                        ho.SetActive(true);
 
                     }
                     else

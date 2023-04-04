@@ -130,6 +130,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2480963129213102461}
+  - component: {fileID: 4583852882958658709}
   m_Layer: 5
   m_Name: moins_plus
   m_TagString: Untagged
@@ -160,6 +161,21 @@ RectTransform:
   m_AnchoredPosition: {x: 153.13998, y: 0}
   m_SizeDelta: {x: 200, y: 71.44571}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4583852882958658709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1417381202840074333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e313580aea1c7b4ba85958777908ba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonMoins: {fileID: 5004152139879863924}
+  buttonPlus: {fileID: 7695072479863187941}
+  input: {fileID: 4801955633902902058}
 --- !u!1 &5089898645404734712
 GameObject:
   m_ObjectHideFlags: 0
