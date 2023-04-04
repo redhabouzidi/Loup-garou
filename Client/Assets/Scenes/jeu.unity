@@ -15044,7 +15044,8 @@ MonoBehaviour:
   buttonQuit: {fileID: 187882709}
   buttonLogin: {fileID: 1260499529}
   buttonRegistration: {fileID: 1638590500}
-  buttonJoin: {fileID: 1285800618}
+  buttonPublic: {fileID: 1285800618}
+  buttonJoin: {fileID: 2091924481}
   box_error: {fileID: 1245871327}
   loginPage: {fileID: 329998960}
   registrationPage: {fileID: 151734975}
@@ -15055,6 +15056,8 @@ MonoBehaviour:
   inputFRegPseudo: {fileID: 2085109791}
   inputFRegPassword: {fileID: 2131419800}
   inputFRegConfirmPassword: {fileID: 45111876}
+  containerGame: {fileID: 604870585}
+  conponentGame: {fileID: 6302987615987998730, guid: 2d15dd95e7a5d6547b79b4f4f7fef127, type: 3}
 --- !u!4 &894909610
 Transform:
   m_ObjectHideFlags: 0

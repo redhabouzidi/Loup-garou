@@ -8,11 +8,14 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit, buttonLogin, buttonRegistration,buttonJoin;
+    public Button buttonQuit, buttonLogin, buttonRegistration, buttonPublic, buttonJoin;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
+
+    public static List<Game> listGame = new List<Game>();
+    public GameObject containerGame, conponentGame;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +25,7 @@ public class GameManagerApp : MonoBehaviour
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
+        buttonPublic.onClick.AddListener(OnButtonClickPublic);
         buttonJoin.onClick.AddListener(OnButtonClickJoin);
     }
     // Update is called once per frame
@@ -45,17 +49,6 @@ public class GameManagerApp : MonoBehaviour
         // Quit the game
         Application.Quit();
 #endif
-    }
-
-    public struct player
-    {
-        public int id;
-        public string name;
-        public player(int id, string name)
-        {
-            this.id = id;
-            this.name = name;
-        }
     }
 
     private void OnButtonClickQuit()
@@ -107,14 +100,83 @@ public class GameManagerApp : MonoBehaviour
             AfficheError("Error: the password is not the same");
         }
     }
-    private void OnButtonClickJoin()
+
+    private void OnButtonClickPublic()
     {
         NetworkManager.sendRequestGames(NetworkManager.client);
     }
+
+    private void OnButtonClickJoin()
+    {
+        
+    }
+
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);
         TextMeshProUGUI text_error = box_error.transform.Find("Text_error").GetComponent<TextMeshProUGUI>();
         text_error.text = msg;
     }
+
+    public void AddGame(int id, string name, int nbPlayer){
+        GameObject newGame = Instantiate(conponentGame, containerGame.transform);
+        Game g = new Game(id, name, nbPlayer, newGame);
+
+        TextMeshProUGUI textName = newGame.transform.Find("Text-village").GetComponent<TextMeshProUGUI>();
+        textName.text = name;
+
+        GameObject GO_Player = newGame.transform.Find("numberPlayers").gameObject;
+        TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+        textPlayer.text = "" + (nbPlayer - g.nbPlayer_rest) + "/"+ nbPlayer;
+
+        listGame.Add(g);
+    }
+
+    public void UpdateGame(int id){
+        int indice = findIndiceGameId(id);
+        if(indice != -1){
+            GameObject GO_Player = listGame[indice].game.transform.Find("numberPlayers").gameObject;
+            TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+            textPlayer.text = "" + (listGame[indice].nbPlayer - listGame[indice].nbPlayer_rest) + "/"+ listGame[indice].nbPlayer;
+        }
+    }
+
+    public int findIndiceGameId(int id){
+        for(int i=0; i<listGame.Count; i++){
+            if(listGame[i].id == id){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public struct player
+    {
+        public int id;
+        public string name;
+        public player(int id, string name)
+        {
+            this.id = id;
+            this.name = name;
+        }
+    }
 }
+
+[System.Serializable]
+public class Game
+    {
+        public int id;
+        public string name;
+        public int nbPlayer;
+        public int nbPlayer_rest;
+        public GameObject game;
+
+        public Game(int id, string name, int nbPlayer, GameObject game)
+        {
+            this.id = id;
+            this.name = name;
+            this.nbPlayer = nbPlayer;
+            this.game = game;
+            nbPlayer_rest = nbPlayer;
+        }
+    }
