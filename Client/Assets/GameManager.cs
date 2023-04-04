@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public Player p;
     bool finished = false;
     // jeu
-    private int nbPlayer = NetworkManager.nbplayeres;
+    private int nbPlayer;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();

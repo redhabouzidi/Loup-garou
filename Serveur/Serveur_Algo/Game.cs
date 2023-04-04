@@ -19,18 +19,40 @@ public class Game
     public Game()
     {
         name = "village";
-        _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
+         // A ENLEVER PLUS TARD "=6"
+        _nbrJoueurs = 2;
+        _nbrJoueursManquants = _nbrJoueurs;
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
+        _nbLoups = 1;
+        sorciere = true;
+        voyante = false;
+        cupidon = false;
+        
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
         // on va admettre que joueurs max = 6
-        Role[] startingRoles = new Role[]
+        Role[] startingRoles = new Role[_nbrJoueurs];
+        int i;
+        for (i = 0; i < _nbLoups; i++)
         {
-            new Loup(),
-		new Sorciere()
-	
-        };
-
+            startingRoles[i] = new Loup();
+        }
+        if (sorciere)
+        {
+            startingRoles[i++] = new Sorciere();
+        }
+        if (voyante)
+        {
+            startingRoles[i++] = new Voyante();
+        }
+        if (cupidon)
+        {
+            startingRoles[i++] = new Cupidon();
+        }
+        for (; i < _nbrJoueurs; i++)
+        {
+            startingRoles[i] = new Villageois();
+        }
         foreach (Role role in startingRoles)
         {
             _roles.Add(role);
@@ -463,7 +485,7 @@ public class Game
             for (int i = 0; i < _roles.Count; i++)
             {
                 id[i] = _joueurs[i].GetId();
-                if (_role[i].GetIdRole()!=1 && j.GetRole().GetIdRole() == _roles[i].GetIdRole())
+                if (_roles[i].GetIdRole()!=1 && j.GetRole().GetIdRole() == _roles[i].GetIdRole())
                 {
                     rolesToSend[i] = _roles[i].GetIdRole();
                 }

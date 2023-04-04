@@ -701,6 +701,7 @@ namespace Server
                                     {
                                         if (j.GetId() == idj)
                                         {
+                                        Console.WriteLine("envoie d'info et mises a jjour");
                                             j.SetSocket(client);
                                             g.sendGameInfo(client);
                                             g.sendRoles(j);
