@@ -23,10 +23,7 @@ public class Garde : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+        sendTime(listJoueurs, GetDelaiAlarme());
 
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>

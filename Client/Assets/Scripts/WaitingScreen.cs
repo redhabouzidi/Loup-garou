@@ -12,7 +12,7 @@ public class WaitingScreen : MonoBehaviour
     public TextMeshProUGUI status;
     //public bool isStart = false;
 
-    private int nbjoueur_rest = NetworkManager.nbplayeres;
+    private int nbjoueur_rest;
 
     public int max_player;
     public int index_desc = 0;
@@ -44,7 +44,7 @@ public class WaitingScreen : MonoBehaviour
         descripts.text = description[index_desc];
         role_name.text = roles[index_desc];
         change_image();//Charger le premier image
-
+        nbjoueur_rest = NetworkManager.nbplayeres;
         AfficheCard();    
 
         //isStart = true;

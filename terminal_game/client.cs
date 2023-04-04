@@ -289,6 +289,12 @@ public class Client
                     return new answer(false, 0, 0, null);
                 case 101:
                     size[0] = 1;
+                    int nb = decode(message, size);
+                    int nbloup = decode(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
+                    
                     name = decodeString(message, size);
                     tableSize = decode(message, size);
                     idPlayers = new int[tableSize];

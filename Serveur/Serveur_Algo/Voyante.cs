@@ -13,20 +13,14 @@ public class Voyante : Role
 
     public override void Action(List<Joueur> listJoueurs)
     { // Ã©crire l'action de la Voyante
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTurn(j.GetSocket(), GetIdRole());
-        }
+        sendTurn(listJoueurs);
 
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+        sendTime(listJoueurs, GetDelaiAlarme());
         Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 1000); // 20 secondes

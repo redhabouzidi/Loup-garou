@@ -10,18 +10,15 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
-    public static int nbplayeres=4,time;
+    public static int nbplayeres,time;
     public static bool prog = true;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id,tour;
     public static string username;
     static bool connected = false;
-    public static GameObject canvas;
-    public static GameObject gmo;
     public static GameManager gm;
-    public static GameObject sp;
-    public static GameObject wso;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo;
     public static WaitingScreen ws;
     public static WPlayer[] players;
     public class answer
@@ -56,7 +53,8 @@ public class NetworkManager : MonoBehaviour
     {
         rep = new List<byte[]>();
         canvas = GameObject.Find("Canvas");
-
+        ho = canvas.transform.Find("Home").gameObject;
+        cpo = canvas.transform.Find("ConnectionPage").gameObject;
         sp = canvas.transform.Find("StartPage").gameObject;
         wso = canvas.transform.Find("WaitingScreen").gameObject;
         ws = wso.GetComponent<WaitingScreen>();
@@ -372,7 +370,6 @@ public class NetworkManager : MonoBehaviour
                     {
                         GameManager.tour++;
                     }
-                    gm.AfficherJour();
                     break;
                 case 6:
                     idPlayer = decode(message, size);
@@ -432,13 +429,13 @@ public class NetworkManager : MonoBehaviour
                         roles[i] = decode(message, size);
                         dictJoueur[ids[i]] = roles[i];
                     }
-
-                    for (int i = 0; i < ws.players_waiting.Count; i++)
+                    players = new WPlayer[ws.players_waiting.Count];
+                    for (int i = 0; i < val; i++)
                     {
 
                         ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
                     }
-                    players = new WPlayer[ws.players_waiting.Count];
+                    
                     ws.players_waiting.CopyTo(players);
                     LoadScene("game_scene");
 
@@ -478,6 +475,11 @@ public class NetworkManager : MonoBehaviour
                 case 101:
                     sp.SetActive(false);
                     wso.SetActive(true);
+                    nbplayeres = decode(message, size);
+                    int nbLoup = decode(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
                     name = decodeString(message, size);
                     tableSize = decode(message, size);
                     idPlayers = new int[tableSize];
@@ -535,7 +537,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         id = decode(message, size);
                         username = decodeString(message, size);
-                        join(client, 0, id, username);
+                        join(client,0,id,username);
 
                     }
                     else
@@ -660,14 +662,19 @@ public class NetworkManager : MonoBehaviour
         return 0;
     }
 
-    public static int createGame(Socket server, int id, string username, string name)
+    public static int createGame(Socket server, int id, string username, string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante,bool cupidon)
     {
-        byte[] message = new byte[1 + sizeof(int) * 3 + username.Length + name.Length];
+        byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool)*3 + username.Length + name.Length];
         int[] size = new int[1] { 1 };
         message[0] = 3;
         encode(message, id, size);
         encode(message, username, size);
         encode(message, name, size);
+        encode(message, nbPlayers, size);
+        encode(message, nbLoups, size);
+        encode(message, sorciere, size);
+        encode(message, voyante, size);
+        encode(message, cupidon, size);
 
         return SendMessageToServer(server, message);
     }

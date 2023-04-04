@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Sockets;
 using Server;
 namespace LGproject;
@@ -9,22 +10,49 @@ public class Game
     private List<Joueur> _joueurs;
     private List<Role> _roles;
     private int _nbrJoueursManquants;
+    public int _nbrJoueurs;
+    public string name;
+    private int _nbLoups;
+    private bool sorciere, voyante, cupidon;
     public static Socket listener = Server.server.setupSocketGame();
-
+    public Socket vide,reveille;
     public Game()
     {
-        _nbrJoueursManquants = 2; // A ENLEVER PLUS TARD "=6"
+        name = "village";
+         // A ENLEVER PLUS TARD "=6"
+        _nbrJoueurs = 2;
+        _nbrJoueursManquants = _nbrJoueurs;
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
+        _nbLoups = 1;
+        sorciere = true;
+        voyante = false;
+        cupidon = false;
+        
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
         // on va admettre que joueurs max = 6
-        Role[] startingRoles = new Role[]
+        Role[] startingRoles = new Role[_nbrJoueurs];
+        int i;
+        for (i = 0; i < _nbLoups; i++)
         {
-            new Loup(),
-		new Sorciere()
-	
-        };
-
+            startingRoles[i] = new Loup();
+        }
+        if (sorciere)
+        {
+            startingRoles[i++] = new Sorciere();
+        }
+        if (voyante)
+        {
+            startingRoles[i++] = new Voyante();
+        }
+        if (cupidon)
+        {
+            startingRoles[i++] = new Cupidon();
+        }
+        for (; i < _nbrJoueurs; i++)
+        {
+            startingRoles[i] = new Villageois();
+        }
         foreach (Role role in startingRoles)
         {
             _roles.Add(role);
@@ -37,14 +65,67 @@ public class Game
         
         _joueurs = new List<Joueur>();
     }
+    public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon)
+    {
+        //Initialisation du nombre de joueurs
+        _nbrJoueursManquants = nbPlayers;
+        _nbrJoueurs = nbPlayers;
+        this.name = name;
+        // création de la liste de joueurs et de rôles
+        _roles = new List<Role>();
+        Role[] startingRoles = new Role[nbPlayers];
+        //affectation des parametres
+        this.sorciere = sorciere;
+        this.cupidon = cupidon;
+        this.voyante = voyante;
+        _nbLoups= nbLoups;
+        int i;
+        //initialisation des roles
+        for( i=0;i<nbLoups;i++)
+        {
+            startingRoles[i] = new Loup();
+        }
+        if (sorciere)
+        {
+            startingRoles[i++] = new Sorciere();
+        }
+        if(voyante)
+        {
+            startingRoles[i++] = new Voyante();
+        }
+        if (cupidon)
+        {
+            startingRoles[i++] = new Cupidon();
+        }
+        for (; i < nbPlayers; i++)
+        {
+            startingRoles[i] = new Villageois();
+        }
 
+        foreach (Role role in startingRoles)
+        {
+            _roles.Add(role);
+        }
+
+        if (!checkRoles())
+        {
+            Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
+        }
+
+        _joueurs = new List<Joueur>();
+        Join(c);
+    }
     public void Waiting_screen()
     {
         _nbrJoueursManquants--;
         // check si y'a assez de joueurs pour lancer la partie
         if (_nbrJoueursManquants == 0)
         {
-            Start();
+            foreach(Joueur j in _joueurs)
+                {
+                    server.connected.Remove(j.GetSocket());
+                }
+            Task.Run(() => Start());
         }
         else
         {
@@ -62,14 +143,7 @@ public class Game
         {
             if (p == j)
             {
-                int[] id = new int[_joueurs.Count];
-                string[] name = new string[_joueurs.Count];
-                for (int i = 0; i < _joueurs.Count; i++)
-                {
-                    id[i] = _joueurs[i].GetId();
-                    name[i] = _joueurs[i].GetPseudo();
-                }
-                server.sendGameInfo(p.GetSocket(), "canon", id, name);
+                sendGameInfo(p.GetSocket());
             }
             else
             {
@@ -87,6 +161,8 @@ public class Game
         {
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie())
             {
+                _joueurs[i].GetRole().gameListener = reveille;
+
                 _joueurs[i].FaireAction(_joueurs);
                 break;
             }
@@ -95,12 +171,18 @@ public class Game
 
     public void Start()
     {
+        foreach(Joueur j in _joueurs)
+        {
+            server.connected.Remove(j.GetSocket());
+        }
+        
         // mélange des rôles et répartition pour les joueurs
         InitiateGame();
-
-
+        reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        reveille.Connect(listener.LocalEndPoint);
+        vide = listener.Accept();
         int checkWin;
-
+        
         bool day = false;
 
         while (true)
@@ -118,10 +200,7 @@ public class Game
             }
             // ICI : broadcast du serveur : c'est la nuit
 
-            foreach (Joueur j in _joueurs)
-            {
-                server.etatGame(j.GetSocket(), day);
-            }
+            sendGameState(day);
             day = !day;
             // appeller Voyante si il y en a un
             LanceAction(typeof(Voyante));
@@ -134,10 +213,7 @@ public class Game
             LanceAction(typeof(Sorciere));
 
             // ICI : broadcast du serveur : c'est la journée
-            foreach (Joueur j in _joueurs)
-            {
-                server.etatGame(j.GetSocket(), day);
-            }
+            sendGameState(day);
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
@@ -223,12 +299,30 @@ public class Game
         {
             retour = 1;
         }
-
+        if(retour != 0)
+        {
+            List<Socket> sockets = new List<Socket>();
+            int[] id = new int[listJoueurs.Count];
+            int[] idr = new int[listJoueurs.Count];
+            int i = 0; ;
+            foreach(Joueur j in listJoueurs)
+            {
+                id[i] = j.GetId();
+                idr[i] = j.GetRole().GetIdRole();
+                if (j.GetSocket().Connected)
+                {
+                    sockets.Add(j.GetSocket());
+                }
+            }
+            server.sendEndState(sockets, retour, id, idr);
+        }
         return retour;
     }
 
     private void Jour(List<Joueur> listJoueurs)
     {
+        Role r = new Villageois();
+        Console.WriteLine("1");
         List<int> votant = new List<int>();
         List<int> cible = new List<int>();
         foreach (Joueur j in _joueurs)
@@ -239,19 +333,17 @@ public class Game
                 cible.Add(-1);
             }
         }
-
+        Console.WriteLine("2");
         bool boucle = true;
         // on définit une "alarme" sur 60 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
+        Console.WriteLine("3");
         vide = Game.listener.Accept();
-
+        Console.WriteLine("4");
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        foreach (Joueur j in _joueurs)
-        {
-            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() * 3);
-        }
+        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 2500); // 45 secondes
@@ -263,11 +355,18 @@ public class Game
                 boucle = false;
             }
         });
-
+        Console.WriteLine("5");
         int index, v, c;
+            
+        r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        r.gameListener.Connect(listener.LocalEndPoint);
+        this.vide = listener.Accept();
         while (boucle)
         {
-            (v, c) = Role.gameVote(listJoueurs, 1, reveille);
+            Console.WriteLine("6");
+            
+            (v, c) = r.gameVote(listJoueurs, 1, reveille);
+            Console.WriteLine("7");
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
@@ -289,10 +388,7 @@ public class Game
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                        foreach (Joueur j in listJoueurs)
-                        {
-                            server.sendTime(j.GetSocket(), Role.GetDelaiAlarme() / 2);
-                        }
+                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2);
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
@@ -369,21 +465,56 @@ public class Game
     {
         Random random = new Random();
         _roles = _roles.OrderBy(r => random.Next()).ToList();
-        int[] id = new int[_joueurs.Count];
-        int[] roles = new int[_joueurs.Count];
+        
         for (int i = 0; i < _joueurs.Count; i++)
         {
             _joueurs[i].SetRole(_roles[i]);
-            id[i] = _joueurs[i].GetId();
-            roles[i] = _joueurs[i].GetRole().GetIdRole();
         }
         foreach (Joueur j in _joueurs)
         {
-            server.sendRoles(j.GetSocket(), id, roles);
+            sendRoles(j);
         }
-
         // appeller Cupidon si il y en a un
         LanceAction(typeof(Cupidon));
+    }
+    public void sendRoles(Joueur j)
+    {
+        int[] id = new int[_joueurs.Count];
+        int[] rolesToSend = new int[_joueurs.Count];
+        
+            for (int i = 0; i < _roles.Count; i++)
+            {
+                id[i] = _joueurs[i].GetId();
+                if (_roles[i].GetIdRole()!=1 && j.GetRole().GetIdRole() == _roles[i].GetIdRole())
+                {
+                    rolesToSend[i] = _roles[i].GetIdRole();
+                }
+                else
+                {
+                    rolesToSend[i] = 0;
+                }
+            }
+            server.sendRoles(j.GetSocket(), id, rolesToSend);
+        
+    }
+    public void sendGameInfo(Socket sock)
+    {
+        int[] id = new int[_joueurs.Count];
+        string[] name = new string[_joueurs.Count];
+        for (int i = 0; i < _joueurs.Count; i++)
+        {
+            id[i] = _joueurs[i].GetId();
+            name[i] = _joueurs[i].GetPseudo();
+        }
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon, this.name, id, name);
+    }
+    public void sendGameState(bool day)
+    {
+        foreach (Joueur j in _joueurs)
+        {
+            if (j.GetSocket().Connected)
+            server.etatGame(j.GetSocket(), day);
+        }
     }
     public int GetJoueurManquant()
     {
@@ -488,5 +619,9 @@ public class Game
         }
 
         return retour;
+    }
+    public List<Joueur> GetJoueurs()
+    {
+        return _joueurs;
     }
 }

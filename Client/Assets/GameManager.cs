@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public Player p;
     bool finished = false;
     // jeu
-    private int nbPlayer = NetworkManager.nbplayeres;
+    private int nbPlayer;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
@@ -83,6 +84,14 @@ public class GameManager : MonoBehaviour
         {
             switch (p.GetRole())
             {
+                case 0:
+                    listPlayer.Add(new Player(p.GetUsername(), "Villageois", 0, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Villageois", 0, p.GetId(), true);
+                        player_role.text = "Villageois";
+                    }
+                    break;
                 case 1:
                     listPlayer.Add(new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
@@ -205,7 +214,7 @@ public class GameManager : MonoBehaviour
             }
         AfficheTimer();
         Timer_text_screen();
-        
+        AfficherJour();
         }
 
     }
@@ -415,6 +424,7 @@ public class GameManager : MonoBehaviour
         TextMeshProUGUI text = newCard.transform.Find("Text-Card").GetComponent<TextMeshProUGUI>();
 	    text.tag="Pseudos";
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
+        Debug.Log("id == " + id);
         text.text = listPlayer[id].GetPseudo();
         switch(listPlayer[id].GetRole()) {
             case "Loup-garou":

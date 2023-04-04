@@ -14,10 +14,7 @@ public class Cupidon : Role
 
     public override void Action(List<Joueur> listJoueurs)
     {
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTurn(j.GetSocket(), GetIdRole());
-        }
+        sendTurn(listJoueurs);
         // écrire l'action du Cupidon
         // choix des amoureux
         bool boucle = true;
@@ -25,10 +22,7 @@ public class Cupidon : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+        sendTime(listJoueurs, GetDelaiAlarme());
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
         {
@@ -73,10 +67,7 @@ public class Cupidon : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-			foreach(Joueur j in listJoueurs)
-			{
-				server.sendTime(j.GetSocket(),GetDelaiAlarme()/4);
-			}
+                        sendTime(listJoueurs, GetDelaiAlarme()/4);
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
@@ -101,50 +92,84 @@ public class Cupidon : Role
     {
         return IdRole;
     }
-
-    public (int, int, int) gameVoteCupidon(List<Joueur> listJoueurs, int idRole, Socket reveille)
+    public (int, int,int) gameVoteCupidon(List<Joueur> listJoueurs, int idRole, Socket reveille)
     {
         Dictionary<Socket, Joueur> dictJoueur = new Dictionary<Socket, Joueur>();
         List<Socket> role = new List<Socket>();
         List<Socket> sockets = new List<Socket>(), read = new List<Socket>();
+        Console.WriteLine("vote");
         sockets.Add(reveille);
+        Console.WriteLine("ici c'est 1");
+        sockets.Add(this.gameListener);
 
         foreach (Joueur j in listJoueurs)
         {
-            sockets.Add(j.GetSocket());
-            if (j.GetRole().GetIdRole() == this.GetIdRole())
+            Console.WriteLine(j.GetSocket().Connected);
+            if (j.GetSocket().Connected == true)
             {
-                dictJoueur[j.GetSocket()] = j;
-                role.Add(j.GetSocket());
+                Console.WriteLine(j.GetSocket());
+                sockets.Add(j.GetSocket());
+                if (idRole == 1 && j.GetEnVie())
+                {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                }
+                else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
+                {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                }
             }
-
         }
+        Console.WriteLine("ici c'est 2");
+        Console.WriteLine(sockets.Count);
         while (true)
         {
             foreach (Socket socket in sockets)
             {
                 read.Add(socket);
             }
+            Console.WriteLine("bah on attends alors");
             Socket.Select(read, null, null, -1);
+            Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
-                return (-1, -1, -1);
+                Console.WriteLine("on va sortir");
+                reveille.Receive(new byte[1]);
+
+                return (-1, -1,-1);
+            }
+            else if (read.Contains(this.gameListener))
+            {
+                Console.WriteLine("joueur se reconnecte");
+                this.gameListener.Receive(new byte[1]);
+                return (-1, -1,-1);
             }
             else
             {
+                Console.WriteLine("vote marche");
                 foreach (Socket sock in read)
                 {
+                    if (sock.Available == 0)
+                    {
+                        Console.WriteLine("un joueur quitte");
+                        sockets.Remove(sock);
+                        foreach (Joueur j in listJoueurs)
+                        {
+                            if (j.GetSocket() == sock)
+                            {
+                                sock.Close();
+
+                                return (-1, -1,-1);
+                            }
+                        }
+                    }
                     int[] size = new int[1] { 1 };
                     byte[] message = new byte[4096];
+                    int recvSize = sock.Receive(message);
+
                     if (role.Contains(sock))
                     {
-                        if (sock.Available == 0)
-                        {
-                            //gestion de deconnexion ???
-                        }
-                        else
-                        {
-                            sock.Receive(message);
                             if (message[0] == 6)
                             {
 
@@ -157,20 +182,25 @@ public class Cupidon : Role
                                 }
 
                             }
-                            else
-                            {
-
-                            }
+                        
+                        else
+                        {
+                            server.recvMessageGame(sockets, message, recvSize);
                         }
+
                     }
                     else
                     {
-			int recvSize=sock.Receive(message);
-                        server.recvMessageGame(sockets,message,recvSize);
 
+                        server.recvMessageGame(sockets, message, recvSize);
+                        Console.WriteLine("apres recv2");
                     }
                 }
+
             }
+            read.Clear();
         }
+        Console.WriteLine("ici c'est la fin de game vote");
+        return (-1, -1,-1);
     }
 }

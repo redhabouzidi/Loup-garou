@@ -47,8 +47,11 @@ namespace Server
 
         }
     }
+    
     public class server
     {
+        public static Dictionary<int, Game> players = new Dictionary<int, Game>();
+        public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
 
         public static void Main(string[] args)
@@ -74,8 +77,7 @@ namespace Server
             List<Socket> clients = new List<Socket>();
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
-            Dictionary<int, Game> players = new Dictionary<int, Game>();
-            Dictionary<Socket,int> connected= new Dictionary<Socket ,int>();
+            
             Queue queue = new Queue();
 	        int i=0;
             while (a)
@@ -166,7 +168,7 @@ namespace Server
         }
         public static Socket setupSocketGame()
         {
-            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 10007);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 2000);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             server.Bind(iep);
             server.Listen(100);
@@ -190,14 +192,14 @@ namespace Server
             return client.Send(message, message.Length, SocketFlags.None);
 
         }
-	public static int sendMessage(Socket client,byte [] message , int recvSize)
+	public static void sendMessage(Socket client,byte [] message , int recvSize)
 	{
 		foreach(byte b in message)
 		{
 			Console.Write(b+" ");
 		}
 		Console.WriteLine("");
-		return client.Send(message,recvSize,SocketFlags.None);
+		client.Send(message,recvSize,SocketFlags.None);
 	}
         //fonction qui renvoie le nombre de caractere total dans un tableau de chaine de caractere
         public static int getStringLength(string[] tab)
@@ -260,19 +262,24 @@ namespace Server
         }
 
         //fonction qui sert a envoyer les informztion d'une game a un client
-        public static int sendGameInfo(Socket client, string name, int[] idPlayers, string[] playerNames)
+        public static void sendGameInfo(Socket client,int nbPlayers,int nbLoup,bool sorciere,bool voyante,bool cupidon, string name, int[] idPlayers, string[] playerNames)
         {
             //variable d'index pour ne pas se perdre dans le tableau de bytes
             int[] size = new int[1] { 0 };
             //recuperer le nombre total de caracteres
             int pnsize = getStringLength(playerNames);
             //declarer un tableau de bytes avec le bon nombre de bytes
-            byte[] message = new byte[1 + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
+            byte[] message = new byte[1 + sizeof(int) + sizeof(int) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
             //mettre le code du message dans le premier byte
             message[0] = 101;
             //inrementer l'index
             size[0] += 1;
-            //ajouter le nom de la game dans le tableau de byte
+            //ajouter les parametres de la game dans le tableau de byte
+            encode(message, nbPlayers, size);
+            encode(message, nbLoup, size);
+            encode(message, sorciere, size);
+            encode(message, voyante, size);
+            encode(message, cupidon, size);
             encode(message, name, size);
             //ajouter le nombre d'elements du tableau idPlayers dans le message pour savoir combien il faut lire a la reception du packet
             encode(message, idPlayers.Length, size);
@@ -287,12 +294,13 @@ namespace Server
             {
                 encode(message, playerNames[i], size);
             }
+            //A RAJOUTER (PARAMETRES DE LA PARTIE)
             //envoyer le packet au client
-            return sendMessage(client, message);
+            sendMessage(client, message);
         }
 
         //fonction qui envoie une reponse au client qui a essayé de s'authantifier apres la reponse de la bdd
-        public static int loginAnswer(Socket client, bool answer, int idPlayer, string username)
+        public static void loginAnswer(Socket client, bool answer, int idPlayer, string username)
         {
             //declearer le tableau a envoyer
             byte[] message = new byte[1 + sizeof(bool) + sizeof(int) * 2 + username.Length];
@@ -306,11 +314,11 @@ namespace Server
             //ajouter le username
             encode(message, username, size);
             //envoyer le packet au client
-            return sendMessage(client, message);
+            sendMessage(client, message);
         }
 
         //fonction qui envoie les information du compte
-        public static int SendAccountInfo(Socket client, int id, string username)
+        public static void SendAccountInfo(Socket client, int id, string username)
         {
             int sizeUsername = username.Length;
             int[] size = new int[1] { 0 };
@@ -330,7 +338,7 @@ namespace Server
             encode(message, username, size);
             foreach (byte b in message)
                 Console.WriteLine(b);
-            return sendMessage(client, message);
+            sendMessage(client, message);
         }
         public static void sendRoles(Socket client, int[] id, int[] roles)
         {
@@ -360,7 +368,7 @@ namespace Server
             Console.WriteLine($"user {id} with name {username} create the game {name}");
         }
 
-        public static int SendCurrentGame(Socket client, int[] nbPlayers, int[] gameId, string[] name)
+        public static void SendCurrentGame(Socket client, int[] nbPlayers, int[] gameId, string[] name)
         {
             int[] size = new int[1] { 0 };
             int pnsize = getStringLength(name);
@@ -382,12 +390,12 @@ namespace Server
             {
                 encode(message, name[i], size);
             }
-            return sendMessage(client, message);
+            sendMessage(client, message);
 
         }
 
         //fonction qui envoie un message au chat
-        public static int sendChatMessage(List<Socket> clients, string chat)
+        public static void sendChatMessage(List<Socket> clients, string chat)
         {
             //l'index pour ne pas se perdre
             int[] size = new int[1] { 0 };
@@ -408,11 +416,10 @@ namespace Server
             {
                 sendMessage(socket, message);
             }
-            return 0;
         }
 
         //focntion qui envoie aux joueurs le choix du vote d'un joueurs
-        public static int sendVote(List<Socket> clients, int id, int cible)
+        public static void sendVote(List<Socket> clients, int id, int cible)
         {
             int[] size = new int[1] { 1 };
             int byteSize = 1 + sizeof(int) + sizeof(int);
@@ -428,11 +435,10 @@ namespace Server
             {
                 sendMessage(socket, message);
             }
-            return 0;
         }
 
         //fonctions qui envoie les roles de tous les joueurs a la fin de la partie
-        public static int sendEndState(List<Socket> clients,int win, int[] idJoueur, int[] role)
+        public static void sendEndState(List<Socket> clients,int win, int[] idJoueur, int[] role)
         {
             int[] size = new int[1] { 0 };
             int byteSize = 1 + sizeof(int)*2 + idJoueur.Length * sizeof(int) + sizeof(int) + role.Length * sizeof(int);
@@ -454,11 +460,10 @@ namespace Server
             {
                 sendMessage(socket, message);
             }
-            return 0;
         }
 
         //fonction qui en envoie des donnes a la base de données dans le cas d'une connexion ou une incription et on attend la reponse de la bdd dans la queue
-        public static int redirect(Socket bdd, int queueId, byte[] msg)
+        public static void redirect(Socket bdd, int queueId, byte[] msg)
         {
             int dataLength = msg.Length;
             int msgSize = sizeof(int) + dataLength;
@@ -467,28 +472,28 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, queueId, size);
             Array.Copy(msg, 1, message, size[0], dataLength - 1);
-            return sendMessage(bdd, message);
+            sendMessage(bdd, message);
         }
         //fonction qui en envoie la reponse de la base de donnée au client
-        public static int redirect(Socket sock, byte[] message, int recvSize)
+        public static void redirect(Socket sock, byte[] message, int recvSize)
         {
             byte[] newMessage = new byte[recvSize - sizeof(int)];
             newMessage[0] = message[0];
             Array.Copy(message, 1 + sizeof(int), newMessage, 1, recvSize - sizeof(int) - 1);
-            return sendMessage(sock, newMessage);
+            sendMessage(sock, newMessage);
         }
         //fonction qui interroge la base de données pour les paties disponibles
-        public static int getCurrentLobbies(Socket bdd, int queueId)
+        public static void getCurrentLobbies(Socket bdd, int queueId)
         {
             byte[] message = new byte[1 + sizeof(int)];
             int[] size = new int[1] { 1 };
             message[0] = 150;
             encode(message, queueId, size);
-            return sendMessage(bdd, message);
+            sendMessage(bdd, message);
         }
 
         //fonction qui interroge la base de données pour les info des joueurs
-        public static int getClientInfo(Socket bdd, int queueId, int[] id)
+        public static void getClientInfo(Socket bdd, int queueId, int[] id)
         {
             int msgSize = 1 + sizeof(int) * 2 + id.Length;
             byte[] message = new byte[msgSize];
@@ -499,11 +504,11 @@ namespace Server
             for (int i = 0; i < id.Length; i++)
                 encode(message, id[i], size);
 
-            return sendMessage(bdd, message);
+            sendMessage(bdd, message);
         }
 
         //fonction qui met a jour les données d'un compte et qui envoie a la bdd
-        public static int updateAccountData(Socket bdd, int queueId, int idUser, string username, string password, string email)
+        public static void updateAccountData(Socket bdd, int queueId, int idUser, string username, string password, string email)
         {
             int msgSize = 1 + sizeof(int) * 5 + username.Length + password.Length + email.Length;
             byte[] message = new byte[msgSize];
@@ -514,9 +519,9 @@ namespace Server
             encode(message, username, size);
             encode(message, password, size);
             encode(message, email, size);
-            return sendMessage(bdd, message);
+            sendMessage(bdd, message);
         }
-        public static int etatGame(Socket client, bool day)
+        public static void etatGame(Socket client, bool day)
         {
             int msgSize = 1 + sizeof(bool);
             byte[] message = new byte[msgSize];
@@ -524,9 +529,8 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, day, size);
             client.Send(message);
-            return 0;
         }
-        public static int annonceMort(Socket client, int id, int role)
+        public static void annonceMort(Socket client, int id, int role)
         {
             int msgSize = 1 + sizeof(int) * 2;
             byte[] message = new byte[msgSize];
@@ -534,9 +538,9 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, id, size);
             encode(message, role, size);
-            return sendMessage(client, message);
+            sendMessage(client, message);
         }
-        public static int revelerRole(Socket client, int id, int role)
+        public static void revelerRole(Socket client, int id, int role)
         {
             int msgSize = 1 + sizeof(int) * 2;
             byte[] message = new byte[msgSize];
@@ -544,10 +548,35 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, id, size);
             encode(message, role, size);
-            return sendMessage(client, message);
+            sendMessage(client, message);
+        }
+        public static void leaveLobby(Socket client, List<Socket> clients,int id)
+        {
+            int msgSize = 1 + sizeof(int);
+            byte[] message = new byte[msgSize];
+            int[] size = new int[1] { 1 };
+            message[0] = 13;
+            encode(message, id, size);
+            foreach(Socket sock in clients)
+            {
+                sendMessage(sock, message);
+            }
+        }
+        public static void ready(Socket client, List<Socket> clients, int id,bool status)
+        {
+            int msgSize = 1 + sizeof(int)+sizeof(bool);
+            byte[] message = new byte[msgSize];
+            int[] size = new int[1] { 1 };
+            message[0] = 14;
+            encode(message, id, size);
+            encode(message, status, size);
+            foreach (Socket sock in clients)
+            {
+                sendMessage(sock, message);
+            }
         }
 
-        public static answer recvMessageGame(List<Socket> list,byte[] message , int receivedBytes)
+        public static void recvMessageGame(List<Socket> list,byte[] message , int receivedBytes)
         {
             int[] size = new int[1];
             string chat;
@@ -586,7 +615,6 @@ namespace Server
                 default:
                     break;
             }
-            return new answer();
         }
         public static bool alreadyConnected(Dictionary<Socket,int> connected,int idPlayer)
         {
@@ -599,7 +627,8 @@ namespace Server
             }
             return false;
         }
-        public static answer recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
+        
+        public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
             int dataSize, tableSize, id;
@@ -617,15 +646,22 @@ namespace Server
                     id = decodeInt(message, size);
                     username = decodeString(message, size);
                     string name = decodeString(message, size);
+                    int nbPlayers = decodeInt(message, size);
+                    int nbLoups = decodeInt(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
+
 
                     if (!games.ContainsKey(id))
                     {
                         Console.WriteLine("game created");
-                        games.Add(id, new Game());
+                        games.Add(id, new Game(new Client(id,client,username),name,nbPlayers,nbLoups,sorciere,voyante,cupidon));
+                        players.Add(id, games[id]);
                     }
                     else
                     {
-                        Console.WriteLine("game created");
+                        Console.WriteLine("game not created");
                         sendMessage(client, new byte[] { 255 });
                     }
 
@@ -638,32 +674,50 @@ namespace Server
                     Console.WriteLine("gameid=" + gameId);
                     if (games.ContainsKey(gameId))
                     {
-                        if (games[gameId].GetJoueurManquant() != 0)
-                        {
+                        
                             if (connected.ContainsKey(client))
                             {
 
                             if (!players.ContainsKey(connected[client]))
                             {
-                                Console.WriteLine($"joins game {gameId}");
-                                Console.WriteLine("id joueur : " + idj);
-                                games[gameId].Join(new Client(idj, client, username));
+                                if (games[gameId].GetJoueurManquant() != 0)
+                                {
+                                    Console.WriteLine($"joins game {gameId}");
+                                    Console.WriteLine("id joueur : " + idj);
+                                    games[gameId].Join(new Client(idj, client, username));
+                                    players[idj] = games[gameId];
+                                }
+                                else
+                                {
+                                    sendMessage(client, new byte[] { 255 });
+                                }
 
                             }
                             else
                             {
                                 Console.WriteLine("already Playing");
-                            }
+                                    Game g = players[connected[client]];
+                                    foreach (Joueur j in g.GetJoueurs())
+                                    {
+                                        if (j.GetId() == idj)
+                                        {
+                                        Console.WriteLine("envoie d'info et mises a jjour");
+                                            j.SetSocket(client);
+                                            g.sendGameInfo(client);
+                                            g.sendRoles(j);
+                                            //envoyer les information déjà connue
+                                        }
+                                    }
+                                    g.vide.Send(new byte[1] { 0 });
+                                    
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("Not connected");
+                                Console.WriteLine("Not connected(shouldn't be possible)");
                             }
-                        }
-                        else
-                        {
-                            sendMessage(client, new byte[] { 255 });
-                        }
+                        
+                        
 
 
                     }
@@ -671,18 +725,30 @@ namespace Server
                     {
                         sendMessage(client, new byte[] { 255 });
                     }
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 6:
                     size[0] = 1;
                     setLovers(list[3], list[4], decodeInt(message, size), decodeInt(message, size), 10, 14);
-                    return new answer(false, 0, 0, null);
+                    break;
                 case 100://disconnects
                     break;
                 case 103://informations des lobby
                     if (connected.ContainsKey(client))
                     {
-                        getCurrentLobbies(bdd, queue.addVal(client));
-                        return new answer(false, 0, 0, null);
+                        int[] idGames = new int[games.Count];
+                        int[] nbPlayer = new int[games.Count];
+                        string[] gameNames = new string[games.Count];
+                        int i = 0;
+                        //charger toutes les information des parties dans les variables
+                        foreach (KeyValuePair<int,Game> data in games)
+                        {
+                            idGames[i]= data.Key; ;
+                            nbPlayer[i] = data.Value._nbrJoueurs;
+                            gameNames[i] = data.Value.name;
+                            i++;
+                        }
+                        //envoie
+                        SendCurrentGame(client, idGames, nbPlayer, gameNames);
                     }
 
                     break;
@@ -719,9 +785,8 @@ namespace Server
                 default:
                     break;
             }
-            return new answer();
         }
-        public static int recvBddMessage(Socket bdd, Queue queue, List<Socket> list, Dictionary<Socket,int> connected)
+        public static void recvBddMessage(Socket bdd, Queue queue, List<Socket> list, Dictionary<Socket,int> connected)
         {
             int[] size = new int[1] { 1 };
             byte[] message = new byte[4096];
@@ -792,10 +857,9 @@ namespace Server
 
                     break;
             }
-            return 0;
         }
 
-        public static int setLovers(Socket player1, Socket player2, int id1, int id2, int role1, int role2)
+        public static void setLovers(Socket player1, Socket player2, int id1, int id2, int role1, int role2)
         {
             byte[] message = new byte[1 + 2 * sizeof(int)];
             message[0] = 6;
@@ -804,239 +868,44 @@ namespace Server
             encode(message, id1, index);
 
             encode(message, role1, index);
+            if(player2.Connected)
             sendMessage(player2, message);
             index[0] = 1;
             encode(message, id2, index);
             encode(message, role2, index);
+            if(player1.Connected)
             sendMessage(player1, message);
-            return 0;
         }
-        public static int EnvoieInformation(Socket client, int id)
+        public static void EnvoieInformation(Socket client, int id)
         {
             byte[] message = new byte[1 + sizeof(int)];
             message[0] = 8;
             int[] size = new int[1] { 1 };
             encode(message, id, size);
 		Console.WriteLine("information envoyé a la sorciere");
-            return sendMessage(client, message);
+            sendMessage(client, message);
             
         }
-        public static int sendTurn(Socket client, int roleId)
+        public static void sendTurn(Socket client, int roleId)
         {
             byte[] message = new byte[1 + sizeof(int)];
             message[0] = 11;
             int[] size = new int[1] { 1 };
             encode(message, roleId, size);
-            return sendMessage(client, message);
+            sendMessage(client, message);
 
             
         }
-        public static int sendTime(Socket client, int time)
+        public static void sendTime(Socket client, int time)
         {
             byte[] message = new byte[1 + sizeof(int)];
             message[0] = 12;
             int[] size = new int[1] { 1 };
             encode(message, time, size);
-            return sendMessage(client, message);
+            sendMessage(client, message);
 
             
         }
-        // public (int, int) gameVote(List<Joueur> listJoueurs)
-        // {
-        //     Dictionary<Socket, Joueur> dictJoueur = new Dictionary<Socket, Joueur>();
-        //     List<Socket> role = new List<Socket>();
-        //     List<Socket> sockets = new List<Socket>();
-        //     foreach (Joueur j in listJoueurs)
-        //     {
-        //         sockets.Add(j.getSocket());
-        //         if (j.GetRole().GetidRole() == this.GetidRole())
-        //         {
-        //             dictJoueur[j.getSocket()] = j;
-        //             role.Add(j.getSocket());
-        //         }
-
-        //     }
-        //     while (true)
-        //     {
-        //         Socket.Select(sockets, null, null, 5000000);
-        //         foreach (Socket sock in sockets)
-        //         {
-        //             int[] size = new int[1] { 1 };
-        //             byte[] message = new byte[4096];
-        //             if (role.Contains(sock))
-        //             {
-        //                 if (sock.Available == 0)
-        //                 {
-        //                     //gestion de deconnexion ???
-        //                 }
-        //                 else
-        //                 {
-        //                     sock.Receive(message);
-        //                     if (message[0] == 1)
-        //                     {
-        //                         int idVoter = server.decodeInt(message, size);
-        //                         int idVoted = server.decodeInt(message, size);
-        //                         if (idVoter == dictJoueur[sock].getId())
-        //                         {
-        //                             return (idVoter, idVoted);
-        //                         }
-        //                     }
-
-        //                 }
-        //                 while (true)
-        //                 {
-        //                     Socket.Select(sockets, null, null, 5000000);
-        //                     foreach (Socket sock in sockets)
-        //                     {
-        //                         int[] size = new int[1] { 1 };
-        //                         byte[] message = new byte[4096];
-        //                         if (role.Contains(sock))
-        //                         {
-        //                             if (sock.Available == 0)
-        //                             {
-        //                                 //gestion de deconnexion ???
-        //                             }
-        //                             else
-        //                             {
-        //                                 sock.Receive(message);
-        //                                 if (message[0] == 1)
-        //                                 {
-        //                                     int idVoter = server.decodeInt(message, size);
-        //                                     int idVoted = server.decodeInt(message, size);
-        //                                     if (idVoter == dictJoueur[sock].getId())
-        //                                     {
-        //                                         return (idVoter, idVoted);
-        //                                     }
-
-
-
-        //                                 }
-        //                             }
-        //                         }
-        //                         else
-        //                         {
-        //                             server.recvMessageGame(sock, sockets);
-
-        //                         }
-        //                     }
-        //                 }
-        //                 return (-1, -1);
-        //             }
-        //         }
-        //     }
-        // }
-
-
-
-        //TO ADD TO THE ALGORITHMIC SIDE
-
-
-        /* using System.Net.Sockets;
-
- namespace LGproject;
-
-     // on part du principe que la partie se lance à 6 joueurs
-
-     public class Game
-     {
-         private List<Joueur> _joueurs;
-         private List<Role> _roles;
-         private int _nbrJoueursManquants;
-         public static Socket listener = Server.server.setupSocketGame();*/
-
-
-
-
-
-
-        /*Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
-        Socket vide;
-        vide = Game.listener.Accept();
-        Task t = Task.Run(() =>
-        {
-            Thread.Sleep(GetDelaiAlarme() * 1000);
-            vide.Send(new byte[5] { 1, 2, 3, 4, 5 });
-            boucle = false;
-        });*/
-
-
-
-
-
-        /*public (int, int) gameVote(List<Joueur> listJoueurs, Socket reveille)
-        {
-            Dictionary<Socket, Joueur> dictJoueur = new Dictionary<Socket, Joueur>();
-            List<Socket> role = new List<Socket>();
-            List<Socket> sockets = new List<Socket>(), read = new List<Socket>();
-            sockets.Add(reveille);
-
-            foreach (Joueur j in listJoueurs)
-            {
-                sockets.Add(j.GetSocket());
-                Console.WriteLine("idjoueur=" + j.GetId());
-                if (j.GetRole().GetIdRole() == this.GetIdRole())
-                {
-                    dictJoueur[j.GetSocket()] = j;
-                    role.Add(j.GetSocket());
-                }
-
-            }
-            while (true)
-            {
-                foreach (Socket socket in sockets)
-                {
-                    read.Add(socket);
-                }
-                Socket.Select(read, null, null, -1);
-                if (read.Contains(reveille))
-                {
-                    return (-1, -1);
-                }
-                else
-                {
-                    foreach (Socket sock in read)
-                    {
-                        int[] size = new int[1] { 1 };
-                        byte[] message = new byte[4096];
-                        if (role.Contains(sock))
-                        {
-                            if (sock.Available == 0)
-                            {
-                                //gestion de deconnexion ???
-                            }
-                            else
-                            {
-                                sock.Receive(message);
-                                if (message[0] == 1)
-                                {
-
-                                    int idVoter = server.decodeInt(message, size);
-                                    int idVoted = server.decodeInt(message, size);
-                                    Console.WriteLine("avant" + dictJoueur[sock].GetId());
-                                    if (idVoter == dictJoueur[sock].GetId())
-                                    {
-                                        Console.WriteLine("apres");
-                                        return (idVoter, idVoted);
-                                    }
-
-                                }
-                                else
-                                {
-
-                                }
-                            }
-                        }
-                        else
-                        {
-                            server.recvMessageGame(sock, sockets);
-
-                        }
-                    }
-                }
-            }
-        }*/
-
     }
 
 }

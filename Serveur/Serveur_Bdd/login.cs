@@ -21,7 +21,14 @@ namespace dataBase
             return 2;
 
         }
-
+        public static int get_id(MySqlConnection conn, string pseudo)
+        {
+            //Requete pour recuperer identifiant du joueur
+            string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
+            //id=id_joueur
+            int id_joueur = conn.QueryFirstOrDefault<int>(query, new { Pseudo = pseudo });
+            return id_joueur;
+        }
 
         //fonction permettant de verifier le mot de passe entré 'mdp' par utilisateur
         public static bool Verifier_Mdp(string mdp, string hashed_mdp)
