@@ -44,7 +44,8 @@ public class WaitingScreen : MonoBehaviour
         descripts.text = description[index_desc];
         role_name.text = roles[index_desc];
         change_image();//Charger le premier image
-        nbjoueur_rest = NetworkManager.nbplayeres;
+        max_player = NetworkManager.nbplayeres;
+        nbjoueur_rest = max_player;
         AfficheCard();    
 
         //isStart = true;
