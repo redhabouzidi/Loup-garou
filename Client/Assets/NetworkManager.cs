@@ -17,12 +17,8 @@ public class NetworkManager : MonoBehaviour
     public static int id,tour;
     public static string username;
     static bool connected = false;
-    public static GameObject canvas;
-    public static GameObject gmo;
     public static GameManager gm;
-    public static GameObject sp;
-    public static GameObject wso;
-    public static GameObject ho;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo;
     public static WaitingScreen ws;
     public static WPlayer[] players;
     public class answer
@@ -57,7 +53,8 @@ public class NetworkManager : MonoBehaviour
     {
         rep = new List<byte[]>();
         canvas = GameObject.Find("Canvas");
-        ho = GameObject.Find("Home");
+        ho = canvas.transform.Find("Home").gameObject;
+        cpo = canvas.transform.Find("ConnectionPage").gameObject;
         sp = canvas.transform.Find("StartPage").gameObject;
         wso = canvas.transform.Find("WaitingScreen").gameObject;
         ws = wso.GetComponent<WaitingScreen>();
@@ -478,9 +475,9 @@ public class NetworkManager : MonoBehaviour
                     wso.SetActive(true);
                     nbplayeres = decode(message, size);
                     int nbLoup = decode(message, size);
-                    bool sorciere = decode(message, size);
-                    bool voyante = decode(message, size);
-                    bool cupidon = decode(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
                     name = decodeString(message, size);
                     tableSize = decode(message, size);
                     idPlayers = new int[tableSize];
@@ -538,7 +535,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         id = decode(message, size);
                         username = decodeString(message, size);
-                        
+                        join(client,0,id,username);
 
                     }
                     else

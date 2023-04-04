@@ -463,7 +463,7 @@ public class Game
             for (int i = 0; i < _roles.Count; i++)
             {
                 id[i] = _joueurs[i].GetId();
-                if (j.GetRole().GetIdRole() == _roles[i].GetIdRole())
+                if (_role[i].GetIdRole()!=1 && j.GetRole().GetIdRole() == _roles[i].GetIdRole())
                 {
                     rolesToSend[i] = _roles[i].GetIdRole();
                 }

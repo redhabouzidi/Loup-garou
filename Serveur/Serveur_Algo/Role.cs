@@ -84,7 +84,6 @@ public abstract class Role
                             if (j.GetSocket() == sock)
                             {
                                 sock.Close();
-
                                 return (-1, -1);
                             }
                         }
