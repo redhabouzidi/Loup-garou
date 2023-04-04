@@ -54,26 +54,26 @@ public class Chasseur : Role
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v == JoueurChasseur.GetId()) 
             {     
-                player = listJoueurs.Find(j => j.GetId() == c);
-                if(player != null) 
-                {
-                    if(player.GetEnVie() && player.GetRole() is not Chasseur) 
-                    {
-                        player.SetDoitMourir(true);
-                        if (!reduceTimer && firstTime)
-                        {
-                            firstTime = false;
-                            LaunchThread2 = true;
-                            Task.Run(() =>
-                            {
-                                Thread.Sleep(GetDelaiAlarme() * 250);
-                                Console.WriteLine("le Chasseur a voté, ça passe à 5sec d'attente");
-                                vide.Send(new byte[1] { 0 });
-                                boucle = false;
-                            });
-                        }
-                    }
+                if(player != null) {
+                    player.SetDoitMourir(false);
                 }
+                player = listJoueurs.Find(j => j.GetId() == c);
+                if(player != null && player.GetEnVie() && player.GetRole() is not Chasseur) 
+                {
+                    player.SetDoitMourir(true);
+                    if (!reduceTimer && firstTime)
+                    {
+                        firstTime = false;
+                        LaunchThread2 = true;
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(GetDelaiAlarme() * 250);
+                            Console.WriteLine("le Chasseur a voté, ça passe à 5sec d'attente");
+                            vide.Send(new byte[1] { 0 });
+                            boucle = false;
+                        });
+                    }
+                }     
             }
         }
     }

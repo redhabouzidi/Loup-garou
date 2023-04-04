@@ -5,6 +5,8 @@ using System.Net.Sockets;
 public class Garde : Role
 {
     private new const int IdRole = 8;
+    private int Idsave = -1;
+
     public Garde()
     {
         name = "Garde";
@@ -23,7 +25,10 @@ public class Garde : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        foreach (Joueur j in listJoueurs)
+        {
+            server.sendTime(j.GetSocket(), GetDelaiAlarme());
+        }
 
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
@@ -57,7 +62,7 @@ public class Garde : Role
                     player.SetAEteSave(false);
                 }
                 player = listJoueurs.Find(j => j.GetId() == c);
-                if(player != null && player.GetEnVie()) {
+                if((player != null && player.GetEnVie() && player.GetId() != Idsave)) {
                     player.SetAEteSave(true);
                     if (!reduceTimer && firstTime)
                     {
@@ -75,6 +80,14 @@ public class Garde : Role
 
             }
         }
+        if(player != null) {
+            Idsave = player.GetId();
+        } 
+        else
+        {
+            Idsave = -1;
+        }
+
     }
 
     public override int GetIdRole() {

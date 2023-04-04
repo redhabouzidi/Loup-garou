@@ -10,6 +10,7 @@ public class Game
     private List<Joueur> _joueurs;
     private List<Role> _roles;
     private int _nbrJoueursManquants;
+    private bool _start;
     public int _nbrJoueurs;
     public string name;
     private int _nbLoups;
@@ -18,6 +19,7 @@ public class Game
     public Socket vide,reveille;
     public Game()
     {
+        _start = false;
         name = "village";
          // A ENLEVER PLUS TARD "=6"
         _nbrJoueurs = 2;
@@ -68,6 +70,7 @@ public class Game
     public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon)
     {
         //Initialisation du nombre de joueurs
+        _start = false;
         _nbrJoueursManquants = nbPlayers;
         _nbrJoueurs = nbPlayers;
         this.name = name;
@@ -171,6 +174,7 @@ public class Game
 
     public void Start()
     {
+        _start = true;
         foreach(Joueur j in _joueurs)
         {
             server.connected.Remove(j.GetSocket());
@@ -184,6 +188,7 @@ public class Game
         int checkWin;
         
         bool day = false;
+        bool firstDay = true;
 
         while (true)
         {
@@ -198,8 +203,8 @@ public class Game
                     Console.WriteLine("\t en + ce mec est amoureux !");
                 }
             }
-            // ICI : broadcast du serveur : c'est la nuit
 
+            // broadcast du serveur : c'est la nuit
             sendGameState(day);
             day = !day;
             // appeller Voyante si il y en a un
@@ -212,11 +217,17 @@ public class Game
             // appeller Sorciere si il y en a un
             LanceAction(typeof(Sorciere));
 
-            // ICI : broadcast du serveur : c'est la journée
+            // broadcast du serveur : c'est la journée
             sendGameState(day);
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
+
+            if(firstDay){
+                firstDay = false;
+                // election du maire
+                // ElectionMaire(VoteToutLeMonde(_joueurs););
+            }
 
             for (int i = 0; i < _joueurs.Count; i++)
             {
@@ -229,15 +240,13 @@ public class Game
                 }
             }
 
-
             checkWin = Check_win(_joueurs);
             if (checkWin != 0)
             {
-                Console.WriteLine("Je sors dès le premier break");
                 break;
             }
 
-            Jour(_joueurs);
+            SentenceJournee(VoteToutLeMonde(_joueurs), _joueurs);
 
             GestionMorts(_joueurs);
 
@@ -248,7 +257,6 @@ public class Game
             }
         }
         Console.WriteLine("La game est finie");
-        // ICI : check la valeur de checkWin si on veut envoyer qui a gagné
     }
 
     private void GestionMorts(List<Joueur> listJoueurs)
@@ -270,16 +278,22 @@ public class Game
         }
     }
 
-    // retourne 0 si personne n'a encore win, 1 en cas de victoire du village, 2 en cas de victoire des loups
+    // retourne 0 si personne n'a encore win, 1 en cas de victoire du village, 2 en cas de victoire des loups, 3 en cas de victoire du couple et 4 en cas d'egalite
     int Check_win(List<Joueur> listJoueurs)
     {
         int compVillage = 0, compLoups = 0;
         int retour = 0;
+        bool coupleEnVie = false;
 
         for (int i = 0; i < _joueurs.Count; i++)
         {
             if (_joueurs[i].GetEnVie())
             {
+                if(_joueurs[i].GetAmoureux() != null && !coupleEnVie)
+                {
+                    coupleEnVie = true;
+                }
+
                 if (_joueurs[i].GetRole() is Loup)
                 {
                     compLoups++;
@@ -291,14 +305,30 @@ public class Game
             }
         }
 
-        if (compVillage < 1)
+        if (compVillage == 0)
         {
-            retour = 2;
+            if(compLoups == 0)
+            {
+                retour = 4;
+            }
+            else
+            {
+                retour = 2;
+            }
         }
-        else if (compLoups < 1)
+        else if (compLoups == 0)
         {
             retour = 1;
         }
+        else if(compLoups == 1 && compVillage == 1)
+        {
+            if(coupleEnVie)
+            {
+                retour = 3;
+            }
+        }
+
+        // check la valeur de checkWin si on veut envoyer qui a gagné
         if(retour != 0)
         {
             List<Socket> sockets = new List<Socket>();
@@ -319,7 +349,131 @@ public class Game
         return retour;
     }
 
-    private void Jour(List<Joueur> listJoueurs)
+    private void ElectionMaire(List<int> cible, List<Joueur> listJoueurs)
+    {
+        // ici on a le résultat final du vote
+        Dictionary<int, int> occurrences = new Dictionary<int, int>();
+        for (int i = 0; i < cible.Count; i++)
+        {
+            if (cible[i] != -1)
+            {
+                // Vérification si le nombre existe déjà dans le dictionnaire
+                if (occurrences.ContainsKey(cible[i]))
+                {
+                    // Si oui, on incrémente son compteur
+                    occurrences[cible[i]]++; // VOIR SI CA FONCTIONNE BIEN
+                }
+                else
+                {
+                    // Sinon, on l'ajoute avec un compteur initialisé à 1
+                    occurrences.Add(cible[i], 1);
+                }
+            }
+        }
+
+        // determine la cible qui possède le + de votes
+        int victime = -1;
+        int maxVotes = 0;
+
+        foreach (KeyValuePair<int, int> pair in occurrences)
+        {
+            if (pair.Value > maxVotes)
+            {
+                victime = pair.Key;
+                maxVotes = pair.Value;
+            }
+        }
+
+        // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
+        if (victime != -1)
+        {
+            bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
+
+            if (estMultiple) // si il y a plusieurs occurences ( = si le village ne s'est pas mis d'accord sur qui élire maire)
+            {
+                // alors on créé une liste qui recense toutes les victimes égalités
+                List<int> tiedVictims = new List<int>();
+                foreach (KeyValuePair<int, int> pair in occurrences)
+                {
+                    if (pair.Value == maxVotes)
+                    {
+                        tiedVictims.Add(pair.Key);
+                    }
+                }
+
+                // ON CHOISIT UN MAIRE ALEATOIREMENT
+                Random random = new Random();
+                victime = tiedVictims[random.Next(tiedVictims.Count)];
+            }
+
+            Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
+            playerVictime.SetEstMaire(true);
+        }
+    }
+
+    public void SentenceJournee(List<int> cible, List<Joueur> listJoueurs)
+    {
+        // ici on a le résultat final du vote
+        Dictionary<int, int> occurrences = new Dictionary<int, int>();
+        for (int i = 0; i < cible.Count; i++)
+        {
+            if (cible[i] != -1)
+            {
+                // Vérification si le nombre existe déjà dans le dictionnaire
+                if (occurrences.ContainsKey(cible[i]))
+                {
+                    // Si oui, on incrémente son compteur
+                    occurrences[cible[i]]++; // VOIR SI CA FONCTIONNE BIEN
+                }
+                else
+                {
+                    // Sinon, on l'ajoute avec un compteur initialisé à 1
+                    occurrences.Add(cible[i], 1);
+                }
+            }
+        }
+
+        // determine la cible qui possède le + de votes
+        int victime = -1;
+        int maxVotes = 0;
+
+        foreach (KeyValuePair<int, int> pair in occurrences)
+        {
+            if (pair.Value > maxVotes)
+            {
+                victime = pair.Key;
+                maxVotes = pair.Value;
+            }
+        }
+
+        // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
+        if (victime != -1)
+        {
+            bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
+
+            if (estMultiple) // si il y a plusieurs occurences ( = si les loups ne sont pas mis d'accord sur qui tuer)
+            {
+                // alors on créé une liste qui recense toutes les victimes égalités
+                List<int> tiedVictims = new List<int>();
+                foreach (KeyValuePair<int, int> pair in occurrences)
+                {
+                    if (pair.Value == maxVotes)
+                    {
+                        tiedVictims.Add(pair.Key);
+                    }
+                }
+
+                // TODO LE MAIRE DOIT CHOISIR QUI MEURT
+                Random random = new Random();
+                victime = tiedVictims[random.Next(tiedVictims.Count)];
+            }
+
+            Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
+            playerVictime.SetDoitMourir(true);
+        }
+    }
+
+    private List<int> VoteToutLeMonde(List<Joueur> listJoueurs)
     {
         Role r = new Villageois();
         Console.WriteLine("1");
@@ -400,65 +554,7 @@ public class Game
                 }
             }
         }
-
-        // ici on a le résultat final du vote
-        Dictionary<int, int> occurrences = new Dictionary<int, int>();
-        for (int i = 0; i < cible.Count; i++)
-        {
-            if (cible[i] != -1)
-            {
-                // Vérification si le nombre existe déjà dans le dictionnaire
-                if (occurrences.ContainsKey(cible[i]))
-                {
-                    // Si oui, on incrémente son compteur
-                    occurrences[cible[i]]++; // VOIR SI CA FONCTIONNE BIEN
-                }
-                else
-                {
-                    // Sinon, on l'ajoute avec un compteur initialisé à 1
-                    occurrences.Add(cible[i], 1);
-                }
-            }
-        }
-
-        // determine la cible qui possède le + de votes
-        int victime = -1;
-        int maxVotes = 0;
-
-        foreach (KeyValuePair<int, int> pair in occurrences)
-        {
-            if (pair.Value > maxVotes)
-            {
-                victime = pair.Key;
-                maxVotes = pair.Value;
-            }
-        }
-
-        // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
-        if (victime != -1)
-        {
-            bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
-
-            if (estMultiple) // si il y a plusieurs occurences ( = si les loups ne sont pas mis d'accord sur qui tuer)
-            {
-                // alors on créé une liste qui recense toutes les victimes égalités
-                List<int> tiedVictims = new List<int>();
-                foreach (KeyValuePair<int, int> pair in occurrences)
-                {
-                    if (pair.Value == maxVotes)
-                    {
-                        tiedVictims.Add(pair.Key);
-                    }
-                }
-
-                // ON CHOISIT UNE VICTIME ALEATOIREMENT => A MODIFIER QUAND ON AJOUTE LE MAIRE
-                Random random = new Random();
-                victime = tiedVictims[random.Next(tiedVictims.Count)];
-            }
-
-            Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
-            playerVictime.SetDoitMourir(true);
-        }
+        return cible;
     }
 
     private void InitiateGame()
@@ -609,9 +705,9 @@ public class Game
                 retour = false;
             }
         }
-	else{
-		return false;
-	}
+        else{
+            return false;
+        }
 
         if (myArrayVillageoisMin[index] > nb_villageois && index != 5)
         {
@@ -620,8 +716,63 @@ public class Game
 
         return retour;
     }
+    
+    /*
+    public voteDuMaire(Joueur maire, list<Joueur> listJoueurs, list<Joueur> joueursConcernes)
+    {
+        sendTurn(listJoueurs); // REDHA ??
+
+        Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        reveille.Connect(Game.listener.LocalEndPoint);
+        Socket vide;
+        bool boucle = true;
+        vide = Game.listener.Accept();
+        sendTime(listJoueurs, GetDelaiAlarme());
+        Task.Run(() =>
+        {
+            Thread.Sleep(GetDelaiAlarme() * 500); // 10 secondes
+            vide.Send(new byte[1] { 0 });
+            boucle = false;
+        });
+
+        int v, c;
+        Joueur? player = null;
+        Console.WriteLine("la voyante commencera son action");
+
+        while (boucle)
+        {
+            (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if (v == maire.GetId())
+            {
+                player = listJoueurs.Find(j => j.GetId() == c);
+                if (player != null)
+                {
+                    if (player != maire && player.GetEnVie())
+                    {
+                        player.SetEstMaire(true);
+                        // envoyer l'information que le joueur est devenu maire
+                        server.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
+
+                        boucle = false;
+                    }
+                }
+            }
+        }
+    }
+    */
+
     public List<Joueur> GetJoueurs()
     {
         return _joueurs;
+    }
+
+    public bool GetStart()
+    {
+        return _start;
+    }
+
+    public void SetStart(bool b)
+    {
+        _start = b;
     }
 }

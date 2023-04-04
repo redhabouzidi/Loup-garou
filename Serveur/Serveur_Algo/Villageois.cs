@@ -16,4 +16,5 @@ public class Villageois : Role
     public override int GetIdRole() {
         return IdRole; 
     }
+
 }

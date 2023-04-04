@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using Server;
 namespace LGproject;
 
@@ -12,7 +12,7 @@ public class Joueur
     private bool aEteSave; // pour le rôle du garde plus tard
     private bool enVie;
     private bool doitMourir;
-
+    private bool estMaire;
 
     public Joueur(int ClientId, Socket socketClient, string name)
     {
@@ -23,6 +23,7 @@ public class Joueur
         socket = socketClient;
         pseudo = name;
         aEteSave = false;
+        estMaire = false;
     }
 
     public void FaireAction(List<Joueur> ListJoueurs)
@@ -120,5 +121,13 @@ public class Joueur
 
     public bool GetAEteSave() {
         return aEteSave;
+    }
+
+    public bool GetEstMaire(){
+        return estMaire;
+    }
+
+    public void SetEstMaire(bool b){
+        estMaire = b;
     }
 }
