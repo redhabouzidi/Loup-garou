@@ -14,7 +14,7 @@ public class Cupidon : Role
 
     public override void Action(List<Joueur> listJoueurs)
     {
-        sendTurn(listJoueurs);
+        sendTurn(listJoueurs, GetIdRole());
         // écrire l'action du Cupidon
         // choix des amoureux
         bool boucle = true;
