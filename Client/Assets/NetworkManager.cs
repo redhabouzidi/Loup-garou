@@ -216,6 +216,7 @@ public class NetworkManager : MonoBehaviour
 
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
     {
+        GameManagerApp.listGame.Clear();
         for(int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i]);

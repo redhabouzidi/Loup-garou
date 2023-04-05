@@ -107,7 +107,7 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickJoin()
     {
-        Debug.Log("id toggle on : " + GetIdToggleGameOn());
+        NetworkManager.join(NetworkManager.client, GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
     }
 
     public void AfficheError(string msg)
