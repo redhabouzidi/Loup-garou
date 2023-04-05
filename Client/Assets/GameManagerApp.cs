@@ -14,7 +14,7 @@ public class GameManagerApp : MonoBehaviour
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
     public static List<Game> listGame = new List<Game>();
-    public GameObject containerGame, conponentGame;
+    public GameObject containerGame, conponentGame, toggleGroupGame;
 
     // Start is called before the first frame update
     void Start()
@@ -107,7 +107,7 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickJoin()
     {
-        NetworkManager.join(NetworkManager.client, 0, NetworkManager.id, NetworkManager.username);
+        Debug.Log("id toggle on : " + GetIdToggleGameOn());
     }
 
     public void AfficheError(string msg)
@@ -128,6 +128,9 @@ public class GameManagerApp : MonoBehaviour
         TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         textPlayer.text = "" + (nbPlayer - g.nbPlayer_rest) + "/"+ nbPlayer;
 
+        //ajout dans le toggle groupe
+        newGame.GetComponent<Toggle>().group = toggleGroupGame.GetComponent<ToggleGroup>();
+
         listGame.Add(g);
     }
 
@@ -138,6 +141,15 @@ public class GameManagerApp : MonoBehaviour
             TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
             textPlayer.text = "" + (listGame[indice].nbPlayer - listGame[indice].nbPlayer_rest) + "/"+ listGame[indice].nbPlayer;
         }
+    }
+
+    public int GetIdToggleGameOn(){
+        for(int i=0 ; i<listGame.Count ; i++){
+            if(listGame[i].game.GetComponent<Toggle>().isOn){
+                return listGame[i].id;
+            }
+        }
+        return -1;
     }
 
     public int findIndiceGameId(int id){
