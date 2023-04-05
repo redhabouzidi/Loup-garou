@@ -240,7 +240,7 @@ public class GameManager : MonoBehaviour
     private void OnButtonClickVote()
     {
         Vote();
-        UpdateVote();
+        
     }
 
     private void OnButtonClickAffiche(){

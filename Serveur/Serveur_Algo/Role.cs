@@ -30,10 +30,9 @@ public abstract class Role
 	    
         foreach (Joueur j in listJoueurs)
         {
-        Console.WriteLine(j.GetSocket().Connected);
-        if (j.GetSocket().Connected == true)
+            
+        if (j.GetSocket()!=null&&j.GetSocket().Connected == true)
         {
-            Console.WriteLine(j.GetSocket());
             sockets.Add(j.GetSocket());
             if (idRole == 1 && j.GetEnVie())
             {
@@ -83,6 +82,7 @@ public abstract class Role
                         {
                             if (j.GetSocket() == sock)
                             {
+                                j.SetSocket(null);
                                 sock.Close();
                                 return (-1, -1);
                             }
@@ -132,9 +132,12 @@ public abstract class Role
         foreach(Joueur j in listJoueur)
         {
             //6 pour le dictateur ???
+            if(j.GetSocket() != null && j.GetSocket().Connected){
             if (idRole == 1 || idRole == 6 || j.GetRole().GetIdRole() == idRole)
             {
                 server.sendVote(j.GetSocket(), vote, voted);
+            }
+
             }
         }
     }
@@ -148,7 +151,7 @@ public abstract class Role
     {
         foreach (Joueur j in listJoueurs)
         {
-            if (j.GetSocket().Connected)
+            if (j.GetSocket() != null && j.GetSocket().Connected)
                 server.sendTurn(j.GetSocket(), idRole);
         }
     }
@@ -157,7 +160,7 @@ public abstract class Role
         Console.WriteLine("in");
         foreach (Joueur j in listJoueurs)
         {
-            if (j.GetSocket().Connected)
+            if(j.GetSocket() != null && j.GetSocket().Connected)
                 server.sendTime(j.GetSocket(),time);
         }
         Console.WriteLine("out");

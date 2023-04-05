@@ -370,6 +370,7 @@ public class NetworkManager : MonoBehaviour
                     int voted = decode(message, size);
                     int indice = gm.chercheIndiceJoueurId(vote);
                     gm.listPlayer[indice].SetVote(voted);
+                    gm.UpdateVote();
                     break;
                 case 5:
                     GameManager.turn = 1;

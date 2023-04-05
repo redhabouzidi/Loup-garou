@@ -107,7 +107,7 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickJoin()
     {
-        
+        NetworkManager.join(NetworkManager.client, 0, NetworkManager.id, NetworkManager.username);
     }
 
     public void AfficheError(string msg)

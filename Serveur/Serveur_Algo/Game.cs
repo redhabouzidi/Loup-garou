@@ -22,7 +22,7 @@ public class Game
         _start = false;
         name = "village";
          // A ENLEVER PLUS TARD "=6"
-        _nbrJoueurs = 3;
+        _nbrJoueurs = 2;
         _nbrJoueursManquants = _nbrJoueurs;
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
@@ -539,9 +539,7 @@ public class Game
         Console.WriteLine("5");
         int index, v, c;
             
-        r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        r.gameListener.Connect(listener.LocalEndPoint);
-        this.vide = listener.Accept();
+        r.gameListener = reveille;
         while (boucle)
         {
             Console.WriteLine("6");
@@ -617,6 +615,7 @@ public class Game
                     rolesToSend[i] = 0;
                 }
             }
+        
             server.sendRoles(j.GetSocket(), id, rolesToSend);
         
     }

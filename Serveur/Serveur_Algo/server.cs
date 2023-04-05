@@ -204,11 +204,6 @@ namespace Server
         //fonction qui envoie un message a un socket donne en parametre
         public static int sendMessage(Socket client, byte[] message)
         {
-		foreach (byte b in message)
-		{
-		Console.Write(b+" ");
-		}
-		Console.WriteLine("");
 		
             return client.Send(message, message.Length, SocketFlags.None);
 
@@ -726,19 +721,28 @@ namespace Server
                             else
                             {
                                 Console.WriteLine("already Playing");
-                                    Game g = players[connected[client]];
-                                    foreach (Joueur j in g.GetJoueurs())
+                                Game g = players[connected[client]];
+                                foreach (Joueur j in g.GetJoueurs())
+                                {
+                                    if (j.GetId() == idj)
                                     {
-                                        if (j.GetId() == idj)
-                                        {
-                                        Console.WriteLine("envoie d'info et mises a jjour");
-                                            j.SetSocket(client);
-                                            g.sendGameInfo(client);
-                                            g.sendRoles(j);
-                                            //envoyer les information déjà connue
-                                        }
+                                    Console.WriteLine("envoie d'info et mises a jjour");
+                                    j.SetSocket(client);
+                                    g.sendGameInfo(client);
+                                    g.sendRoles(j);
+                                        
+                                    //envoyer les information déjà connue
                                     }
-                                    g.vide.Send(new byte[1] { 0 });
+                                }
+                                foreach (Joueur j in g.GetJoueurs())
+                                {
+                                    if (!j.GetEnVie())
+                                    {
+                                        annonceMort(client, j.GetId(), j.GetRole().GetIdRole());
+                                    }
+                                }
+                                connected.Remove(client);
+                                g.vide.Send(new byte[1] { 0 });
                                     
                                 }
                             }
