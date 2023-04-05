@@ -13,7 +13,6 @@ public class GameManagerApp : MonoBehaviour
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
-
     public static List<Game> listGame = new List<Game>();
     public GameObject containerGame, conponentGame;
 
@@ -21,7 +20,6 @@ public class GameManagerApp : MonoBehaviour
     void Start()
     {
         GameManagerApp.players = new List<player>();
-
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
@@ -43,12 +41,13 @@ public class GameManagerApp : MonoBehaviour
     {
         NetworkManager.prog = false;
 #if UNITY_EDITOR
-                    // Stop play mode in the editor
-                    UnityEditor.EditorApplication.isPlaying = false;
+                                // Stop play mode in the editor
+                                UnityEditor.EditorApplication.isPlaying = false;
 #else
         // Quit the game
         Application.Quit();
 #endif
+
     }
 
     private void OnButtonClickQuit()

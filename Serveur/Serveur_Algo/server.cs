@@ -53,7 +53,6 @@ namespace Server
         public static Dictionary<int, Game> players = new Dictionary<int, Game>();
         public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
-
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -74,7 +73,7 @@ namespace Server
             // {
             games.Add(0, new Game());
             bdd = serverbdd.Accept();
-            List<Socket> clients = new List<Socket>();
+            
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
             
@@ -95,6 +94,7 @@ namespace Server
                 }
 
                 Socket.Select(fds, null, null, -1);
+                Console.WriteLine("on recoit un truc");
                 //Testing
                 int[] idPlayers = new int[5] { 1, 2, 3, 4, 5 };
                 int[] nbPlayers = new int[5] { 4, 5, 3, 9, 8 };
@@ -116,8 +116,6 @@ namespace Server
                 if (fds.Contains(server))
                 {
                     acceptConnexions(list, server);
-
-                    clients.Add(list.Last());
                     fds.Remove(server);
                     Console.WriteLine("got a new client ! it's " + list.Last().RemoteEndPoint.ToString());
                 }
@@ -131,9 +129,32 @@ namespace Server
                     if (fd.Available == 0)
                     {
                         list.Remove(fd);
-                        clients.Remove(fd);
-                        connected.Remove(fd);
+                        if (connected.ContainsKey(fd))
+                        {
+                            if (players.ContainsKey(connected[fd]))
+                            {
+                                if (!players[connected[fd]].GetStart())
+                                {
+                                    Console.WriteLine(("on supprime bien le joueur"));
+                                    Game g = players[connected[fd]];
+                                    g.RemovePlayer(fd);
+                                    players.Remove(connected[fd]);
+                                    if (g._nbrJoueurs == g.GetJoueurManquant())
+                                    {
+                                        games.Remove(connected[fd]);
+                                    }else
+                                    if (games.ContainsKey(connected[fd]))
+                                    {
+                                        int newId = g.GetJoueurs()[0].GetId();
+                                        games[newId] = g;
+                                        games.Remove(connected[fd]);
+                                    }
+                                }
+                            }
+                            connected.Remove(fd);
+                        }
                         fd.Close();
+
 
                     }
                     else
@@ -629,7 +650,17 @@ namespace Server
             }
             return false;
         }
-        
+        public static void sendQuitMessage(Socket client,int id) 
+        {
+            int[] size = new int[1] { 1 };
+            int byteSize = 1 + sizeof(int);
+            byte[] message = new byte[byteSize];
+            //ajouter le code du packet
+            message[0] = 106;
+            //ajouter l'id de celui qui a voté
+            encode(message, id, size);
+            sendMessage(client, message);
+        }
         public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
@@ -733,6 +764,35 @@ namespace Server
                     setLovers(list[3], list[4], decodeInt(message, size), decodeInt(message, size), 10, 14);
                     break;
                 case 100://disconnects
+                    list.Remove(client);
+                    if (connected.ContainsKey(client))
+                    {
+                        if (players.ContainsKey(connected[client]))
+                        {
+                            if (!players[connected[client]].GetStart())
+                            {
+                                Console.WriteLine(("on supprime bien le joueur"));
+                                Game g = players[connected[client]];
+                                g.RemovePlayer(client);
+                                players.Remove(connected[client]);
+                                if (g._nbrJoueurs == g.GetJoueurManquant())
+                                {
+                                    Console.WriteLine("we delete the game" + connected[client]);
+                                    games.Remove(connected[client]);
+                                }
+                                else
+                                if (games.ContainsKey(connected[client]))
+                                {
+                                    int newId = g.GetJoueurs()[0].GetId();
+                                    games[newId] = g;
+                                    games.Remove(connected[client]);
+                                }
+                            }
+                        }
+                        connected.Remove(client);
+                    }
+                    client.Close();
+
                     break;
                 case 103://informations des lobby
                     if (connected.ContainsKey(client))
@@ -907,7 +967,6 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, roleId, size);
             sendMessage(client, message);
-
             
         }
         public static void sendTime(Socket client, int time)

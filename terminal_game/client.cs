@@ -107,7 +107,7 @@ public class Client
                     else
                     if (messageAsync.Equals("join"))
                     {
-                        join(client, 21, id, username+id);
+                        join(client, 0, id, username+id);
                     }
                     else if (messageAsync.Equals("love"))
                     {

@@ -18,8 +18,9 @@ public class NetworkManager : MonoBehaviour
     public static string username;
     static bool connected = false;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo,lo;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo,lo,gmao;
     public static WaitingScreen ws;
+    public static GameManagerApp gma;
     public static WPlayer[] players;
     public class answer
     {
@@ -58,6 +59,8 @@ public class NetworkManager : MonoBehaviour
         sp = canvas.transform.Find("StartPage").gameObject;
         wso = canvas.transform.Find("WaitingScreen").gameObject;
         lo = canvas.transform.Find("Lobby").gameObject;
+        gmao = GameObject.Find("GameManagerApp").gameObject;
+        gma = gmao.GetComponent<GameManagerApp>();
         ws = wso.GetComponent<WaitingScreen>();
         Task.Run(() =>
         {
@@ -99,8 +102,6 @@ public class NetworkManager : MonoBehaviour
         }
         string ia = args[1];*/
         
-        if (!connected)
-        {
             try
             {
 
@@ -114,14 +115,13 @@ public class NetworkManager : MonoBehaviour
                 client.Connect(iep);
 
                 Console.Write("Connected to the server\n");
-                connected = true;
             }
             catch (Exception e)
             {
                 Console.Write(e.Message);
                 prog = false;
             }
-        }
+        
         /*var inputTask = Task.Run(() =>
         {
             while (reading)
@@ -182,7 +182,6 @@ public class NetworkManager : MonoBehaviour
         {
             recvMessage(client);
         }
-        
         client.Close();
     }
 
@@ -217,7 +216,10 @@ public class NetworkManager : MonoBehaviour
 
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
     {
-
+        for(int i = 0; i < nbPlayers.Length; i++)
+        {
+            gma.AddGame(gameId[i], name[i], nbPlayers[i]);
+        }
     }
 
     public static int decode(byte[] message, int[] size)
@@ -320,17 +322,24 @@ public class NetworkManager : MonoBehaviour
         
         byte[] message = new byte[5000];
         int recvSize;
-        server.Poll(-1, SelectMode.SelectRead);
+        List<Socket> read = new List<Socket>();
+        read.Add(server);
+        Socket.Select(read, null, null, 500000);
+        if (read.Count != 0)
+        {
         if(server.Available ==0){
             prog=false;
             rep.Add(null);
             return;
         }
+        
         recvSize = server.Receive(message);
         Debug.Log("recv =" + message[0]);
         byte[] newMessage=new byte[recvSize];
         Array.Copy(message, 0, newMessage, 0,recvSize);
         rep.Add(newMessage);
+
+        }
         return;
             
     }
@@ -545,7 +554,12 @@ public class NetworkManager : MonoBehaviour
                         decode(message, size);
                         decodeString(message, size);
                     }
-                    
+                    break;
+                case 106:
+                    int idQuitter=decode(message, size);
+                    ws.quitplayer(idQuitter);
+                    Debug.Log("le joueur quitte");
+
                     break;
                 case 110:
                     win = decode(message, size);

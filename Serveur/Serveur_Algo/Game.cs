@@ -22,7 +22,7 @@ public class Game
         _start = false;
         name = "village";
          // A ENLEVER PLUS TARD "=6"
-        _nbrJoueurs = 2;
+        _nbrJoueurs = 3;
         _nbrJoueursManquants = _nbrJoueurs;
         // création de la liste de joueurs et de rôles
         _roles = new List<Role>();
@@ -117,6 +117,33 @@ public class Game
 
         _joueurs = new List<Joueur>();
         Join(c);
+    }
+    public void RemovePlayer(Socket sock)
+    {
+        Joueur temp=null;
+        foreach(Joueur j in _joueurs)
+        {
+            if (j.GetSocket() == sock)
+            {
+                temp = j;
+                _joueurs.Remove(j);
+                break;
+            }
+        }
+        if (temp != null)
+        {
+            _nbrJoueursManquants++;
+            sendQuitMessage(_joueurs, temp.GetId());
+
+        }
+        
+    }
+    public void sendQuitMessage(List<Joueur> listJoueur, int id)
+    {
+        foreach(Joueur j in listJoueur)
+        {
+            server.sendQuitMessage(j.GetSocket(), id);
+        }
     }
     public void Waiting_screen()
     {

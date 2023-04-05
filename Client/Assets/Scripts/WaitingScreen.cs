@@ -100,12 +100,25 @@ public class WaitingScreen : MonoBehaviour
     }
 
     //Fonction permettant de supprimer un joueur avec son nom d'utilisateur
-    void quitplayer(string username)
+    public void quitplayer(string username)
     {
         if (players_waiting.Count == 0) return;
 
         //trouver un utilisateur avec son nom et le supprimer
         players_waiting.RemoveAll(player => player.GetUsername() == username);
+        no_players--;
+        nbjoueur_rest++;
+
+        Debug.Log(no_players.ToString());
+
+        AffichageUsernameText();
+    }
+    public void quitplayer(int id)
+    {
+        if (players_waiting.Count == 0) return;
+
+        //trouver un utilisateur avec son nom et le supprimer
+        players_waiting.RemoveAll(player => player.GetId() == id);
         no_players--;
         nbjoueur_rest++;
 
