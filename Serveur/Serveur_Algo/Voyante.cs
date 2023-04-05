@@ -13,7 +13,7 @@ public class Voyante : Role
 
     public override void Action(List<Joueur> listJoueurs)
     { // Ã©crire l'action de la Voyante
-        sendTurn(listJoueurs);
+        sendTurn(listJoueurs, GetIdRole());
 
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);

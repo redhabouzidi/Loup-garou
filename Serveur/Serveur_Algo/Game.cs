@@ -564,7 +564,7 @@ public class Game
                             allVote = false;
                         }
                     }
-
+                    r.SendVote(listJoueurs, v, c, 1);
                     if (allVote && !reduceTimer && firstTime)
                     {
                         firstTime = false;

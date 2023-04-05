@@ -366,8 +366,10 @@ public class NetworkManager : MonoBehaviour
                     Debug.Log("I am over here");
                     break;
                 case 1:
-                    size[0]=sizeof(int)*2+1;
-                    vote(BitConverter.ToInt32(message, 1), BitConverter.ToInt32(message, 1 + sizeof(int)));
+                    int vote = decode(message, size);
+                    int voted = decode(message, size);
+                    int indice = gm.chercheIndiceJoueurId(vote);
+                    gm.listPlayer[indice].SetVote(voted);
                     break;
                 case 5:
                     GameManager.turn = 1;

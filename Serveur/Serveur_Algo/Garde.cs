@@ -15,10 +15,8 @@ public class Garde : Role
     
     public override void Action(List<Joueur> listJoueurs)
     { // écrire l'action de la Voyante
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTurn(j.GetSocket(), GetIdRole());
-        }
+            sendTurn(listJoueurs, GetIdRole());
+        
         
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);

@@ -442,7 +442,7 @@ namespace Server
         }
 
         //focntion qui envoie aux joueurs le choix du vote d'un joueurs
-        public static void sendVote(List<Socket> clients, int id, int cible)
+        public static void sendVote(Socket client, int id, int cible)
         {
             int[] size = new int[1] { 1 };
             int byteSize = 1 + sizeof(int) + sizeof(int);
@@ -454,10 +454,7 @@ namespace Server
             //ajouter le choix de vote
             encode(message, cible, size);
             //envoyer a tous les joueurs
-            foreach (Socket socket in clients)
-            {
-                sendMessage(socket, message);
-            }
+            sendMessage(client, message);
         }
 
         //fonctions qui envoie les roles de tous les joueurs a la fin de la partie

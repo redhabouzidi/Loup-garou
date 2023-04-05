@@ -196,7 +196,6 @@ public class Cupidon : Role
                         Console.WriteLine("apres recv2");
                     }
                 }
-
             }
             read.Clear();
         }

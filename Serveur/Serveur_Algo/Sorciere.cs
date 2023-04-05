@@ -118,7 +118,7 @@ public class Sorciere : Role
 
     public void PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
-        sendTurn(listJoueurs);
+        sendTurn(listJoueurs, GetIdRole());
         bool boucle = true;
         bool wantToKill = false;
         // on définit une "alarme" qui modifie la valeur du boolean

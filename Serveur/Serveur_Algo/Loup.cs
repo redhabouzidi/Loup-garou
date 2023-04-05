@@ -13,7 +13,7 @@ public Loup()
 
 public override void Action(List<Joueur> listJoueurs)
 { // écrire l'action du loup
-    sendTurn(listJoueurs);
+    sendTurn(listJoueurs,GetIdRole());
     bool boucle = true;
 
     List<int> votant = new List<int>();
@@ -69,7 +69,7 @@ public override void Action(List<Joueur> listJoueurs)
                             allVote = false;
                         }
                     }
-
+                    SendVote(listJoueurs,v,c,GetIdRole());
                     Console.WriteLine("je check ici");
                     if (allVote && !reduceTimer && firstTime)
                     {

@@ -127,19 +127,29 @@ public abstract class Role
 	Console.WriteLine("ici c'est la fin de game vote");
         return (-1, -1);
     }
-
+    public void SendVote(List<Joueur> listJoueur,int vote,int voted,int idRole)
+    {
+        foreach(Joueur j in listJoueur)
+        {
+            //6 pour le dictateur ???
+            if (idRole == 1 || idRole == 6 || j.GetRole().GetIdRole() == idRole)
+            {
+                server.sendVote(j.GetSocket(), vote, voted);
+            }
+        }
+    }
     public abstract int GetIdRole();
 
     public static int GetDelaiAlarme()
     {
         return delaiAlarme;
     }
-    public void sendTurn(List<Joueur> listJoueurs)
+    public void sendTurn(List<Joueur> listJoueurs,int idRole)
     {
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetSocket().Connected)
-                server.sendTurn(j.GetSocket(), GetIdRole());
+                server.sendTurn(j.GetSocket(), idRole);
         }
     }
     public void sendTime(List<Joueur> listJoueurs,int time)
