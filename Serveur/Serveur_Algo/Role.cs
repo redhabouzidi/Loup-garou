@@ -76,12 +76,14 @@ public abstract class Role
                 {
                     if (sock.Available == 0)
                     {
-                    Console.WriteLine("un joueur quitte");
+                        
                         sockets.Remove(sock);
                         foreach(Joueur j in listJoueurs)
                         {
                             if (j.GetSocket() == sock)
                             {
+                                server.userData[j.GetId()].SetStatus(-1);
+                                server.userData.Remove(j.GetId());
                                 j.SetSocket(null);
                                 sock.Close();
                                 return (-1, -1);

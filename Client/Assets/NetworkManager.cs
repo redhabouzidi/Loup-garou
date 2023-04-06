@@ -729,7 +729,7 @@ public class NetworkManager : MonoBehaviour
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
         int[] size = new int[1] { 1 };
-        message[0] = 153;
+        message[0] = 154;
         encode(message, idUser, size);
         encode(message, id, size);
 
@@ -740,7 +740,7 @@ public class NetworkManager : MonoBehaviour
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
         int[] size = new int[1] { 1 };
-        message[0] = 153;
+        message[0] = 155;
         encode(message, idUser, size);
         encode(message, id, size);
         encode(message, answer, size);

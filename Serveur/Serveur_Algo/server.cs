@@ -5,10 +5,46 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using LGproject;
+using System.Collections;
 
 
 namespace Server
 {
+    public class Amis
+    {
+        private Socket sock;
+        private int status;
+        private List<int>friendList = new List<int>();
+        public Amis(Socket sock,int status)
+        {
+            this.sock = sock;
+            this.status = status;
+        }
+        public void AddFriend(int id)
+        {
+            friendList.Add(id);
+        }
+        public void RemoveFriend(int id)
+        {
+            friendList.Remove(id);
+        }
+        public Socket GetSock()
+        {
+            return sock;
+        }
+        public void SetSock(Socket sock)
+        {
+            this.sock = sock;
+        }
+        public int GetStatus()
+        {
+            return status;
+        }
+        public void SetStatus(int status)
+        {
+            this.status = status;
+        }
+    }
     public class Queue
     {
         public Dictionary<int, Socket> queue;
@@ -53,6 +89,7 @@ namespace Server
         public static Dictionary<int, Game> players = new Dictionary<int, Game>();
         public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
+        public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -151,6 +188,7 @@ namespace Server
                                     }
                                 }
                             }
+                            userData.Remove(connected[fd]);
                             connected.Remove(fd);
                         }
                         fd.Close();
@@ -683,6 +721,7 @@ namespace Server
                         Console.WriteLine("game created");
                         games.Add(id, new Game(new Client(id,client,username),name,nbPlayers,nbLoups,sorciere,voyante,cupidon));
                         players.Add(id, games[id]);
+                            userData[id].SetStatus(2);
                     }
                     else
                     {
@@ -711,6 +750,7 @@ namespace Server
                                     Console.WriteLine("id joueur : " + idj);
                                     games[gameId].Join(new Client(idj, client, username));
                                     players[idj] = games[gameId];
+                                    userData[idj].SetStatus(2);
                                 }
                                 else
                                 {
@@ -874,17 +914,40 @@ namespace Server
             switch (message[0])
             {
                 case 105:
+
                     size = new int[1] { 1 };
                     int queueId = decodeInt(message, size);
                     bool answer = decodeBool(message, size);
                     int idPlayer = decodeInt(message, size);
                     string username = decodeString(message, size);
+                    int friendsSize = decodeInt(message, size);
+                    int[] friendList = new int[friendsSize];
+                    for(int i = 0; i < friendsSize; i++)
+                    {
+                        friendList[i]=decodeInt(message, size);
+                    }
                     if (answer)
                     {
                         if (!alreadyConnected(connected,idPlayer))
                         {
+                            //recuperer la liste d'amis ( a faire )
                             list.Remove(queue.queue[queueId]);
                             connected.Add(queue.queue[queueId],idPlayer);
+                            if (players.ContainsKey(idPlayer))
+                            {
+                                userData[idPlayer] = new Amis(queue.queue[queueId], 3);
+                                foreach(int i in friendList)
+                                {
+                                    userData[idPlayer].AddFriend(i);
+                                }
+                                //Player reconnect function
+
+                            }
+                            else
+                            {
+                            userData[idPlayer] = new Amis(queue.queue[queueId],1);
+
+                            }
 
                         }
                     }
@@ -933,7 +996,7 @@ namespace Server
                     break;
             }
         }
-
+       
         public static void setLovers(Socket player1, Socket player2, int id1, int id2, int role1, int role2)
         {
             byte[] message = new byte[1 + 2 * sizeof(int)];

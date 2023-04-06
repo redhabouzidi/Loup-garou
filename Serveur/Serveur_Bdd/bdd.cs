@@ -151,9 +151,9 @@ public class bdd
         return 0;
     }
 
-    public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username)
+    public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username,int[] friends)
     {
-        int msgSize = 1 + sizeof(bool) + sizeof(int) * 3 + username.Length;
+        int msgSize = 1 + sizeof(bool) + sizeof(int) * 3 + username.Length+sizeof(int)+friends.Length*sizeof(int);
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
         message[0] = 105;
@@ -161,6 +161,11 @@ public class bdd
         encode(message, answer, size);
         encode(message, idPlayer, size);
         encode(message, username, size);
+        encode(message,friends.Length,size);
+        foreach(int i in friends)
+        {
+            encode(message, i, size);
+        }
         Console.WriteLine("hey");
         return bdd.Send(message);
     }
@@ -174,10 +179,11 @@ public class bdd
         if (Login.login_user(conn, username, password) == 0)
         {
             int id=Login.get_id(conn, username);
-            connexionAnswer(bdd, queueId, true, id, username);
+            //recuperer les amis
+            connexionAnswer(bdd, queueId, true, id, username,new int[0]);
         }
         else
-            connexionAnswer(bdd, queueId, false, 0, username);
+            connexionAnswer(bdd, queueId, false, 0, username, new int[0] );
     }
 
     public static int ajoutAmi(Socket bdd, byte[] message)
