@@ -44,7 +44,6 @@ public class Joueur
             AmoureuxTuerJoueur(GetAmoureux(), ListJoueurs);
             SetAmoureux(null); 
         }
-        // if (role = Chasseur)
     }
 
     public void AmoureuxTuerJoueur(Joueur j, List<Joueur> ListJoueurs)

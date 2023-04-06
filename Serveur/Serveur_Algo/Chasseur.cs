@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 public class Chasseur : Role 
 {
-    private new const int IdRole = 8;
+    private new const int IdRole = 6;
     public Chasseur()
     {
         name = "Chasseur";
