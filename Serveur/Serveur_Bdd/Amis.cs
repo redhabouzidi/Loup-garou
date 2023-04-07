@@ -9,7 +9,7 @@ using System.Collections.Generic;
 class Amis
 {
 
-    public int get_id(MySqlConnection conn, string pseudo)
+    public static int get_id(MySqlConnection conn, string pseudo)
     {
         //Requete pour recuperer identifiant du joueur
         string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
@@ -17,17 +17,19 @@ class Amis
         int id_joueur = conn.QueryFirstOrDefault<int>(query, new { Pseudo = pseudo });
         return id_joueur;
     }
+    public static string get_username(MySqlConnection conn,int id)
+    {
+        string query = "SELECT pseudo FROM Utilisateurs WHERE id=@IDA";
+        //id=id_joueur
+        string pseudo_joueur= conn.QueryFirstOrDefault<string>(query, new { IDA = id });
+        return pseudo_joueur;
+    }
 
 
-    public void send_friend_request(MySqlConnection conn, string sender, string receiver)
+    public static int send_friend_request(MySqlConnection conn, int id_sender, string receiver)
     {//envoyer une demande
-
-        //Requete pour recuperer identifiant du joueur qui envoie la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_sender
-        int id_sender = conn.QueryFirstOrDefault<int>(query, new { Pseudo = sender });
         //Requete pour recuperer identifiant du joueur qui a reçoit la demande
-        query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
+        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
         //id=id_receiver
         int id_receiver = conn.QueryFirstOrDefault<int>(query, new { Pseudo = receiver });
         using (MySqlCommand command = new MySqlCommand())
@@ -35,7 +37,7 @@ class Amis
             query = "SELECT count(*) FROM Amis WHERE idUsers1=@IDS AND idUsers2=@IDR";
             int rowcount = conn.QueryFirstOrDefault<int>(query, new { IDS = id_receiver, IDR = id_sender });
             Console.WriteLine(rowcount);
-            if (rowcount > 0) return;
+            if (rowcount > 0) return -1;
             command.Connection = conn;
             command.CommandText = "INSERT INTO Amis (idUsers1,idUsers2,status_ami,date_amis) VALUES (@IDS,@IDR,@STA,@DA)";
             command.Parameters.AddWithValue("@IDS", id_sender);
@@ -45,21 +47,14 @@ class Amis
             rowcount = command.ExecuteNonQuery();
             if (rowcount == 0) Console.WriteLine("Failed while inserting");
             else Console.WriteLine("Success");
+            return id_receiver;
         }
     }
 
 
-    public void accept_friend_request(MySqlConnection conn, string playeraccepte, string playersend)
+    public static void accept_friend_request(MySqlConnection conn, int id_playeraccepte, int id_playersend)
     {//accepter la demande
-        //Requete pour recuperer identifiant du joueur qui envoie la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_playeraccepte
-        int id_playeraccepte = conn.QueryFirstOrDefault<int>(query, new { Pseudo = playeraccepte });
-        //Requete pour recuperer identifiant du joueur qui a reçoit la demande
-        query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_playersend
-        int id_playersend = conn.QueryFirstOrDefault<int>(query, new { Pseudo = playersend });
-        Console.WriteLine(playeraccepte + " idplayeraccepte=" + id_playeraccepte + " " + playersend + " idplayersend " + id_playersend);
+        Console.WriteLine("idplayeraccepte=" + id_playeraccepte + "  idplayersend " + id_playersend);
         using (MySqlCommand command = new MySqlCommand())
         {
             command.Connection = conn;
@@ -75,16 +70,9 @@ class Amis
     }
 
 
-    public void refuse_friend_request(MySqlConnection conn, string playerrefuse, string playersender)
+    public static void refuse_friend_request(MySqlConnection conn, int id_playerrefuse, int id_playersender)
     {//refuser la demande ou supprimer
-        //Requete pour recuperer identifiant du joueur qui envoie la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_playerrefuse
-        int id_playerrefuse = conn.QueryFirstOrDefault<int>(query, new { Pseudo = playerrefuse });
-        //Requete pour recuperer identifiant du joueur qui a reçoit la demande
-        query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_playersender
-        int id_playersender = conn.QueryFirstOrDefault<int>(query, new { Pseudo = playersender });
+
         using (MySqlCommand command = new MySqlCommand())
         {
             command.Connection = conn;
@@ -98,14 +86,12 @@ class Amis
     }
 
 
-    public Dictionary<Tuple<string, string>, DateTime> get_liste_amis(MySqlConnection conn, string player, bool trie_date)
+    public static Dictionary<Tuple<int, string>, DateTime> get_liste_amis(MySqlConnection conn, int player_id, bool trie_date)
     {
-        //Requete pour recuperer identifiant du joueur qui envoie la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_sender
-        int player_id = conn.QueryFirstOrDefault<int>(query, new { Pseudo = player });
-        Dictionary<Tuple<string, string>, DateTime> affic = new Dictionary<Tuple<string, string>, DateTime>();
-        if (trie_date) query = "SELECT * FROM Amis WHERE idUsers1=@IDF ORDER BY date_amis DESC";
+
+        Dictionary<Tuple<int, string>, DateTime> affic = new Dictionary<Tuple<int, string>, DateTime>();
+        string query;
+        if (trie_date)  query = "SELECT * FROM Amis WHERE idUsers1=@IDF ORDER BY date_amis DESC";
         else query = "SELECT * FROM Amis WHERE idUsers1=@IDF";
         IEnumerable<dynamic> data = conn.Query(query, new { IDF = player_id });
         foreach (dynamic row in data)
@@ -120,7 +106,7 @@ class Amis
             DateTime timestamp = row.date_amis;
             if (stat_ami)
             {
-                affic.Add(Tuple.Create(player, player_name_rec), timestamp);
+                affic.Add(Tuple.Create(id_rec, player_name_rec), timestamp);
             }
         }
         if (trie_date) query = "SELECT * FROM Amis WHERE idUsers2=@IDS ORDER BY date_amis DESC";
@@ -138,20 +124,17 @@ class Amis
             DateTime timestamp = row.date_amis;
             if (stat_ami)
             {
-                affic.Add(Tuple.Create(player, player_name_rec), timestamp);
+                affic.Add(Tuple.Create(id_rec, player_name_rec), timestamp);
             }
         }
         return affic;
     }
 
 
-    public Dictionary<Tuple<string, string>, DateTime> get_liste_amis_enattente(MySqlConnection conn, string player, bool trie_date)
+    public static Dictionary<Tuple<int, string>, DateTime> get_liste_amis_enattente(MySqlConnection conn, int player_id, bool trie_date)
     {
-        //Requete pour recuperer identifiant du joueur qui envoie la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
-        //id=id_sender
-        int player_id = conn.QueryFirstOrDefault<int>(query, new { Pseudo = player });
-        Dictionary<Tuple<string, string>, DateTime> affic = new Dictionary<Tuple<string, string>, DateTime>();
+        string query;
+        Dictionary<Tuple<int, string>, DateTime> affic = new Dictionary<Tuple<int, string>, DateTime>();
         if (trie_date) query = "SELECT * FROM Amis WHERE idUsers1=@IDF ORDER BY date_amis DESC";
         else query = "SELECT * FROM Amis WHERE idUsers1=@IDF";
         IEnumerable<dynamic> data = conn.Query(query, new { IDF = player_id });
@@ -167,7 +150,7 @@ class Amis
             DateTime timestamp = row.date_amis;
             if (stat_ami == false)
             {
-                affic.Add(Tuple.Create(player, player_name_rec), timestamp);
+                affic.Add(Tuple.Create(id_rec, player_name_rec), timestamp);
             }
         }
         if (trie_date) query = "SELECT * FROM Amis WHERE idUsers2=@IDS ORDER BY date_amis DESC";
@@ -185,14 +168,14 @@ class Amis
             DateTime timestamp = row.date_amis;
             if (stat_ami == false)
             {
-                affic.Add(Tuple.Create(player, player_name_rec), timestamp);
+                affic.Add(Tuple.Create(id_rec, player_name_rec), timestamp);
             }
         }
         return affic;
     }
 
 
-    public int get_friend_count(MySqlConnection conn, string pseudo)
+    public static int get_friend_count(MySqlConnection conn, string pseudo)
     {
         int friend_count = 0;
         string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";

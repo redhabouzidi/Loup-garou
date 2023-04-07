@@ -920,25 +920,59 @@ namespace Server
                     bool answer = decodeBool(message, size);
                     int idPlayer = decodeInt(message, size);
                     string username = decodeString(message, size);
-                    int friendsSize = decodeInt(message, size);
-                    int[] friendList = new int[friendsSize];
-                    for(int i = 0; i < friendsSize; i++)
-                    {
-                        friendList[i]=decodeInt(message, size);
-                    }
+                    
                     if (answer)
                     {
                         if (!alreadyConnected(connected,idPlayer))
                         {
+                            int friendsSize = decodeInt(message, size);
+                            int[] friendList = new int[friendsSize];
+
+                            for (int i = 0; i < friendsSize; i++)
+                            {
+                                friendList[i] = decodeInt(message, size);
+                            }
+                            for(int i=0;i<friendsSize; i++)
+                            {
+                                decodeString(message, size);
+                            }
                             //recuperer la liste d'amis ( a faire )
                             list.Remove(queue.queue[queueId]);
                             connected.Add(queue.queue[queueId],idPlayer);
                             if (players.ContainsKey(idPlayer))
                             {
                                 userData[idPlayer] = new Amis(queue.queue[queueId], 3);
+                                bool friends=true;
                                 foreach(int i in friendList)
                                 {
+                                    if (i == -1)
+                                    {
+                                        friends = false;
+                                    }
+                                    if (friends)
+                                    {
                                     userData[idPlayer].AddFriend(i);
+                                    if (players.ContainsKey(i) && players[i].GetStart())
+                                    {
+                                        encode(message,3,size);
+                                    }else
+                                    if (players.ContainsKey(i))
+                                    {
+                                        encode(message, 2, size);
+                                    }else
+                                    if(userData.ContainsKey(i)){
+                                        encode(message, 1, size);
+                                    }
+                                    else
+                                    {
+                                        encode(message, -1, size);
+                                    }
+
+                                    }
+                                    else
+                                    {
+                                        encode(message, 0, size);
+                                    }
                                 }
                                 //Player reconnect function
 
@@ -951,9 +985,10 @@ namespace Server
 
                         }
                     }
+                    
                     Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, recvSize);
+                    redirect(client, message, size[0]);
                     break;
                 case 104:
                     size[0] = 1;
@@ -973,6 +1008,15 @@ namespace Server
                 case 153:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
+                    answer = decodeBool(message, size);
+                    decodeInt(message, size);
+                    decodeString(message, size);
+                    int idFriend = decodeInt(message, size);
+                    decodeString(message, size);
+                    if(answer && userData.ContainsKey(idFriend))
+                    {
+                        redirect(userData[idFriend].GetSock(), message, recvSize);
+                    }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);
@@ -981,6 +1025,13 @@ namespace Server
                 case 154:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
+                    answer = decodeBool(message, size);
+                    decodeInt(message, size);
+                    idFriend=decodeInt(message, size);
+                    if( answer && userData.ContainsKey(idFriend))
+                    {
+                        redirect(userData[idFriend].GetSock(), message, recvSize);
+                    }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);
@@ -989,6 +1040,28 @@ namespace Server
                 case 155:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
+                    answer = decodeBool(message, size);
+                    int id=decodeInt(message, size);
+                    idFriend=decodeInt(message, size);
+                    if (answer)
+                    {
+                    if (userData.ContainsKey(id))
+                    {
+                        userData[id].AddFriend(idFriend);
+                    }
+                        if (userData.ContainsKey(idFriend))
+                        {
+                            userData[id].AddFriend(id);
+                            redirect(userData[idFriend].GetSock(), message, recvSize);
+                        }
+                    }
+                    else
+                    {
+                        if (userData.ContainsKey(idFriend))
+                        {
+                            redirect(userData[idFriend].GetSock(), message, recvSize);
+                        }
+                    }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);

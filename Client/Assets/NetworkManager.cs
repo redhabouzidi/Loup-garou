@@ -549,14 +549,25 @@ public class NetworkManager : MonoBehaviour
                     {
                         id = decode(message, size);
                         username = decodeString(message, size);
+                        int friendsSize = decode(message, size);
+                        int[] friends = new int[friendsSize];
+                        string[] names = new int[friendsSize];
+                        int[] status= new int[friendsSize];
+                        for (int i = 0; i < friendsSize; i++)
+                        {
+                            friends[i] = decode(message, size);
+                        }
+                        for (int i = 0; i < friendsSize; i++)
+                        {
+                            names[i] = decode(message, size);
+                        }
+                        for (int i = 0; i < friendsSize; i++)
+                        {
+                            status[i] = decode(message, size);
+                        }
                         cpo.SetActive(false);
                         ho.SetActive(true);
 
-                    }
-                    else
-                    {
-                        decode(message, size);
-                        decodeString(message, size);
                     }
                     break;
                 case 106:
