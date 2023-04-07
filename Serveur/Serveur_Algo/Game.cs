@@ -154,7 +154,7 @@ public class Game
             foreach(Joueur j in _joueurs)
                 {
                     server.connected.Remove(j.GetSocket());
-                    server.userData[j.GetId()].SetStatus(3);
+                    server.userData[j.GetId()].SetStatus(j.GetId(),3);
                 }
             Task.Run(() => Start());
         }

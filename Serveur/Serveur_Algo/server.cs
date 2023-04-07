@@ -28,7 +28,7 @@ namespace Server
         {
             friendList.Remove(id);
         }
-        public Socket GetSock()
+        public Socket GetSocket()
         {
             return sock;
         }
@@ -40,9 +40,16 @@ namespace Server
         {
             return status;
         }
-        public void SetStatus(int status)
+        public void SetStatus(int key,int status)
         {
             this.status = status;
+            foreach(int i in friendList)
+            {
+                if (server.userData.ContainsKey(i))
+                {
+                    server.sendStatus(server.userData[i].GetSocket(),key,status);
+                }
+            }
         }
     }
     public class Queue
@@ -168,6 +175,8 @@ namespace Server
                         list.Remove(fd);
                         if (connected.ContainsKey(fd))
                         {
+                            userData[connected[fd]].SetStatus(connected[fd], -1);
+                            userData.Remove(connected[fd]);
                             if (players.ContainsKey(connected[fd]))
                             {
                                 if (!players[connected[fd]].GetStart())
@@ -188,7 +197,7 @@ namespace Server
                                     }
                                 }
                             }
-                            userData.Remove(connected[fd]);
+                            
                             connected.Remove(fd);
                         }
                         fd.Close();
@@ -691,6 +700,19 @@ namespace Server
             encode(message, id, size);
             sendMessage(client, message);
         }
+        public static void sendStatus(Socket client, int id,int status)
+        {
+            int[] size = new int[1] { 1 };
+            int byteSize = 1 + sizeof(int)+sizeof(int);
+            byte[] message = new byte[byteSize];
+            //ajouter le code du packet
+            message[0] = 107;
+            //ajouter l'id 
+            encode(message, id, size);
+            //ajout du status
+            encode(message, status, size);
+            sendMessage(client, message);
+        }
         public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
@@ -721,7 +743,7 @@ namespace Server
                         Console.WriteLine("game created");
                         games.Add(id, new Game(new Client(id,client,username),name,nbPlayers,nbLoups,sorciere,voyante,cupidon));
                         players.Add(id, games[id]);
-                            userData[id].SetStatus(2);
+                            userData[id].SetStatus(id,2);
                     }
                     else
                     {
@@ -750,7 +772,7 @@ namespace Server
                                     Console.WriteLine("id joueur : " + idj);
                                     games[gameId].Join(new Client(idj, client, username));
                                     players[idj] = games[gameId];
-                                    userData[idj].SetStatus(2);
+                                    userData[idj].SetStatus(idj, 2);
                                 }
                                 else
                                 {
@@ -920,7 +942,7 @@ namespace Server
                     bool answer = decodeBool(message, size);
                     int idPlayer = decodeInt(message, size);
                     string username = decodeString(message, size);
-                    
+                    userData[idPlayer] = new Amis(queue.queue[queueId], 0);
                     if (answer)
                     {
                         if (!alreadyConnected(connected,idPlayer))
@@ -936,19 +958,15 @@ namespace Server
                             {
                                 decodeString(message, size);
                             }
-                            //recuperer la liste d'amis ( a faire )
-                            list.Remove(queue.queue[queueId]);
-                            connected.Add(queue.queue[queueId],idPlayer);
-                            if (players.ContainsKey(idPlayer))
-                            {
-                                userData[idPlayer] = new Amis(queue.queue[queueId], 3);
-                                bool friends=true;
-                                foreach(int i in friendList)
+                            bool friends=true;
+                            foreach(int i in friendList)
                                 {
+                                    Console.WriteLine("hey"+ i);
                                     if (i == -1)
                                     {
                                         friends = false;
-                                    }
+                                        encode(message, -1, size);
+                                    }else
                                     if (friends)
                                     {
                                     userData[idPlayer].AddFriend(i);
@@ -974,14 +992,22 @@ namespace Server
                                         encode(message, 0, size);
                                     }
                                 }
+                            if (players.ContainsKey(idPlayer))
+                            {
+                                userData[idPlayer].SetStatus(idPlayer, 3);
+
                                 //Player reconnect function
 
                             }
                             else
                             {
-                            userData[idPlayer] = new Amis(queue.queue[queueId],1);
+                                userData[idPlayer].SetStatus(idPlayer, 1);
 
                             }
+                            //recuperer la liste d'amis ( a faire )
+                            list.Remove(queue.queue[queueId]);
+                            connected.Add(queue.queue[queueId],idPlayer);
+                            
 
                         }
                     }
@@ -1015,7 +1041,7 @@ namespace Server
                     decodeString(message, size);
                     if(answer && userData.ContainsKey(idFriend))
                     {
-                        redirect(userData[idFriend].GetSock(), message, recvSize);
+                        redirect(userData[idFriend].GetSocket(), message, recvSize);
                     }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
@@ -1030,7 +1056,7 @@ namespace Server
                     idFriend=decodeInt(message, size);
                     if( answer && userData.ContainsKey(idFriend))
                     {
-                        redirect(userData[idFriend].GetSock(), message, recvSize);
+                        redirect(userData[idFriend].GetSocket(), message, recvSize);
                     }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
@@ -1052,14 +1078,14 @@ namespace Server
                         if (userData.ContainsKey(idFriend))
                         {
                             userData[id].AddFriend(id);
-                            redirect(userData[idFriend].GetSock(), message, recvSize);
+                            redirect(userData[idFriend].GetSocket(), message, recvSize);
                         }
                     }
                     else
                     {
                         if (userData.ContainsKey(idFriend))
                         {
-                            redirect(userData[idFriend].GetSock(), message, recvSize);
+                            redirect(userData[idFriend].GetSocket(), message, recvSize);
                         }
                     }
                     client = queue.queue[queueId];

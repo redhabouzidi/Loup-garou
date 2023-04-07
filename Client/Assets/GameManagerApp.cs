@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit, buttonLogin, buttonRegistration, buttonPublic, buttonJoin;
+    public Button buttonQuit, buttonLogin, buttonRegistration, buttonPublic, buttonJoin,buttonAdd,buttonAccept;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -25,6 +25,8 @@ public class GameManagerApp : MonoBehaviour
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
         buttonPublic.onClick.AddListener(OnButtonClickPublic);
         buttonJoin.onClick.AddListener(OnButtonClickJoin);
+        buttonAdd.onClick.AddListener(onButtonClickAdd);
+        buttonAccept.onClick.AddListener(onButtonClickAccept);
     }
     // Update is called once per frame
     void Update()
@@ -109,7 +111,14 @@ public class GameManagerApp : MonoBehaviour
     {
         NetworkManager.join(NetworkManager.client, GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
     }
-
+    private void onButtonClickAdd()
+    {
+        NetworkManager.ajoutAmi(NetworkManager.client,NetworkManager.id,"demonow");
+    }
+    private void onButtonClickAccept()
+    {
+        NetworkManager.reponseAmi(NetworkManager.client, NetworkManager.id, 4,true);
+    }
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);

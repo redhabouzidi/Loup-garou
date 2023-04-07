@@ -222,7 +222,7 @@ public class bdd
         int idAmis=Amis.send_friend_request(conn, id, username);
         string pseudoJoueur = Amis.get_username(conn, id);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
-        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool)];
+        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool)+ sizeof(int)+sizeof(int)+pseudoJoueur.Length+sizeof(int)+sizeof(int)+username.Length];
         size[0] = 1;
         newMessage[0] = 153;
         encode(newMessage, queueId, size);
@@ -242,7 +242,7 @@ public class bdd
         int idDelete = decodeInt(message, size);
         Amis.refuse_friend_request(conn, id, idDelete);
         Console.WriteLine($"l'utilisateur {id} supprime la personne avec le nom {idDelete}");
-        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool)];
+        byte[] newMessage = new byte[1 + sizeof(int)*3 + sizeof(bool)];
         size[0] = 1;
         newMessage[0] = 154;
         encode(newMessage, queueId, size);
@@ -256,9 +256,9 @@ public class bdd
     {
         int[] size = new int[1] { 1 };
         int queueId = decodeInt(message, size);
+        bool answer = decodeBool(message, size);
         int id = decodeInt(message, size);
         int idReponse = decodeInt(message, size);
-        bool answer = decodeBool(message, size);
         if (answer)
         {
             answer = true;
@@ -270,7 +270,7 @@ public class bdd
             Amis.refuse_friend_request(conn , id , idReponse);
         }
         Console.WriteLine($"l'utilisateur {id} repond a l'invitation de {idReponse} avec {answer}");
-        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool)];
+        byte[] newMessage = new byte[1 + sizeof(int)*3 + sizeof(bool)];
         size[0] = 1;
         newMessage[0] = 155;
         encode(newMessage, queueId, size);

@@ -82,7 +82,7 @@ public abstract class Role
                         {
                             if (j.GetSocket() == sock)
                             {
-                                server.userData[j.GetId()].SetStatus(-1);
+                                server.userData[j.GetId()].SetStatus(j.GetId(),-1);
                                 server.userData.Remove(j.GetId());
                                 j.SetSocket(null);
                                 sock.Close();

@@ -13617,6 +13617,17 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 6, y: 6}
   m_UseGraphicAlpha: 1
+--- !u!114 &821928036 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7760908131397877855, guid: df3bda4dfd3632040a9af4a7ef41e6bb, type: 3}
+  m_PrefabInstance: {fileID: 821928032}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821928034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &825049368
 GameObject:
   m_ObjectHideFlags: 0
@@ -14791,6 +14802,8 @@ MonoBehaviour:
   buttonRegistration: {fileID: 1638590500}
   buttonPublic: {fileID: 1285800618}
   buttonJoin: {fileID: 2091924481}
+  buttonAdd: {fileID: 1861734155}
+  buttonAccept: {fileID: 821928036}
   box_error: {fileID: 1245871327}
   loginPage: {fileID: 329998960}
   registrationPage: {fileID: 151734975}
@@ -28830,6 +28843,17 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 6, y: 6}
   m_UseGraphicAlpha: 1
+--- !u!114 &1861734155 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7760908131397877855, guid: df3bda4dfd3632040a9af4a7ef41e6bb, type: 3}
+  m_PrefabInstance: {fileID: 1861734151}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861734153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1872881414
 GameObject:
   m_ObjectHideFlags: 0

@@ -551,7 +551,7 @@ public class NetworkManager : MonoBehaviour
                         username = decodeString(message, size);
                         int friendsSize = decode(message, size);
                         int[] friends = new int[friendsSize];
-                        string[] names = new int[friendsSize];
+                        string[] names = new string[friendsSize];
                         int[] status= new int[friendsSize];
                         for (int i = 0; i < friendsSize; i++)
                         {
@@ -559,7 +559,7 @@ public class NetworkManager : MonoBehaviour
                         }
                         for (int i = 0; i < friendsSize; i++)
                         {
-                            names[i] = decode(message, size);
+                            names[i] = decodeString(message, size);
                         }
                         for (int i = 0; i < friendsSize; i++)
                         {
@@ -575,6 +575,10 @@ public class NetworkManager : MonoBehaviour
                     ws.quitplayer(idQuitter);
                     Debug.Log("le joueur quitte");
 
+                    break;
+                case 107:
+                    idPlayer=decode(message, size);
+                    int idStatus = decode(message, size);
                     break;
                 case 110:
                     win = decode(message, size);
@@ -600,7 +604,40 @@ public class NetworkManager : MonoBehaviour
                     gm.gameover = true;
                     
                     break;
+                case 153:
 
+                    bool answer=decodeBool(message, size);
+                    size[0] = 1;
+                    answer = decodeBool(message, size);
+                    int idSender=decode(message, size);
+                    string pseudo = decodeString(message, size);
+                    int idFriend = decode(message, size);
+                    string pseudoFriend=decodeString(message, size);
+                    if (id == idSender)
+                    {
+                        Debug.Log("je suis celui qui envoie"+idSender+" "+ idFriend);
+                    }else if(id== idFriend)
+                    {
+                        Debug.Log("je suis celui qui recoit"+idFriend+" "+idSender);
+                    }
+                    else
+                    {
+                        Debug.Log("je ne suis pas sensé recevoir ça ");
+                    }
+                    //NOUVELLE DEMANDE D'AMIS
+                    break;
+                case 154:
+                    answer = decodeBool(message, size);
+                    idSender = decode(message, size);
+                    idFriend = decode(message, size);
+                    //SUPPRESSION D'UN AMIS
+                    break;
+                case 155:
+                    answer=decodeBool(message, size);   
+                    idSender=decode(message, size);
+                    idFriend=decode(message, size);
+                    //REPONSE DEMANDE D'AMIS
+                    break;
                 default:
                     Debug.Log("problem message");
                     break;
@@ -749,12 +786,12 @@ public class NetworkManager : MonoBehaviour
 
     public static int reponseAmi(Socket server, int idUser, int id, bool answer)
     {
-        byte[] message = new byte[1 + sizeof(int) * 2];
+        byte[] message = new byte[1 + sizeof(bool)+sizeof(int) * 2];
         int[] size = new int[1] { 1 };
         message[0] = 155;
+        encode(message, answer, size);
         encode(message, idUser, size);
         encode(message, id, size);
-        encode(message, answer, size);
         return SendMessageToServer(server, message);
     }
 
