@@ -184,10 +184,10 @@ namespace Server
                                     Console.WriteLine(("on supprime bien le joueur"));
                                     Game g = players[connected[fd]];
                                     g.RemovePlayer(fd);
-                                    players.Remove(connected[fd]);
+                                    
                                     if (g._nbrJoueurs == g.GetJoueurManquant())
                                     {
-                                        games.Remove(connected[fd]);
+                                        games.Remove(g.GetGameId());
                                     }else
                                     if (games.ContainsKey(connected[fd]))
                                     {
@@ -195,6 +195,7 @@ namespace Server
                                         games[newId] = g;
                                         games.Remove(connected[fd]);
                                     }
+                                    players.Remove(connected[fd]);
                                 }
                             }
                             
@@ -837,19 +838,21 @@ namespace Server
                                 Console.WriteLine(("on supprime bien le joueur"));
                                 Game g = players[connected[client]];
                                 g.RemovePlayer(client);
-                                players.Remove(connected[client]);
+                                
                                 if (g._nbrJoueurs == g.GetJoueurManquant())
                                 {
                                     Console.WriteLine("we delete the game" + connected[client]);
-                                    games.Remove(connected[client]);
+                                    games.Remove(g.GetGameId());
                                 }
                                 else
                                 if (games.ContainsKey(connected[client]))
                                 {
                                     int newId = g.GetJoueurs()[0].GetId();
                                     games[newId] = g;
+                                    g.SetGameId(newId);
                                     games.Remove(connected[client]);
                                 }
+                                players.Remove(connected[client]);
                             }
                         }
                         connected.Remove(client);
@@ -961,7 +964,6 @@ namespace Server
                             bool friends=true;
                             foreach(int i in friendList)
                                 {
-                                    Console.WriteLine("hey"+ i);
                                     if (i == -1)
                                     {
                                         friends = false;

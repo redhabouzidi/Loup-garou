@@ -210,6 +210,9 @@ public class GameManager : MonoBehaviour
                         affiche_choix_action("Veux tu tuer une personne?");
                     }
                     break;
+                case 255:
+                        affiche_tour_role("C'est le tour de la sorciere", turn);
+                        break;
             }
                 turn = 0;
 

@@ -153,7 +153,7 @@ class Amis
                 affic.Add(Tuple.Create(id_rec, player_name_rec), timestamp);
             }
         }
-        affic.Add(Tuple.Create(-1, ""), new DateTime());
+        affic.Add(Tuple.Create(-1, "E"), new DateTime());
         if (trie_date) query = "SELECT * FROM Amis WHERE idUsers2=@IDS ORDER BY date_amis DESC";
         else query = "SELECT * FROM Amis WHERE idUsers2=@IDS";
         data = conn.Query(query, new { IDS = player_id });

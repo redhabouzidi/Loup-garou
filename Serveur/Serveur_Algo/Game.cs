@@ -9,7 +9,7 @@ public class Game
 {
     private List<Joueur> _joueurs;
     private List<Role> _roles;
-    private int _nbrJoueursManquants;
+    private int _nbrJoueursManquants,gameId;
     private bool _start;
     public int _nbrJoueurs;
     public string name;
@@ -114,7 +114,7 @@ public class Game
         {
             Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
         }
-
+        gameId = c.GetId();
         _joueurs = new List<Joueur>();
         Join(c);
     }
@@ -290,6 +290,7 @@ public class Game
             // enlève à tout le monde l'immunité accordé par le Garde
             RemoveSaveStatus();
         }
+        EndGameInitializer();
         Console.WriteLine("La game est finie");
     }
 
@@ -539,7 +540,9 @@ public class Game
 
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
+        
         Role r = new Villageois();
+        r.sendTurn(listJoueurs,idRole);
         Console.WriteLine("1");
         List<int> votant = new List<int>();
         List<int> cible = new List<int>();
@@ -779,7 +782,18 @@ public class Game
 
         return retour;
     }
-    
+    //La fonction s'occupe de lier les joueurs encore connecté au serveur
+    public void EndGameInitializer()
+    {
+        foreach(Joueur j in _joueurs)
+        {
+            if(j.GetSocket()!=null && j.GetSocket().Connected)
+            {
+                server.connected[j.GetSocket()] = j.GetId();
+            }
+            server.games.Remove(gameId);
+        }
+    }
     // La fonction renvoie celui qui est choisi par le maire (la victime en cas d'égalité ou son successeur si le maire est mort) 
     public int DecisionDuMaire(List<Joueur> listJoueurs)
     {
@@ -852,6 +866,14 @@ public class Game
     public void SetStart(bool b)
     {
         _start = b;
+    }
+    public int GetGameId()
+    {
+        return gameId;
+    }
+    public void SetGameId(int id)
+    {
+        gameId = id;
     }
 }
 

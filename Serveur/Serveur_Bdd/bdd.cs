@@ -199,7 +199,7 @@ public class bdd
                 i++;
             }
             ids[i] = -1;
-            names[i] = "";
+            names[i] = "E";
             i++;
             foreach(KeyValuePair<Tuple<int, string>, DateTime> element in data2)
             {
