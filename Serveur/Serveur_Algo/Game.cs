@@ -325,11 +325,24 @@ public class Game
 
                     if (_joueurs[i].GetEstMaire())
                     {
-                        // le maire choisi son successeur (l'id du mec)
                         int idSuccesseur = DecisionDuMaire(_joueurs);
+                        if (idSuccesseur == -1)
+                        {
+                            List<int> joueursEnVie = new List<int>();
+                            foreach (Joueur j in listJoueurs)
+                            {
+                                if (j.GetEnVie())
+                                {
+                                    joueursEnVie.Add(j.GetId());
+                                }
+                            }
+                            // ON CHOISIT UN NOUVEAU MAIRE ALEATOIREMENT
+                            Random random = new Random();
+                            idSuccesseur = joueursEnVie[random.Next(joueursEnVie.Count)];
+                        }
                         Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
                         player.SetEstMaire(true);
-                        
+
                         // on enlève le statut de maire à l'ancien maire
                         _joueurs[i].SetEstMaire(false);
                     }
@@ -534,7 +547,10 @@ public class Game
             }
 
             Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
-            playerVictime.SetDoitMourir(true);
+            if (playerVictime != null)
+            {
+                playerVictime.SetDoitMourir(true);
+            }
         }
     }
 

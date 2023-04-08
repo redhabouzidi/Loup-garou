@@ -211,7 +211,8 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case 255:
-                        affiche_tour_role("C'est le tour de la sorciere", turn);
+                        affiche_tour_role("C'est le tour du maire", turn);
+                        SendMessageToChat("tour du maire ",Message.MsgType.system); 
                         break;
             }
                 turn = 0;
@@ -269,7 +270,8 @@ public class GameManager : MonoBehaviour
 
     public void affiche_tour_role(string msg,int tour)
     {
-        if (p.GetRoleId() != tour && tour!= 1)
+        
+        if (p.GetRoleId() != tour && tour!= 1 && tour!=255)
         {
             GO_tourRoles.SetActive(true);
         }
