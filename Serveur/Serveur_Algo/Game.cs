@@ -590,7 +590,12 @@ public class Game
             if (v != -1)
             {
                 Joueur? player = listJoueurs.Find(j => j.GetId() == c);
-                if (player != null && player.GetEnVie() && player.GetId() != v)
+                bool condition = (player != null && player.GetEnVie() && player.GetId() != v);
+                if (idRole == 255)
+                {
+                    condition = (player != null && player.GetEnVie());
+                }
+                if (condition)
                 {
                     index = votant.IndexOf(v);
                     cible[index] = c;
