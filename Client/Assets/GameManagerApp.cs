@@ -8,19 +8,31 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit, buttonLogin, buttonRegistration, buttonPublic, buttonJoin,buttonAdd,buttonAccept;
+    public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, buttonJoin,buttonAdd,buttonAccept;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
     public static List<Game> listGame = new List<Game>();
-    public GameObject containerGame, conponentGame, toggleGroupGame;
+    public GameObject containerGame, componentGame, toggleGroupGame;
+
+    // friend
+    public GameObject GO_add_research, containerAdd, containerRequest, containerWait;
+    public GameObject componentAddWait, componentRequest;
+    public List<GameObject> listAdd, listRequest, listWait;
 
     // Start is called before the first frame update
     void Start()
     {
         GameManagerApp.players = new List<player>();
+        listAdd = new List<GameObject>();
+        listRequest = new List<GameObject>();
+        listWait = new List<GameObject>();
+        Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
+
+        buttonResearch.onClick.AddListener(OnButtonClickResearch);
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
+        buttonQuit2.onClick.AddListener(OnButtonClickQuit);
         buttonLogin.onClick.AddListener(OnButtonClickConnection);
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
         buttonPublic.onClick.AddListener(OnButtonClickPublic);
@@ -119,6 +131,14 @@ public class GameManagerApp : MonoBehaviour
     {
         NetworkManager.reponseAmi(NetworkManager.client, NetworkManager.id, 4,true);
     }
+    private void OnButtonClickResearch()
+    {
+        TMP_InputField input_research = GO_add_research.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
+        string pseudo = input_research.text;
+
+        // appel fonction pour la requete
+    }
+
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);
@@ -127,7 +147,7 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void AddGame(int id, string name, int nbPlayer){
-        GameObject newGame = Instantiate(conponentGame, containerGame.transform);
+        GameObject newGame = Instantiate(componentGame, containerGame.transform);
         Game g = new Game(id, name, nbPlayer, newGame);
 
         TextMeshProUGUI textName = newGame.transform.Find("Text-village").GetComponent<TextMeshProUGUI>();
@@ -168,6 +188,48 @@ public class GameManagerApp : MonoBehaviour
             }
         }
         return -1;
+    }
+
+    public void addFriendAdd(string name){
+        GameObject newFriend = Instantiate(componentAddWait, containerAdd.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = name;
+        GameObject button_add = newFriend.transform.Find("Button-add").gameObject;
+        GameObject button_cancel = newFriend.transform.Find("Button-cancel").gameObject;
+        button_add.SetActive(true);
+        button_cancel.SetActive(false);
+
+        listAdd.Add(newFriend);
+    }
+
+    public void addFriendWait(string name){
+        GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = name;
+        GameObject button_add = newFriend.transform.Find("Button-add").gameObject;
+        GameObject button_cancel = newFriend.transform.Find("Button-cancel").gameObject;
+        button_add.SetActive(false);
+        button_cancel.SetActive(true);
+
+        listWait.Add(newFriend);
+    }
+
+    public void addFriendRequest(string name){
+        GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = name;
+
+        listRequest.Add(newFriend);
+    }
+
+    public void ClearListGameObject(List<GameObject> list){
+        foreach (GameObject obj in list){
+            Destroy(obj);
+        }
+        list.Clear();
     }
 
     public struct player
