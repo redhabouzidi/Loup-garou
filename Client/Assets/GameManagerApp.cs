@@ -17,14 +17,15 @@ public class GameManagerApp : MonoBehaviour
     public GameObject containerGame, componentGame, toggleGroupGame;
 
     // friend
-    public GameObject GO_add_research, containerAdd, containerRequest, containerWait;
-    public GameObject componentAddWait, componentRequest;
-    public List<GameObject> listAdd, listRequest, listWait;
+    public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
+    public GameObject componentAddWait, componentRequest, componentFriend;
+    public List<GameObject> listFriend, listAdd, listRequest, listWait;
 
     // Start is called before the first frame update
     void Start()
     {
         GameManagerApp.players = new List<player>();
+        listFriend = new List<GameObject>();
         listAdd = new List<GameObject>();
         listRequest = new List<GameObject>();
         listWait = new List<GameObject>();
@@ -214,6 +215,15 @@ public class GameManagerApp : MonoBehaviour
         button_cancel.SetActive(true);
 
         listWait.Add(newFriend);
+    }
+
+    public void addFriend(string name){
+        GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = name;
+
+        listFriend.Add(newFriend);
     }
 
     public void addFriendRequest(string name){
