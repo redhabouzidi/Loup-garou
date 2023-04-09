@@ -8,13 +8,16 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
-    public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, buttonJoin,buttonAdd,buttonAccept;
+    public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
+    public TMP_InputField inputEmailForgotPass, inputCodeForgotPass, inputPassForgotPass, inputPassForgotPass2;
     public static List<Game> listGame = new List<Game>();
     public GameObject containerGame, componentGame, toggleGroupGame;
+
 
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
@@ -39,6 +42,8 @@ public class GameManagerApp : MonoBehaviour
         buttonPublic.onClick.AddListener(OnButtonClickPublic);
         buttonJoin.onClick.AddListener(OnButtonClickJoin);
         buttonAdd.onClick.AddListener(onButtonClickAdd);
+        buttonChangeForgotPass.onClick.AddListener(onButtonClickChangeForgotPass);
+        buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonAccept.onClick.AddListener(onButtonClickAccept);
     }
     // Update is called once per frame
@@ -138,6 +143,24 @@ public class GameManagerApp : MonoBehaviour
         string pseudo = input_research.text;
 
         // appel fonction pour la requete
+    }
+    private void onButtonClickSendForgotPass()
+    {
+        string email = inputEmailForgotPass.text;
+
+    }
+    private void onButtonClickChangeForgotPass()
+    {
+        string code = inputCodeForgotPass.text;
+        string pass = inputPassForgotPass.text;
+        string pass2 = inputPassForgotPass2.text;
+
+        if(pass == pass2){
+            // envoyer 
+        }
+        else{
+            AfficheError("Your password is not the same.");
+        }
     }
 
     public void AfficheError(string msg)
