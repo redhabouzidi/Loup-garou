@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
+    public Sprite ChasseurSprite, DictateurSprite, GardeSprite;
 
 
     public Button buttonValiderVote, buttonRole;
@@ -440,18 +441,30 @@ public class GameManager : MonoBehaviour
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         Debug.Log("id == " + id);
         text.text = listPlayer[id].GetPseudo();
-        switch(listPlayer[id].GetRole()) {
-            case "Loup-garou":
-                roleImg.sprite = LoupSprite;
+        switch(listPlayer[id].GetRoleId()) {
+            case 1:
+                roleImg.sprite = VillageoisSprite;
                 break;
-            case "Voyante":
-                roleImg.sprite = VoyanteSprite;
-                break;
-            case "Cupidon":
+            case 2:
                 roleImg.sprite = CupidonSprite;
                 break;
-            case "Sorciere":
+            case 3:
+                roleImg.sprite = VoyanteSprite;
+                break;
+            case 4:
+                roleImg.sprite = LoupSprite;
+                break;
+            case 5:
                 roleImg.sprite = SorciereSprite;
+                break;
+            case 6:
+                roleImg.sprite = ChasseurSprite;
+                break;
+            case 7:
+                roleImg.sprite = DictateurSprite;
+                break;
+            case 8:
+                roleImg.sprite = GardeSprite;
                 break;
             default:
                 roleImg.sprite = VillageoisSprite;

@@ -23,8 +23,8 @@ public class WaitingScreen : MonoBehaviour
     public Button left_button;
     public TextMeshProUGUI role_name;
     public TextMeshProUGUI descripts;
-    private string[] roles = { "Loup", "Villageois", "Cupidon", "Sorciere", "Voyante" };
-    private string[] description = { "Desc Loup", "Desc Villageois", "Desc Cupidon", "Desc Sorciere", "Desc Voyante" };
+    private string[] roles = { "Loup", "Villageois", "Cupidon", "Sorciere", "Voyante", "Garde", "Chasseur", "Dictateur" };
+    private string[] description = { "Desc Loup", "Desc Villageois", "Desc Cupidon", "Desc Sorciere", "Desc Voyante", "Desc Garde", "Desc Chasseur", "Desc Dictateur" };
 
     public List<WPlayer> players_waiting;
     private int no_players = 0;
