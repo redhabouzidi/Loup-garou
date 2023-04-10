@@ -1034,10 +1034,12 @@ namespace Server
 
                         }
                     }
-                    
                     Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, size[0]);
+                    if (list.Contains(client))
+                        redirect(client, message, size[0]);
+                    else
+                        Console.WriteLine("error");
                     break;
                 case 104:
                     size[0] = 1;

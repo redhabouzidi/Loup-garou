@@ -8027,6 +8027,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   status: {fileID: 1736376916}
+  nbjoueur_rest: 0
+  newGame: 0
   max_player: 8
   index_desc: 0
   image_carte: {fileID: 1382151521}
@@ -17706,6 +17708,7 @@ MonoBehaviour:
   buttonAccept: {fileID: 821928036}
   buttonSendForgotPass: {fileID: 2058673930}
   buttonChangeForgotPass: {fileID: 536321812}
+  buttonQuitLobby: {fileID: 937178621}
   box_error: {fileID: 1245871327}
   loginPage: {fileID: 329998960}
   registrationPage: {fileID: 151734975}
@@ -18523,31 +18526,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 937178622}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 404978933}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1960943690}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &937178622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24717,7 +24696,7 @@ RectTransform:
   m_Father: {fileID: 1746193658}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.104412675}
+  m_AnchorMin: {x: 0, y: 0.104412556}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -28952,7 +28931,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1282888258}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.8955873
+  m_Size: 0.89558744
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

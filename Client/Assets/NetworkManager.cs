@@ -217,6 +217,10 @@ public class NetworkManager : MonoBehaviour
 
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
     {
+        foreach (Transform child in gma.containerGame.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
         GameManagerApp.listGame.Clear();
         for(int i = 0; i < nbPlayers.Length; i++)
         {
