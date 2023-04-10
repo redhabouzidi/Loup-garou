@@ -424,6 +424,7 @@ public class NetworkManager : MonoBehaviour
                 case 7:
                     idPlayer = decode(message, size);
                     role = decode(message, size);
+                    gm.updateImage(idPlayer, role);
                     gm.affiche_text_role(idPlayer, role);
                     
                     break;
@@ -478,6 +479,7 @@ public class NetworkManager : MonoBehaviour
                         
                         Debug.Log(p.GetIsAlive());
                     }
+                    gm.updateImage(idPlayer, role);
                     gm.LITTERALLYDIE();
                     gm.MiseAJourAffichage();
                     break;

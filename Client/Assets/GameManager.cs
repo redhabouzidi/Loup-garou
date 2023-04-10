@@ -219,6 +219,11 @@ public class GameManager : MonoBehaviour
                         SendMessageToChat("tour du maire ",Message.MsgType.system); 
                         break;
             }
+                foreach (Player p in listPlayer)
+                {
+                    p.SetVote(-1);
+                }
+                UpdateVote(); 
                 turn = 0;
 
             }
@@ -260,7 +265,31 @@ public class GameManager : MonoBehaviour
         Vote();
         
     }
-
+    public void updateImage(int id, int role)
+    {
+        int indice = chercheIndiceJoueurId(id);
+        Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
+        Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
+        switch (role)
+        {
+            case 2:
+                roleImg.sprite = CupidonSprite;
+                break;
+            case 3:
+                roleImg.sprite = VoyanteSprite;
+                break;
+            case 4:
+                roleImg.sprite = LoupSprite;
+                break;
+            case 5:
+                roleImg.sprite = SorciereSprite;
+                break;
+            default:
+                roleImg.sprite = VillageoisSprite;
+                break;
+        }
+        roleImg.enabled = true;
+    }
     private void OnButtonClickAffiche(){
         AfficheVoyante();
     }

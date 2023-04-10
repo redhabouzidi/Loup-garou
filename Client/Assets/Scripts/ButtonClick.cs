@@ -12,6 +12,7 @@ public class ButtonClick : MonoBehaviour
     
     void Start()
     {
+        buttonSeeHide = GameObject.Find("chatSeeHide").GetComponent<Button>();
         buttonSeeHide.onClick.AddListener(OnButtonClickSeeHideChat);
     }
 
