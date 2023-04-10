@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     public Sprite ChasseurSprite, DictateurSprite, GardeSprite;
 
 
-    public Button buttonValiderVote, buttonRole;
+    public Button buttonValiderVote, buttonRole,buttonLeave,buttonPlayAgain;
     public GameObject GO_buttonAfficheCarte, GO_potion;
 
     // win screen
@@ -78,6 +78,8 @@ public class GameManager : MonoBehaviour
         buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
+        buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
+        buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
 
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -145,6 +147,7 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
         InitPotion();
         EndVote();
+        
         finished = true;
 
     }
@@ -225,7 +228,17 @@ public class GameManager : MonoBehaviour
         }
 
     }
+    private void OnButtonClickLeaveGame()
+    {
+        LoadScene("Jeu");
+        GameManagerApp.scene = 1;
 
+    }
+    private void OnButtonClickPlayAgain()
+    {
+        LoadScene("Jeu");
+        GameManagerApp.scene = 2;
+    }
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")

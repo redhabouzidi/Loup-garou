@@ -12,8 +12,8 @@ public class WaitingScreen : MonoBehaviour
     public TextMeshProUGUI status;
     //public bool isStart = false;
 
-    private int nbjoueur_rest;
-
+    public int nbjoueur_rest;
+    public bool newGame;
     public int max_player;
     public int index_desc = 0;
 
@@ -36,28 +36,24 @@ public class WaitingScreen : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
-        players_waiting = new List<WPlayer>();
+        
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
         descripts.text = description[index_desc];
         role_name.text = roles[index_desc];
         change_image();//Charger le premier image
-        max_player = NetworkManager.nbplayeres;
-        nbjoueur_rest = max_player;
-        AfficheCard();    
-
-        //isStart = true;
-        foreach(WPlayer p in NetworkManager.players)
-        {
-            addplayer(p.GetUsername(), p.GetId());
-        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (newGame)
+        {
+            newGame = false;
+            initialize();
+        }
         //verifier nombre de joeurs reste pour commencer la partie
         if (nbjoueur_rest != 0)
         {
@@ -83,7 +79,20 @@ public class WaitingScreen : MonoBehaviour
         role_name.text = roles[index_desc];
         change_image();
     }
+    public void initialize()
+    {
+        no_players = 0;
+        players_waiting = new List<WPlayer>();
+        max_player = NetworkManager.nbplayeres;
+        nbjoueur_rest = max_player;
+        AfficheCard();
 
+        //isStart = true;
+        foreach (WPlayer p in NetworkManager.players)
+        {
+            addplayer(p.GetUsername(), p.GetId());
+        }
+    }
     //Fonction permettant de ajouter un joueur avec son nom d'utilisateur
     public void addplayer(string username, int id)
     {
@@ -145,6 +154,12 @@ public class WaitingScreen : MonoBehaviour
     }
 
     public void AfficheCard(){
+        foreach(Transform child in cardContainer.transform)
+        {
+            
+            GameObject.Destroy(child.gameObject);
+        }
+        listCard.Clear();
         for (int i=0; i<max_player; i++){
             AjoutCarte(i);
         }

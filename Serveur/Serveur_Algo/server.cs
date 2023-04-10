@@ -177,28 +177,7 @@ namespace Server
                         {
                             userData[connected[fd]].SetStatus(connected[fd], -1);
                             userData.Remove(connected[fd]);
-                            if (players.ContainsKey(connected[fd]))
-                            {
-                                if (!players[connected[fd]].GetStart())
-                                {
-                                    Console.WriteLine(("on supprime bien le joueur"));
-                                    Game g = players[connected[fd]];
-                                    g.RemovePlayer(fd);
-                                    
-                                    if (g._nbrJoueurs == g.GetJoueurManquant())
-                                    {
-                                        games.Remove(g.GetGameId());
-                                    }else
-                                    if (games.ContainsKey(connected[fd]))
-                                    {
-                                        int newId = g.GetJoueurs()[0].GetId();
-                                        games[newId] = g;
-                                        games.Remove(connected[fd]);
-                                    }
-                                    players.Remove(connected[fd]);
-                                }
-                            }
-                            
+                            disconnectFromLobby(fd);
                             connected.Remove(fd);
                         }
                         fd.Close();
@@ -714,6 +693,31 @@ namespace Server
             encode(message, status, size);
             sendMessage(client, message);
         }
+        public static void disconnectFromLobby(Socket client)
+        {
+            if (players.ContainsKey(connected[client]))
+            {
+                if (!players[connected[client]].GetStart())
+                {
+                    Console.WriteLine(("on supprime bien le joueur"));
+                    Game g = players[connected[client]];
+                    g.RemovePlayer(client);
+
+                    if (g._nbrJoueurs == g.GetJoueurManquant())
+                    {
+                        games.Remove(g.GetGameId());
+                    }
+                    else
+                    if (games.ContainsKey(connected[client]))
+                    {
+                        int newId = g.GetJoueurs()[0].GetId();
+                        games[newId] = g;
+                        games.Remove(connected[client]);
+                    }
+                    players.Remove(connected[client]);
+                }
+            }
+        }
         public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket,int> connected, Queue queue,Dictionary<int,Game> players)
         {
             int[] size = new int[1];
@@ -742,9 +746,20 @@ namespace Server
                     if (!games.ContainsKey(id))
                     {
                         Console.WriteLine("game created");
-                        games.Add(id, new Game(new Client(id,client,username),name,nbPlayers,nbLoups,sorciere,voyante,cupidon));
-                        players.Add(id, games[id]);
+                        Game g = new Game(new Client(id, client, username), name, nbPlayers, nbLoups, sorciere, voyante, cupidon);
+                        
+                        if (g._nbrJoueurs == 0)
+                        {
+                            Console.WriteLine("problem");
+                            //gameerror message
+                        }
+                        else
+                        {
+                            games.Add(id, g);
+                            players.Add(id, games[id]);
                             userData[id].SetStatus(id,2);
+
+                        }
                     }
                     else
                     {
@@ -910,6 +925,12 @@ namespace Server
                     //reponse au client
                     // SendAccountInfo(client, true, 1, username);
                     break;
+                case 106:
+                    if (connected.ContainsKey(client))
+                        disconnectFromLobby(client);
+                            
+
+                    break;
                 case 153:
                     if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
@@ -1013,10 +1034,12 @@ namespace Server
 
                         }
                     }
-                    
                     Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, size[0]);
+                    if (list.Contains(client))
+                        redirect(client, message, size[0]);
+                    else
+                        Console.WriteLine("error");
                     break;
                 case 104:
                     size[0] = 1;
