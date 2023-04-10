@@ -662,11 +662,14 @@ public class GameManager : MonoBehaviour
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         Image eyeImg = toggleCard.transform.Find("eye").GetComponent<Image>();
         Image heart = toggleCard.transform.Find("heart").GetComponent<Image>();
+        Image maire = toggleCard.transform.Find("maire").GetComponent<Image>();
+
         GameObject skull = toggleCard.transform.Find("skull").gameObject;
 
 
         eyeImg.enabled = false;
-        heart.enabled= false;
+        heart.enabled = false;
+        maire.enabled = false;
         skull.SetActive(false);
 
         if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
@@ -680,6 +683,10 @@ public class GameManager : MonoBehaviour
 
         if(p.GetRole() == "Cupidon" || p.GetIsMarried()){
             heart.enabled = true;
+        }
+
+        if(listPlayer[indice].GetIsMaire()) {
+            maire.enabled = true;
         }
 
         if (!listPlayer[indice].GetIsAlive())
@@ -925,6 +932,7 @@ public class Player
     private int roleId;
     private bool seen = false;
     private int vote = -1;
+    private bool isMaire = false;
 
     public Player() { }
 
@@ -953,6 +961,15 @@ public class Player
     {
         return isAlive;
     }
+
+    public void SetIsMaire(bool m) {
+        isMaire = m;
+    }
+
+    public bool GetIsMaire() {
+        return isMaire;
+    }
+
     public bool GetIsMarried(){
         return isMarried;
     }
