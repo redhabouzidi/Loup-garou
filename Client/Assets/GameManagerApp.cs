@@ -9,7 +9,7 @@ public class GameManagerApp : MonoBehaviour
 {
 
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -45,6 +45,7 @@ public class GameManagerApp : MonoBehaviour
         buttonChangeForgotPass.onClick.AddListener(onButtonClickChangeForgotPass);
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonAccept.onClick.AddListener(onButtonClickAccept);
+        buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
     }
     // Update is called once per frame
     void Update()
@@ -75,7 +76,10 @@ public class GameManagerApp : MonoBehaviour
         exitGame();
         //Application.Quit();
     }
-
+    public void onButtonClickQuitLobby()
+    {
+        NetworkManager.sendQuitLobbyMessage(NetworkManager.client);
+    }
     private void OnButtonClickConnection()
     {
         string email = inputFConnEmail.text;

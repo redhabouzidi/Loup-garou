@@ -28,9 +28,9 @@ public class Game
         _roles = new List<Role>();
         _nbLoups = 1;
         sorciere = true;
-        voyante = false;
+        voyante = true;
         cupidon = false;
-        
+        testNombre();
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
         // on va admettre que joueurs max = 6
         Role[] startingRoles = new Role[_nbrJoueurs];
@@ -67,6 +67,28 @@ public class Game
         
         _joueurs = new List<Joueur>();
     }
+    public bool testNombre()
+    {
+        int sum=0;
+        if (this.sorciere)
+        {
+            sum++;
+        }
+        if (this.voyante)
+        {
+            sum++;
+        }
+        if (this.cupidon)
+        {
+            sum++;
+        }
+        sum += _nbLoups;
+        if (sum > _nbrJoueurs)
+        {
+            return false;
+        }
+        return true;
+    }
     public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon)
     {
         //Initialisation du nombre de joueurs
@@ -82,6 +104,10 @@ public class Game
         this.cupidon = cupidon;
         this.voyante = voyante;
         _nbLoups= nbLoups;
+        if (!testNombre()){
+            _nbrJoueurs= 0;
+            return;
+        }
         int i;
         //initialisation des roles
         for( i=0;i<nbLoups;i++)
@@ -121,11 +147,14 @@ public class Game
     public void RemovePlayer(Socket sock)
     {
         Joueur temp=null;
-        foreach(Joueur j in _joueurs)
+        
+        foreach (Joueur j in _joueurs)
         {
             if (j.GetSocket() == sock)
             {
+                
                 temp = j;
+                sendQuitMessage(_joueurs, temp.GetId());
                 _joueurs.Remove(j);
                 break;
             }
@@ -133,7 +162,7 @@ public class Game
         if (temp != null)
         {
             _nbrJoueursManquants++;
-            sendQuitMessage(_joueurs, temp.GetId());
+            
 
         }
         
@@ -142,7 +171,8 @@ public class Game
     {
         foreach(Joueur j in listJoueur)
         {
-            server.sendQuitMessage(j.GetSocket(), id);
+            if(j.GetSocket()!=null && j.GetSocket().Connected)
+                server.sendQuitMessage(j.GetSocket(), id);
         }
     }
     public void Waiting_screen()
