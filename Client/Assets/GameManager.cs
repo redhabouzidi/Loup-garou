@@ -398,10 +398,27 @@ public class GameManager : MonoBehaviour
         }
         listTextwin.Clear();
 
+        /*if(amoureuxWin) {
+            groupWin.text = "Lovers won";
+            groupWin.color = colorRed;
+        }
+
+        else if(draw) {
+            groupWin.text = "Draw";
+            groupWin.color = colorWhite;
+        }
+
+        else */
         if (isVillageWin == false)
         {
-            groupWin.text = "Loup-garou win";
+            groupWin.text = "Loup-garou won";
             groupWin.color = colorRed;
+        }
+
+        else if (isVillageWin)
+        {
+            groupWin.text = "Villagers won";
+            groupWin.color = colorWhite;
         }
         
         for (int i = 0; i < nbPlayer; i++)
