@@ -91,8 +91,6 @@ class Statistique{
         //Variable pour voir le nombre de joueur
         int nbplayer=0;
         //Liste pour des identifiants de joueurs
-        int[] returnnbvic=new int[10];
-        string[] returnpseudos=new string[10];
         List<int> ids=new List<int>();
         //Liste pour des nombres de victoires de joueurs
         List<int> nbvic=new List<int>();
@@ -108,6 +106,8 @@ class Statistique{
         }
         reader.Close();
         if(nbplayer>10)nbplayer=10;//si nombre de joueurs est superieur a 10,nbplayer=10 (pour recuperer les 10 meilleurs)
+        int[] returnnbvic=new int[nbplayer];
+        string[] returnpseudos=new string[nbplayer];
         for(int i=0;i<nbplayer;i++){//First 10 players
             //Recuperer les pseudos des joueurs avec des identifiants de la table ids
             query="SELECT pseudo FROM Utilisateurs WHERE idusers=@ID";
@@ -125,8 +125,6 @@ class Statistique{
         string query="SELECT idUsers,score FROM Statistiques ORDER BY score DESC;";
         //Variable pour voir le nombre de joueur
         int nbplayer=0;
-        int[] returnscore=new int[10];
-        string[] returnpseudos=new string[10];
         //Liste pour des identifiants de joueurs
         List<int> ids=new List<int>();
         //Liste pour des nombres de victoires de joueurs
@@ -144,6 +142,8 @@ class Statistique{
         reader.Close();
         //si nombre de joueurs est superieur a 10,nbplayer=10 (pour recuperer les 10 meilleurs)
         if(nbplayer>10)nbplayer=10;
+        int[] returnscore=new int[nbplayer];
+        string[] returnpseudos=new string[nbplayer];
         for(int i=0;i<nbplayer;i++){//First 10 players
             //Recuperer les pseudos des joueurs avec des identifiants de la table ids
             query="SELECT pseudo FROM Utilisateurs WHERE idusers=@ID";
@@ -160,8 +160,6 @@ class Statistique{
         string query="SELECT idUsers,nb_partiejoue FROM Statistiques ORDER BY score DESC;";
         //Variable pour voir le nombre de joueur
         int nbplayer=0;
-        int[] returnnbjoue=new int[10];
-        string[] returnpseudos=new string[10];
         //Liste pour des identifiants de joueurs
         List<int> ids=new List<int>();
         //Liste pour des nombres de victoires de joueurs
@@ -179,6 +177,8 @@ class Statistique{
         reader.Close();
         //si nombre de joueurs est superieur a 10,nbplayer=10 (pour recuperer les 10 meilleurs)
         if(nbplayer>10)nbplayer=10;
+        int[] returnnbjoue=new int[nbplayer];
+        string[] returnpseudos=new string[nbplayer];
         for(int i=0;i<nbplayer;i++){//First 10 players
             //Recuperer les pseudos des joueurs avec des identifiants de la table ids
             query="SELECT pseudo FROM Utilisateurs WHERE idusers=@ID";
