@@ -15,16 +15,13 @@ public class WaitingScreen : MonoBehaviour
     public int nbjoueur_rest;
     public bool newGame;
     public int max_player;
-    public int index_desc = 0;
+    private int index_desc = 0;
 
     // description des roles
     public Image image_carte;
-    public Button right_button;
-    public Button left_button;
-    public TextMeshProUGUI role_name;
-    public TextMeshProUGUI descripts;
-    private string[] roles = { "Loup", "Villageois", "Cupidon", "Sorciere", "Voyante", "Garde", "Chasseur", "Dictateur" };
-    private string[] description = { "Desc Loup", "Desc Villageois", "Desc Cupidon", "Desc Sorciere", "Desc Voyante", "Desc Garde", "Desc Chasseur", "Desc Dictateur" };
+    public Button right_button, left_button;
+    public TextMeshProUGUI role_name, descripts;
+    private List<InfoRole> infoRole = new List<InfoRole>();
 
     public List<WPlayer> players_waiting;
     private int no_players = 0;
@@ -38,11 +35,63 @@ public class WaitingScreen : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
-        
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
-        descripts.text = description[index_desc];
-        role_name.text = roles[index_desc];
+
+        // crée la liste des roles pour l'affichage des infos
+        for(int i=1; i<=8; i++)
+        {
+            string desc;
+            InfoRole newRole = new InfoRole();
+            switch (i)
+            {
+            case 1:
+                desc = "Les villageois sont les gentils du jeu. Ils doivent découvrir qui sont les loups-garous et les éliminer" +
+                    " avant qu'ils ne les tuent tous. Ils n'ont pas de pouvoirs spéciaux.";
+                newRole = new InfoRole(i, "Villageois", desc, "villageois");
+                break;
+            case 2:
+                desc = "Cupidon choisit deux joueurs à lier l'un à l'autre. Si l'un des deux joueurs meurt," +
+                    " l'autre joueur meurt immédiatement de chagrin.";
+                newRole = new InfoRole(i, "Cupidon", desc, "cupidon");
+                break;
+            case 3:
+                desc = "La voyante peut voir le rôle d'un joueur chaque nuit. Cela peut aider les villageois" +
+                    " à découvrir qui sont les loups-garous.";
+                newRole = new InfoRole(i, "Voyante", desc, "voyante");
+                break;
+            case 4:
+                desc = "Les loups-garous sont les méchants du jeu. Ils se réveillent la nuit pour décider qui ils vont tuer." +
+                    " Pendant le jour, ils essaient de se faire passer pour des villageois pour ne pas être découverts.";
+                newRole = new InfoRole(i, "Loup-garou", desc, "loup");
+
+                break;
+            case 5:
+                desc = "La sorcière a une potion de guérison qui peut sauver un joueur de la mort." +
+                    " Elle a également une potion de poison qui peut tuer un joueur.";
+                newRole = new InfoRole(i, "Sorciere", desc, "sorciere");
+                break;
+            case 6:
+                desc = "Lorsque le chasseur meurt, il peut choisir un joueur à emporter avec lui dans la mort.";
+                newRole = new InfoRole(i, "Chasseur", desc, "chasseur");
+                break;
+            case 7:
+                desc = "Le dictateur peut choisir un joueur à tuer chaque jour. S'il est découvert par les villageois," +
+                    "ils peuvent voter pour l'éliminer. S'il est découvert par les loups-garous, il est éliminé immédiatement";
+                newRole = new InfoRole(i, "Dictateur", desc, "dictateur");
+                break;
+            case 8:
+                desc = "Le garde peut choisir un joueur chaque nuit à protéger." + 
+                    " Si les loups-garous essaient de tuer ce joueur, il ne mourra pas.";
+                newRole = new InfoRole(i, "Garde", desc, "garde");
+                break;
+
+            }
+            infoRole.Add(newRole);
+        }
+
+        descripts.text = infoRole[index_desc].GetDescription();
+        role_name.text = infoRole[index_desc].GetRole();
         change_image();//Charger le premier image
     }
 
@@ -64,19 +113,17 @@ public class WaitingScreen : MonoBehaviour
     //Fonction permettant d'obtenir le role suivant en cliquant le button droite
     void right_next()
     {
-        if (index_desc == roles.Length - 1) index_desc = 0;
-        else index_desc++;
-        descripts.text = description[index_desc];
-        role_name.text = roles[index_desc];
+        index_desc = (index_desc+1)%infoRole.Count;
+        descripts.text = infoRole[index_desc].GetDescription();
+        role_name.text = infoRole[index_desc].GetRole();
         change_image();
     }
     //Fonction permettant d'obtenir le role precedent en cliquant le button gauche
     void left_previous()
     {
-        if (index_desc == 0) index_desc = roles.Length - 1;
-        else index_desc--;
-        descripts.text = description[index_desc];
-        role_name.text = roles[index_desc];
+        index_desc = (index_desc-1)%infoRole.Count;
+        descripts.text = infoRole[index_desc].GetDescription();
+        role_name.text = infoRole[index_desc].GetRole();
         change_image();
     }
     public void initialize()
@@ -167,7 +214,7 @@ public class WaitingScreen : MonoBehaviour
 
     void change_image()
     {
-        Texture2D texture = LoadPNG(Application.dataPath + "/Cartes/" + roles[index_desc] + ".png");//Trouver l'image des roles
+        Texture2D texture = LoadPNG(Application.dataPath + "/Cartes/" + infoRole[index_desc].GetChemin() + ".png");//Trouver l'image des roles
 
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));//creer un sprite pour visualiser
 
@@ -225,4 +272,34 @@ public class WPlayer
         this.role = role;
     }
 
+}
+
+public class InfoRole
+{
+    private int roleId;
+    private string role;
+    private string description;
+    private string cheminImage;
+
+    public InfoRole(){}
+
+    public InfoRole(int roleId, string role, string desc, string chemin){
+        this.roleId = roleId;
+        this.role = role;
+        description = desc;
+        cheminImage = chemin;
+    }
+
+    public int GetRoleId(){
+        return roleId;
+    }
+    public string GetRole(){
+        return role;
+    }
+    public string GetDescription(){
+        return description;
+    }
+    public string GetChemin(){
+        return cheminImage;
+    }
 }

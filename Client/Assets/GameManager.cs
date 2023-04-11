@@ -682,7 +682,9 @@ public class GameManager : MonoBehaviour
         }
 
         if(p.GetRole() == "Cupidon" || p.GetIsMarried()){
-            heart.enabled = true;
+            if(listPlayer[indice].GetIsMarried()){
+                heart.enabled = true;
+            }
         }
 
         if(listPlayer[indice].GetIsMaire()) {
@@ -795,6 +797,16 @@ public class GameManager : MonoBehaviour
             case 5:
                 role = "Sorciere";
                 break;
+            case 6:
+                role = "Chasseur";
+                break;
+            case 7:
+                role = "Dictateur";
+                break;
+            case 8:
+                role = "Garde";
+                break;
+
         }
         return role;
     }
@@ -1016,6 +1028,16 @@ public class Player
             case 5:
                 role = "Sorciere";
                 break;
+            case 6:
+                role = "Chasseur";
+                break;
+            case 7:
+                role = "Dictateur";
+                break;
+            case 8:
+                role = "Garde";
+                break;
+
         }
     }
 }
