@@ -479,7 +479,7 @@ public class NetworkManager : MonoBehaviour
                         
                         Debug.Log(p.GetIsAlive());
                     }
-                    gm.updateImage(idPlayer, role);
+                    gm.updateImage(val, role);
                     gm.LITTERALLYDIE();
                     gm.MiseAJourAffichage();
                     break;
