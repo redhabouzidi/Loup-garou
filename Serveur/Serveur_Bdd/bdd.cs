@@ -154,10 +154,10 @@ public class bdd
     public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username, int[] friends, string[] names)
     {
         int psize = getStringLength(names);
-        int msgSize = 1 + sizeof(bool);
+        int msgSize = 1 + sizeof(bool)+sizeof(int);
         if (answer)
         {
-            msgSize += sizeof(int) * 3 + username.Length + sizeof(int) + friends.Length * sizeof(int) + psize + sizeof(int) * names.Length;
+            msgSize += sizeof(int) * 2 + username.Length + sizeof(int) + friends.Length * sizeof(int) + psize + sizeof(int) * names.Length;
         }
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
