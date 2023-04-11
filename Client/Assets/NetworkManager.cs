@@ -71,7 +71,8 @@ public class NetworkManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        while (rep!=null && rep.Count != 0)
+
+        while (rep.Count != 0)
         {
             if (rep[0] == null)
             {
@@ -82,8 +83,6 @@ public class NetworkManager : MonoBehaviour
             {
             treatMessage(rep[0]);
             }
-        
-
         }
 
     }
@@ -217,10 +216,6 @@ public class NetworkManager : MonoBehaviour
 
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
     {
-        foreach (Transform child in gma.containerGame.transform)
-        {
-            GameObject.Destroy(child.gameObject);
-        }
         GameManagerApp.listGame.Clear();
         for(int i = 0; i < nbPlayers.Length; i++)
         {
@@ -320,11 +315,7 @@ public class NetworkManager : MonoBehaviour
             return -1;
         }
     }
-    public static void sendQuitLobbyMessage(Socket server)
-    {
-        byte[] message = new byte[] { 106 };
-        SendMessageToServer(server, message);
-    }
+
 
 
     public static void recvMessage(Socket server)
@@ -424,7 +415,6 @@ public class NetworkManager : MonoBehaviour
                 case 7:
                     idPlayer = decode(message, size);
                     role = decode(message, size);
-                    gm.updateImage(idPlayer, role);
                     gm.affiche_text_role(idPlayer, role);
                     
                     break;
@@ -479,7 +469,6 @@ public class NetworkManager : MonoBehaviour
                         
                         Debug.Log(p.GetIsAlive());
                     }
-                    gm.updateImage(val, role);
                     gm.LITTERALLYDIE();
                     gm.MiseAJourAffichage();
                     break;
@@ -516,7 +505,6 @@ public class NetworkManager : MonoBehaviour
 
                     }
                     setGameInfo(name, idPlayers, playerNames);
-                    ws.newGame = true;
                     break;
                 case 102:
                     idP = decode(message, size);
@@ -584,18 +572,9 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 106:
                     int idQuitter=decode(message, size);
-                    if (idQuitter != id)
-                    {
                     ws.quitplayer(idQuitter);
                     Debug.Log("le joueur quitte");
 
-                    }
-                    else
-                    {
-                        wso.SetActive(false);
-                        ho.SetActive(true);
-                    }
-                    
                     break;
                 case 107:
                     idPlayer=decode(message, size);

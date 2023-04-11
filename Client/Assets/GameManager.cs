@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     public Sprite ChasseurSprite, DictateurSprite, GardeSprite;
 
 
-    public Button buttonValiderVote, buttonRole,buttonLeave,buttonPlayAgain;
+    public Button buttonValiderVote, buttonRole;
     public GameObject GO_buttonAfficheCarte, GO_potion;
 
     // win screen
@@ -78,8 +78,6 @@ public class GameManager : MonoBehaviour
         buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
-        buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
-        buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
 
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -147,7 +145,6 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
         InitPotion();
         EndVote();
-        
         finished = true;
 
     }
@@ -219,11 +216,6 @@ public class GameManager : MonoBehaviour
                         SendMessageToChat("tour du maire ",Message.MsgType.system); 
                         break;
             }
-                foreach (Player p in listPlayer)
-                {
-                    p.SetVote(-1);
-                }
-                UpdateVote(); 
                 turn = 0;
 
             }
@@ -233,17 +225,7 @@ public class GameManager : MonoBehaviour
         }
 
     }
-    private void OnButtonClickLeaveGame()
-    {
-        LoadScene("Jeu");
-        GameManagerApp.scene = 1;
 
-    }
-    private void OnButtonClickPlayAgain()
-    {
-        LoadScene("Jeu");
-        GameManagerApp.scene = 2;
-    }
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")
@@ -265,31 +247,7 @@ public class GameManager : MonoBehaviour
         Vote();
         
     }
-    public void updateImage(int id, int role)
-    {
-        int indice = chercheIndiceJoueurId(id);
-        Toggle toggleCard = listCard[indice].transform.Find("Toggle-Card").GetComponent<Toggle>();
-        Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
-        switch (role)
-        {
-            case 2:
-                roleImg.sprite = CupidonSprite;
-                break;
-            case 3:
-                roleImg.sprite = VoyanteSprite;
-                break;
-            case 4:
-                roleImg.sprite = LoupSprite;
-                break;
-            case 5:
-                roleImg.sprite = SorciereSprite;
-                break;
-            default:
-                roleImg.sprite = VillageoisSprite;
-                break;
-        }
-        roleImg.enabled = true;
-    }
+
     private void OnButtonClickAffiche(){
         AfficheVoyante();
     }
@@ -398,27 +356,10 @@ public class GameManager : MonoBehaviour
         }
         listTextwin.Clear();
 
-        /*if(amoureuxWin) {
-            groupWin.text = "Lovers won";
-            groupWin.color = colorRed;
-        }
-
-        else if(draw) {
-            groupWin.text = "Draw";
-            groupWin.color = colorWhite;
-        }
-
-        else */
         if (isVillageWin == false)
         {
-            groupWin.text = "Loup-garou won";
+            groupWin.text = "Loup-garou win";
             groupWin.color = colorRed;
-        }
-
-        else if (isVillageWin)
-        {
-            groupWin.text = "Villagers won";
-            groupWin.color = colorWhite;
         }
         
         for (int i = 0; i < nbPlayer; i++)
@@ -662,14 +603,11 @@ public class GameManager : MonoBehaviour
         Image roleImg = toggleCard.transform.Find("Image-Card").GetComponent<Image>();
         Image eyeImg = toggleCard.transform.Find("eye").GetComponent<Image>();
         Image heart = toggleCard.transform.Find("heart").GetComponent<Image>();
-        Image maire = toggleCard.transform.Find("maire").GetComponent<Image>();
-
         GameObject skull = toggleCard.transform.Find("skull").gameObject;
 
 
         eyeImg.enabled = false;
-        heart.enabled = false;
-        maire.enabled = false;
+        heart.enabled= false;
         skull.SetActive(false);
 
         if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
@@ -683,10 +621,6 @@ public class GameManager : MonoBehaviour
 
         if(p.GetRole() == "Cupidon" || p.GetIsMarried()){
             heart.enabled = true;
-        }
-
-        if(listPlayer[indice].GetIsMaire()) {
-            maire.enabled = true;
         }
 
         if (!listPlayer[indice].GetIsAlive())
@@ -794,6 +728,15 @@ public class GameManager : MonoBehaviour
                 break;
             case 5:
                 role = "Sorciere";
+                break;
+            case 6:
+                role = "Chasseur";
+                break;
+            case 7:
+                role = "Dictateur";
+                break;
+            case 8:
+                role = "Garde";
                 break;
         }
         return role;
@@ -932,7 +875,6 @@ public class Player
     private int roleId;
     private bool seen = false;
     private int vote = -1;
-    private bool isMaire = false;
 
     public Player() { }
 
@@ -961,15 +903,6 @@ public class Player
     {
         return isAlive;
     }
-
-    public void SetIsMaire(bool m) {
-        isMaire = m;
-    }
-
-    public bool GetIsMaire() {
-        return isMaire;
-    }
-
     public bool GetIsMarried(){
         return isMarried;
     }
@@ -1015,6 +948,15 @@ public class Player
                 break;
             case 5:
                 role = "Sorciere";
+                break;
+            case 6:
+                role = "Chasseur";
+                break;
+            case 7:
+                role = "Dictateur";
+                break;
+            case 8:
+                role = "Garde";
                 break;
         }
     }

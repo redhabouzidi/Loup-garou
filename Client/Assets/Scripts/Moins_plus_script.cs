@@ -17,7 +17,11 @@ public class Moins_plus_script : MonoBehaviour
     }
 
     private void OnButtonClickMoins(){
-        input.text = "" + (int.Parse(input.text)-1);
+        int valeur= int.Parse(input.text);
+        //on verife si la valeur est egal ou inferieur a 0
+        if (valeur >0)
+            input.text = "" + (valeur-1);
+
     }
 
     private void OnButtonClickPlus(){

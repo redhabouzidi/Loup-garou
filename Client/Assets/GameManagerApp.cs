@@ -9,7 +9,7 @@ public class GameManagerApp : MonoBehaviour
 {
 
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -23,7 +23,7 @@ public class GameManagerApp : MonoBehaviour
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
     public GameObject componentAddWait, componentRequest, componentFriend;
     public List<GameObject> listFriend, listAdd, listRequest, listWait;
-    public static int scene;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,23 +45,6 @@ public class GameManagerApp : MonoBehaviour
         buttonChangeForgotPass.onClick.AddListener(onButtonClickChangeForgotPass);
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonAccept.onClick.AddListener(onButtonClickAccept);
-        buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
-
-        if (scene == 1)
-        {
-            scene = 0;
-            Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
-            temp.Find("Home").gameObject.SetActive(true);
-        }else
-        if (scene == 2)
-        {
-            scene = 0;
-            NetworkManager.sendRequestGames(NetworkManager.client);
-            Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
-
-        }
     }
     // Update is called once per frame
     void Update()
@@ -92,10 +75,7 @@ public class GameManagerApp : MonoBehaviour
         exitGame();
         //Application.Quit();
     }
-    public void onButtonClickQuitLobby()
-    {
-        NetworkManager.sendQuitLobbyMessage(NetworkManager.client);
-    }
+
     private void OnButtonClickConnection()
     {
         string email = inputFConnEmail.text;
@@ -191,7 +171,6 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void AddGame(int id, string name, int nbPlayer){
-        
         GameObject newGame = Instantiate(componentGame, containerGame.transform);
         Game g = new Game(id, name, nbPlayer, newGame);
 

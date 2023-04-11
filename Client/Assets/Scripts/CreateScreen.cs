@@ -9,7 +9,7 @@ public class CreateScreen : MonoBehaviour
     public int nbPlayers;
     
     public TMP_InputField inputPlayers, inputLG, inputVillage, inputName;
-    public Toggle toggleSeer, toggleWitch, toggleCupidon, toggleHunter, togglePrivate;
+    public Toggle toggleSeer, toggleWitch, toggleCupidon, toggleHunter, toggleGuardian, toggleDictator, togglePrivate;
     public GameObject codeParty;
 
     public Button buttonCreate;
@@ -31,7 +31,7 @@ public class CreateScreen : MonoBehaviour
     private void OnButtonClickCreate(){
         string name;
         int nbLG, nbVillage, nbPlayer;
-        bool seer, witch, cupidon, hunter, prive;
+        bool seer, witch, cupidon, hunter, guardian, dictator, prive;
 
         name = inputName.text;
         nbPlayer = int.Parse(inputPlayers.text);
@@ -42,6 +42,8 @@ public class CreateScreen : MonoBehaviour
         witch = toggleWitch.isOn;
         cupidon = toggleCupidon.isOn;
         hunter = toggleHunter.isOn;
+        guardian = toggleGuardian.isOn;
+        dictator = toggleDictator.isOn;
         prive = togglePrivate.isOn;
 
         // envoyer au serveur les données
