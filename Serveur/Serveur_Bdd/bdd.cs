@@ -151,10 +151,14 @@ public class bdd
         return 0;
     }
 
-    public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username,int[] friends, string[] names)
+    public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username, int[] friends, string[] names)
     {
         int psize = getStringLength(names);
-        int msgSize = 1 + sizeof(bool) + sizeof(int) * 3 + username.Length+sizeof(int)+friends.Length*sizeof(int)+psize+sizeof(int)*names.Length;
+        int msgSize = 1 + sizeof(bool);
+        if (answer)
+        {
+            msgSize += sizeof(int) * 3 + username.Length + sizeof(int) + friends.Length * sizeof(int) + psize + sizeof(int) * names.Length;
+        }
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
         message[0] = 105;
@@ -162,17 +166,17 @@ public class bdd
         encode(message, answer, size);
         if (answer)
         {
-        encode(message, idPlayer, size);
-        encode(message, username, size);
-        encode(message,friends.Length,size);
-        foreach(int i in friends)
-        {
-            encode(message, i, size);
-        }
-        foreach(string name in names)
-        {
-            encode(message, name, size);
-        }
+            encode(message, idPlayer, size);
+            encode(message, username, size);
+            encode(message, friends.Length, size);
+            foreach (int i in friends)
+            {
+                encode(message, i, size);
+            }
+            foreach (string name in names)
+            {
+                encode(message, name, size);
+            }
 
         }
         return bdd.Send(message);
@@ -186,14 +190,15 @@ public class bdd
         Console.WriteLine($"l'utilisateur {username} avec l'id 5 et le mdp {password} s'est connecté");
         if (Login.login_user(conn, username, password) == 0)
         {
-            int id=Login.get_id(conn, username);
+            int id = Login.get_id(conn, username);
             //recuperer les amis
-            
-            Dictionary<Tuple<int,string>,DateTime>data= Amis.get_liste_amis(conn, id, false),data2=Amis.get_liste_amis_enattente(conn,id,false);
-            int[] ids=new int[data.Count+data2.Count+1];
-            string[] names= new string[data.Count+data2.Count+1];
+
+            Dictionary<Tuple<int, string>, DateTime> data = Amis.get_liste_amis(conn, id, false), data2 = Amis.get_liste_amis_enattente(conn, id, false);
+            int[] ids = new int[data.Count + data2.Count + 1];
+            string[] names = new string[data.Count + data2.Count + 1];
             int i = 0;
-            foreach (KeyValuePair<Tuple<int,string>,DateTime> element in data){
+            foreach (KeyValuePair<Tuple<int, string>, DateTime> element in data)
+            {
                 ids[i] = element.Key.Item1;
                 names[i] = element.Key.Item2;
                 i++;
@@ -201,16 +206,16 @@ public class bdd
             ids[i] = -1;
             names[i] = "E";
             i++;
-            foreach(KeyValuePair<Tuple<int, string>, DateTime> element in data2)
+            foreach (KeyValuePair<Tuple<int, string>, DateTime> element in data2)
             {
                 ids[i] = element.Key.Item1;
                 names[i] = element.Key.Item2;
                 i++;
             }
-            connexionAnswer(bdd, queueId, true, id, username,ids,names);
+            connexionAnswer(bdd, queueId, true, id, username, ids, names);
         }
         else
-            connexionAnswer(bdd, queueId, false, 0, username, new int[0] ,new string[0]);
+            connexionAnswer(bdd, queueId, false, 0, username, new int[0], new string[0]);
     }
 
     public static int ajoutAmi(Socket bdd, byte[] message)
@@ -219,10 +224,10 @@ public class bdd
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         string username = decodeString(message, size);
-        int idAmis=Amis.send_friend_request(conn, id, username);
+        int idAmis = Amis.send_friend_request(conn, id, username);
         string pseudoJoueur = Amis.get_username(conn, id);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
-        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool)+ sizeof(int)+sizeof(int)+pseudoJoueur.Length+sizeof(int)+sizeof(int)+username.Length];
+        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool) + sizeof(int) + sizeof(int) + pseudoJoueur.Length + sizeof(int) + sizeof(int) + username.Length];
         size[0] = 1;
         newMessage[0] = 153;
         encode(newMessage, queueId, size);
@@ -242,7 +247,7 @@ public class bdd
         int idDelete = decodeInt(message, size);
         Amis.refuse_friend_request(conn, id, idDelete);
         Console.WriteLine($"l'utilisateur {id} supprime la personne avec le nom {idDelete}");
-        byte[] newMessage = new byte[1 + sizeof(int)*3 + sizeof(bool)];
+        byte[] newMessage = new byte[1 + sizeof(int) * 3 + sizeof(bool)];
         size[0] = 1;
         newMessage[0] = 154;
         encode(newMessage, queueId, size);
@@ -267,10 +272,10 @@ public class bdd
         else
         {
             answer = false;
-            Amis.refuse_friend_request(conn , id , idReponse);
+            Amis.refuse_friend_request(conn, id, idReponse);
         }
         Console.WriteLine($"l'utilisateur {id} repond a l'invitation de {idReponse} avec {answer}");
-        byte[] newMessage = new byte[1 + sizeof(int)*3 + sizeof(bool)];
+        byte[] newMessage = new byte[1 + sizeof(int) * 3 + sizeof(bool)];
         size[0] = 1;
         newMessage[0] = 155;
         encode(newMessage, queueId, size);
