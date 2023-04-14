@@ -742,6 +742,8 @@ namespace Server
                     bool voyante = decodeBool(message, size);
                     bool cupidon = decodeBool(message, size);
 
+                    if(connected.ContainsKey(client))
+                    {
 
                     if (!games.ContainsKey(id))
                     {
@@ -767,6 +769,11 @@ namespace Server
                         sendMessage(client, new byte[] { 255 });
                     }
 
+                    }
+                    else
+                    {
+                        Console.WriteLine("non connecté aled");
+                    }
                     break;
                 case 4:
                     size[0] = 1;
@@ -928,6 +935,8 @@ namespace Server
                 case 106:
                     if (connected.ContainsKey(client))
                         disconnectFromLobby(client);
+                    else
+                        Console.WriteLine("nope pas co");
 
 
                     break;
@@ -1041,10 +1050,7 @@ namespace Server
                     }
                     Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    if (list.Contains(client))
                         redirect(client, message, size[0]);
-                    else
-                        Console.WriteLine("error");
                     break;
                 case 104:
                     size[0] = 1;

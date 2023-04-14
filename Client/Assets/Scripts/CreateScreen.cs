@@ -16,7 +16,7 @@ public class CreateScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //buttonCreate.onClick.AddListener(OnButtonClickCreate);
+        buttonCreate.onClick.AddListener(OnButtonClickCreate);
         //togglePrivate.onValueChanged.AddListener(OnToggleChangedPrivate);
     }
 
@@ -45,5 +45,6 @@ public class CreateScreen : MonoBehaviour
 
         // envoyer au serveur les données
         NetworkManager.createGame(NetworkManager.client, NetworkManager.id, NetworkManager.username, name, nbPlayer, nbLG, seer, witch, cupidon);
+        Debug.Log("envoyé");
     }
 }

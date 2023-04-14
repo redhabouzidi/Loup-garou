@@ -838,12 +838,15 @@ public class Game
     {
         foreach(Joueur j in _joueurs)
         {
+            
             if(j.GetSocket()!=null && j.GetSocket().Connected)
             {
-                server.connected[j.GetSocket()] = j.GetId();
+                Console.WriteLine("debut de suppression ");
+                server.connected.Add(j.GetSocket(), j.GetId());
             }
-            server.games.Remove(gameId);
+            server.players.Remove(j.GetId());
         }
+            server.games.Remove(gameId);
     }
     // La fonction renvoie celui qui est choisi par le maire (la victime en cas d'égalité ou son successeur si le maire est mort) 
     public int DecisionDuMaire(List<Joueur> listJoueurs)
