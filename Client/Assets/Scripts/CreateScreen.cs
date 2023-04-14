@@ -16,8 +16,8 @@ public class CreateScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        buttonCreate.onClick.AddListener(OnButtonClickCreate);
-        togglePrivate.onValueChanged.AddListener(OnToggleChangedPrivate);
+        //buttonCreate.onClick.AddListener(OnButtonClickCreate);
+        //togglePrivate.onValueChanged.AddListener(OnToggleChangedPrivate);
     }
 
     // Update is called once per frame

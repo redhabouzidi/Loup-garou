@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
 
+    public TextMeshProUGUI profileUsername;
+
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
     buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
     public GameObject box_error, loginPage, registrationPage, waitPage;
@@ -24,6 +26,9 @@ public class GameManagerApp : MonoBehaviour
     public GameObject componentAddWait, componentRequest, componentFriend;
     public List<GameObject> listFriend, listAdd, listRequest, listWait;
     public static int scene;
+
+    // profile
+        
     // Start is called before the first frame update
     void Start()
     {
@@ -33,6 +38,8 @@ public class GameManagerApp : MonoBehaviour
         listRequest = new List<GameObject>();
         listWait = new List<GameObject>();
         Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
+        profileUsername.text = inputFRegPseudo.text;
+
 
         buttonResearch.onClick.AddListener(OnButtonClickResearch);
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
