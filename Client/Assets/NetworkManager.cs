@@ -617,10 +617,10 @@ public class NetworkManager : MonoBehaviour
                     }
                     if (win == 1)
                     {
-                        gm.isVillageWin = true;
+                        gm.isVillageWin = 1;
                     }else if(win == 2)
                     {
-                        gm.isVillageWin = false;
+                        gm.isVillageWin = 0;
                     }
                     gm.gameover = true;
                     
@@ -643,7 +643,7 @@ public class NetworkManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("je ne suis pas sensé recevoir ça ");
+                        Debug.Log("je ne suis pas sensï¿½ recevoir ï¿½a ");
                     }
                     //NOUVELLE DEMANDE D'AMIS
                     break;

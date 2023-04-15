@@ -114,6 +114,10 @@ public class WaitingScreen : MonoBehaviour
         for (int i=0; i<no_players; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
+            /*
+            if(players_waiting[i].isReady) listCard[i].transform.Find("image-check").GetComponent<Image>().enabled = true;
+            else listCard[i].transform.Find("image-check").GetComponent<Image>().enabled = false;
+            */
         }
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
@@ -166,6 +170,7 @@ public class WPlayer{
     private string username;
     private int id;
     private int role;
+    private bool isReady = false;
     //....
 
     public WPlayer(string uname,int id){
@@ -187,6 +192,11 @@ public class WPlayer{
     {
         this.role = role;
     }
-
+    public bool GetReady() {
+        return isReady;
+    }
+    public void SetReady(bool r) {
+        isReady = r;
+    }
 }
 

@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
 
-    public Color colorRed, colorWhite, colorBlack, colorYellow;
+    public Color colorRed, colorWhite, colorBlack, colorYellow, colorPink;
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
 
     // win screen
     public bool gameover = false;
-    public bool isVillageWin = true;
+    public int isVillageWin = 1;
     public GameObject winPanel, textWinPlayer;
     List<TextMeshProUGUI> listTextwin = new List<TextMeshProUGUI>();
     public TextMeshProUGUI groupWin;
@@ -398,27 +398,26 @@ public class GameManager : MonoBehaviour
         }
         listTextwin.Clear();
 
-        /*if(amoureuxWin) {
-            groupWin.text = "Lovers won";
-            groupWin.color = colorRed;
-        }
+        switch(isVillageWin) {
+            case 0 : // Loup-garou
+                groupWin.text = "Werewolves won";
+                groupWin.color = colorRed;
+                break;
+            
+            case 1 : // villageois
+                groupWin.text = "Villagers won";
+                groupWin.color = colorWhite;
+                break;
+            
+            case 2 : // draw
+                groupWin.text = "Draw";
+                groupWin.color = colorWhite;
+                break;
 
-        else if(draw) {
-            groupWin.text = "Draw";
-            groupWin.color = colorWhite;
-        }
-
-        else */
-        if (isVillageWin == false)
-        {
-            groupWin.text = "Loup-garou won";
-            groupWin.color = colorRed;
-        }
-
-        else if (isVillageWin)
-        {
-            groupWin.text = "Villagers won";
-            groupWin.color = colorWhite;
+            case 3 : // amoureux
+                groupWin.text = "Lovers won";
+                groupWin.color = colorPink;
+                break;
         }
         
         for (int i = 0; i < nbPlayer; i++)
@@ -437,7 +436,7 @@ public class GameManager : MonoBehaviour
                     int id1 = chercheIndiceJoueurId(lover1_id), id2 = chercheIndiceJoueurId(lover2_id);
                     Debug.Log("id1= " + id1 + "id2 = " + id2+"lvid= "+ lover1_id+" lvid= "+ lover2_id);
                     if(texto.text==listPlayer[id1].GetPseudo()||texto.text==listPlayer[id2].GetPseudo()){
-                        texto.color=Color.magenta;
+                        texto.color=colorPink;
                         };
                 }
             }
