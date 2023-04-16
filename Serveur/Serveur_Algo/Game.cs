@@ -283,13 +283,6 @@ public class Game
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
-
-            if(firstDay){
-                firstDay = false;
-                // election du maire
-                ElectionMaire(VoteToutLeMonde(_joueurs, 255), _joueurs);
-            }
-
             for (int i = 0; i < _joueurs.Count; i++)
             {
                 Console.WriteLine(_joueurs[i].GetPseudo() + " a comme rôle : " + _joueurs[i].GetRole() +
@@ -300,12 +293,20 @@ public class Game
                     Console.WriteLine("\t en + ce mec est amoureux !");
                 }
             }
-
             checkWin = Check_win(_joueurs);
             if (checkWin != 0)
             {
                 break;
             }
+            if (firstDay){
+                firstDay = false;
+                // election du maire
+                ElectionMaire(VoteToutLeMonde(_joueurs, 255), _joueurs);
+            }
+
+            
+
+            
 
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
 
@@ -846,7 +847,8 @@ public class Game
             }
             server.players.Remove(j.GetId());
         }
-            server.games.Remove(gameId);
+        server.games.Remove(gameId);
+        server.WakeUpMain();
     }
     // La fonction renvoie celui qui est choisi par le maire (la victime en cas d'égalité ou son successeur si le maire est mort) 
     public int DecisionDuMaire(List<Joueur> listJoueurs)

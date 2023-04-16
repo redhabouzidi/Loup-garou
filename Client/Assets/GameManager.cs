@@ -155,7 +155,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        NetworkManager.listener();
         if(finished)
         {
 
@@ -171,7 +171,7 @@ public class GameManager : MonoBehaviour
                 if (inputChat.text != "")
                 {
                     string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-                    NetworkManager.sendchatMessage(NetworkManager.client, msg);
+                    NetworkManager.sendchatMessage( msg);
                     inputChat.text = "";
                     inputChat.ActivateInputField();
                 }
@@ -235,21 +235,24 @@ public class GameManager : MonoBehaviour
     }
     private void OnButtonClickLeaveGame()
     {
-        LoadScene("Jeu");
+        GameManagerApp.client = NetworkManager.client;
         GameManagerApp.scene = 1;
+        LoadScene("Jeu");
+
 
     }
     private void OnButtonClickPlayAgain()
     {
-        LoadScene("Jeu");
+        GameManagerApp.client = NetworkManager.client;
         GameManagerApp.scene = 2;
+        LoadScene("Jeu");
     }
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")
         {
             string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-            NetworkManager.sendchatMessage(NetworkManager.client, msg);
+            NetworkManager.sendchatMessage( msg);
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
@@ -301,13 +304,13 @@ public class GameManager : MonoBehaviour
 
     private void OnButtonClickNon() {
         choixAction.SetActive(false);
-        NetworkManager.Vote(NetworkManager.client, NetworkManager.id,0);
+        NetworkManager.Vote( NetworkManager.id,0);
         // envoyer au serveur NON
     }
 
     private void OnButtonClickOui() {
         choixAction.SetActive(false);
-        NetworkManager.Vote(NetworkManager.client, NetworkManager.id, 1);
+        NetworkManager.Vote( NetworkManager.id, 1);
         // envoyer au serveur OUI
     }
 
@@ -607,7 +610,7 @@ public class GameManager : MonoBehaviour
             msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
             lover2_id= indice2;
             SendMessageToChat(msg, Message.MsgType.system);
-            NetworkManager.ChooseLovers(NetworkManager.client, NetworkManager.id, id1, id2);
+            NetworkManager.ChooseLovers( NetworkManager.id, id1, id2);
 
 
         }
@@ -633,7 +636,7 @@ public class GameManager : MonoBehaviour
             if(selectedId != -1){
                 SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
                 p.SetVote(listPlayer[selectedId].GetId());
-                NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
+                NetworkManager.Vote( NetworkManager.id, listPlayer[selectedId].GetId());
                 Debug.Log($"joueur {NetworkManager. id} vote pour {listPlayer[selectedId].GetId()}");
             } else{
                 SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
@@ -719,7 +722,7 @@ public class GameManager : MonoBehaviour
         if(player_role.text == "Voyante" && isNight) {
             if(selectedId != -1 && selectedId < nbPlayer)
             {
-                NetworkManager.Vote(NetworkManager.client, NetworkManager.id, listPlayer[selectedId].GetId());
+                NetworkManager.Vote( NetworkManager.id, listPlayer[selectedId].GetId());
             }
         } 
     }

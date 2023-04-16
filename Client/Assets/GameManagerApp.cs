@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,7 +12,6 @@ public class GameManagerApp : MonoBehaviour
 {
 
     public TextMeshProUGUI profileUsername;
-
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
     buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
     public GameObject box_error, loginPage, registrationPage, waitPage;
@@ -28,10 +30,31 @@ public class GameManagerApp : MonoBehaviour
     public static int scene;
 
     // profile
-        
+    //NetworkManager
+    public static Socket client=null;
     // Start is called before the first frame update
     void Start()
     {
+        if (client != null)
+        {
+            NetworkManager.client = client;
+        }
+        else
+        {
+        NetworkManager.rep = new List<byte[]>();
+
+        }
+        NetworkManager.canvas = GameObject.Find("Canvas");
+        NetworkManager.ho = NetworkManager.canvas.transform.Find("Home").gameObject;
+        NetworkManager.cpo = NetworkManager.canvas.transform.Find("ConnectionPage").gameObject;
+        NetworkManager.sp = NetworkManager.canvas.transform.Find("StartPage").gameObject;
+        NetworkManager.wso = NetworkManager.canvas.transform.Find("WaitingScreen").gameObject;
+        NetworkManager.lo = NetworkManager.canvas.transform.Find("Lobby").gameObject;
+        NetworkManager.gmao = GameObject.Find("GameManagerApp").gameObject;
+        NetworkManager.gma = NetworkManager.gmao.GetComponent<GameManagerApp>();
+        NetworkManager.ws = NetworkManager.wso.GetComponent<WaitingScreen>();
+
+
         GameManagerApp.players = new List<player>();
         listFriend = new List<GameObject>();
         listAdd = new List<GameObject>();
@@ -58,15 +81,16 @@ public class GameManagerApp : MonoBehaviour
         {
             scene = 0;
             Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
             temp.Find("Home").gameObject.SetActive(true);
+            Debug.Log("scene 1");
         }else
         if (scene == 2)
         {
             scene = 0;
-            NetworkManager.sendRequestGames(NetworkManager.client);
+            NetworkManager.sendRequestGames();
             Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
+            temp.Find("Home").gameObject.SetActive(true);
+            Debug.Log("scene 2");
 
         }
     }
@@ -79,6 +103,7 @@ public class GameManagerApp : MonoBehaviour
             exitGame();
             // Quit the game
         }
+        NetworkManager.listener();
     }
 
     public static void exitGame()
@@ -101,15 +126,20 @@ public class GameManagerApp : MonoBehaviour
     }
     public void onButtonClickQuitLobby()
     {
-        NetworkManager.sendQuitLobbyMessage(NetworkManager.client);
+        NetworkManager.sendQuitLobbyMessage();
     }
     private void OnButtonClickConnection()
     {
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
+        Debug.Log("goes");
+        NetworkManager.task = Task.Run(() =>
+        {
+            NetworkManager.reseau(email,password);
+        });
+        Debug.Log("through");
 
         // hash password avant
-        NetworkManager.login(NetworkManager.client, email, password);
         //isSuccess = ??
         /*if (isSuccess){
             box_error.SetActive(false);
@@ -130,7 +160,7 @@ public class GameManagerApp : MonoBehaviour
 
         if (password == password2)
         {
-            NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
+            NetworkManager.sendInscription( pseudo, password, email);
             //isSuccess = retour du serveur / bdd
             /*if (isSuccess){
                 box_error.SetActive(false);
@@ -149,20 +179,22 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickPublic()
     {
-        NetworkManager.sendRequestGames(NetworkManager.client);
+        NetworkManager.sendRequestGames();
+        Debug.Log("join should work");
+
     }
 
     private void OnButtonClickJoin()
     {
-        NetworkManager.join(NetworkManager.client, GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
+        NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
     }
     private void onButtonClickAdd()
     {
-        NetworkManager.ajoutAmi(NetworkManager.client,NetworkManager.id,"demonow");
+        NetworkManager.ajoutAmi(NetworkManager.id,"demonow");
     }
     private void onButtonClickAccept()
     {
-        NetworkManager.reponseAmi(NetworkManager.client, NetworkManager.id, 4,true);
+        NetworkManager.reponseAmi( NetworkManager.id, 4,true);
     }
     private void OnButtonClickResearch()
     {

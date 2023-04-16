@@ -97,6 +97,7 @@ namespace Server
         public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
         public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
+        public static Socket wakeUpMain;
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -120,7 +121,9 @@ namespace Server
 
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
-
+            wakeUpMain = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            wakeUpMain.Connect(server.LocalEndPoint);
+            list.Add(server.Accept());
             Queue queue = new Queue();
             int i = 0;
             while (a)
@@ -729,7 +732,6 @@ namespace Server
             int idPlayer, vote;
             switch (message[0])
             {
-
                 case 3:
                     size[0] = 1;
 
@@ -951,6 +953,9 @@ namespace Server
                 case 155:
                     if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
+                    break;
+                case 255:
+                    return;
                     break;
                 default:
                     break;
@@ -1177,6 +1182,10 @@ namespace Server
             sendMessage(client, message);
 
 
+        }
+        public static void WakeUpMain()
+        {
+            wakeUpMain.Send(new byte[1] { 255 });
         }
     }
 
