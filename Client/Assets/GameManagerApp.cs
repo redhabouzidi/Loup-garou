@@ -132,12 +132,10 @@ public class GameManagerApp : MonoBehaviour
     {
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
-        Debug.Log("goes");
         NetworkManager.task = Task.Run(() =>
         {
             NetworkManager.reseau(email,password);
         });
-        Debug.Log("through");
 
         // hash password avant
         //isSuccess = ??

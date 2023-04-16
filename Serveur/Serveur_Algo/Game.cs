@@ -179,20 +179,8 @@ public class Game
     {
         _nbrJoueursManquants--;
         // check si y'a assez de joueurs pour lancer la partie
-        if (_nbrJoueursManquants == 0)
-        {
-            foreach(Joueur j in _joueurs)
-                {
-                    server.connected.Remove(j.GetSocket());
-                    server.userData[j.GetId()].SetStatus(j.GetId(),3);
-                }
-            Task.Run(() => Start());
-        }
-        else
-        {
             // Waiting Screen Frontend
             Console.WriteLine("il manque encore des joueurs " + _nbrJoueursManquants);
-        }
     }
 
     public void Join(Client c)
@@ -247,6 +235,7 @@ public class Game
         
         bool day = false;
         bool firstDay = true;
+        LanceAction(typeof(Cupidon));
 
         while (true)
         {
@@ -689,7 +678,6 @@ public class Game
             sendRoles(j);
         }
         // appeller Cupidon si il y en a un
-        LanceAction(typeof(Cupidon));
     }
     public void sendRoles(Joueur j)
     {
@@ -907,7 +895,46 @@ public class Game
 
         return retour;
     }
-    
+    public void ToggleReady(int id)
+    {
+        bool ready = false, found = false; ;
+        foreach(Joueur j in _joueurs)
+        {
+            if(j.GetId() == id)
+            {
+                j.SetReady(!j.GetReady());
+                ready=j.GetReady();
+                found = true;
+                break;
+            }
+        }
+        if (found)
+        {
+        int sum=0;
+        foreach(Joueur j in _joueurs)
+        {
+            if (j.GetReady())
+            {
+                sum++;
+            }
+            server.sendReady(j.GetSocket(), id, ready);
+        }
+        if (sum == _nbrJoueurs)
+        {
+            foreach (Joueur j in _joueurs)
+            {
+                server.connected.Remove(j.GetSocket());
+                server.userData[j.GetId()].SetStatus(j.GetId(), 3);
+            }
+            Task.Run(() =>
+            {
+                Thread.Sleep(1000);
+                Start();
+            });
+        }
+
+        }
+    }
 
     public List<Joueur> GetJoueurs()
     {
