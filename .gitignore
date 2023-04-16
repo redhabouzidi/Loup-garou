@@ -43,3 +43,7 @@ Serveur/Serveur_Bdd/obj/
 /Client/obj
 Client/Assets/Client.cs
 Client/Assets/Client.cs.meta
+bin
+obj
+*.csproj
+*.pem
