@@ -568,7 +568,8 @@ public class NetworkManager : MonoBehaviour
                     }
                     else
                     {
-                        prog = false;
+                        // prog = false;
+                        gma.AfficheError("Error: Email/Pseudo or password is invalide");
                     }
                     break;
                 case 106:

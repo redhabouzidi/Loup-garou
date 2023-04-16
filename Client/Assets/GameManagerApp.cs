@@ -130,6 +130,7 @@ public class GameManagerApp : MonoBehaviour
     }
     private void OnButtonClickConnection()
     {
+        box_error.SetActive(false);
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
         NetworkManager.task = Task.Run(() =>
@@ -151,6 +152,7 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickRegistration()
     {
+        box_error.SetActive(false);
         string email = inputFRegEmail.text;
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
