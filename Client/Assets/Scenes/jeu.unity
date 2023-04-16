@@ -7731,7 +7731,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &404978934
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17361,7 +17361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09e9bc2c7e092f341b2a7c0e26f07d3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profileUsername: {fileID: 0}
+  profileUsername: {fileID: 290381844}
   buttonQuit: {fileID: 187882709}
   buttonQuit2: {fileID: 532915144}
   buttonLogin: {fileID: 1260499529}
@@ -31018,7 +31018,7 @@ GameObject:
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1720017997
 RectTransform:
   m_ObjectHideFlags: 0
