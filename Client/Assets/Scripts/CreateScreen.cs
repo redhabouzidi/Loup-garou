@@ -44,7 +44,7 @@ public class CreateScreen : MonoBehaviour
         dictator = toggleDictator.isOn;
 
         // envoyer au serveur les données
-        NetworkManager.createGame(NetworkManager.client, NetworkManager.id, NetworkManager.username, name, nbPlayer, nbLG, seer, witch, cupidon);
+        NetworkManager.createGame(NetworkManager.id, NetworkManager.username, name, nbPlayer, nbLG, seer, witch, cupidon);
         Debug.Log("envoyé");
     }
 }

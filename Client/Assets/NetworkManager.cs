@@ -22,6 +22,7 @@ public class NetworkManager : MonoBehaviour
     public static WaitingScreen ws;
     public static GameManagerApp gma;
     public static WPlayer[] players;
+    public static Task task;
     public class answer
     {
         public bool error;
@@ -52,59 +53,20 @@ public class NetworkManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rep = new List<byte[]>();
-        canvas = GameObject.Find("Canvas");
-        ho = canvas.transform.Find("Home").gameObject;
-        cpo = canvas.transform.Find("ConnectionPage").gameObject;
-        sp = canvas.transform.Find("StartPage").gameObject;
-        wso = canvas.transform.Find("WaitingScreen").gameObject;
-        lo = canvas.transform.Find("Lobby").gameObject;
-        gmao = GameObject.Find("GameManagerApp").gameObject;
-        gma = gmao.GetComponent<GameManagerApp>();
-        ws = wso.GetComponent<WaitingScreen>();
-        Task.Run(() =>
-        {
-            reseau();
-        });
     }
 
     // Update is called once per frame
     void Update()
     {
-        while (rep!=null && rep.Count != 0)
-        {
-            if (rep[0] == null)
-            {
-                rep.RemoveAt(0 );
-                GameManagerApp.exitGame();
-            }
-            else
-            {
-            treatMessage(rep[0]);
-            }
         
-
-        }
 
     }
 
-    public static void reseau()
+    public static void reseau(string email,string password)
     {
-
-        /*if (args.Length != 2)
+        prog = true;
+        try
         {
-            return;
-        }
-        int port;
-        bool answer = Int32.TryParse(args[0], out port);
-        if (answer == false)
-        {
-            return;
-        }
-        string ia = args[1];*/
-        
-            try
-            {
 
                 int port = 18000;
                 string ia = "185.155.93.105";
@@ -122,7 +84,8 @@ public class NetworkManager : MonoBehaviour
                 Console.Write(e.Message);
                 prog = false;
             }
-        
+        login(email, password);
+
         /*var inputTask = Task.Run(() =>
         {
             while (reading)
@@ -185,7 +148,23 @@ public class NetworkManager : MonoBehaviour
         }
         client.Close();
     }
+    public static void listener()
+    {
+        while (rep != null && rep.Count != 0)
+        {
+            if (rep[0] == null)
+            {
+                rep.RemoveAt(0);
+                GameManagerApp.exitGame();
+            }
+            else
+            {
+                treatMessage(rep[0]);
+            }
 
+
+        }
+    }
     public static void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
@@ -292,7 +271,7 @@ public class NetworkManager : MonoBehaviour
         return client;
     }
 
-    public static int login(Socket server, string username, string password)
+    public static int login(string username, string password)
     {
         int userSize = username.Length;
         int pwSize = password.Length;
@@ -304,7 +283,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, username, size);
         encode(message, password, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
     public static int logout(Socket server)
@@ -320,10 +299,10 @@ public class NetworkManager : MonoBehaviour
             return -1;
         }
     }
-    public static void sendQuitLobbyMessage(Socket server)
+    public static void sendQuitLobbyMessage()
     {
         byte[] message = new byte[] { 106 };
-        SendMessageToServer(server, message);
+        SendMessageToServer(client, message);
     }
 
 
@@ -581,6 +560,10 @@ public class NetworkManager : MonoBehaviour
                         ho.SetActive(true);
 
                     }
+                    else
+                    {
+                        prog = false;
+                    }
                     break;
                 case 106:
                     int idQuitter=decode(message, size);
@@ -679,11 +662,11 @@ public class NetworkManager : MonoBehaviour
     }
     public static int SendMessageToServer(Socket server, byte[] message)
     {
-        Console.WriteLine("msgsize=" + message.Length);
+        Debug.Log("msgsize=" + message.Length);
         return server.Send(message, message.Length, SocketFlags.None);
     }
 
-    public static int sendInscription(Socket server, string username, string password, string email)
+    public static int sendInscription( string username, string password, string email)
     {
         int usernameSize = username.Length;
         int pwSize = password.Length;
@@ -697,15 +680,17 @@ public class NetworkManager : MonoBehaviour
         encode(message, password, size);
         encode(message, email, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
-    public static void sendRequestGames(Socket client)
+    public static void sendRequestGames()
     {
+        Debug.Log(((IPEndPoint)(NetworkManager.client.RemoteEndPoint)).Address.ToString());
+
         byte[] message = new byte[1];
         message[0] = 103;
         SendMessageToServer(client,message);
     }
-    public static int Vote(Socket server, int idUser, int idVote)
+    public static int Vote(int idUser, int idVote)
     {
         byte[] message = new byte[1 + 2 * sizeof(int)];
         message[0] = 1;
@@ -713,9 +698,9 @@ public class NetworkManager : MonoBehaviour
         encode(message, idUser, size);
         encode(message, idVote, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
-    public static int sendStartKickVote(Socket server, int idPlayer, int voted)
+    public static int sendStartKickVote(int idPlayer, int voted)
     {
 
         byte[] message = new byte[1 + sizeof(int) * 2];
@@ -724,37 +709,37 @@ public class NetworkManager : MonoBehaviour
         encode(message, idPlayer, size);
         encode(message, voted, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
-    public static int sendKickVote(Socket server, int idPlayer, int voted)
+    public static int sendKickVote( int idPlayer, int voted)
     {
         byte[] message = new byte[1 + 2 * sizeof(int)];
         int[] size = new int[1] { 1 };
         message[0] = 201;
         encode(message, idPlayer, size);
         encode(message, voted, size);
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
-    public static int sendFetchGameRequest(Socket server)
+    public static int sendFetchGameRequest()
     {
         byte[] message = new byte[1];
         message[0] = 2;
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int sendchatMessage(Socket server, string message)
+    public static int sendchatMessage( string message)
     {
         byte[] msg = new byte[1 + sizeof(int) + message.Length];
         Console.WriteLine("lllllll {0}", msg.Length);
         msg[0] = 0;
         int[] size = new int[1] { 1 };
         encode(msg, message, size);
-        SendMessageToServer(server, msg);
+        SendMessageToServer(client, msg);
         return 0;
     }
 
-    public static int createGame(Socket server, int id, string username, string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante,bool cupidon)
+    public static int createGame( int id, string username, string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante,bool cupidon)
     {
         byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool)*3 + username.Length + name.Length];
         int[] size = new int[1] { 1 };
@@ -768,10 +753,10 @@ public class NetworkManager : MonoBehaviour
         encode(message, voyante, size);
         encode(message, cupidon, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int join(Socket server, int gameId, int id, string username)
+    public static int join( int gameId, int id, string username)
     {
         byte[] message = new byte[1 + sizeof(int) * 3 + username.Length];
         int[] size = new int[1] { 1 };
@@ -780,10 +765,10 @@ public class NetworkManager : MonoBehaviour
         encode(message, id, size);
         encode(message, username, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int ajoutAmi(Socket server, int idUser, string username)
+    public static int ajoutAmi( int idUser, string username)
     {
         byte[] message = new byte[1 + sizeof(int) * 2 + username.Length];
         int[] size = new int[1] { 1 };
@@ -791,10 +776,10 @@ public class NetworkManager : MonoBehaviour
         encode(message, idUser, size);
         encode(message, username, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int supprimerAmi(Socket server, int idUser, int id)
+    public static int supprimerAmi( int idUser, int id)
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
         int[] size = new int[1] { 1 };
@@ -802,10 +787,10 @@ public class NetworkManager : MonoBehaviour
         encode(message, idUser, size);
         encode(message, id, size);
 
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int reponseAmi(Socket server, int idUser, int id, bool answer)
+    public static int reponseAmi( int idUser, int id, bool answer)
     {
         byte[] message = new byte[1 + sizeof(bool)+sizeof(int) * 2];
         int[] size = new int[1] { 1 };
@@ -813,10 +798,10 @@ public class NetworkManager : MonoBehaviour
         encode(message, answer, size);
         encode(message, idUser, size);
         encode(message, id, size);
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
-    public static int ChooseLovers(Socket server,int id, int id1, int id2)
+    public static int ChooseLovers(int id, int id1, int id2)
     {
         byte[] message = new byte[1 + 3 * sizeof(int)];
         message[0] = 6;
@@ -824,7 +809,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, id, index);
         encode(message, id1, index);
         encode(message, id2, index);
-        return SendMessageToServer(server, message);
+        return SendMessageToServer(client, message);
     }
 
     
