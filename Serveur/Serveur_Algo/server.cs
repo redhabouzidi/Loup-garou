@@ -696,6 +696,19 @@ namespace Server
             encode(message, status, size);
             sendMessage(client, message);
         }
+        public static void sendReady(Socket client,int id , bool ready)
+        {
+            int[] size = new int[1] { 1 };
+            int byteSize = 1 + sizeof(int) + sizeof(bool);
+            byte[] message = new byte[byteSize];
+            //ajouter le code du packet
+            message[0] = 108;
+            //ajouter l'id 
+            encode(message, id, size);
+            //ajout du status
+            encode(message, ready, size);
+            sendMessage(client, message);
+        }
         public static void disconnectFromLobby(Socket client)
         {
             if (players.ContainsKey(connected[client]))
@@ -941,6 +954,21 @@ namespace Server
                         Console.WriteLine("nope pas co");
 
 
+                    break;
+                case 108:
+                    if (connected.ContainsKey(client))
+                    {
+                        if (players.ContainsKey(connected[client]))
+                        {
+                            if (!players[connected[client]].GetStart())
+                            {
+                                idj = connected[client];
+                                players[connected[client]].ToggleReady(idj);
+                            }
+
+                        }
+
+                    }
                     break;
                 case 153:
                     if (connected.ContainsKey(client))

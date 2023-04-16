@@ -19,7 +19,7 @@ public class WaitingScreen : MonoBehaviour
 
     // description des roles
     public Image image_carte;
-    public Button right_button, left_button;
+    public Button right_button, left_button,button_ready;
     public TextMeshProUGUI role_name, descripts;
     private List<InfoRole> infoRole = new List<InfoRole>();
 
@@ -37,7 +37,7 @@ public class WaitingScreen : MonoBehaviour
     {
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
-
+        button_ready.onClick.AddListener(toggleReady);
         // crée la liste des roles pour l'affichage des infos
         for(int i=1; i<=8; i++)
         {
@@ -109,7 +109,10 @@ public class WaitingScreen : MonoBehaviour
             status.text = nbjoueur_rest + " remaining...";
         }
     }
-
+    public void toggleReady()
+    {
+        NetworkManager.sendReady();
+    }
     //Fonction permettant d'obtenir le role suivant en cliquant le button droite
     void right_next()
     {

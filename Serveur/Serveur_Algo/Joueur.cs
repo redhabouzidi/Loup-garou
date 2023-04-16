@@ -13,7 +13,7 @@ public class Joueur
     private bool enVie;
     private bool doitMourir;
     private bool estMaire;
-
+    private bool ready;
     public Joueur(int ClientId, Socket socketClient, string name)
     {
         id = ClientId;
@@ -24,6 +24,7 @@ public class Joueur
         pseudo = name;
         aEteSave = false;
         estMaire = false;
+        ready = false;
     }
 
     public void FaireAction(List<Joueur> ListJoueurs)
@@ -128,5 +129,13 @@ public class Joueur
 
     public void SetEstMaire(bool b){
         estMaire = b;
+    }
+    public void SetReady(bool ready)
+    {
+        this.ready = ready;
+    }
+    public bool GetReady()
+    {
+        return ready;
     }
 }
