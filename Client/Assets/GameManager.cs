@@ -197,6 +197,7 @@ public class GameManager : MonoBehaviour
                     affiche_tour_role("C'est le tour du Cupidon", turn);
                         if (p.GetRoleId() == 2)
                         {
+                            Debug.Log("tour du cupi");
                             actionCupidon();
                         }
                         break;
@@ -622,6 +623,7 @@ public class GameManager : MonoBehaviour
     public void setAmoureux(int id1, int id2){
         int indice1 = chercheIndiceJoueurId(id1);
         int indice2 = chercheIndiceJoueurId(id2);
+
         listPlayer[indice1].SetIsMarried(true);
         listPlayer[indice2].SetIsMarried(true);
     }

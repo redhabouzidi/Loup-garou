@@ -80,9 +80,9 @@ public override void Action(List<Joueur> listJoueurs)
                         {
 			    	
                             Thread.Sleep(GetDelaiAlarme() * 250);
+                            boucle = false;
                             Console.WriteLine("les deux loups ont votés, ça passe à 5sec d'attente");
                             vide.Send(new byte[1] { 0 });
-                            boucle = false;
                         });
                     }
 

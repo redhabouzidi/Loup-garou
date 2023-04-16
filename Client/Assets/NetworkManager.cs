@@ -383,10 +383,9 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
                     
-                    gm.setAmoureux(idPlayer, idp);
+                    gm.setAmoureux(idPlayer, id);
 
                     gm.lover1_id = gm.p.GetId();
-                    gm.lover2_id = idPlayer;
                     string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
                     switch (idp)
                     {
@@ -407,6 +406,7 @@ public class NetworkManager : MonoBehaviour
                             break;
                     }
                     gm.SendMessageToChat(msg,Message.MsgType.system);
+                    gm.updateImage(idPlayer, idp);
                     gm.MiseAJourAffichage();
                     break;
                 case 7:
@@ -473,10 +473,7 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     GameManager.turn = decode(message, size);
-                    
-                    
 
-                    
                     break;
                 case 12:
                     

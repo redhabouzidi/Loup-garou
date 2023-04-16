@@ -860,10 +860,6 @@ namespace Server
                         sendMessage(client, new byte[] { 255 });
                     }
                     break;
-                case 6:
-                    size[0] = 1;
-                    setLovers(list[3], list[4], decodeInt(message, size), decodeInt(message, size), 10, 14);
-                    break;
                 case 100://disconnects
                     list.Remove(client);
                     if (connected.ContainsKey(client))
@@ -1172,7 +1168,6 @@ namespace Server
             int[] index = new int[1] { 1 };
             Console.WriteLine("je suis la ");
             encode(message, id1, index);
-
             encode(message, role1, index);
             if (player2.Connected)
                 sendMessage(player2, message);

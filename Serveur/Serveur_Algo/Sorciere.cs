@@ -75,8 +75,8 @@ public class Sorciere : Role
                 Task t = Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 375);
-                    vide.Send(new byte[1] { 0 });
                     boucle = false;
+                    vide.Send(new byte[1] { 0 });
                 });
 
                 Console.WriteLine("On attends la réponse de la sorcière si elle souhaite ressusciter le joueur");
@@ -134,8 +134,8 @@ public class Sorciere : Role
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 375);
-            vide.Send(new byte[1] { 0 });
             boucle = false;
+            vide.Send(new byte[1] { 0 });
         });
         
         int v, c;
@@ -176,8 +176,8 @@ public class Sorciere : Role
                 if (reduceTimer && !LaunchThread2)
                 {
                     Thread.Sleep(GetDelaiAlarme() * 125); // 2,30 secondes
-                    vide.Send(new byte[1] { 0 });
                     boucleKill = false;
+                    vide.Send(new byte[1] { 0 });
                 }
             });
 
@@ -208,8 +208,8 @@ public class Sorciere : Role
                         {
                             Thread.Sleep(GetDelaiAlarme() * 125);
                             Console.WriteLine("le Garde a voté, ça passe à 2,30sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucleKill = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
 

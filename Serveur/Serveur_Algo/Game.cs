@@ -235,6 +235,7 @@ public class Game
         
         bool day = false;
         bool firstDay = true;
+        LanceAction(typeof(Cupidon));
 
         while (true)
         {
@@ -677,7 +678,6 @@ public class Game
             sendRoles(j);
         }
         // appeller Cupidon si il y en a un
-        LanceAction(typeof(Cupidon));
     }
     public void sendRoles(Joueur j)
     {

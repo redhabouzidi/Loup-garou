@@ -115,6 +115,19 @@ public class Client
                     else if (messageAsync.Equals("love"))
                     {
                         ChooseLovers(client, 1, 2);
+                    }else if (messageAsync.Equals("ready"))
+                    {
+                        sendReady(client);
+                    }else if (messageAsync.Equals("votec"))
+                    {
+                        Console.Write("Votez pour :");
+                        string val = Console.ReadLine();
+                        int b = int.Parse(val);
+                        Console.Write("avec :");
+                        val = Console.ReadLine();
+                        int a = int.Parse(val);
+                        Console.WriteLine(b + "   " + id);
+                        ChooseLovers(client, b, a);
                     }
                     else
                     {
@@ -138,6 +151,15 @@ public class Client
         }
 
 
+    }
+    public static void sendReady(Socket client)
+    {
+        int[] size = new int[1] { 1 };
+        int byteSize = 1;
+        byte[] message = new byte[byteSize];
+        //ajouter le code du packet
+        message[0] = 108;
+        SendMessageToServer(client, message);
     }
     public static void addChatMessage(string message)
     {
@@ -400,7 +422,16 @@ public class Client
         Console.WriteLine("msgsize=" + message.Length);
         return server.Send(message, message.Length, SocketFlags.None);
     }
-
+    public static int ChooseLovers(Socket client,int id, int id1, int id2)
+    {
+        byte[] message = new byte[1 + 3 * sizeof(int)];
+        message[0] = 6;
+        int[] index = new int[1] { 1 };
+        encode(message, id, index);
+        encode(message, id1, index);
+        encode(message, id2, index);
+        return SendMessageToServer(client, message);
+    }
     public static int sendInscription(Socket server, string username, string password, string email)
     {
         int usernameSize = username.Length;

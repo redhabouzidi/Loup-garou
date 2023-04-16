@@ -36,8 +36,8 @@ public class Garde : Role
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
 
@@ -70,8 +70,8 @@ public class Garde : Role
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
                             Console.WriteLine("le Garde a voté, ça passe à 5sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }

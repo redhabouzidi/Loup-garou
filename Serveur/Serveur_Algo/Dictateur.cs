@@ -37,8 +37,8 @@ public class Dictateur : Role
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             });
 
             int v, c;
@@ -74,8 +74,8 @@ public class Dictateur : Role
                     if (reduceTimer && !LaunchThread2)
                     {
                         Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                        vide.Send(new byte[1] { 0 });
                         boucle = false;
+                        vide.Send(new byte[1] { 0 });
                     }
                 });
 
