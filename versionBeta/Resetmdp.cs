@@ -55,7 +55,7 @@ public bool ResetPassword(MySqlConnection conn,string email)
                 } else if (randInt == 2) {
                     password += (char)random.Next(48, 58); // numbers
                 } else {
-                    password += "!@#$%^&*"[random.Next(0, 9)]; // special characters
+                    password += "!@#$%^&*"[random.Next(0, 8)]; // special characters
                 }
             }
         }
