@@ -7605,6 +7605,7 @@ MonoBehaviour:
   image_carte: {fileID: 1382151521}
   right_button: {fileID: 1587421622}
   left_button: {fileID: 1280778111}
+  button_ready: {fileID: 0}
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
   cardContainer: {fileID: 478001514}
@@ -16573,6 +16574,7 @@ MonoBehaviour:
   componentAddWait: {fileID: 3465570873429784371, guid: c7b4bb1a5c897c246b93b98101af7630, type: 3}
   componentRequest: {fileID: 2237941835360150366, guid: c2b4b79c90837d741ac4be903ae497c9, type: 3}
   componentFriend: {fileID: 3622561982937576409, guid: f2b416b80c4acef43b00be35b54919e5, type: 3}
+  componentNo: {fileID: 8831091367290923777, guid: 3c7de8377d220ed4290f015ebafb3b4e, type: 3}
   listFriend: []
   listAdd: []
   listRequest: []
@@ -33789,7 +33791,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 960, y: 137.14}
+  m_AnchoredPosition: {x: 960, y: 137.14001}
   m_SizeDelta: {x: 280.67, y: 124.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1967423922

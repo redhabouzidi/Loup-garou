@@ -25,7 +25,7 @@ public class GameManagerApp : MonoBehaviour
 
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
-    public GameObject componentAddWait, componentRequest, componentFriend;
+    public GameObject componentAddWait, componentRequest, componentFriend, componentNo;
     public List<GameObject> listFriend, listAdd, listRequest, listWait;
     public static int scene;
 
@@ -316,6 +316,15 @@ public class GameManagerApp : MonoBehaviour
         textName.text = name;
 
         listRequest.Add(newFriend);
+    }
+
+    public void addNoFriend (string msg, GameObject container, List<GameObject> list){
+        GameObject newObject = Instantiate(componentNo, container.transform);
+
+        TextMeshProUGUI textName = newObject.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+        textName.text = msg;
+        
+        list.Add(newObject);
     }
 
     public void ClearListGameObject(List<GameObject> list){
