@@ -11,84 +11,81 @@ public class Client
         TcpClient client = new TcpClient("127.0.0.1", 8080);
         NetworkStream stream = client.GetStream();
 
-        // Recevoir la longueur du certificat
-        byte[] lengthBytes = new byte[4];
-        stream.Read(lengthBytes, 0, 4);
-        int length = BitConverter.ToInt32(lengthBytes, 0);
-
-        // Recevoir le certificat
-        byte[] certBytes = new byte[length];
-        stream.Read(certBytes, 0, length);
-        X509Certificate2 cert = new X509Certificate2(certBytes);
-        var publicKey = (RSA)cert.PublicKey.Key;
+        var publicKey = RecvCertificate(stream);
 
         // Afficher les détails du certificat
         Console.WriteLine("Certificat reçu depuis le serveur ");
-        // Console.WriteLine(cert.ToString(true));
-        // byte[] dataToEncrypt=Encoding.ASCII.GetBytes(test);
-        // byte[] encryptedData=publicKey.Encrypt(dataToEncrypt, RSAEncryptionPadding.OaepSHA1);
 
-        // stream.Write(encryptedData,0,encryptedData.Length);
-        // Console.WriteLine("message sent : {0} est sa taille est de {1}",Encoding.ASCII.GetString(encryptedData),encryptedData.Length);
-
-        Aes aes = Aes.Create();
-        aes.GenerateKey();
-        aes.GenerateIV();
-        aes.Mode = CipherMode.CBC;
-        byte[] encryptedData = publicKey.Encrypt(aes.Key, RSAEncryptionPadding.OaepSHA512);
-
-        stream.Write(encryptedData, 0, encryptedData.Length);
-
+        Aes aes = SendAes(stream, publicKey);
+        
         Console.WriteLine("AES key sent");
 
+        
         String test = "je suis un test";
         byte[] dataToEncrypt = Encoding.ASCII.GetBytes(test);
-        var encryptor = aes.CreateEncryptor();
-        // byte[] encryptedBytes;
-        // using (var encryptor = aes.CreateEncryptor())
-        // using (var ms = new MemoryStream())
-        // using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-        // {
-        //     // Écrire le vecteur d'initialisation dans le flux de sortie
-        //     ms.Write(aes.IV, 0, aes.IV.Length);
 
-        //     // Chiffrer les données dans le flux de chiffrement
-        //     cs.Write(dataToEncrypt, 0, dataToEncrypt.Length);
-        //     cs.FlushFinalBlock();
-
-        //     // Lire les données chiffrées depuis le flux de sortie
-        //     encryptedBytes = ms.ToArray();
-        // }
-
-        // // Convertir les données chiffrées en base 64 pour l'envoi
-        // // string encryptedMessageBase64 = Convert.ToBase64String(encryptedBytes);
-
-        // byte[] data = new byte[encryptedBytes.Length+ aes.IV.Length];
-
-        // int index=ajoutIv(data,aes.IV);
-        // ajoutMessage(data,encryptedBytes,index);
-
-        byte[] data = encryptor.TransformFinalBlock(dataToEncrypt, 0, dataToEncrypt.Length);
-        byte[] combinedData = new byte[aes.IV.Length + data.Length];
-        Array.Copy(aes.IV, 0, combinedData, 0, aes.IV.Length);
-        Array.Copy(data, 0, combinedData, aes.IV.Length, data.Length);
-        stream.Write(combinedData, 0, combinedData.Length);
+        byte[] data = EncryptMessage(Encoding.ASCII.GetBytes(test),aes);
+        stream.Write(data, 0, data.Length);
 
 
-        Console.WriteLine("crypted messsage sent {0}", combinedData.Length);
+        Console.WriteLine("crypted messsage sent {0} : {1}", data.Length,Encoding.ASCII.GetString(data,0,data.Length));
+        byte[] text=new byte[1024];
+        int read=stream.Read(text,0,1024);
+
+        Console.WriteLine("le message est : {0}",Encoding.ASCII.GetString(DecryptMessage(text,aes,read)));
         // Fermer la connexion avec le serveur
         stream.Close();
         client.Close();
     }
-
-    public static int ajoutIv(byte[] message, byte[] iv)
+    public static Aes SendAes(NetworkStream server, RSA publicKey)
     {
-        Array.Copy(iv, 0, message, 0, iv.Length);
-        return iv.Length;
+        Aes aes = Aes.Create();
+        aes.GenerateKey();
+        byte[] encryptedKey = publicKey.Encrypt(aes.Key, RSAEncryptionPadding.OaepSHA512);
+        server.Write(encryptedKey, 0, encryptedKey.Length);
+        return aes;
     }
 
-    public static void ajoutMessage(byte[] result, byte[] message, int index)
+    public static RSA RecvCertificate(NetworkStream server)
     {
-        Array.Copy(message, 0, result, index, message.Length);
+        // Recevoir la longueur du certificat
+        byte[] lengthBytes = new byte[4];
+        server.Read(lengthBytes, 0, 4);
+        int length = BitConverter.ToInt32(lengthBytes, 0);
+
+        // Recevoir le certificat
+        byte[] certBytes = new byte[length];
+        server.Read(certBytes, 0, length);
+        X509Certificate2 cert = new X509Certificate2(certBytes);
+        RSA publicKey = (RSA)cert.PublicKey.Key;
+
+        return publicKey;
+    }
+
+    public static byte[] EncryptMessage(byte[] message,Aes aes)
+    {
+        aes.GenerateIV();
+        aes.Mode = CipherMode.CBC;
+        var encryptor = aes.CreateEncryptor();
+        byte[] data = encryptor.TransformFinalBlock(message, 0, message.Length);
+        byte[] combinedData = new byte[aes.IV.Length + data.Length];
+        Array.Copy(aes.IV, 0, combinedData, 0, aes.IV.Length);
+        Array.Copy(data, 0, combinedData, aes.IV.Length, data.Length);
+
+        return combinedData;
+    }
+
+    public static byte[] DecryptMessage(byte[] message, Aes aes, int tabSize)
+    {
+        aes.Mode = CipherMode.CBC;
+        byte[] encryptedData = new byte[tabSize-aes.IV.Length];
+        byte[] iv=new byte[aes.IV.Length];
+        Array.Copy(message,0,iv,0,aes.IV.Length);
+        Array.Copy(message, aes.IV.Length, encryptedData, 0, tabSize-aes.IV.Length);
+        aes.IV=iv;
+        ICryptoTransform decryptor = aes.CreateDecryptor();
+        // Decrypt data
+        byte[] decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
+        return decryptedBytes;
     }
 }
