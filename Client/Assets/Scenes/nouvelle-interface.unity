@@ -6248,8 +6248,8 @@ MonoBehaviour:
   toggleWitch: {fileID: 877969100}
   toggleCupidon: {fileID: 1999037576}
   toggleHunter: {fileID: 1409769478}
-  togglePrivate: {fileID: 527718506}
-  codeParty: {fileID: 1888727068}
+  toggleGuardian: {fileID: 0}
+  toggleDictator: {fileID: 0}
   buttonCreate: {fileID: 1606299204}
 --- !u!4 &502661695
 Transform:
