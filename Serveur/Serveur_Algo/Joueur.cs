@@ -27,9 +27,9 @@ public class Joueur
         ready = false;
     }
 
-    public void FaireAction(List<Joueur> ListJoueurs)
+    public string FaireAction(List<Joueur> ListJoueurs)
     {
-        role.Action(ListJoueurs);
+        return role.Action(ListJoueurs);
     }
 
     public void TuerJoueur(List<Joueur> ListJoueurs)

@@ -9,6 +9,7 @@ public class Sorciere : Role
     private int potionKill;
     private int idJoueurVise;
     private new const int IdRole = 5;
+    private string recit;
 
     public Sorciere()
     {
@@ -18,11 +19,9 @@ public class Sorciere : Role
         potionKill = 1;
     }
 
-    public override void Action(List<Joueur> listJoueurs)
-    {
-        
-
-        // écrire l'action de la sorciere
+    public override string Action(List<Joueur> listJoueurs)
+    { // écrire l'action de la sorciere
+        string retour;
         Console.WriteLine("Appel à la sorcière !");
         Joueur? joueurSorciere = null;
 
@@ -36,17 +35,28 @@ public class Sorciere : Role
             }
         }
 
-        bool potionUse = false;
+        bool potionHealUse = false, potionKillUse = false;
         idJoueurVise = -1;
         if (potionSoin != 0)
         {
-            potionUse = PotionVie(listJoueurs, joueurSorciere);
+            potionHealUse = PotionVie(listJoueurs, joueurSorciere);
         }
 
-        if (potionKill != 0 && !potionUse)
+        if (potionKill != 0 && !potionHealUse)
         {
-            PotionMort(listJoueurs, joueurSorciere);
+            potionKillUse = PotionMort(listJoueurs, joueurSorciere);
         }
+
+        if (potionHealUse || potionKillUse)
+        {
+            retour = recit;
+            recit = "";
+        }
+        else
+        {
+            retour = joueurSorciere.GetPseudo() + ", une sorcière qui passait dans le village reste spectatrice sans intervenir… ";
+        }
+        return retour;
     }
 
     public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere)
@@ -57,7 +67,7 @@ public class Sorciere : Role
         {
             if (listJoueurs[i].GetDoitMourir())
             {
-		Console.WriteLine("Le joueur suivant doit mourir : " + listJoueurs[i].GetPseudo());
+		        Console.WriteLine("Le joueur suivant doit mourir : " + listJoueurs[i].GetPseudo());
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
@@ -110,14 +120,16 @@ public class Sorciere : Role
             {
                 potionSoin--;
                 retour = true;
+                recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de sauver la victime en lui administrant un puissant remède. ";
             }
         }
 
         return retour;
     }
 
-    public void PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
+    public bool PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
     {
+        bool retour = false;
         sendTurn(listJoueurs, GetIdRole());
         bool boucle = true;
         bool wantToKill = false;
@@ -127,10 +139,7 @@ public class Sorciere : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-            sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
-        
-        
-        
+        sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 375);
@@ -166,9 +175,7 @@ public class Sorciere : Role
             bool boucleKill = true;
             bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
             Joueur? cible = null;
-                sendTime(listJoueurs, GetDelaiAlarme()/2);
-            
-
+            sendTime(listJoueurs, GetDelaiAlarme()/2);
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
@@ -180,8 +187,6 @@ public class Sorciere : Role
                     vide.Send(new byte[1] { 0 });
                 }
             });
-
-
             while (boucleKill)
             {
                 (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
@@ -220,10 +225,12 @@ public class Sorciere : Role
             if (cible != null && cible.GetDoitMourir())
             {   
                 potionKill -= 1;
+                retour = true;
+                recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de se venger en empoisonnant l’eau de la maison de " + cible.GetPseudo() + ". ";
             }
         }
 
-        
+        return retour;
     }
 
     public override int GetIdRole()

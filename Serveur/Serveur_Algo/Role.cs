@@ -15,7 +15,7 @@ public abstract class Role
         return name;
     }
 
-    public abstract void Action(List<Joueur> listJoueurs);
+    public abstract string Action(List<Joueur> listJoueurs);
 
 
     public (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)

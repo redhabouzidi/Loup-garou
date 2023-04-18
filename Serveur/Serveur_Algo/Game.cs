@@ -12,7 +12,7 @@ public class Game
     private int _nbrJoueursManquants,gameId;
     private bool _start;
     public int _nbrJoueurs;
-    public string name;
+    public string name, recit;
     private int _nbLoups;
     private bool sorciere, voyante, cupidon;
     public static Socket listener = Server.server.setupSocketGame();
@@ -162,8 +162,6 @@ public class Game
         if (temp != null)
         {
             _nbrJoueursManquants++;
-            
-
         }
         
     }
@@ -212,7 +210,7 @@ public class Game
             {
                 _joueurs[i].GetRole().gameListener = reveille;
 
-                _joueurs[i].FaireAction(_joueurs);
+                ConcatRecit(_joueurs[i].FaireAction(_joueurs));
                 break;
             }
         }
@@ -253,6 +251,7 @@ public class Game
 
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
+            ConcatRecit("Le soleil se couche sur le village de " + name + ". ");
             day = !day;
             // appeller Voyante si il y en a un
             LanceAction(typeof(Voyante));
@@ -269,6 +268,7 @@ public class Game
             }
             // broadcast du serveur : c'est la journée
             sendGameState(day);
+            ConcatRecit("\n\nLe soleil se lève enfin sur le village de " + name + ". ");
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
@@ -291,12 +291,17 @@ public class Game
                 firstDay = false;
                 // election du maire
                 ElectionMaire(VoteToutLeMonde(_joueurs, 255), _joueurs);
+                Joueur? maire = null;
+                foreach (var j in _joueurs)
+                {
+                    if (j.GetEstMaire())
+                    {
+                        maire = j;
+                    }
+                }
+                ConcatRecit("Après un long débat rempli de rebondissements le village décide de nommer " + maire.GetPseudo() + " maire pour rétablir la paix dans " + name + ". ");
             }
-
             
-
-            
-
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
 
             GestionMorts(_joueurs);
@@ -306,6 +311,8 @@ public class Game
             {
                 break;
             }
+            
+            ConcatRecit("\n\n");
             
             // enlève à tout le monde l'immunité accordé par le Garde
             RemoveSaveStatus();
@@ -362,11 +369,12 @@ public class Game
                         }
                         Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
                         player.SetEstMaire(true);
-
+                        ConcatRecit("Alors qu’il s’apprêtait à mourir, le maire demanda au village d’écouter ses dernières paroles. Il décide de nommer " + player.GetPseudo() + " comme son successeur à la tête du village… ");
                         // on enlève le statut de maire à l'ancien maire
                         _joueurs[i].SetEstMaire(false);
                     }
                     _joueurs[i].TuerJoueur(listJoueurs);
+                    ConcatRecit("Une victime est allongée au centre du village. Il s’agit de " + _joueurs[i].GetPseudo() + " qui s’avérait être " + _joueurs[i].GetRole() + " à ses temps perdus. ");
                 }
             }
         }
@@ -570,6 +578,11 @@ public class Game
             if (playerVictime != null)
             {
                 playerVictime.SetDoitMourir(true);
+                ConcatRecit("Les habitants du village débâtent et décide de pointer " + playerVictime.GetPseudo() + " comme responsable des catastrophes du village... Ils décident de le tuer sur la place publique. ");
+            }
+            else
+            {
+                ConcatRecit("Les habitants du village débâtent mais n’arrivent pas à trouver de solution au problème... Ils décident de rentrer calmement chez eux. ");
             }
         }
     }
@@ -725,97 +738,29 @@ public class Game
     
     public bool checkRoles()
     {
-        int[,] myArrayRoleMax = new int[,] { { 1, 3, 1, 0, 0, 0, 0, 0 }, { 1, 4, 1, 1, 1, 0, 0, 0 }, { 2, 4, 1, 1, 1, 1, 0, 0 }, { 2, 5, 1, 2, 2, 1, 2, 2 }, { 2, 6, 1, 3, 3, 1, 3, 3 }, { 3, 6, 1, 1, 1, 1, 1, 1 }, { 3, 7, 1, 1, 1, 1, 1, 1 }, { 3, 8, 1, 1, 1, 1, 1, 1 }, { 4, 8, 1, 1, 1, 1, 1, 1 } };
-        int[] myArrayVillageoisMin = new int[] { 2, 2, 1, 1, 1, 0, 1, 2, 2 };
-        int nb_villageois = 0;
-        int index = _nbrJoueursManquants - 4;
+        int nb_villageois = 0, nb_loups = 0, nb_total;
         bool retour = true;
         if (_roles.Count == _nbrJoueursManquants && _nbrJoueursManquants > 3 && _nbrJoueursManquants < 13)
         {
             foreach (var r in _roles)
             {
-                if (r is Loup && myArrayRoleMax[index, 0] > 0)
+                if (r is Loup)
                 {
-                    myArrayRoleMax[index, 0] -= 1;
-                }
-                else if (r is Villageois && myArrayRoleMax[index, 1] > 0)
-                {
-                    myArrayRoleMax[index, 1] -= 1;
-                    nb_villageois++;
-                }
-                else if (r is Voyante && myArrayRoleMax[index, 2] > 0)
-                {
-                    myArrayRoleMax[index, 2] -= 1;
-                }
-                else if (r is Chasseur && myArrayRoleMax[index, 3] > 0)
-                {
-                    if (_nbrJoueursManquants == 5 || _nbrJoueursManquants == 6)
-                    {
-                        myArrayRoleMax[index, 4] -= 1;
-                    }
-                    else if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
-                    {
-                        myArrayRoleMax[index, 4] -= 1;
-                        myArrayRoleMax[index, 6] -= 1;
-                        myArrayRoleMax[index, 7] -= 1;
-                    }
-                    myArrayRoleMax[index, 3] -= 1;
-                }
-                else if (r is Sorciere && myArrayRoleMax[index, 4] > 0)
-                {
-                    if (_nbrJoueursManquants == 5 || _nbrJoueursManquants == 6)
-                    {
-                        myArrayRoleMax[index, 3] -= 1;
-                    }
-                    else if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
-                    {
-                        myArrayRoleMax[index, 3] -= 1;
-                        myArrayRoleMax[index, 6] -= 1;
-                        myArrayRoleMax[index, 7] -= 1;
-                    }
-                    myArrayRoleMax[index, 4] -= 1;
-                }
-                else if (r is Cupidon && myArrayRoleMax[index, 5] > 0)
-                {
-                    myArrayRoleMax[index, 5] -= 1;
-                }
-                else if (r is Dictateur && myArrayRoleMax[index, 6] > 0)
-                {
-                    if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
-                    {
-                        myArrayRoleMax[index, 3] -= 1;
-                        myArrayRoleMax[index, 4] -= 1;
-                        myArrayRoleMax[index, 7] -= 1;
-                    }
-                    myArrayRoleMax[index, 6] -= 1;
-                }
-                else if (r is Garde && myArrayRoleMax[index, 7] > 0)
-                {
-                    if (_nbrJoueursManquants == 7 || _nbrJoueursManquants == 8)
-                    {
-                        myArrayRoleMax[index, 3] -= 1;
-                        myArrayRoleMax[index, 4] -= 1;
-                        myArrayRoleMax[index, 6] -= 1;
-                    }
-                    myArrayRoleMax[index, 7] -= 1;
+                    nb_loups++;
                 }
                 else
                 {
-                    retour = false;
-                    break;
+                    nb_villageois++;
                 }
-            }
-
-            if (myArrayRoleMax[index, 0] != 0)
-            {
-                retour = false;
             }
         }
         else{
-            return false;
+            retour = false;
         }
 
-        if (myArrayVillageoisMin[index] > nb_villageois && index != 5)
+        nb_total = nb_loups + nb_villageois;
+        
+        if (nb_loups > (nb_total / 2) || nb_loups == 0)
         {
             retour = false;
         }
@@ -957,6 +902,11 @@ public class Game
     public void SetGameId(int id)
     {
         gameId = id;
+    }
+
+    public void ConcatRecit(string s)
+    {
+        recit = recit + s;
     }
 }
 

@@ -11,8 +11,9 @@ public Loup()
     description = "blabla";
 }
 
-public override void Action(List<Joueur> listJoueurs)
+public override string Action(List<Joueur> listJoueurs)
 { // écrire l'action du loup
+    string retour;
     sendTurn(listJoueurs,GetIdRole());
     bool boucle = true;
 
@@ -27,6 +28,32 @@ public override void Action(List<Joueur> listJoueurs)
         }
     }
 
+    retour = "Alors que les habitants du village dorment sur leurs deux oreilles, un hurlement venait de retentir. ";
+    Joueur? l = null;
+    if (votant.Count == 1)
+    {
+        l = listJoueurs.Find(j => j.GetId() == votant[0]);
+        retour = retour + l.GetPseudo() + " un loup vient d’entrer dans le village... ";
+    }
+    else
+    {
+        for (int i = 0; i < votant.Count; i++)
+        {
+            l = listJoueurs.Find(j => j.GetId() == votant[i]);
+            if (i == votant.Count - 1)
+            {
+                retour = retour + l.GetPseudo();
+            }
+            else
+            {
+                retour = retour + l.GetPseudo() + ", ";
+            }
+        }
+        retour = retour + " des loups venaient d’entrer dans le village... ";
+    }
+    
+    
+
     // on définit une "alarme" qui modifie la valeur du boolean
     Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     reveille.Connect(Game.listener.LocalEndPoint);
@@ -38,7 +65,7 @@ public override void Action(List<Joueur> listJoueurs)
     {
         Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
         reduceTimer = true;
-	Console.WriteLine("Je viens de faire 15 secondes d'attente et je check si je relance 5 secondes ou si y'a déjà thread 2 d'envoyé");
+	    Console.WriteLine("Je viens de faire 15 secondes d'attente et je check si je relance 5 secondes ou si y'a déjà thread 2 d'envoyé");
         if (reduceTimer && !LaunchThread2)
         {
             Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
@@ -148,8 +175,14 @@ public override void Action(List<Joueur> listJoueurs)
 
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
         playerVictime.SetDoitMourir(true);
+        retour = retour + "Il semblerait qu’une victime ait été déchiqueté au centre du village, il s’agit bien de " + playerVictime.GetPseudo() + ".  ";
+    }
+    else
+    {
+        retour = retour + "Cependant, il semblerait que personne n’ait été blessé cette nuit, quelle chance ! ";
     }
 
+    return retour;
 }
 
 public override int GetIdRole()

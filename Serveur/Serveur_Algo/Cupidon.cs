@@ -12,8 +12,9 @@ public class Cupidon : Role
         description = "blabla";
     }
 
-    public override void Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs)
     {
+        string retour;
         sendTurn(listJoueurs, GetIdRole());
         // écrire l'action du Cupidon
         // choix des amoureux
@@ -37,13 +38,13 @@ public class Cupidon : Role
             }
         });
 
-        int? idJCupidon = null;
+        Joueur? JoueurCupidon = null;
 
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetRole() is Cupidon)
             {
-                idJCupidon = j.GetId();
+                JoueurCupidon = j;
             }
         }
 
@@ -56,7 +57,7 @@ public class Cupidon : Role
         while (boucle)
         {
             (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
-            if (v == idJCupidon)
+            if (v == JoueurCupidon.GetId())
             {
                 boolAmoureux = false;
                 amoureux = listJoueurs.Find(j => j.GetId() == c1);
@@ -85,8 +86,18 @@ public class Cupidon : Role
             amoureux.SetAmoureux(amoureux2);
             amoureux2.SetAmoureux(amoureux);
             Console.WriteLine(amoureux.GetId()+" amoureux "+amoureux2.GetId());
+            retour = JoueurCupidon.GetPseudo() +
+                     " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il décide de tirer les flèches sur " +
+                     amoureux.GetPseudo() + " et " + amoureux2.GetPseudo() +
+                     " qui tombèrent fou amoureux l’un de l’autre. ";
        	    server.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
        	}
+        else
+        {
+            retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il tente de tirer mais ses flèches tombent toutes les deux dans la rivière du village… ";
+        }
+
+        return retour;
     }
 
     public override int GetIdRole()

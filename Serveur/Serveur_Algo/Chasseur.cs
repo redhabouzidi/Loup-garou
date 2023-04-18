@@ -11,10 +11,10 @@ public class Chasseur : Role
         description = "blabla";
     }
     
-    public override void Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs)
     { // écrire l'action de la Voyante
+        string retour;
         sendTurn(listJoueurs, GetIdRole());
-
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -76,6 +76,17 @@ public class Chasseur : Role
                 }     
             }
         }
+
+        if (player != null)
+        {
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" était chargé à côté de son corps… dans son dernier souffle de vie il décide de tirer à bout portant sur " + player.GetPseudo() + ". ";
+        }
+        else
+        {
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " était chargé à côté de son corps… dans un élan de bonté il enleva le chargeur de son arme pour que personne ne se blesse avec… ";
+        }
+
+        return retour;
     }
 
     public override int GetIdRole() 

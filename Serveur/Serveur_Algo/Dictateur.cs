@@ -12,8 +12,9 @@ public class Dictateur : Role
         description = "blabla";
     }
 
-    public override void Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs)
     { // écrire l'action du loup
+        string retour = ""; 
         if (coupEtatRestant)
         {
             Joueur? joueurDictateur = null;
@@ -107,12 +108,13 @@ public class Dictateur : Role
                                 });
                             }
                         }
-                        
                     }
                 }
+                
 
                 if (victime != null)
                 {
+                    retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " décide de prendre les armes et de faire un coup d’état organisé. Après réflexion et pour montrer sa bonne foi il décide d’égorger " + victime.GetPseudo() + ". ";
                     victime.SetDoitMourir(true);
                     if (victime.GetRole() is Loup)
                     { 
@@ -124,15 +126,28 @@ public class Dictateur : Role
                             }
                         }
                         joueurDictateur.SetEstMaire(true);
+                        retour = retour + "Quel sauveur ! C’était un loup ! La foule acclama son nouveau dirigeant… ";
                     }
                     else
                     {
                         joueurDictateur.SetDoitMourir(true);
+                        retour = retour +
+                                 "Quel assassin ! Tuer un innocent de sang-froid, quelle honte ! La foule poignarda ce dictateur… ";
                     }
+                }
+                else
+                {
+                    retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " qui était pourtant décidé à prendre les armes pour renverser le pouvoir loupa son réveil et se rendormi... ";
                 }
                 
             }
+            else
+            {
+                retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " hésite à prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer à l’action il décide procrastiner à un autre jour… ";
+            }
         }
+
+        return retour;
     }
 
     public override int GetIdRole()
