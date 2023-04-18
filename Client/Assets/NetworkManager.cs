@@ -611,13 +611,7 @@ public class NetworkManager : MonoBehaviour
                     {
                         roles[i] = decode(message, size);
                     }
-                    if (win == 1)
-                    {
-                        gm.isVillageWin = 1;
-                    }else if(win == 2)
-                    {
-                        gm.isVillageWin = 0;
-                    }
+                    gm.isVillageWin = win;
                     gm.gameover = true;
                     
                     break;

@@ -2788,7 +2788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &151734976
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4429,7 +4429,7 @@ MonoBehaviour:
   inputPlayers: {fileID: 1560249689}
   inputLG: {fileID: 171830151}
   inputName: {fileID: 361953215}
-  textVillager: {fileID: 879115145}
+  textVillager: {fileID: 489170202}
   toggleSeer: {fileID: 685498675}
   toggleWitch: {fileID: 348291785}
   toggleCupidon: {fileID: 534421194}
@@ -7821,7 +7821,7 @@ MonoBehaviour:
   image_carte: {fileID: 1382151521}
   right_button: {fileID: 1587421622}
   left_button: {fileID: 1280778111}
-  button_ready: {fileID: 0}
+  button_ready: {fileID: 1967423922}
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
   cardContainer: {fileID: 478001514}
@@ -17047,7 +17047,7 @@ MonoBehaviour:
   componentAddWait: {fileID: 3465570873429784371, guid: c7b4bb1a5c897c246b93b98101af7630, type: 3}
   componentRequest: {fileID: 2237941835360150366, guid: c2b4b79c90837d741ac4be903ae497c9, type: 3}
   componentFriend: {fileID: 3622561982937576409, guid: f2b416b80c4acef43b00be35b54919e5, type: 3}
-  componentNo: {fileID: 8831091367290923777, guid: 3c7de8377d220ed4290f015ebafb3b4e, type: 3}
+  componentNo: {fileID: 0}
   listFriend: []
   listAdd: []
   listRequest: []

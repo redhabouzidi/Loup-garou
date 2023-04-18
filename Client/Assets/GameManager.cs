@@ -418,7 +418,7 @@ public class GameManager : MonoBehaviour
         listTextwin.Clear();
 
         switch(isVillageWin) {
-            case 0 : // Loup-garou
+            case 2 : // Loup-garou
                 groupWin.text = "Werewolves won";
                 groupWin.color = colorRed;
                 break;
@@ -428,7 +428,7 @@ public class GameManager : MonoBehaviour
                 groupWin.color = colorWhite;
                 break;
             
-            case 2 : // draw
+            case 4 : // draw
                 groupWin.text = "Draw";
                 groupWin.color = colorWhite;
                 break;
