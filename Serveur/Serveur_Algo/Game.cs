@@ -317,6 +317,7 @@ public class Game
             // enlève à tout le monde l'immunité accordé par le Garde
             RemoveSaveStatus();
         }
+	//PointShare();              Don't forget me please :) 
         EndGameInitializer();
         Console.WriteLine("La game est finie");
     }
@@ -880,6 +881,65 @@ public class Game
 
         }
     }
+
+    public void PointShare() {
+        int []id = new int[_nbrJoueurs];
+        int []score = new int[_nbrJoueurs];
+        int i = 0;
+        foreach(var joueur in _joueurs) 
+        {
+            id[i] = joueur.GetId();
+            if(Check_win() == 1) 
+	    {
+                if(joueur is not Loup) 
+		{
+                    if(joueur.GetEnVie()) 
+		    {
+                        score[i] = 10;
+                    }
+                    else 
+		    {
+                        score[i] = 5;
+                    }
+                }
+            }
+            else if(Check_win() == 2) 
+	    {
+                if(joueur is Loup) 
+		{
+                    if(joueur.GetEnVie()) 
+		    {
+                        score[i] = 10;
+                    }
+                    else 
+		    {
+                        score[i] = 5;
+                    }
+                }
+            }
+            else if(Check_win() == 3) 
+	    {
+                if(joueur.GetEnVie()) 
+		{
+                    score[i] = 10;
+                }
+            }
+            else if(Check_win() == 4) 
+	    {
+                if(joueur.GetEnVie()) 
+		{
+                    score[i] = 5;
+                }
+                else 
+		{
+                    score[i] = 2;
+                }
+            }
+            i++;
+        }
+        SendPoints(_joueurs,id,score);
+    }
+
 
     public List<Joueur> GetJoueurs()
     {
