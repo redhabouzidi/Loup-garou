@@ -22,18 +22,19 @@ public class GameManager : MonoBehaviour
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
+    private bool sestPresente = false, electionMaire = false;
     // timer pour le texte qui s'affiche a l'ecran
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
 
-    public Color colorRed, colorWhite, colorBlack, colorYellow, colorPink;
+    public Color colorRed, colorWhite, colorBlack, colorYellow, colorPink, colorBlue;
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
     public Sprite ChasseurSprite, DictateurSprite, GardeSprite;
 
 
-    public Button buttonValiderVote, buttonRole,buttonLeave,buttonPlayAgain;
+    public Button buttonValiderVote, buttonRole,buttonLeave,buttonPlayAgain,sePresenter;
     public GameObject GO_buttonAfficheCarte, GO_potion;
 
     // win screen
@@ -62,6 +63,8 @@ public class GameManager : MonoBehaviour
     // options page
     public Button buttonLeaveGame;
 
+    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -80,7 +83,7 @@ public class GameManager : MonoBehaviour
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
-
+        sePresenter.onClick.AddListener(OnButtonClickSePresenter);
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         foreach (WPlayer p in NetworkManager.players)
@@ -186,7 +189,7 @@ public class GameManager : MonoBehaviour
         }
         if (turn != 0)
         {
-                
+                electionMaire = false;
                 switch (turn)
             {
                 
@@ -217,7 +220,7 @@ public class GameManager : MonoBehaviour
                     break;
                 case 255:
                         affiche_tour_role("C'est le tour du maire", turn);
-                        SendMessageToChat("tour du maire ",Message.MsgType.system); 
+                        electionMaire = true;
                         break;
             }
                 foreach (Player p in listPlayer)
@@ -233,6 +236,11 @@ public class GameManager : MonoBehaviour
         Timer_text_screen();
         }
 
+    }
+    private void OnButtonClickSePresenter()
+    {
+        SendMessageToChat("" + p.GetPseudo() + " se présente en tant que Maire !", Message.MsgType.system);
+        sestPresente = true;
     }
     private void OnButtonClickLeaveGame()
     {
@@ -333,24 +341,31 @@ public class GameManager : MonoBehaviour
     }
     public void AfficherJour()
     {
-        
-        if (isNight == false)
+        if (electionMaire)
         {
-            choixAction.SetActive(false);
+            text_day.text = "Election du maire";
+            text_day.color = colorBlue;
+            player_role.text = "Depot des candidatures";
+            player_role.color = colorBlue;
+            if (!sestPresente) sePresenter.gameObject.SetActive(true);
+            else sePresenter.gameObject.SetActive(false);
+        }
+
+        else if (isNight == false)
+        {
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
             player_role.color = colorWhite;
+            player_role.text = p.GetRole();
+            sePresenter.gameObject.SetActive(false);
         }
         else
         {
             text_day.text = "Night " + tour;
             text_day.color = colorRed;
             player_role.color = colorRed;
-
-            // quand c'est au tour de la voyante
-            if(player_role.text == "Voyante"){
-                GO_buttonAfficheCarte.SetActive(true);
-            }
+            player_role.text = p.GetRole();
+            sePresenter.gameObject.SetActive(false);
         }
     }
 
