@@ -65,6 +65,7 @@ public bool ResetPassword(MySqlConnection conn,string email)
     public int changement_mdp(MySqlConnection conn,int id,string oldmdp,string new_mdp){
         string query="SELECT motdepasse FROM Utilisateurs WHERE idUsers=@ID";
         string mdp_joueur= conn.QueryFirstOrDefault<string>(query, new { ID= id});
+        if(mdp_joueur==null||mdp_joueur.Length==0)return -1;
         bool mdptrue=Resetmdp.Verifier_Mdp(oldmdp,mdp_joueur);
         if(mdptrue==false)return 1;
         string res=Inscription.Hash_Mdp(new_mdp);//Hash mot de passe
@@ -78,6 +79,30 @@ public bool ResetPassword(MySqlConnection conn,string email)
             command.CommandText="UPDATE Utilisateurs SET motdepasse=@MDP WHERE idUsers=@ID";
             command.Parameters.AddWithValue("@MDP",res);
             command.Parameters.AddWithValue("@ID",id);
+            int rowcount=command.ExecuteNonQuery();
+            //si aucune ligne est modifiée
+            if(rowcount==0)return 3;
+            //si succes
+            else return 0;
+        }
+    }
+    public int changement_mdp(MySqlConnection conn,string mail,string oldmdp,string new_mdp){
+        string query="SELECT motdepasse FROM Utilisateurs WHERE email=@EM";
+        string mdp_joueur= conn.QueryFirstOrDefault<string>(query, new {EM= mail});
+        if(mdp_joueur==null||mdp_joueur.Length==0)return -1;
+        bool mdptrue=Resetmdp.Verifier_Mdp(oldmdp,mdp_joueur);
+        if(mdptrue==false)return 1;
+        string res=Inscription.Hash_Mdp(new_mdp);//Hash mot de passe
+        if(res.Length==0||res==""){
+            Console.WriteLine("Couldnt hash the password");//si le chaine de caractere resultat res est vide || echec hash
+            return 2;
+        }
+        using(MySqlCommand command=new MySqlCommand()){
+            command.Connection=conn;
+            //la requete pour mettre à jour le nombre de partie joué
+            command.CommandText="UPDATE Utilisateurs SET motdepasse=@MDP WHERE email=@EM";
+            command.Parameters.AddWithValue("@MDP",res);
+            command.Parameters.AddWithValue("@EM",mail);
             int rowcount=command.ExecuteNonQuery();
             //si aucune ligne est modifiée
             if(rowcount==0)return 3;
@@ -107,7 +132,7 @@ public bool ResetPassword(MySqlConnection conn,string email)
             mailMessage.To.Add(email);
             mailMessage.From = new MailAddress("loupgarougameunistra67@gmail.com", "LoupGarouGame");
             mailMessage.Subject = "Password reset request";
-            mailMessage.Body = $"Hi!,Your new password is {newPassword}. Please use it to login and reset your password.";
+            mailMessage.Body = $"Bonjour! Votre nouveau mot de passe est {newPassword}. Veuillez l'utiliser pour vous connecter et réinitialiser votre mot de passe.";
             SmtpClient smtpClient = new SmtpClient("smtp-relay.sendinblue.com",587);
             smtpClient.Credentials = new System.Net.NetworkCredential("loupgarougameunistra67@gmail.com", "xsmtpsib-4b83fbe2ae299db5e4f3c591ac5771c10d111cec6ea74947a0d174731843a274-9BRbKGjVkIqUZ7yD");
             smtpClient.EnableSsl = true;
