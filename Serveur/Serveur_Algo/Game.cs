@@ -319,7 +319,7 @@ public class Game
         }
 	//PointShare();              Don't forget me please :) 
         EndGameInitializer();
-        Console.WriteLine("La game est finie");
+        Console.WriteLine(recit);
     }
 
     private void RemoveSaveStatus()
