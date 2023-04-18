@@ -12,6 +12,8 @@ public class CreateScreen : MonoBehaviour
     private List<Toggle> listToggle = new List<Toggle>();
     public Button buttonCreate;
 
+    private int nbPlayer, nbLG;
+
 
     // Start is called before the first frame update
     void Start()
@@ -28,21 +30,21 @@ public class CreateScreen : MonoBehaviour
     void Update()
     {
         // mise a jour des roles
-        int valueLG = int.Parse(inputLG.text);
-        int valuePlayer = int.Parse(inputPlayers.text);
+        nbLG = int.Parse(inputLG.text);
+        nbPlayer = int.Parse(inputPlayers.text);
 
         // impossible d'avoir plus de la moitie des joueurs loups
-        if(valueLG > valuePlayer/2){
-            valueLG = (int) valuePlayer/2;
-            inputLG.text = "" + valueLG;
+        if(nbLG > 1 && nbLG > nbPlayer/2){
+            nbLG = (int) nbPlayer/2;
+            inputLG.text = "" + nbLG;
         }
         // mise a jour du nombre de loup si le nombre de roles restant == 0
-        else if(valueLG > (valuePlayer-CountToggleOn())){
-            valueLG = (valuePlayer-CountToggleOn() > 0) ? valuePlayer-CountToggleOn() : 0;
-            inputLG.text = "" + valueLG;
+        else if(nbLG > 1 && nbLG > (nbPlayer-CountToggleOn())){
+            nbLG = nbPlayer-CountToggleOn();
+            inputLG.text = "" + nbLG;
         }
         // mise jour des toggle on s'il y a trop de roles par rapport au nb de joueur
-        for(int i = listToggle.Count-1; valuePlayer < (valueLG + CountToggleOn()); i--){
+        for(int i = listToggle.Count-1; i < 0 || nbPlayer < (nbLG + CountToggleOn()); i--){
             listToggle[i].isOn = false;
         }
 
@@ -61,7 +63,7 @@ public class CreateScreen : MonoBehaviour
     }
 
     public int GetNbPlayerRest(){
-        return int.Parse(inputPlayers.text) - (int.Parse(inputLG.text) + CountToggleOn());
+        return nbPlayer - (nbLG + CountToggleOn());
     }
 
     private void AddToggleInList(){

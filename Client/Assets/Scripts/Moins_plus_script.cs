@@ -18,8 +18,8 @@ public class Moins_plus_script : MonoBehaviour
 
     void Update() {
         int valeur= int.Parse(input.text);
-        if (valeur < 0){
-            input.text = "" + 0;
+        if (valeur < 1){
+            input.text = "" + 1;
         }
         else if (valeur > 12){
             input.text = "" + 12;
@@ -29,7 +29,7 @@ public class Moins_plus_script : MonoBehaviour
     private void OnButtonClickMoins(){
         int valeur= int.Parse(input.text);
         //on verife si la valeur est egal ou inferieur a 0
-        if (valeur > 0)
+        if (valeur > 1)
             input.text = "" + (valeur-1);
 
     }

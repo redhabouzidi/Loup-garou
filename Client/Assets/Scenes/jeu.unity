@@ -2133,7 +2133,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0.000098677905, y: 0.000030517578}
-  m_SizeDelta: {x: 0, y: 10}
+  m_SizeDelta: {x: 0, y: 155}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &114977175
 MonoBehaviour:
@@ -2731,7 +2731,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0.000098677905, y: 0.000030517578}
-  m_SizeDelta: {x: 0, y: 10}
+  m_SizeDelta: {x: 0, y: 155}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &150864241
 MonoBehaviour:
@@ -4429,7 +4429,7 @@ MonoBehaviour:
   inputPlayers: {fileID: 1560249689}
   inputLG: {fileID: 171830151}
   inputName: {fileID: 361953215}
-  textVillager: {fileID: 489170202}
+  textVillager: {fileID: 879115145}
   toggleSeer: {fileID: 685498675}
   toggleWitch: {fileID: 348291785}
   toggleCupidon: {fileID: 534421194}
@@ -19831,7 +19831,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0.000098677905, y: 0.000030517578}
-  m_SizeDelta: {x: 0, y: 10}
+  m_SizeDelta: {x: 0, y: 155}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1081429496
 MonoBehaviour:
