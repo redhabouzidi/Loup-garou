@@ -178,7 +178,6 @@ body{
     display: none;
   }
 
-
   #menu-button{
     display: initial;
     cursor: pointer;
@@ -202,8 +201,20 @@ body{
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     padding: 12px 16px;
-    background-color: #2b1321d3;
+    margin: 3px 10px 0 0;
+    background-color: #2b1321e3;
     border-radius: 10px;
+  }
+
+  #menu li{
+    text-align: center;
+  }
+
+  #play-now{
+    margin-left: 0;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    line-height: 60px;
   }
 }
 
@@ -231,7 +242,7 @@ body{
 /* ====================== */
 
 #roles {
-  height: 100vh;
+  height: 75vh;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -385,5 +396,66 @@ body{
   float: right;
 }
 
+#APropos{
+  margin-top: 3%;
+  height: 18vh;
+  color: #fee19e;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.85em;
+}
 
+.footer-container {
+  margin: 0 auto 0 auto;
+  text-align: center;
+}
 
+.footer-container ul {
+  list-style-type: none;
+  padding-bottom: 20px;
+  margin: 10px 0 0 0;
+}
+
+.footer-container li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+#download {
+  color: #fee19e;
+  text-align: center;
+  text-decoration: red;
+}
+
+#IconContainer {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-align: center;
+}
+
+.downloadBtnTest a{
+  text-decoration: none;
+}
+
+.downloadBtnTest a h2 {
+  color: black;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+#IconContainer img, .downloadBtnTest a h2 {
+  transition: transform 0.3s ease;
+}
+
+.downloadBtnTest a h2:hover {
+  transform: scale(1.05);
+  background-color: #fee19e;
+}
+
+#IconContainer img:hover{
+  transform: scale(1.05);
+}

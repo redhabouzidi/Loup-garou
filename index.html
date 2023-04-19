@@ -20,9 +20,10 @@
       <ul id="menu">
         <li><a class="buttonNav" href="#">Accueil</a></li>
         <li><a class="buttonNav" href="#roles">Rôles</a></li>
-        <li><a class="buttonNav" href="#">Services</a></li>
-        <li><a class="buttonNav" href="#">Contact</a></li>
-        <li><a id="play-now" href="#">Télécharger</a></li>
+        <li><a id="play-now" href="#download">Télécharger</a></li>
+        <!--
+          <li><a id="play-now" href="text.zip" download>Télécharger</a></li>
+        -->
       </ul>
     </div>
   </div>
@@ -39,9 +40,9 @@
     <div>
       <h4>Disponible sur :</h4>
       <ul id="os-icons">
-        <li><img src="windows-icon.png" alt="Windows"></li>
-        <li><img src="linux-icon.png" alt="Linux"></li>
-        <li><img src="android-icon.png" alt="Android"></li>
+        <li><a href="windows.zip" download><img src="windows-icon.png" alt="Windows"></a></li>
+        <li><a href="linux.zip" download><img src="linux-icon.png" alt="Linux"></a></li>
+        <li><a href="android.apk" download><img src="android-icon.png" alt="Android"></a></li>
       </ul>
     </div>
     <div>
@@ -63,10 +64,10 @@
           </div>
           <div class="description descriptionActive">
             <h4>Les Villageois doivent gagner avec le village</h4>
-            <p>Il n’a aucune compétence particulière. Ses seules armes sont la
-              capacité d’analyse des comportements pour identifier
+            <p>Il n'a aucune compétence particulière. Ses seules armes sont la
+              capacité d'analyse des comportements pour identifier
               les Loups-Garous, et la force de conviction pour
-              empêcher l’exécution de l’innocent qu’il est.</p>
+              empêcher l'exécution de l'innocent qu'il est.</p>
           </div>
           <h3>Loup-Garou</h3>
           <div class=" item next">
@@ -90,16 +91,40 @@
             <p>Elle sait concocter 2 potions extrêmement
               puissantes : Une potion de Guérison,
               pour ressusciter le joueur dévoré par les
-              Loups-Garous Une potion d’Empoisonnement,
+              Loups-Garous Une potion d'Empoisonnement,
               utilisé la nuit pour éliminer un joueur. La
               Sorcière doit utiliser chaque potion une seul fois
-              dans la partie. Elle ne peut pas se servir de ses deux
-              potions la même nuit. Le matin, suivant la
-              potion utilisée, il pourra y avoir deux joueurs
-              éliminés ou aucun ! La Sorcière peut également
+              dans la partie et elle ne peut pas se servir de ses deux
+              potions la même nuit. La Sorcière peut également
               utiliser la potion de guérison à son profit, et donc
-              se guérir elle-même si elle vient d’être dévorée par
+              se guérir elle-même si elle vient d'être dévorée par
               les Loups-Garous.</p>       
+          </div>
+          <h3>Garde</h3>
+          <div class="item">
+            <img src="garde.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Garde aide le village à vaincre les Loups-Garous</h4>
+            <p>Chaque nuit, il peut protéger un joueur différent contre une attaque des Loups-Garous. Il peut bien sûr assurer sa propre protection.. Le Garde doit aider les autres
+              Villageois et doit rester discret pour ne pas être
+              démasqué par les Loups-Garous.</p>       
+          </div>
+          <h3>Chasseur</h3>
+          <div class="item">
+            <img src="chasseur.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Chasseur aide le village à vaincre les Loups-Garous</h4>
+            <p>Lorsque le Chasseur meurt il a le pouvoir de tirer une dernière balle de son fusil afin d'amener un autre joueur avec lui dans sa tombe.</p>       
+          </div>
+          <h3>Dictateur</h3>
+          <div class="item">
+            <img src="dictateur.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Dictateur aide le village à vaincre les Loups-Garous</h4>
+            <p>Il peut s'emparer du pouvoir de vote du village une fois dans la partie. S'il exécute un Loup-Garou, il devient Maire, sinon, il meurt.</p>       
           </div>
           <h3>Voyante</h3>
           <div class="item">
@@ -108,7 +133,7 @@
           <div class="description descriptionCache">
             <h4>La Voyante aide le village à vaincre les Loups-Garous</h4>
             <p>Chaque nuit, elle voit la carte
-              d’un joueur de son choix. Elle doit aider les autres
+              d'un joueur de son choix. Elle doit aider les autres
               Villageois, mais rester discrète pour ne pas être
               démasquée par les Loups-Garous.</p>
           </div>
@@ -121,9 +146,9 @@
             <p>En décrochant ses célèbres flèches
               magiques, Cupidon a le pouvoir de rendre 2
               personnes amoureuses à jamais. La première nuit, il
-              désigne les 2 joueurs amoureux. Cupidon peut, s’il
-              le veut se désigner comme l’un des deux Amoureux.
-               Si l’un des Amoureux est éliminé, l’autre
+              désigne les 2 joueurs amoureux. Cupidon peut, s'il
+              le veut se désigner comme l'un des deux Amoureux.
+               Si l'un des Amoureux est éliminé, l'autre
               meurt de chagrin immédiatement. Un Amoureux
               ne doit jamais éliminer son aimé, ni lui porter aucun préjudice.</p>
           </div>
@@ -136,8 +161,58 @@
     </div>
   </div>
 
-  <div id="services">
+  <div id="download">
+    <h1>
+      Télécharger le jeu sur les différentes platformes !
+    </h1>
+    <div id="IconContainer">
 
+      <div class="downloadBtnTest">
+        <a href="windows.zip" download>
+          <h2>
+            Windows
+          </h2>
+          <img src="windows-icon.png" alt="Windows" width="100" height="100">
+        </a>
+      </div>
+  
+      <div class="downloadBtnTest">
+        <a href="linux.zip" download>
+          <h2>
+            Linux
+          </h2>
+          <img src="linux-icon.png" alt="Linux" width="100" height="100">
+        </a>
+      </div>
+  
+      <div class="downloadBtnTest">
+        <a href="android.apk" download>
+          <h2>
+            Android
+          </h2>
+          <img src="android-icon.png" alt="Android" width="100" height="100">
+        </a>
+      </div>
+      
+    </div>
+  </div>
+
+  <div id="APropos">
+    <div class="footer-container">
+      <p>Ce travail a été réalisé dans le cadre d'un projet scolaire de troisième année de licence informatique à l'UFR de mathématiques et d'informatique de Strasbourg par :</p>
+      <ul>
+        <li>Jennifer</li>
+        <li>Houssam</li>
+        <li>Kévin</li>
+        <li>Achraf</li>
+        <li>Redha</li>
+        <li>Sidy</li>
+        <li>Mohammed</li>
+        <li>Cenk</li>
+        <li>Wassim</li>
+      </ul>
+      <p>© Tous les travaux nous appartiennent et sont protégés par des droits d'auteur. ©</p>
+    </div>
   </div>
 
   <script src="script.js"></script>
