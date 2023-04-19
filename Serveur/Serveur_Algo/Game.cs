@@ -891,7 +891,7 @@ public class Game
             id[i] = joueur.GetId();
             if(check == 1) 
 	    {
-                if(joueur is not Loup) 
+                if(joueur.GetRole() is not Loup) 
 		{
                     if(joueur.GetEnVie()) 
 		    {
@@ -905,7 +905,7 @@ public class Game
             }
             else if(check == 2) 
 	    {
-                if(joueur is Loup) 
+                if(joueur.GetRole() is Loup) 
 		{
                     if(joueur.GetEnVie()) 
 		    {
