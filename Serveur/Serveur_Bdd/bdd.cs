@@ -104,6 +104,12 @@ public class bdd
                     case 155:
                         reponseAmi(bdd, message);
                         break;
+                    case 156:
+                        ResetPasswdReq(bdd,message);
+                        break;
+                    case 157:
+                        ResetPassw(bdd,message);
+                        break;
 
                 }
             }
@@ -320,6 +326,49 @@ public class bdd
         }
         return bdd.Send(message);
 
+    }
+
+    public static void ResetPasswdReq(Socket bdd,byte [] message)
+    {
+        int [] size=new int[1]{1};
+        int queueId=decodeInt(message,size);
+        string email=decodeString(message,size);
+        size[0]=1;
+        bool answer =dataBase.Resetmdp.ResetPassword(conn,email);
+        EmailSent(bdd,queueId,answer);
+    }
+    public static int EmailSent(Socket bdd, int queueId ,bool answer)
+    {
+        int messageSize=1+sizeof(bool)+sizeof(int);
+        byte[] msg=new byte[messageSize];
+        int[] index=new int[1]{1};
+        msg[0]=156;
+        encode(msg,queueId,index);
+        encode(msg,answer,index);
+        return bdd.Send(msg);
+
+    }
+
+    public static void ResetPassw(Socket bdd,byte [] message)
+    {
+        int [] size=new int[1]{1};
+        int queue=decodeInt(message,size);
+        string email = decodeString(message,size);
+        string oldpass=decodeString(message,size);
+        string newpass=decodeString(message,size);
+        byte [] msg=new byte[1+sizeof(bool)+sizeof(int)];
+        size[0]=1;
+        msg[0]=157;
+        encode(msg,queue,size);
+        if(Resetmdp.changement_mdp(conn,email,oldpass,newpass)==0)
+        {
+            encode(msg,true,size);
+        }
+        else
+        {
+            encode(msg,false,size);
+        }
+        bdd.Send(msg);
     }
 
 }

@@ -981,6 +981,12 @@ namespace Server
                 case 255:
                     return;
                     break;
+                case 156:
+                    redirect(bdd,queue.addVal(client),message);
+                    break;
+                case 157:
+                    redirect(bdd,queue.addVal(client),message);
+                    break;
                 default:
                     break;
             }
@@ -998,7 +1004,6 @@ namespace Server
             switch (message[0])
             {
                 case 105:
-
                     size = new int[1] { 1 };
                     int queueId = decodeInt(message, size);
                     bool answer = decodeBool(message, size);
@@ -1158,6 +1163,21 @@ namespace Server
                     redirect(client, message, recvSize);
 
                     break;
+                case 156:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
+                case 157:
+                    size[0]=1;
+                    queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
+
             }
         }
 

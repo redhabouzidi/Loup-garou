@@ -10,13 +10,13 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NetworkManager : MonoBehaviour
 {
+    
     public static int nbplayeres,time;
-    public static bool prog = true;
+    public static bool prog = false;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id,tour;
     public static string username;
-    static bool connected = false;
     public static GameManager gm;
     public static GameObject sp, ho, canvas, gmo, wso, cpo,lo,gmao;
     public static WaitingScreen ws;
@@ -53,93 +53,87 @@ public class NetworkManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
 
+    }
+
+    public static void reseau(string email)
+    {
+        if(!prog){
+        prog = true;
+        try
+        {
+            int port = 18000;
+            string ia = "185.155.93.105";
+            // int port = 10000;
+            // string ia = "127.0.0.1";
+            IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
+            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(iep);
+            Console.Write("Connected to the server\n");
+            Debug.Log("socket created");
+        }
+        catch (Exception e)
+        {
+            Console.Write(e.Message);
+            prog = false;
+        }}
+
+        ResetPasswReq(email);
+    }
+    public static void reseau(string pseudo,string password, string email)
+    {
+        if(!prog){
+        prog = true;
+        try
+        {
+            int port = 18000;
+            string ia = "185.155.93.105";
+            // int port = 10000;
+            // string ia = "127.0.0.1";
+            IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
+            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(iep);
+            Console.Write("Connected to the server\n");
+            Debug.Log("socket created");
+        }
+        catch (Exception e)
+        {
+            Console.Write(e.Message);
+            prog = false;
+        }}
+        sendInscription( pseudo, password, email);
     }
 
     public static void reseau(string email,string password)
     {
+        if(!prog)
+        {
+
         prog = true;
         try
         {
-
-                int port = 18000;
-                string ia = "185.155.93.105";
-                // int port = 10000;
-                // string ia = "127.0.0.1";
-                IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
-                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-                client.Connect(iep);
-
-                Console.Write("Connected to the server\n");
-            }
+            int port = 18000;
+            string ia = "185.155.93.105";
+            // int port = 10000;
+            // string ia = "127.0.0.1";
+            IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
+            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(iep);
+            Console.Write("Connected to the server\n");
+        }
             catch (Exception e)
             {
                 Console.Write(e.Message);
                 prog = false;
             }
+        }
         login(email, password);
-
-        /*var inputTask = Task.Run(() =>
-        {
-            while (reading)
-            {
-                byte[] messageBytesAsync;
-                string messageAsync = Console.ReadLine();
-
-                if (messageAsync.Equals("ajout"))
-                {
-                    ajoutAmi(client, id, 1);
-                }else
-                if (messageAsync.Equals("vote"))
-                {
-                    Vote(client, id, "jean");
-                }
-                else
-                if (messageAsync.Equals("leave"))
-                {
-                    messageBytesAsync = BitConverter.GetBytes(1);
-
-                    int bytesSentAsync = client.Send(messageBytesAsync);
-                    Console.WriteLine("sent {0} bytes to the server", bytesSentAsync);
-                }
-                else
-                if (messageAsync.Equals("create"))
-                {
-                    createGame(client, id, "demo", "asgard");
-                }
-                else
-                if (messageAsync.Equals("login"))
-                {
-                    login(client, "mahmoud", "jesuisunmotdepasse");
-                }
-                else
-                if (messageAsync.Equals("signin"))
-                {
-                    sendInscription(client, "mahmoud", "Jesuisunmotdepasse0@", "moumouh.atm@gmail.com");
-                }
-                else
-                if (messageAsync.Equals("join"))
-                {
-                    join(client, id, 0, username);
-                }
-                else if (messageAsync.Equals("love"))
-                {
-                    ChooseLovers(client, 0, 1);
-                }
-                else
-                {
-                    sendchatMessage(client, messageAsync);
-                }
-            }
-        });*/
-
 
 
         while (prog)
@@ -649,6 +643,18 @@ public class NetworkManager : MonoBehaviour
                     idFriend=decode(message, size);
                     //REPONSE DEMANDE D'AMIS
                     break;
+                case 156:
+                    if(!decodeBool(message,size))
+                    {
+                        gma.AfficheError("Il y a eu une erreur veuiller reesayer");
+                    }
+                    break;
+                case 157:
+                    if(decodeBool(message,size)==false)
+                    {
+                        gma.AfficheError("Il y a eu une erreur veuiller reesayer ((((((((((((((((((((()))))))))))))))))))))");
+                    }
+                    break;
                 default:
                     Debug.Log("problem message");
                     break;
@@ -819,5 +825,23 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(client, message);
     }
 
-    
+    public static int ResetPasswReq(string email)
+    {
+        byte[] message = new byte[1 +  sizeof(int)+ email.Length];
+        message[0] = 156;
+        int[] index = new int[1] { 1 };
+        encode(message,email,index);
+        return SendMessageToServer(client,message);
+    }
+    public static int ResetPassw(string email, string oldPassw,string newPassw)
+    {
+        byte[] message = new byte[1 +  3 * sizeof(int) + email.Length+newPassw.Length + oldPassw.Length];
+        message[0] = 157;
+        int[] index = new int[1] { 1 };
+        encode(message,email,index);
+        encode(message,oldPassw,index);
+        encode(message,newPassw,index);
+        return SendMessageToServer(client,message);
+    }
+
 }

@@ -10,7 +10,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManagerApp : MonoBehaviour
 {
-
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
     buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
@@ -21,7 +20,7 @@ public class GameManagerApp : MonoBehaviour
     public TMP_InputField inputEmailForgotPass, inputCodeForgotPass, inputPassForgotPass, inputPassForgotPass2;
     public static List<Game> listGame = new List<Game>();
     public GameObject containerGame, componentGame, toggleGroupGame;
-
+    public static string email;
 
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
@@ -137,21 +136,12 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.reseau(email,password);
         });
-
-        // hash password avant
-        //isSuccess = ??
-        /*if (isSuccess){
-            box_error.SetActive(false);
-            loginPage.SetActive(false);
-            waitPage.SetActive(true);
-        }
-        else{
-            AfficheError("Error: Email/Pseudo or password is invalide");
-        }*/
+        
     }
 
     private void OnButtonClickRegistration()
     {
+
         box_error.SetActive(false);
         string email = inputFRegEmail.text;
         string pseudo = inputFRegPseudo.text;
@@ -160,16 +150,7 @@ public class GameManagerApp : MonoBehaviour
 
         if (password == password2)
         {
-            NetworkManager.sendInscription( pseudo, password, email);
-            //isSuccess = retour du serveur / bdd
-            /*if (isSuccess){
-                box_error.SetActive(false);
-                registrationPage.SetActive(false);
-                loginPage.SetActive(true);
-            }
-            else {
-                AfficheError("Error: Dire ce qu'il va pas");
-            }*/
+            NetworkManager.reseau(pseudo, password, email);
         }
         else
         {
@@ -205,7 +186,11 @@ public class GameManagerApp : MonoBehaviour
     }
     private void onButtonClickSendForgotPass()
     {
-        string email = inputEmailForgotPass.text;
+        email = inputEmailForgotPass.text;
+        NetworkManager.reseau(email);
+
+        byte [] message=new byte[1+sizeof(bool)];
+        NetworkManager.recvMessage(NetworkManager.client);
 
     }
     private void onButtonClickChangeForgotPass()
@@ -213,13 +198,14 @@ public class GameManagerApp : MonoBehaviour
         string code = inputCodeForgotPass.text;
         string pass = inputPassForgotPass.text;
         string pass2 = inputPassForgotPass2.text;
-
+        
         if(pass == pass2){
-            // envoyer 
+            NetworkManager.ResetPassw(email,code,pass);
         }
         else{
             AfficheError("Your password is not the same.");
         }
+        NetworkManager.recvMessage(NetworkManager.client);
     }
 
     public void AfficheError(string msg)
