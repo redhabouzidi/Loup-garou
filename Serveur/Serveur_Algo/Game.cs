@@ -317,7 +317,7 @@ public class Game
             // enlève à tout le monde l'immunité accordé par le Garde
             RemoveSaveStatus();
         }
-	//PointShare();              Don't forget me please :) 
+	//PointShare(checkWin);              Don't forget me please :) 
         EndGameInitializer();
         Console.WriteLine(recit);
     }
@@ -882,14 +882,14 @@ public class Game
         }
     }
 
-    public void PointShare() {
+    public void PointShare(int check) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
         foreach(var joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
-            if(Check_win() == 1) 
+            if(check == 1) 
 	    {
                 if(joueur is not Loup) 
 		{
@@ -903,7 +903,7 @@ public class Game
                     }
                 }
             }
-            else if(Check_win() == 2) 
+            else if(check == 2) 
 	    {
                 if(joueur is Loup) 
 		{
@@ -917,14 +917,14 @@ public class Game
                     }
                 }
             }
-            else if(Check_win() == 3) 
+            else if(check == 3) 
 	    {
                 if(joueur.GetEnVie()) 
 		{
                     score[i] = 10;
                 }
             }
-            else if(Check_win() == 4) 
+            else if(check == 4) 
 	    {
                 if(joueur.GetEnVie()) 
 		{
@@ -937,7 +937,7 @@ public class Game
             }
             i++;
         }
-        SendPoints(_joueurs,id,score);
+        //SendPoints(_joueurs,id,score);       TODO: Team Network
     }
 
 
