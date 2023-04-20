@@ -498,7 +498,7 @@ public class Game
     private void ElectionMaire(List<int> cible, List<Joueur> listJoueurs)
     {
         // ici on a le résultat final du vote
-        if(cible == null)
+        if (cible == null)
         {
             return;
         }
@@ -535,6 +535,7 @@ public class Game
         }
 
         // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
+        Random random = new Random();
         if (victime != -1)
         {
             bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
@@ -552,13 +553,25 @@ public class Game
                 }
 
                 // ON CHOISIT UN MAIRE ALEATOIREMENT
-                Random random = new Random();
                 victime = tiedVictims[random.Next(tiedVictims.Count)];
             }
-
-            Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
-            playerVictime.SetEstMaire(true);
         }
+        else
+        {
+            // ON CHOISIT UN MAIRE ALEATOIREMENT PARMIS LES GENS EN VIE
+            List<int> joueursEnVie = new List<int>();
+            foreach (Joueur j in listJoueurs)
+            {
+                if (j.GetEnVie())
+                {
+                    joueursEnVie.Add(j.GetId());
+                }
+            }
+            victime = joueursEnVie[random.Next(joueursEnVie.Count)];
+        }
+
+        Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
+        playerVictime.SetEstMaire(true);
     }
 
     public void SentenceJournee(List<int> cible, List<Joueur> listJoueurs)
