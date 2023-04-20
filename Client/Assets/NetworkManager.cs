@@ -467,7 +467,6 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 11:
                     GameManager.turn = decode(message, size);
-
                     break;
                 case 12:
                     

@@ -11,14 +11,13 @@ public class GameManager : MonoBehaviour
 {
     // joueur
     public Player p;
-    bool finished = false;
     // jeu
     private int nbPlayer;
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
-    public static bool isNight = true;
+    public static bool isNight = true,action=false;
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
@@ -86,6 +85,8 @@ public class GameManager : MonoBehaviour
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
 
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+        isNight = true;
+        tour = 0;
         foreach (WPlayer p in NetworkManager.players)
         {
             switch (p.GetRole())
@@ -150,8 +151,6 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
         InitPotion();
         EndVote();
-        
-        finished = true;
 
     }
 
@@ -159,8 +158,6 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         NetworkManager.listener();
-        if(finished)
-        {
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -187,54 +184,12 @@ public class GameManager : MonoBehaviour
             AfficheWinScreen();
             gameover = false;
         }
-        if (turn != 0)
-        {
-                electionMaire = false;
-                switch (turn)
-            {
-                
-                case 1:
-                    affiche_tour_role("C'est le tour du village", turn);
-                    break;
-                case 2:
-                    affiche_tour_role("C'est le tour du Cupidon", turn);
-                        if (p.GetRoleId() == 2)
-                        {
-                            Debug.Log("tour du cupi");
-                            actionCupidon();
-                        }
-                        break;
-                case 3:
-                    affiche_tour_role("C'est le tour du Voyante", turn);
-                    break;
-                case 4:
-                    affiche_tour_role("C'est le tour du loup", turn);
-                    break;
-                case 5:
-                    affiche_tour_role("C'est le tour de la sorciere", turn);
-                    if (p.GetRoleId() == 5)
-                    {
-                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
-                        affiche_choix_action("Veux tu tuer une personne?");
-                    }
-                    break;
-                case 255:
-                        affiche_tour_role("C'est le tour du maire", turn);
-                        electionMaire = true;
-                        break;
-            }
-                foreach (Player p in listPlayer)
-                {
-                    p.SetVote(-1);
-                }
-                UpdateVote(); 
-                turn = 0;
-
-            }
+        
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
-        }
+        changeTurn();
+        
 
     }
     private void OnButtonClickSePresenter()
@@ -276,6 +231,54 @@ public class GameManager : MonoBehaviour
     {
         Vote();
         
+    }
+    public void changeTurn()
+    {
+        if (turn!=0)
+        {
+            action = false;
+            electionMaire = false;
+            switch (turn)
+            {
+
+                case 1:
+                    affiche_tour_role("C'est le tour du village", turn);
+                    break;
+                case 2:
+                    affiche_tour_role("C'est le tour du Cupidon", turn);
+                    if (p.GetRoleId() == 2)
+                    {
+                        action=true;
+                        Debug.Log("tour du cupi");
+                        actionCupidon();
+                    }
+                    break;
+                case 3:
+                    affiche_tour_role("C'est le tour du Voyante", turn);
+                    break;
+                case 4:
+                    affiche_tour_role("C'est le tour du loup", turn);
+                    break;
+                case 5:
+                    affiche_tour_role("C'est le tour de la sorciere", turn);
+                    if (p.GetRoleId() == 5)
+                    {
+                        Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
+                        affiche_choix_action("Veux tu tuer une personne?");
+                    }
+                    break;
+                case 255:
+                    affiche_tour_role("C'est le tour du maire", turn);
+                    electionMaire = true;
+                    break;
+            }
+            foreach (Player p in listPlayer)
+            {
+                p.SetVote(-1);
+            }
+            UpdateVote();
+            turn = 0;
+        }
     }
     public void updateImage(int id, int role)
     {
@@ -395,7 +398,7 @@ public class GameManager : MonoBehaviour
         newText = newPlayer.GetComponent<TextMeshProUGUI>();
         newText.text = listPlayer[num].GetPseudo() + ": " + listPlayer[num].GetRole();
         Debug.Log(listPlayer[num].GetRole());
-        if (listPlayer[num].GetRole() == "Loup-garou")
+        if (listPlayer[num].GetRoleId() == 4)
         {
             
             newText.color = colorRed;
@@ -447,7 +450,7 @@ public class GameManager : MonoBehaviour
     }
     public void AfficheAmoureux(){
          if(lover1_id==-1||lover2_id==-1)return;
-        if(p.GetRole()=="Cupidon"||p.GetId()==lover1_id||p.GetId()==lover2_id){
+        if(p.GetRoleId() == 2||p.GetId()==lover1_id||p.GetId()==lover2_id){
             GameObject[]  textpseudos= GameObject.FindGameObjectsWithTag("Pseudos");
             foreach(GameObject go in textpseudos){
                 TextMeshProUGUI texto = go.GetComponent<TextMeshProUGUI>();
@@ -574,9 +577,13 @@ public class GameManager : MonoBehaviour
 
     public void OnToggleValueChanged(Toggle change){
         bool value = change.isOn;
-        if(value){
+
+        if (value){
+            Debug.Log("_a marche pas");
+
             toggleOn.Add(change);
-            if(p.GetRole() == "Cupidon" && isNight){
+            if(p.GetRoleId() == 2 && action){
+                Debug.Log("_a marche");
                 if (toggleOn.Count > 2){
                     toggleOn[0].isOn = false;
                     Debug.Log(toggleOn.Count);
@@ -638,14 +645,14 @@ public class GameManager : MonoBehaviour
     public void setAmoureux(int id1, int id2){
         int indice1 = chercheIndiceJoueurId(id1);
         int indice2 = chercheIndiceJoueurId(id2);
-
+        p.SetIsMarried(true);
         listPlayer[indice1].SetIsMarried(true);
         listPlayer[indice2].SetIsMarried(true);
     }
 
     public void Vote()
     {
-        if(p.GetRole() == "Cupidon" && isNight){
+        if(p.GetRoleId() ==2 && action){
             actionCupidon();
         }
         else{
@@ -691,16 +698,16 @@ public class GameManager : MonoBehaviour
         maire.enabled = false;
         skull.SetActive(false);
 
-        if(p.GetRole() == "Voyante" && listPlayer[indice].GetSeen()) {
+        if(p.GetRoleId() == 3 && listPlayer[indice].GetSeen()) {
             roleImg.enabled = true;
             eyeImg.enabled = true;            
         }
 
-        if(p.GetRole() == "Loup-garou" && listPlayer[indice].GetRole() == "Loup-garou") {
+        if(p.GetRoleId() == 4 && listPlayer[indice].GetRoleId() == 4) {
             roleImg.enabled = true;
         }
 
-        if(p.GetRole() == "Cupidon" || p.GetIsMarried()){
+        if(p.GetRoleId() == 2 || p.GetIsMarried()){
             if(listPlayer[indice].GetIsMarried()){
                 heart.enabled = true;
             }

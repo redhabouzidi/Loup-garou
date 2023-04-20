@@ -756,11 +756,11 @@ namespace Server
                     bool sorciere = decodeBool(message, size);
                     bool voyante = decodeBool(message, size);
                     bool cupidon = decodeBool(message, size);
-
+                    
                     if(connected.ContainsKey(client))
                     {
 
-                    if (!games.ContainsKey(id))
+                    if (!games.ContainsKey(id)&&!players.ContainsKey(id))
                     {
                         Console.WriteLine("game created");
                         Game g = new Game(new Client(id, client, username), name, nbPlayers, nbLoups, sorciere, voyante, cupidon);
