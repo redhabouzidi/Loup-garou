@@ -142,6 +142,33 @@ public class GameManager : MonoBehaviour
 
                     }
                     break;
+                case 6:
+                    listPlayer.Add(new Player(p.GetUsername(), "Chasseur", 6, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Chasseur", p.GetRole(), p.GetId(), true);
+                        player_role.text = "Chasseur";
+
+                    }
+                    break;
+                case 7:
+                    listPlayer.Add(new Player(p.GetUsername(), "Guarde", 7, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Guarde", p.GetRole(), p.GetId(), true);
+                        player_role.text = "Guarde";
+
+                    }
+                    break;
+                case 8:
+                    listPlayer.Add(new Player(p.GetUsername(), "Dictateur", 8, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Dictateur", p.GetRole(), p.GetId(), true);
+                        player_role.text = "Dictateur";
+
+                    }
+                    break;
             }
         }
         

@@ -751,9 +751,9 @@ public class NetworkManager : MonoBehaviour
         return 0;
     }
 
-    public static int createGame( int id, string username, string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante,bool cupidon)
+    public static int createGame( int id, string username, string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante,bool cupidon,bool hunter,bool guardian,bool dictator)
     {
-        byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool)*3 + username.Length + name.Length];
+        byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool)*6 + username.Length + name.Length];
         int[] size = new int[1] { 1 };
         message[0] = 3;
         encode(message, id, size);
@@ -764,6 +764,9 @@ public class NetworkManager : MonoBehaviour
         encode(message, sorciere, size);
         encode(message, voyante, size);
         encode(message, cupidon, size);
+        encode(message, hunter, size);
+        encode(message, guardian, size);
+        encode(message, dictator, size);
 
         return SendMessageToServer(client, message);
     }

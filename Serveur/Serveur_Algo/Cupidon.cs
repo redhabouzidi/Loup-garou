@@ -81,6 +81,7 @@ public class Cupidon : Role
                 }
             }
         }
+        Console.WriteLine("on sort de la boucle");
         if (boolAmoureux)
         {
             amoureux.SetAmoureux(amoureux2);
@@ -116,10 +117,8 @@ public class Cupidon : Role
 
         foreach (Joueur j in listJoueurs)
         {
-            Console.WriteLine(j.GetSocket().Connected);
-            if (j.GetSocket() != null && j.GetSocket().Connected == true)
+            if (j.GetSocket() != null && j.GetSocket().Connected)
             {
-                Console.WriteLine(j.GetSocket());
                 sockets.Add(j.GetSocket());
                 if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
                 {

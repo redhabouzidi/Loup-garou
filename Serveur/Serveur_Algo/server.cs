@@ -47,6 +47,7 @@ namespace Server
             {
                 if (server.userData.ContainsKey(i))
                 {
+                    if (server.userData[i].GetSocket()!=null && server.userData[i].GetSocket().Connected)
                     server.sendStatus(server.userData[i].GetSocket(), key, status);
                 }
             }
@@ -756,14 +757,17 @@ namespace Server
                     bool sorciere = decodeBool(message, size);
                     bool voyante = decodeBool(message, size);
                     bool cupidon = decodeBool(message, size);
-                    
-                    if(connected.ContainsKey(client))
+                    bool chasseur = decodeBool(message, size);
+                    bool guardien = decodeBool(message, size);
+                    bool dictateur = decodeBool(message, size);
+
+                    if (connected.ContainsKey(client))
                     {
 
                     if (!games.ContainsKey(id)&&!players.ContainsKey(id))
                     {
                         Console.WriteLine("game created");
-                        Game g = new Game(new Client(id, client, username), name, nbPlayers, nbLoups, sorciere, voyante, cupidon);
+                        Game g = new Game(new Client(id, client, username), name, nbPlayers, nbLoups, sorciere, voyante, cupidon,chasseur,guardien,dictateur);
 
                         if (g._nbrJoueurs == 0)
                         {
@@ -1189,12 +1193,12 @@ namespace Server
             Console.WriteLine("je suis la ");
             encode(message, id1, index);
             encode(message, role1, index);
-            if (player2.Connected)
+            if (player2!=null && player2.Connected)
                 sendMessage(player2, message);
             index[0] = 1;
             encode(message, id2, index);
             encode(message, role2, index);
-            if (player1.Connected)
+            if (player1!=null && player1.Connected)
                 sendMessage(player1, message);
         }
         public static void EnvoieInformation(Socket client, int id)

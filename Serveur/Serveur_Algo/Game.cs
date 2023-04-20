@@ -89,7 +89,7 @@ public class Game
         }
         return true;
     }
-    public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon)
+    public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon,bool chasseur,bool guardien, bool dictateur)
     {
         //Initialisation du nombre de joueurs
         _start = false;
@@ -118,13 +118,25 @@ public class Game
         {
             startingRoles[i++] = new Sorciere();
         }
-        if(voyante)
+        if (voyante)
         {
             startingRoles[i++] = new Voyante();
         }
         if (cupidon)
         {
             startingRoles[i++] = new Cupidon();
+        }
+        if (chasseur)
+        {
+            startingRoles[i++] = new Chasseur();
+        }
+        if (guardien)
+        {
+            startingRoles[i++] = new Garde();
+        }
+        if (dictateur)
+        {
+            startingRoles[i++] = new Dictateur();
         }
         for (; i < nbPlayers; i++)
         {
@@ -204,9 +216,25 @@ public class Game
 
     public void LanceAction(Type typeATester)
     {
+        Console.WriteLine(CountSockets());
+        if (CountSockets() == 0)
+        {
+
+            server.games.Remove(GetGameId());
+            foreach(Joueur j in _joueurs)
+            {
+                server.players.Remove(j.GetId());
+                
+            }
+            _joueurs.Clear();
+            return ;
+        }else
+        {
+            Console.WriteLine("nope dont think it works");
+        }
         for (int i = 0; i < _joueurs.Count; i++)
         {
-            if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie())
+            if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie() && _joueurs[i].GetSocket()!=null && _joueurs[i].GetSocket().Connected)
             {
                 _joueurs[i].GetRole().gameListener = reveille;
 
@@ -215,7 +243,22 @@ public class Game
             }
         }
     }
+    public int CountSockets()
+    {
+        Console.WriteLine("hey "+_joueurs.Count);
+        int sum = 0;
+        foreach (Joueur j in _joueurs)
+        {
+            if (j.GetSocket() != null && j.GetSocket().Connected)
+            {
+                Console.WriteLine("hey " + _joueurs.Count);
+                sum++;
+            }
+        }
+        Console.WriteLine("hey");
 
+        return sum;
+    }
     public void Start()
     {
         _start = true;
@@ -248,12 +291,12 @@ public class Game
                     Console.WriteLine("\t en + ce mec est amoureux !");
                 }
             }
-
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
             ConcatRecit("Le soleil se couche sur le village de " + name + ". ");
             day = !day;
             // appeller Voyante si il y en a un
+            Console.WriteLine("on passe ?");
             LanceAction(typeof(Voyante));
             LanceAction(typeof(Garde));
             Console.WriteLine("début vote loup");
@@ -318,8 +361,9 @@ public class Game
             RemoveSaveStatus();
         }
 	//PointShare(checkWin);              Don't forget me please :) 
+        Console.WriteLine(recit+"fin de jeu");
         EndGameInitializer();
-        Console.WriteLine(recit);
+
     }
 
     private void RemoveSaveStatus()
@@ -455,6 +499,10 @@ public class Game
     private void ElectionMaire(List<int> cible, List<Joueur> listJoueurs)
     {
         // ici on a le résultat final du vote
+        if(cible == null)
+        {
+            return;
+        }
         Dictionary<int, int> occurrences = new Dictionary<int, int>();
         for (int i = 0; i < cible.Count; i++)
         {
@@ -517,6 +565,8 @@ public class Game
     public void SentenceJournee(List<int> cible, List<Joueur> listJoueurs)
     {
         // ici on a le résultat final du vote
+        if (cible == null)
+            return;
         Dictionary<int, int> occurrences = new Dictionary<int, int>();
         for (int i = 0; i < cible.Count; i++)
         {
@@ -590,7 +640,16 @@ public class Game
 
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
-        
+        if (CountSockets() == 0)
+        {
+            server.games.Remove(GetGameId());
+            foreach (Joueur j in _joueurs)
+            {
+                server.players.Remove(j.GetId());
+                _joueurs.Remove(j);
+            }
+            return null;
+        }
         Role r = new Villageois();
         r.sendTurn(listJoueurs,idRole);
         Console.WriteLine("1");
@@ -728,7 +787,7 @@ public class Game
     {
         foreach (Joueur j in _joueurs)
         {
-            if (j.GetSocket().Connected)
+            if (j.GetSocket()!=null && j.GetSocket().Connected )
             server.etatGame(j.GetSocket(), day);
         }
     }
