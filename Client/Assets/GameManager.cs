@@ -151,17 +151,17 @@ public class GameManager : MonoBehaviour
 
                     }
                     break;
-                case 7:
-                    listPlayer.Add(new Player(p.GetUsername(), "Guarde", 7, p.GetId(), true));
+                case 8:
+                    listPlayer.Add(new Player(p.GetUsername(), "Garde", 8, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
-                        this.p = new Player(p.GetUsername(), "Guarde", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Guarde";
+                        this.p = new Player(p.GetUsername(), "Garde", p.GetRole(), p.GetId(), true);
+                        player_role.text = "Garde";
 
                     }
                     break;
-                case 8:
-                    listPlayer.Add(new Player(p.GetUsername(), "Dictateur", 8, p.GetId(), true));
+                case 7:
+                    listPlayer.Add(new Player(p.GetUsername(), "Dictateur", 7, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Dictateur", p.GetRole(), p.GetId(), true);
@@ -281,7 +281,7 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case 3:
-                    affiche_tour_role("C'est le tour du Voyante", turn);
+                    affiche_tour_role("C'est le tour de la Voyante", turn);
                     break;
                 case 4:
                     affiche_tour_role("C'est le tour du loup", turn);
@@ -293,6 +293,15 @@ public class GameManager : MonoBehaviour
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
                         affiche_choix_action("Veux tu tuer une personne?");
                     }
+                    break;
+                case 6:
+                    affiche_tour_role("C'est le tour du chasseur", turn);
+                    break;
+                case 8:
+                    affiche_tour_role("C'est le tour du Garde", turn);
+                    break;
+                case 7:
+                    affiche_tour_role("C'est le tour du Dictateur", turn);
                     break;
                 case 255:
                     affiche_tour_role("C'est le tour du maire", turn);
@@ -325,6 +334,15 @@ public class GameManager : MonoBehaviour
                 break;
             case 5:
                 roleImg.sprite = SorciereSprite;
+                break;
+            case 6:
+                roleImg.sprite = ChasseurSprite;
+                break;
+            case 7:
+                roleImg.sprite = DictateurSprite;
+                break;
+            case 8:
+                roleImg.sprite = GardeSprite;
                 break;
             default:
                 roleImg.sprite = VillageoisSprite;
@@ -1084,10 +1102,10 @@ public class Player
             case 6:
                 role = "Chasseur";
                 break;
-            case 7:
+            case 8:
                 role = "Dictateur";
                 break;
-            case 8:
+            case 7:
                 role = "Garde";
                 break;
 

@@ -230,7 +230,6 @@ public class Game
             return ;
         }else
         {
-            Console.WriteLine("nope dont think it works");
         }
         for (int i = 0; i < _joueurs.Count; i++)
         {
