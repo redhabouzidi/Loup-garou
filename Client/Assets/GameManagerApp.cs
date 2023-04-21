@@ -156,6 +156,7 @@ public class GameManagerApp : MonoBehaviour
         {
             AfficheError("Error: the password is not the same");
         }
+        NetworkManager.recvMessage(NetworkManager.client);
     }
 
     private void OnButtonClickPublic()

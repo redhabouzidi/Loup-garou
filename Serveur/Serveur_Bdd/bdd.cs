@@ -105,10 +105,10 @@ public class bdd
                         reponseAmi(bdd, message);
                         break;
                     case 156:
-                        ResetPasswdReq(bdd,message);
+                        ResetPasswdReq(bdd, message);
                         break;
                     case 157:
-                        ResetPassw(bdd,message);
+                        ResetPassw(bdd, message);
                         break;
 
                 }
@@ -141,18 +141,24 @@ public class bdd
         string email = decodeString(message, size);
         Console.WriteLine("username=" + username + " password=" + password + " email=" + email);
         int val = Inscription.inscription_user(conn, username, email, password);
-        inscriptionAnswer(bdd, queueId, true, 7);
+        if (val==0)
+        {
+            inscriptionAnswer(bdd, queueId, true);
+        }
+        else
+        {
+            inscriptionAnswer(bdd, queueId, false);
+        }
 
     }
-    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer, int id)
+    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
     {
-        int msgSize = 1 + sizeof(int) * 2 + sizeof(bool);
+        int msgSize = 1 + sizeof(int) + sizeof(bool);
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
         message[0] = 104;
         encode(message, queueId, size);
         encode(message, answer, size);
-        encode(message, id, size);
         bdd.Send(message);
         return 0;
     }
@@ -160,7 +166,7 @@ public class bdd
     public static int connexionAnswer(Socket bdd, int queueId, bool answer, int idPlayer, string username, int[] friends, string[] names)
     {
         int psize = getStringLength(names);
-        int msgSize = 1 + sizeof(bool)+sizeof(int);
+        int msgSize = 1 + sizeof(bool) + sizeof(int);
         if (answer)
         {
             msgSize += sizeof(int) * 2 + username.Length + sizeof(int) + friends.Length * sizeof(int) + psize + sizeof(int) * names.Length;
@@ -328,45 +334,45 @@ public class bdd
 
     }
 
-    public static void ResetPasswdReq(Socket bdd,byte [] message)
+    public static void ResetPasswdReq(Socket bdd, byte[] message)
     {
-        int [] size=new int[1]{1};
-        int queueId=decodeInt(message,size);
-        string email=decodeString(message,size);
-        size[0]=1;
-        bool answer =dataBase.Resetmdp.ResetPassword(conn,email);
-        EmailSent(bdd,queueId,answer);
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        string email = decodeString(message, size);
+        size[0] = 1;
+        bool answer = dataBase.Resetmdp.ResetPassword(conn, email);
+        EmailSent(bdd, queueId, answer);
     }
-    public static int EmailSent(Socket bdd, int queueId ,bool answer)
+    public static int EmailSent(Socket bdd, int queueId, bool answer)
     {
-        int messageSize=1+sizeof(bool)+sizeof(int);
-        byte[] msg=new byte[messageSize];
-        int[] index=new int[1]{1};
-        msg[0]=156;
-        encode(msg,queueId,index);
-        encode(msg,answer,index);
+        int messageSize = 1 + sizeof(bool) + sizeof(int);
+        byte[] msg = new byte[messageSize];
+        int[] index = new int[1] { 1 };
+        msg[0] = 156;
+        encode(msg, queueId, index);
+        encode(msg, answer, index);
         return bdd.Send(msg);
 
     }
 
-    public static void ResetPassw(Socket bdd,byte [] message)
+    public static void ResetPassw(Socket bdd, byte[] message)
     {
-        int [] size=new int[1]{1};
-        int queue=decodeInt(message,size);
-        string email = decodeString(message,size);
-        string oldpass=decodeString(message,size);
-        string newpass=decodeString(message,size);
-        byte [] msg=new byte[1+sizeof(bool)+sizeof(int)];
-        size[0]=1;
-        msg[0]=157;
-        encode(msg,queue,size);
-        if(Resetmdp.changement_mdp(conn,email,oldpass,newpass)==0)
+        int[] size = new int[1] { 1 };
+        int queue = decodeInt(message, size);
+        string email = decodeString(message, size);
+        string oldpass = decodeString(message, size);
+        string newpass = decodeString(message, size);
+        byte[] msg = new byte[1 + sizeof(bool) + sizeof(int)];
+        size[0] = 1;
+        msg[0] = 157;
+        encode(msg, queue, size);
+        if (Resetmdp.changement_mdp(conn, email, oldpass, newpass) == 0)
         {
-            encode(msg,true,size);
+            encode(msg, true, size);
         }
         else
         {
-            encode(msg,false,size);
+            encode(msg, false, size);
         }
         bdd.Send(msg);
     }
