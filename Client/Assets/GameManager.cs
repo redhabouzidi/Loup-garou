@@ -21,7 +21,10 @@ public class GameManager : MonoBehaviour
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
-    private bool sestPresente = false, electionMaire = false;
+    public bool sestPresente = false, electionMaire = false;
+    public Image banderoleMaire;
+
+
     // timer pour le texte qui s'affiche a l'ecran
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
@@ -391,16 +394,18 @@ public class GameManager : MonoBehaviour
     {
         if (electionMaire)
         {
-            text_day.text = "Election du maire";
-            text_day.color = colorBlue;
-            player_role.text = "Depot des candidatures";
-            player_role.color = colorBlue;
+            banderoleMaire.enabled = true;
+            text_day.text = "Election";
+            text_day.color = colorBlack;
+            player_role.text = "du maire";
+            player_role.color = colorWhite;
             if (!sestPresente) sePresenter.gameObject.SetActive(true);
             else sePresenter.gameObject.SetActive(false);
         }
 
         else if (isNight == false)
         {
+            banderoleMaire.enabled = false;
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
             player_role.color = colorWhite;
@@ -409,6 +414,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            banderoleMaire.enabled = false;
             text_day.text = "Night " + tour;
             text_day.color = colorRed;
             player_role.color = colorRed;
