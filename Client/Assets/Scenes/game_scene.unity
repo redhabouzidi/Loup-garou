@@ -1967,7 +1967,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: se presenter
+  m_text: stand for elections
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: df5609298fcb7914e88e4da776472f06, type: 2}
   m_sharedMaterial: {fileID: -3645929258963315752, guid: df5609298fcb7914e88e4da776472f06, type: 2}
@@ -7481,7 +7481,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.0299, y: -165.94}
+  m_AnchoredPosition: {x: 970, y: -981}
   m_SizeDelta: {x: 274.99, y: 90.75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2056509592
@@ -8019,7 +8019,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Valider le vote
+  m_text: Confirm vote
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f7b0b5a56226284469b241e407950933, type: 2}
   m_sharedMaterial: {fileID: -8179786214714713296, guid: f7b0b5a56226284469b241e407950933, type: 2}

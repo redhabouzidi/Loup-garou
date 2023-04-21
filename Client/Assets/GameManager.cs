@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Villageois", 0, p.GetId(), true);
-                        player_role.text = "Villageois";
+                        player_role.text = "Villager";
                     }
                     break;
                 case 1:
@@ -107,7 +107,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p=new Player(p.GetUsername(), "Villageois", 1, p.GetId(), true);
-                        player_role.text = "Villageois";
+                        player_role.text = "Villager";
                     }
                     break;
                 case 2:
@@ -115,7 +115,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p=new Player(p.GetUsername(), "Cupidon", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Cupidon";
+                        player_role.text = "Cupido";
                     }
                     break;
                 case 3:
@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour
                     {
                         this.p=new Player(p.GetUsername(), "Voyante", p.GetRole(), p.GetId(), true);
 
-                        player_role.text = "Voyante";
+                        player_role.text = "Fortune teller";
                     }
                     break;
                 case 4:
@@ -133,7 +133,7 @@ public class GameManager : MonoBehaviour
                     {
                         this.p=new Player(p.GetUsername(), "Loup-garou", p.GetRole(), p.GetId(), true);
 
-                        player_role.text = "Loup-garou";
+                        player_role.text = "Werewolf";
                     }
                     break;
                 case 5:
@@ -141,7 +141,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p=new Player(p.GetUsername(), "Sorciere", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Sorciere";
+                        player_role.text = "Witch";
 
                     }
                     break;
@@ -150,7 +150,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Chasseur", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Chasseur";
+                        player_role.text = "Hunter";
 
                     }
                     break;
@@ -159,7 +159,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Garde", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Garde";
+                        player_role.text = "Guard";
 
                     }
                     break;
@@ -168,7 +168,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Dictateur", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Dictateur";
+                        player_role.text = "Dictator";
 
                     }
                     break;
@@ -224,7 +224,7 @@ public class GameManager : MonoBehaviour
     }
     private void OnButtonClickSePresenter()
     {
-        SendMessageToChat("" + p.GetPseudo() + " se présente en tant que Maire !", Message.MsgType.system);
+        SendMessageToChat("" + p.GetPseudo() + " stands for Mayor elections !", Message.MsgType.system);
         sestPresente = true;
     }
     private void OnButtonClickLeaveGame()
@@ -272,10 +272,10 @@ public class GameManager : MonoBehaviour
             {
 
                 case 1:
-                    affiche_tour_role("C'est le tour du village", turn);
+                    affiche_tour_role("It is village's turn...", turn);
                     break;
                 case 2:
-                    affiche_tour_role("C'est le tour du Cupidon", turn);
+                    affiche_tour_role("It is Cupido's turn...", turn);
                     if (p.GetRoleId() == 2)
                     {
                         action=true;
@@ -284,30 +284,30 @@ public class GameManager : MonoBehaviour
                     }
                     break;
                 case 3:
-                    affiche_tour_role("C'est le tour de la Voyante", turn);
+                    affiche_tour_role("It is the Fortune teller's turn...", turn);
                     break;
                 case 4:
-                    affiche_tour_role("C'est le tour du loup", turn);
+                    affiche_tour_role("It is Werewolves' turn...", turn);
                     break;
                 case 5:
-                    affiche_tour_role("C'est le tour de la sorciere", turn);
+                    affiche_tour_role("It is Witch's turn...", turn);
                     if (p.GetRoleId() == 5)
                     {
                         Debug.Log("je demande a la sorciere si elle veut utiliser sa posion de mort ou non");
-                        affiche_choix_action("Veux tu tuer une personne?");
+                        affiche_choix_action("Wanna kill someone ?");
                     }
                     break;
                 case 6:
-                    affiche_tour_role("C'est le tour du chasseur", turn);
+                    affiche_tour_role("It is Hunter's turn...", turn);
                     break;
                 case 8:
-                    affiche_tour_role("C'est le tour du Garde", turn);
+                    affiche_tour_role("It is Guard's turn...", turn);
                     break;
                 case 7:
-                    affiche_tour_role("C'est le tour du Dictateur", turn);
+                    affiche_tour_role("It is Dictator's turn...", turn);
                     break;
                 case 255:
-                    affiche_tour_role("C'est le tour du maire", turn);
+                    affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
                     break;
             }
@@ -395,9 +395,9 @@ public class GameManager : MonoBehaviour
         if (electionMaire)
         {
             banderoleMaire.enabled = true;
-            text_day.text = "Election";
+            text_day.text = "Mayor";
             text_day.color = colorBlack;
-            player_role.text = "du maire";
+            player_role.text = "elections";
             player_role.color = colorWhite;
             if (!sestPresente) sePresenter.gameObject.SetActive(true);
             else sePresenter.gameObject.SetActive(false);
@@ -681,7 +681,7 @@ public class GameManager : MonoBehaviour
         indice2 = GetIndiceToggleOn();
         if (indice2 != -1){
             id2 = listPlayer[indice2].GetId();
-            msg = listPlayer[indice1].GetPseudo() + " et " + listPlayer[indice2].GetPseudo() + " sont tombes amoureux l'un de l'autre";
+            msg = listPlayer[indice1].GetPseudo() + " and " + listPlayer[indice2].GetPseudo() + " fell in love each other";
             lover2_id= indice2;
             SendMessageToChat(msg, Message.MsgType.system);
             NetworkManager.ChooseLovers( NetworkManager.id, id1, id2);
@@ -689,7 +689,7 @@ public class GameManager : MonoBehaviour
 
         }
         else {
-            SendMessageToChat("Tu dois choisir deux personnes a marier!", Message.MsgType.system);
+            SendMessageToChat("Chose two players to marry...", Message.MsgType.system);
         }
     }
 
@@ -709,12 +709,12 @@ public class GameManager : MonoBehaviour
         else{
             int selectedId = GetIndiceToggleOn();
             if(selectedId != -1){
-                SendMessageToChat("Tu as voté pour "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
+                SendMessageToChat("You have voted for "+listPlayer[selectedId].GetPseudo(), Message.MsgType.system);
                 p.SetVote(listPlayer[selectedId].GetId());
                 NetworkManager.Vote( NetworkManager.id, listPlayer[selectedId].GetId());
                 Debug.Log($"joueur {NetworkManager. id} vote pour {listPlayer[selectedId].GetId()}");
             } else{
-                SendMessageToChat("Tu as voté pour personne, pitié vote >:(", Message.MsgType.system);
+                SendMessageToChat("You didn't vote for anyone...", Message.MsgType.system);
             } 
         }
 
@@ -770,7 +770,7 @@ public class GameManager : MonoBehaviour
 
         if (!listPlayer[indice].GetIsAlive())
         {
-            text.text = listPlayer[indice].GetPseudo() + " - mort\n" + listPlayer[indice].GetRole();
+            text.text = listPlayer[indice].GetPseudo() + "\n" + listPlayer[indice].GetRole();
             text.color = colorRed;
             toggleCard.interactable = false;
             roleImg.enabled = true;
@@ -794,7 +794,7 @@ public class GameManager : MonoBehaviour
 
     public void AfficheVoyante() {
         int selectedId = GetIndiceToggleOn();
-        if(player_role.text == "Voyante" && isNight) {
+        if(player_role.text == "Fortune teller" && isNight) {
             if(selectedId != -1 && selectedId < nbPlayer)
             {
                 NetworkManager.Vote( NetworkManager.id, listPlayer[selectedId].GetId());
@@ -811,7 +811,7 @@ public class GameManager : MonoBehaviour
     public void ActionSorciere(int id){
         int indice = chercheIndiceJoueurId(id);
         if (indice == -1) return;   // erreur l'id du joueur ne correspond a aucun joueur
-        string msg = "" + listPlayer[indice].GetPseudo() + " est mort. Veux-tu utiliser ta potion de vie?";
+        string msg = "" + listPlayer[indice].GetPseudo() + " is dead. Wanna use your life potion ?";
         affiche_choix_action(msg);
     }
 
@@ -848,7 +848,7 @@ public class GameManager : MonoBehaviour
         GO_buttonAfficheCarte.SetActive(false);
         panel_text_screen.SetActive(true);
         int indice = chercheIndiceJoueurId(id);
-        string msg = listPlayer[indice].GetPseudo() + " est " + idRoleToStringRole(idrole);
+        string msg = listPlayer[indice].GetPseudo() + " is " + idRoleToStringRole(idrole);
         listPlayer[indice].SetSeen(true);
         SendMessageToChat(msg, Message.MsgType.system);
         Change_text_screen(msg);
@@ -945,7 +945,7 @@ public class GameManager : MonoBehaviour
         Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
         potionVie.enabled = false;
         potionVideV.enabled = true;
-        SendMessageToChat("Tu as utilisé ta potion de vie!", Message.MsgType.system);
+        SendMessageToChat("You used your life potion!", Message.MsgType.system);
     }
 
     public void UseDeathPotion(){
@@ -953,7 +953,7 @@ public class GameManager : MonoBehaviour
         Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
         potionMort.enabled = false;
         potionVideM.enabled = true;
-        SendMessageToChat("Tu as utilisé ta potion de mort!", Message.MsgType.system);
+        SendMessageToChat("You used your death potion!", Message.MsgType.system);
     }
 
     public void EndVote(){
