@@ -375,13 +375,15 @@ public class Game
             }
         }
     }
+
     private void GestionMorts(List<Joueur> listJoueurs)
     {
+        Joueur? victimeChasseur = null;
         for (int i = 0; i < _joueurs.Count; i++)
         {
             if (_joueurs[i].GetDoitMourir())
             {
-                if (_joueurs[i].GetAEteSave())
+                if (_joueurs[i].GetAEteSave() && _joueurs[i] != victimeChasseur)
                 {
                     _joueurs[i].SetAEteSave(false);
                     _joueurs[i].SetDoitMourir(false);
@@ -391,18 +393,19 @@ public class Game
                     if (_joueurs[i].GetRole() is Chasseur)
                     {
                         LanceAction(typeof(Chasseur));
-                        i = 0;
+                        victimeChasseur = _joueurs[i].GetVictime();
                     }
-
+                    _joueurs[i].TuerJoueur(listJoueurs);
                     if (_joueurs[i].GetEstMaire())
                     {
+                        _joueurs[i].SetEnVie(true);
                         int idSuccesseur = DecisionDuMaire(_joueurs);
                         if (idSuccesseur == -1)
                         {
                             List<int> joueursEnVie = new List<int>();
                             foreach (Joueur j in listJoueurs)
                             {
-                                if (j.GetEnVie())
+                                if (j.GetEnVie() && j != _joueurs[i] && j != victimeChasseur)
                                 {
                                     joueursEnVie.Add(j.GetId());
                                 }
@@ -413,12 +416,17 @@ public class Game
                         }
                         Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
                         player.SetEstMaire(true);
-                        ConcatRecit("Alors quâ€™il sâ€™apprÃªtait Ã  mourir, le maire demanda au village dâ€™Ã©couter ses derniÃ¨res paroles. Il dÃ©cide de nommer " + player.GetPseudo() + " comme son successeur Ã  la tÃªte du villageâ€¦ ");
-                        // on enlÃ¨ve le statut de maire Ã  l'ancien maire
+                        ConcatRecit("Alors qu’il s’apprêtait à mourir, le maire demanda au village d’écouter ses dernières paroles. Il décide de nommer " + player.GetPseudo() + " comme son successeur à la tête du village… ");
+                        // on enlève le statut de maire à l'ancien maire
                         _joueurs[i].SetEstMaire(false);
+                        _joueurs[i].SetEnVie(false);
                     }
-                    _joueurs[i].TuerJoueur(listJoueurs);
-                    ConcatRecit("Une victime est allongÃ©e au centre du village. Il sâ€™agit de " + _joueurs[i].GetPseudo() + " qui sâ€™avÃ©rait Ãªtre " + _joueurs[i].GetRole() + " Ã  ses temps perdus. ");
+
+                    ConcatRecit("Une victime est allongée au centre du village. Il s’agit de " + _joueurs[i].GetPseudo() + " qui s’avérait être " + _joueurs[i].GetRole() + " à ses temps perdus. ");
+                    if (_joueurs[i].GetRole() is Chasseur)
+                    {
+                        i = 0;
+                    }
                 }
             }
         }
