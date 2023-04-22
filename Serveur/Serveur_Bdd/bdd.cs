@@ -110,6 +110,9 @@ public class bdd
                     case 157:
                         //ResetPassw(bdd, message);
                         break;
+                    case 158:
+                        searchForPlayer(bdd, message);
+                        break;
 
                 }
             }
@@ -377,4 +380,34 @@ public class bdd
         bdd.Send(msg);
     }
 */
+    public static void searchForPlayer(Socket bdd, byte[] message)
+    {
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        string username = decodeString(message, size);
+        int[] ids; string[] usernames;
+        (ids, usernames) = Amis.search_for_player(conn,username);
+        sendSearchPlayer(bdd, queueId, ids, usernames);
+
+    }
+    public static void sendSearchPlayer(Socket bdd,int queueId,int[] id,string[] username)
+    {
+        int pname = getStringLength(username);
+        byte[] message = new byte[1 + sizeof(int) * 3 + sizeof(int) * id.Length + sizeof(int)*username.Length + pname];
+        int[] size = new int[1] { 1 };
+        message[0] = 158;
+        encode(message, queueId, size);
+        encode(message, id.Length, size);
+        foreach(int i in id)
+        {
+            encode(message, i, size);
+        }
+        encode(message, username.Length, size);
+        foreach(string name in username)
+        {
+            encode(message, name, size);
+        }
+        sendMessage(bdd, message);
+    }
 }

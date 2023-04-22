@@ -359,7 +359,7 @@ public class Game
             // enlève à tout le monde l'immunité accordé par le Garde
             RemoveSaveStatus();
         }
-	//PointShare(checkWin);              Don't forget me please :) 
+	    PointShare(checkWin);
         Console.WriteLine(recit+"fin de jeu");
         EndGameInitializer();
 
@@ -393,7 +393,7 @@ public class Game
                     if (_joueurs[i].GetRole() is Chasseur)
                     {
                         LanceAction(typeof(Chasseur));
-                        victimeChasseur = _joueurs[i].GetVictime();
+                        victimeChasseur = ((Chasseur)_joueurs[i].GetRole()).GetVictime();
                     }
                     _joueurs[i].TuerJoueur(listJoueurs);
                     if (_joueurs[i].GetEstMaire())
@@ -1018,7 +1018,13 @@ public class Game
         }
         //SendPoints(_joueurs,id,score);       TODO: Team Network
     }
-
+    public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)
+    {
+        foreach(Joueur j in listJoueur)
+        {
+            server.sendScore(j.GetSocket(), id, score);
+        }
+    }
 
     public List<Joueur> GetJoueurs()
     {

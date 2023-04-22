@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
         buttonRole.onClick.AddListener(OnButtonClickRole);
-        buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
+        //buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);

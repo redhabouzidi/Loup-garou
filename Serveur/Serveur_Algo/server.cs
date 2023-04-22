@@ -518,7 +518,8 @@ namespace Server
             int[] size = new int[1] { 1 };
             encode(message, queueId, size);
             Array.Copy(msg, 1, message, size[0], dataLength - 1);
-            sendMessage(bdd, message);
+            if (bdd != null && bdd.Connected)
+                sendMessage(bdd, message);
         }
         //fonction qui en envoie la reponse de la base de donnée au client
         public static void redirect(Socket sock, byte[] message, int recvSize)
@@ -526,7 +527,8 @@ namespace Server
             byte[] newMessage = new byte[recvSize - sizeof(int)];
             newMessage[0] = message[0];
             Array.Copy(message, 1 + sizeof(int), newMessage, 1, recvSize - sizeof(int) - 1);
-            sendMessage(sock, newMessage);
+            if (sock != null && sock.Connected) 
+                sendMessage(sock, newMessage);
         }
         //fonction qui interroge la base de données pour les paties disponibles
         public static void getCurrentLobbies(Socket bdd, int queueId)
@@ -982,8 +984,6 @@ namespace Server
                     if (connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     break;
-                case 255:
-                    return;
                     break;
                 case 156:
                     redirect(bdd,queue.addVal(client),message);
@@ -991,6 +991,12 @@ namespace Server
                 case 157:
                     redirect(bdd,queue.addVal(client),message);
                     break;
+                case 158:
+                    if(connected.ContainsKey(client))
+                        redirect(bdd, queue.addVal(client), message);
+                    break;
+                case 255:
+                    return;
                 default:
                     break;
             }
@@ -1181,6 +1187,13 @@ namespace Server
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);
                     break;
+                case 158:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
 
             }
         }
@@ -1233,6 +1246,23 @@ namespace Server
         public static void WakeUpMain()
         {
             wakeUpMain.Send(new byte[1] { 255 });
+        }
+        public static void sendScore(Socket client, int[] id, int[] score)
+        {
+            byte[] message = new byte[1 + sizeof(int)*2 + sizeof(int)*id.Length+sizeof(int)*score.Length];
+            message[0] = 15;
+            int[] size = new int[1] { 1 };
+            encode(message, id.Length, size);
+            foreach(int i in id)
+            {
+                encode(message, i,size);
+            }
+            encode(message, score.Length, size);
+            foreach(int i in score)
+            {
+                encode(message,i,size);
+            }
+            sendMessage(client, message);
         }
     }
 

@@ -317,7 +317,7 @@ public class NetworkManager : MonoBehaviour
             if (server.Available == 0)
             {
                 prog = false;
-                rep.Add(null);
+                rep.Add(new byte[1]{255});
                 return;
             }
 
@@ -500,6 +500,19 @@ public class NetworkManager : MonoBehaviour
                     }
                     setGameInfo(name, idPlayers, playerNames);
                     ws.newGame = true;
+                    break;
+                case 13:
+                    idPlayers= new int[decode(message,size)];
+                    for (int i = 0; i < idPlayers.Length; i++)
+                    {
+                        idPlayers[i] = decode(message, size);
+                    }
+                    int[] score = new int[decode(message, size)];
+                    for(int i = 0; i < score.Length; i++)
+                    {
+                        score[i] = decode(message, size);
+                    }
+                    //afficher le score
                     break;
                 case 102:
                     idP = decode(message, size);
@@ -717,6 +730,32 @@ public class NetworkManager : MonoBehaviour
                         gma.AfficheError("Il y a eu une erreur veuiller reesayer ((((((((((((((((((((()))))))))))))))))))))");
                     }
                     break;
+                case 158:
+                    int idSize = decode(message, size);
+                    idPlayers = new int[idSize];
+                    for(int i = 0; i < idSize; i++)
+                    {
+                        idPlayers[i]=decode(message, size);
+                    }
+                    idSize = decode(message, size);
+                    playerNames = new string[idSize];
+                    for(int i = 0; i < idSize; i++)
+                    {
+                        playerNames[i] = decodeString(message, size);
+                    }
+                    if (idPlayers.Length == playerNames.Length)
+                    {
+                        for(int i = 0; i < idPlayers.Length; i++)
+                        {
+                            gma.addFriendAdd(playerNames[i], idPlayers[i]);
+
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("shouldn't happen");
+                    }
+                    break;
                 default:
                     Debug.Log("problem message");
                     break;
@@ -907,6 +946,16 @@ public class NetworkManager : MonoBehaviour
         encode(message, oldPassw, index);
         encode(message, newPassw, index);
         return SendMessageToServer(client, message);
+    }
+    public static int sendSearchRequest(int id,string pseudo)
+    {
+        byte[] message = new byte[1 + sizeof(int) * 2 + pseudo.Length];
+        message[0] = 158;
+        int[] size = new int[1] { 1 };
+        encode(message, id, size);
+        encode(message, pseudo, size);
+        return SendMessageToServer(client, message);
+
     }
 
 }

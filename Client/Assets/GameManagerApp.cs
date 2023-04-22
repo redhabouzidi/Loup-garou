@@ -182,7 +182,7 @@ public class GameManagerApp : MonoBehaviour
         TMP_InputField input_research = GO_add_research.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
         string pseudo = input_research.text;
         // appel fonction pour la requete
-        addFriendAdd("jean", 4);
+        NetworkManager.sendSearchRequest(NetworkManager.id, pseudo);
     }
     private void onButtonClickSendForgotPass()
     {

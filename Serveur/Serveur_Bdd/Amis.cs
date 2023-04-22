@@ -160,16 +160,12 @@ class Amis
         //retour
         return (identifiants,pseudos,dates);
     }
-
-
-   
-
-
-
-    public static string[] search_for_player(MySqlConnection conn,string name_player){
-        string query="SELECT pseudo FROM Utilisateurs WHERE pseudo LIKE @NP";
-        string[] data=conn.Query<string>(query,new{NP = "%" + name_player + "%"}).ToArray();
-        return data;
+    public static (int[],string[]) search_for_player(MySqlConnection conn,string name_player){
+        string query="SELECT idUsers,pseudo FROM Utilisateurs WHERE pseudo LIKE @NP";
+        List<(int id, string username)> data = conn.Query<(int, string)>(query, new { NP = "%" + name_player + "%" }).ToList();
+        string[] username = data.Select(r=> r.username).ToArray();
+        int[] id = data.Select(r => r.id).ToArray();
+        return (id,username);
     }
 
     public static int get_friend_count(MySqlConnection conn,int id_player){
