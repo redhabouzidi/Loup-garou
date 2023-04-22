@@ -172,7 +172,6 @@ public class GameManagerApp : MonoBehaviour
     }
     private void onButtonClickAdd()
     {
-        NetworkManager.ajoutAmi(NetworkManager.id,"demonow");
     }
     private void onButtonClickAccept()
     {
@@ -182,8 +181,8 @@ public class GameManagerApp : MonoBehaviour
     {
         TMP_InputField input_research = GO_add_research.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
         string pseudo = input_research.text;
-
         // appel fonction pour la requete
+        addFriendAdd("jean", 4);
     }
     private void onButtonClickSendForgotPass()
     {
@@ -270,6 +269,12 @@ public class GameManagerApp : MonoBehaviour
         GameObject button_cancel = newFriend.transform.Find("Button-cancel").gameObject;
         button_add.SetActive(true);
         button_cancel.SetActive(false);
+        Button bAdd = button_add.GetComponent<Button>();
+        bAdd.onClick.AddListener(() =>
+        {
+            NetworkManager.ajoutAmi(NetworkManager.id, id);
+        });
+
 
         listAdd.Add(newFriend);
     }
@@ -293,7 +298,44 @@ public class GameManagerApp : MonoBehaviour
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
         textName.text = name;
 
-        listFriend.Add(newFriend);
+        Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
+        Debug.Log(newFriend);
+        GameObject infoStatus = newFriend.transform.Find("Info_status").gameObject;
+        TextMeshProUGUI textStatus = infoStatus.transform.Find("Text_status").GetComponent<TextMeshProUGUI>();
+
+        GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
+        GO_buttonJoin.SetActive(false);
+        Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
+        buttonJoin.onClick.AddListener(() =>
+        {
+            //network join avec id
+        });
+        
+
+        Friend f = new Friend(id, status, newFriend);
+
+        switch(status){
+            case 2:
+                GO_buttonJoin.SetActive(true);
+                imgStatus.color = new Color32(79,200,74,100);
+                textStatus.text = "Online";
+                break;
+            case 1:
+                imgStatus.color = new Color32(79,200,74,100);
+                textStatus.text = "Online";
+                break;
+            case 3:
+                imgStatus.color = new Color32(74,156,200,100);
+                textStatus.text = "In Game";
+                break;
+            default:
+                imgStatus.color = new Color32(128,128,128,100);
+                textStatus.text = "Offline";
+                break;
+
+        }
+
+        listFriend.Add(f);
     }
 
     public void addFriendRequest(string name){
@@ -301,8 +343,18 @@ public class GameManagerApp : MonoBehaviour
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
         textName.text = name;
-
-        listRequest.Add(newFriend);
+        Button accepter = newFriend.transform.Find("Button-add").GetComponent<Button>();
+        accepter.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, true);
+        });
+        Button refuser = newFriend.transform.Find("Button-reject").GetComponent<Button>();
+        refuser.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, false);
+        });
+        Friend f =new Friend(id, newFriend);
+        listRequest.Add(f);
     }
 
     public void addNoFriend (string msg, GameObject container, List<GameObject> list){

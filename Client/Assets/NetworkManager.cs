@@ -564,6 +564,33 @@ public class NetworkManager : MonoBehaviour
                         }
                         cpo.SetActive(false);
                         ho.SetActive(true);
+                        int j = 0;
+                        for (; j < friends.Length; j++)
+                        {
+                            if (friends[j] == -1)
+                            {
+                                break;
+                            }
+                            gma.addFriend(names[j],status[j],friends[j]);
+                        }
+                        j++;
+                        for(;j< friends.Length;j++)
+                        {
+                            if (friends[j] == -1)
+                            {
+                                break;
+                            }
+                            gma.addFriendWait(names[j], friends[j]);
+                        }
+                        j++;
+                        for (; j < friends.Length; j++)
+                        {
+                            if (friends[j] == -1)
+                            {
+                                break;
+                            }
+                            gma.addFriendRequest(names[j], friends[j]);
+                        }
 
                     }
                     else
@@ -590,6 +617,7 @@ public class NetworkManager : MonoBehaviour
                 case 107:
                     idPlayer = decode(message, size);
                     int idStatus = decode(message, size);
+
                     //CHANGER LE STATUS DU JOUEUR (INFORMATION EN PLUS ????)
                     break;
                 case 108:
@@ -626,11 +654,14 @@ public class NetworkManager : MonoBehaviour
                     string pseudoFriend = decodeString(message, size);
                     if (id == idSender)
                     {
-                        Debug.Log("je suis celui qui envoie" + idSender + " " + idFriend);
+                        Debug.Log("je suis celui qui envoie"+idSender+" "+ idFriend);
+                        gma.addFriendWait(pseudoFriend, idFriend);
+
                     }
-                    else if (id == idFriend)
+                    else if(id== idFriend)
                     {
-                        Debug.Log("je suis celui qui recoit" + idFriend + " " + idSender);
+                        Debug.Log("je suis celui qui recoit"+idFriend+" "+idSender);
+                        gma.addFriendRequest(pseudoFriend, idFriend);
                     }
                     else
                     {
@@ -642,12 +673,36 @@ public class NetworkManager : MonoBehaviour
                     answer = decodeBool(message, size);
                     idSender = decode(message, size);
                     idFriend = decode(message, size);
+                    if(idSender == id)
+                    {
+                        //supprimer idFriend
+                    }else
+                        if (idFriend == id)
+                    {
+                        //supprimer idSender
+                    }
+                    else
+                    {
+
+                    }
                     //SUPPRESSION D'UN AMIS
                     break;
                 case 155:
-                    answer = decodeBool(message, size);
-                    idSender = decode(message, size);
-                    idFriend = decode(message, size);
+                    answer=decodeBool(message, size);   
+                    idSender=decode(message, size);
+                    idFriend=decode(message, size);
+                    if (idSender == id)
+                    {
+                        //Je susi celui qui a répondu
+                    }else
+                    if (idFriend == id)
+                    {
+                        //Je suis ceuli a qui on a répondu
+                    }
+                    else
+                    {
+                        Debug.Log("je ne suis pas sense recevoir ca");
+                    }
                     //REPONSE DEMANDE D'AMIS
                     break;
                 case 156:
@@ -791,13 +846,13 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(client, message);
     }
 
-    public static int ajoutAmi(int idUser, string username)
+    public static int ajoutAmi( int idUser, int id)
     {
-        byte[] message = new byte[1 + sizeof(int) * 2 + username.Length];
+        byte[] message = new byte[1 + sizeof(int) * 2 ];
         int[] size = new int[1] { 1 };
         message[0] = 153;
         encode(message, idUser, size);
-        encode(message, username, size);
+        encode(message, id, size);
 
         return SendMessageToServer(client, message);
     }

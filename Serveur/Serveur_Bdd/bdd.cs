@@ -235,9 +235,10 @@ public class bdd
         int[] size = new int[1] { 1 };
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
-        string username = decodeString(message, size);
-        int idAmis = Amis.send_friend_request(conn, id, username);
+        int idFriend = decodeInt(message, size);
+        int idAmis = Amis.send_friend_request(conn, id, idFriend);
         string pseudoJoueur = Amis.get_username(conn, id);
+        string username = Amis.get_username(conn, idFriend);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
         byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool) + sizeof(int) + sizeof(int) + pseudoJoueur.Length + sizeof(int) + sizeof(int) + username.Length];
         size[0] = 1;
@@ -267,7 +268,6 @@ public class bdd
         encode(newMessage, id, size);
         encode(newMessage, idDelete, size);
         return sendMessage(bdd, newMessage);
-
     }
     public static int reponseAmi(Socket bdd, byte[] message)
     {

@@ -154,21 +154,21 @@ public class GameManager : MonoBehaviour
 
                     }
                     break;
-                case 8:
-                    listPlayer.Add(new Player(p.GetUsername(), "Garde", 8, p.GetId(), true));
-                    if (NetworkManager.id == p.GetId())
-                    {
-                        this.p = new Player(p.GetUsername(), "Garde", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Guard";
-
-                    }
-                    break;
                 case 7:
                     listPlayer.Add(new Player(p.GetUsername(), "Dictateur", 7, p.GetId(), true));
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p = new Player(p.GetUsername(), "Dictateur", p.GetRole(), p.GetId(), true);
                         player_role.text = "Dictator";
+
+                    }
+                    break;
+                case 8:
+                    listPlayer.Add(new Player(p.GetUsername(), "Garde", 8, p.GetId(), true));
+                    if (NetworkManager.id == p.GetId())
+                    {
+                        this.p = new Player(p.GetUsername(), "Garde", p.GetRole(), p.GetId(), true);
+                        player_role.text = "Guard";
 
                     }
                     break;

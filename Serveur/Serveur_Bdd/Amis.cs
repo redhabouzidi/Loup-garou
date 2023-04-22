@@ -26,12 +26,11 @@ class Amis
     }
 
 
-    public static int send_friend_request(MySqlConnection conn, int id_sender, string receiver)
+    public static int send_friend_request(MySqlConnection conn, int id_sender, int receiver)
     {//envoyer une demande
         //Requete pour recuperer identifiant du joueur qui a reçoit la demande
-        string query = "SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
         //id=id_receiver
-        int id_receiver = conn.QueryFirstOrDefault<int>(query, new { Pseudo = receiver });
+        int id_receiver = receiver;
         using (MySqlCommand command = new MySqlCommand())
         {
             query = "SELECT count(*) FROM Amis WHERE idUsers1=@IDS AND idUsers2=@IDR";
