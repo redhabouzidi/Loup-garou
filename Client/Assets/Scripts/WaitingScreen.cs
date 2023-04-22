@@ -50,13 +50,13 @@ public class WaitingScreen : MonoBehaviour
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
         button_ready.onClick.AddListener(toggleReady);
-        //
         add_role(new string[8]{"Chasseur","Loup","Villageois","Voyante","Cupidon","Garde","Dictateur","Sorciere"},new int[8]{2,1,10,1,1,1,1,1});//le nombre des roles presents dans la partie
         descripts.text=roles_presents[index_desc].get_description();
         string role_count=" "+roles_presents[index_desc].get_role_count();
         if(roles_presents[index_desc].get_role_count()>1)role_count+=" Players";
         else role_count+=" Player";
-        nbPlayerP.text=role_count;
+        Debug.Log(role_count);
+        nbPlayerP.text = role_count;
         role_name.text=roles_presents[index_desc].get_role();
         descripts.font=mfont;
         descripts.fontSize=20;
@@ -64,7 +64,7 @@ public class WaitingScreen : MonoBehaviour
         change_image();//Charger le premier image
 
         AfficheCard();
-            }
+    }
 
     // Update is called once per frame
     void Update()
@@ -78,6 +78,10 @@ public class WaitingScreen : MonoBehaviour
         if (nbjoueur_rest != 0)
         {
             status.text = nbjoueur_rest + " remaining...";
+        }
+        else
+        {
+            status.text = " ready yourselves";
         }
     }
     public void toggleReady()

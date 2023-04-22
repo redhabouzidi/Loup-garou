@@ -114,23 +114,31 @@ class Amis
 
 
 
-    public static (int[],string[],DateTime[]) get_liste_amis(MySqlConnection conn,int idPlayer){
-        //Recuperer les amis qui a reçu une demande de joueur idPlayer
-        string query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers1=@IDF AND status_ami=@SA;";
-        List<(int id,DateTime date)> data_f=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=true}).ToList();
-        //Recuperer les amis qui a envoyé une demande au joueur idPlayer
-        query="SELECT idUsers1,date_amis FROM Amis WHERE idUsers2=@IDF AND status_ami=@SA;";
-        List<(int id,DateTime date)> data_s=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=true}).ToList();
-        //concatenation des listes reçu
-        int[] identifiants = data_f.Select(r => r.id).Concat(data_s.Select(r=>r.id)).ToArray();
-        DateTime[] dates = data_f.Select(r => r.date).Concat(data_s.Select(r=>r.date)).ToArray();
-        //Recuperer les pseudos a partir du liste des identifiants
-        query = "SELECT pseudo FROM Utilisateurs WHERE idUsers IN @IDS ORDER BY FIELD(idUsers, " + string.Join(",", identifiants) + ")";
-        string[]pseudos=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
-        //retour
-        return (identifiants,pseudos,dates);
+    public static (int[], string[], DateTime[]) get_liste_amis(MySqlConnection conn, int idPlayer)
+    {
+        try
+        {
+            //Recuperer les amis qui a reçu une demande de joueur idPlayer
+            string query = "SELECT idUsers2,date_amis FROM Amis WHERE idUsers1=@IDF AND status_ami=@SA;";
+            List<(int id, DateTime date)> data_f = conn.Query<(int, DateTime)>(query, new { IDF = idPlayer, SA = true }).ToList();
+            //Recuperer les amis qui a envoyé une demande au joueur idPlayer
+            query = "SELECT idUsers1,date_amis FROM Amis WHERE idUsers2=@IDF AND status_ami=@SA;";
+            List<(int id, DateTime date)> data_s = conn.Query<(int, DateTime)>(query, new { IDF = idPlayer, SA = true }).ToList();
+            //concatenation des listes reçu
+            int[] identifiants = data_f.Select(r => r.id).Concat(data_s.Select(r => r.id)).ToArray();
+            DateTime[] dates = data_f.Select(r => r.date).Concat(data_s.Select(r => r.date)).ToArray();
+            //Recuperer les pseudos a partir du liste des identifiants
+            query = "SELECT pseudo FROM Utilisateurs WHERE idUsers IN @IDS ORDER BY FIELD(idUsers, " + string.Join(",", identifiants) + ")";
+            string[] pseudos = conn.Query<string>(query, new { IDS = identifiants }).ToArray();
+            //retour
+            return (identifiants, pseudos, dates);
+        }
+        catch (Exception e)
+        {
+            return (new int[0], new string[0], new DateTime[0]);
+        }
     }
-    
+
     public static (int[],string[],DateTime[]) get_liste_amis_enattente(MySqlConnection conn,int idPlayer){
         //Recuperer les amis qui a reçu une demande de joueur idPlayer
         string query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers1=@IDF AND status_ami=@SA";
@@ -144,7 +152,10 @@ class Amis
         DateTime[] dates = data_f.Select(r => r.date).Concat(data_s.Select(r=>r.date)).ToArray();
         //Recuperer les pseudos a partir du liste des identifiants
         query = "SELECT pseudo FROM Utilisateurs WHERE idUsers IN @IDS ORDER BY FIELD(idUsers, " + string.Join(",", identifiants) + ")";
-        string[]pseudos=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
+        string[]temp=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
+        string[]pseudos = new string[temp.Length + 1];
+        Array.Copy(temp, 0, pseudos, 0, temp.Length);
+        pseudos[pseudos.Length - 1] = "";
         Console.WriteLine(pseudos.Length+" hey "+ identifiants.Length );
         //retour
         return (identifiants,pseudos,dates);

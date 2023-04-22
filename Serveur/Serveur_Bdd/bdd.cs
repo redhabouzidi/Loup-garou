@@ -210,20 +210,19 @@ public class bdd
             ids = new int[idAmis.Length + idAttente.Length + 1];
             names = new string[nameAmis.Length + nameAttente.Length + 1];
             int i = 0;
-            for (;i<ids.Length;i++)
+            for (;i< idAmis.Length;i++)
             {
                 ids[i] = idAmis[i];
                 names[i] = nameAmis[i];
-                i++;
             }
             ids[i] = -1;
             names[i] = "";
             i++;
-            for (;i<ids.Length;i++)
+            int j=0;
+            for (; j < idAttente.Length; j++)
             {
-                ids[i] = idAttente[i];
-                names[i] = nameAttente[i];
-                i++;
+                ids[i+j] = idAttente[j];
+                names[i+j] = nameAttente[j];
             }
             connexionAnswer(bdd, queueId, true, id, username, ids, names);
         }

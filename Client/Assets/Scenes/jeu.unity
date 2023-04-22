@@ -7889,7 +7889,7 @@ MonoBehaviour:
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
   mfont: {fileID: 0}
-  nbPlayerP: {fileID: 984951783}
+  nbPlayerP: {fileID: 1736376916}
   cardContainer: {fileID: 478001514}
   cardComponent: {fileID: 2504628310605923534, guid: eb7821d7c90dfa74c8f48b1d4461a24d, type: 3}
   colorNone: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.19607843}
@@ -30884,7 +30884,7 @@ GameObject:
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1720017997
 RectTransform:
   m_ObjectHideFlags: 0
