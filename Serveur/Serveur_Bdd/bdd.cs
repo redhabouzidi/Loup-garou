@@ -204,24 +204,25 @@ public class bdd
         {
             int id = Login.get_id(conn, username);
             //recuperer les amis
-
-            Dictionary<Tuple<int, string>, DateTime> data = Amis.get_liste_amis(conn, id, false), data2 = Amis.get_liste_amis_enattente(conn, id, false);
-            int[] ids = new int[data.Count + data2.Count + 1];
-            string[] names = new string[data.Count + data2.Count + 1];
+            int[] ids,idAmis,idAttente;string[] name,nameAmis,nameAttente;DateTime[] date,dateAmis,dateAttente;
+            (idAmis,nameAmis,dateAmis) = Amis.get_liste_amis(conn, id, false);
+            (idAttente,nameAttente,dateAttente) = Amis.get_liste_amis_enattente(conn, id, false);
+            int[] ids = new int[idAmis.Length + idAttente.Length + 1];
+            string[] names = new string[nameAmis + nameAttente + 1];
             int i = 0;
-            foreach (KeyValuePair<Tuple<int, string>, DateTime> element in data)
+            for (;i<ids.Length;i++)
             {
-                ids[i] = element.Key.Item1;
-                names[i] = element.Key.Item2;
+                ids[i] = idAmis[i];
+                names[i] = nameAmis[i];
                 i++;
             }
             ids[i] = -1;
-            names[i] = "E";
+            names[i] = "";
             i++;
-            foreach (KeyValuePair<Tuple<int, string>, DateTime> element in data2)
+            for (;i<ids.Length;i++)
             {
-                ids[i] = element.Key.Item1;
-                names[i] = element.Key.Item2;
+                ids[i] = idAttente;
+                names[i] = nameAttente;
                 i++;
             }
             connexionAnswer(bdd, queueId, true, id, username, ids, names);
