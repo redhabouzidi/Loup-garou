@@ -44,7 +44,7 @@ public class CreateScreen : MonoBehaviour
             inputLG.text = "" + nbLG;
         }
         // mise jour des toggle on s'il y a trop de roles par rapport au nb de joueur
-        for(int i = listToggle.Count-1; i < 0 || nbPlayer < (nbLG + CountToggleOn()); i--){
+        for(int i = listToggle.Count-1; i >= 0 && nbPlayer < (nbLG + CountToggleOn()); i--){
             listToggle[i].isOn = false;
         }
 

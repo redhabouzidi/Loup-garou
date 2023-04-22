@@ -71,8 +71,9 @@ public class GameManager : MonoBehaviour
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
-        Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
-        Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
+        GameObject buttonChoixAction = choixAction.transform.Find("Image").gameObject;
+        Button buttonOui = buttonChoixAction.transform.Find("Button-Oui").GetComponent<Button>();
+        Button buttonNon = buttonChoixAction.transform.Find("Button-Non").GetComponent<Button>();
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
@@ -178,7 +179,7 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
         InitPotion();
         EndVote();
-
+        
     }
 
     // Update is called once per frame

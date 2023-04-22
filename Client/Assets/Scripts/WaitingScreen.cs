@@ -104,7 +104,7 @@ public class WaitingScreen : MonoBehaviour
             initialize();
         }
         //verifier nombre de joeurs reste pour commencer la partie
-        if (nbjoueur_rest != 0)
+        if (nbjoueur_rest >= 0)
         {
             status.text = nbjoueur_rest + " remaining...";
         }

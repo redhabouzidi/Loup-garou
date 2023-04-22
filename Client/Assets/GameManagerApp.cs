@@ -215,16 +215,16 @@ public class GameManagerApp : MonoBehaviour
         text_error.text = msg;
     }
 
-    public void AddGame(int id, string name, int nbPlayer){
-        
+    public void AddGame(int id, string name, int nbPlayer)
+    {
         GameObject newGame = Instantiate(componentGame, containerGame.transform);
         Game g = new Game(id, name, nbPlayer, newGame);
 
-        TextMeshProUGUI textName = newGame.transform.Find("Text-village").GetComponent<TextMeshProUGUI>();
+        GameObject t = newGame.transform.Find("GraphicToggle").gameObject;
+        TextMeshProUGUI textName = t.transform.Find("Text-village").GetComponent<TextMeshProUGUI>();
         textName.text = name;
 
-        GameObject GO_Player = newGame.transform.Find("numberPlayers").gameObject;
-        TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI textPlayer = t.transform.Find("numberPlayers").GetComponent<TextMeshProUGUI>();
         textPlayer.text = "" + (nbPlayer - g.nbPlayer_rest) + "/"+ nbPlayer;
 
         //ajout dans le toggle groupe
@@ -374,7 +374,7 @@ public class GameManagerApp : MonoBehaviour
 public class Game
 {
     public int id;
-    public string name;
+    public string name = "Village";
     public int nbPlayer;
     public int nbPlayer_rest;
     public GameObject game;
@@ -384,7 +384,9 @@ public class Game
         this.id = id;
         this.name = name;
         this.nbPlayer = nbPlayer;
-        this.game = game;
+        if(name != ""){
+            this.game = game;
+        }
         nbPlayer_rest = nbPlayer;
     }
 }
