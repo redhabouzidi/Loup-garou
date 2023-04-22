@@ -438,12 +438,13 @@ public class Game
         int compVillage = 0, compLoups = 0;
         int retour = 0;
         bool coupleEnVie = false;
+        int sum_vill_loups = 0;
 
         for (int i = 0; i < _joueurs.Count; i++)
         {
             if (_joueurs[i].GetEnVie())
             {
-                if(_joueurs[i].GetAmoureux() != null && !coupleEnVie)
+                if (_joueurs[i].GetAmoureux() != null && !coupleEnVie)
                 {
                     coupleEnVie = true;
                 }
@@ -458,10 +459,10 @@ public class Game
                 }
             }
         }
-
+        sum_vill_loups = compLoups + compVillage;
         if (compVillage == 0)
         {
-            if(compLoups == 0)
+            if (compLoups == 0)
             {
                 retour = 4;
             }
@@ -474,16 +475,16 @@ public class Game
         {
             retour = 1;
         }
-        else if(compLoups == 1 && compVillage == 1)
+        else if (sum_vill_loups == 2)
         {
-            if(coupleEnVie)
+            if (coupleEnVie)
             {
                 retour = 3;
             }
         }
 
         // check la valeur de checkWin si on veut envoyer qui a gagné
-        if(retour != 0)
+        if (retour != 0)
         {
             List<Socket> sockets = new List<Socket>();
             int[] id = new int[listJoueurs.Count];
