@@ -108,7 +108,7 @@ public class bdd
                         ResetPasswdReq(bdd, message);
                         break;
                     case 157:
-                        ResetPassw(bdd, message);
+                        //ResetPassw(bdd, message);
                         break;
 
                 }
@@ -204,11 +204,11 @@ public class bdd
         {
             int id = Login.get_id(conn, username);
             //recuperer les amis
-            int[] ids,idAmis,idAttente;string[] name,nameAmis,nameAttente;DateTime[] date,dateAmis,dateAttente;
-            (idAmis,nameAmis,dateAmis) = Amis.get_liste_amis(conn, id, false);
-            (idAttente,nameAttente,dateAttente) = Amis.get_liste_amis_enattente(conn, id, false);
-            int[] ids = new int[idAmis.Length + idAttente.Length + 1];
-            string[] names = new string[nameAmis + nameAttente + 1];
+            int[] ids,idAmis,idAttente;string[] names,nameAmis,nameAttente;DateTime[] date,dateAmis,dateAttente;
+            (idAmis,nameAmis,dateAmis) = Amis.get_liste_amis(conn, id);
+            (idAttente,nameAttente,dateAttente) = Amis.get_liste_amis_enattente(conn, id);
+            ids = new int[idAmis.Length + idAttente.Length + 1];
+            names = new string[nameAmis.Length + nameAttente.Length + 1];
             int i = 0;
             for (;i<ids.Length;i++)
             {
@@ -221,8 +221,8 @@ public class bdd
             i++;
             for (;i<ids.Length;i++)
             {
-                ids[i] = idAttente;
-                names[i] = nameAttente;
+                ids[i] = idAttente[i];
+                names[i] = nameAttente[i];
                 i++;
             }
             connexionAnswer(bdd, queueId, true, id, username, ids, names);
@@ -237,9 +237,9 @@ public class bdd
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         int idFriend = decodeInt(message, size);
-        int idAmis = Amis.send_friend_request(conn, id, idFriend);
-        string pseudoJoueur = Amis.get_username(conn, id);
-        string username = Amis.get_username(conn, idFriend);
+        Amis.send_friend_request(conn, id, idFriend);
+        string pseudoJoueur = Amis.get_pseudo(conn, id);
+        string username = Amis.get_pseudo(conn, idFriend);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
         byte[] newMessage = new byte[1 + sizeof(int) + sizeof(bool) + sizeof(int) + sizeof(int) + pseudoJoueur.Length + sizeof(int) + sizeof(int) + username.Length];
         size[0] = 1;
@@ -248,7 +248,7 @@ public class bdd
         encode(newMessage, true, size);
         encode(newMessage, id, size);
         encode(newMessage, pseudoJoueur, size);
-        encode(newMessage, idAmis, size);
+        encode(newMessage, idFriend, size);
         encode(newMessage, username, size);
         return sendMessage(bdd, newMessage);
 
@@ -355,7 +355,7 @@ public class bdd
         return bdd.Send(msg);
 
     }
-
+/*
     public static void ResetPassw(Socket bdd, byte[] message)
     {
         int[] size = new int[1] { 1 };
@@ -377,5 +377,5 @@ public class bdd
         }
         bdd.Send(msg);
     }
-
+*/
 }

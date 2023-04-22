@@ -4,12 +4,11 @@ using System;
 using Dapper;
 using System.Linq;
 using System.Collections.Generic;
-using Internal;
 
 class Amis
 {
 
-    public int get_id(MySqlConnection conn,string pseudo){
+    public static int get_id(MySqlConnection conn,string pseudo){
         try{
             //Requete pour recuperer identifiant du joueur
             string query="SELECT idUsers FROM Utilisateurs WHERE pseudo=@Pseudo";
@@ -23,7 +22,7 @@ class Amis
         }
     }
 
-    public string get_pseudo(MySqlConnection conn,int idplayer){
+    public static string get_pseudo(MySqlConnection conn,int idplayer){
         try{
             //requete pour recuperer le pseudo d'un joueur
             string query="SELECT pseudo FROM Utilisateurs WHERE idUsers=@IDJ";
@@ -39,7 +38,7 @@ class Amis
 
 
 
-    public void send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
+    public static void send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
         try{
             using(MySqlCommand command=new MySqlCommand()){
                 //Attribuer la connection à la commande
@@ -65,7 +64,7 @@ class Amis
 
 
 
-    public void accept_friend_request(MySqlConnection conn,int playeraccepte,int playersend){//accepter la demande
+    public static void accept_friend_request(MySqlConnection conn,int playeraccepte,int playersend){//accepter la demande
         try{
             using(MySqlCommand command=new MySqlCommand()){
                 //Attribuer la connection à la commande
@@ -91,7 +90,7 @@ class Amis
 
 
 
-    public void refuse_friend_request(MySqlConnection conn,int playerrefuse,int playersender){//refuser la demande ou supprimer
+    public static void refuse_friend_request(MySqlConnection conn,int playerrefuse,int playersender){//refuser la demande ou supprimer
         try{
             using(MySqlCommand command=new MySqlCommand()){
                 //Attribuer la connection à la commande
@@ -115,7 +114,7 @@ class Amis
 
 
 
-    public (int[],string[],DateTime[]) get_liste_amis(MySqlConnection conn,int idPlayer){
+    public static (int[],string[],DateTime[]) get_liste_amis(MySqlConnection conn,int idPlayer){
         //Recuperer les amis qui a reçu une demande de joueur idPlayer
         string query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers1=@IDF AND status_ami=@SA;";
         List<(int id,DateTime date)> data_f=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=true}).ToList();
@@ -130,13 +129,13 @@ class Amis
         string[]pseudos=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
         //retour
         return (identifiants,pseudos,dates);
-    } 
-
-    public (int[],string[],DateTime[]) get_liste_amis_enattente(MySqlConnection conn,int idPlayer){
+    }
+    
+    public static (int[],string[],DateTime[]) get_liste_amis_enattente(MySqlConnection conn,int idPlayer){
         //Recuperer les amis qui a reçu une demande de joueur idPlayer
         string query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers1=@IDF AND status_ami=@SA";
         List<(int id,DateTime date)> data_f=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=false}).ToList();
-        data_f.Add(-1,new DateTime());
+        data_f.Add((-1,new DateTime()));
         //Recuperer les amis qui a envoyé une demande au joueur idPlayer
         query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers2=@IDF AND status_ami=@SA";
         List<(int id,DateTime date)> data_s=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=false}).ToList();
@@ -156,13 +155,13 @@ class Amis
 
 
 
-    public string[] search_for_player(MySqlConnection conn,string name_player){
+    public static string[] search_for_player(MySqlConnection conn,string name_player){
         string query="SELECT pseudo FROM Utilisateurs WHERE pseudo LIKE @NP";
         string[] data=conn.Query<string>(query,new{NP = "%" + name_player + "%"}).ToArray();
         return data;
     }
 
-    public int get_friend_count(MySqlConnection conn,int id_player){
+    public static int get_friend_count(MySqlConnection conn,int id_player){
         int friend_count=0;
         //Recuperer le nombre d'amis d'un joueur
         //soit ses amis qui ont recu la demande de ce joueur
