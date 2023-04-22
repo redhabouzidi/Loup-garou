@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     private float timer_text_screen = 2f;
     private bool text_screen_active = false;
 
-    public Color colorRed, colorWhite, colorBlack, colorYellow, colorPink, colorBlue;
+    public Color colorRed, colorWhite, colorBlack, colorYellow, colorGreen, colorPink, colorBlue;
     public TextMeshProUGUI text_day, player_role, text_screen;
     public GameObject panel_text_screen;
     public Sprite VoyanteSprite, VillageoisSprite, LoupSprite, CupidonSprite, SorciereSprite;
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
     public int isVillageWin = 1;
     public GameObject winPanel, textWinPlayer;
     List<TextMeshProUGUI> listTextwin = new List<TextMeshProUGUI>();
-    public TextMeshProUGUI groupWin;
+    public TextMeshProUGUI groupWin, nbPoints;
 
     public GameObject gamePage, winScreenPage;
     //Cupidon
@@ -987,6 +987,68 @@ public class GameManager : MonoBehaviour
 
                 cardVote.SetActive(true);
             }
+        }
+    }
+
+    public void calculPoints() {
+        if(isVillageWin == 1) {
+            if(p.GetRole() != "Loup-Garou") {
+                if(p.GetIsAlive()) {
+                    nbPoints.text = "+ 50 Points";
+                }
+
+                else {
+                    nbPoints.text = "+ 25 Points";
+                }
+            }
+
+            else nbPoints.text = "+ 0 Point";
+        }
+
+        if(isVillageWin == 2) {
+            if(p.GetRole() == "Loup-Garou") {
+                if(p.GetIsAlive()) {
+                    nbPoints.text = "+ 50 Points";
+                }
+
+                else {
+                    nbPoints.text = "+ 25 Points";
+                }
+            }
+
+            else if(p.GetIsAlive()) nbPoints.text = "+ 25 Points";
+            else nbPoints.text = "+ 0 Point";
+        }
+
+        if(isVillageWin == 3) {
+            if(p.GetIsMarried()) {
+                nbPoints.text = "+ 50 Points";
+            }
+
+            else {
+                if(p.GetIsAlive()) {
+                    nbPoints.text = "+ 25 Points";
+                }
+                else nbPoints.text = "+ 0 Point";
+            }
+        }
+
+        if(isVillageWin == 4) {
+            if(p.GetIsAlive()) {
+                nbPoints.text = "+ 25 Points";
+            }
+            else nbPoints.text = "+ 0 Point";
+        }
+
+        switch(nbPoints.text) {
+            case "+ 50 Points" : nbPoints.color = colorGreen;
+                break;
+            case "+ 25 Points" : nbPoints.color = colorYellow;
+                break;
+            case "+ 0 Point" : nbPoints.color = colorRed;
+                break;
+            default : nbPoints.color = colorWhite;
+                break;
         }
     }
 
