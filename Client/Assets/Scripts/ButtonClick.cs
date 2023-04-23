@@ -27,7 +27,7 @@ public class ButtonClick : MonoBehaviour
             chatNotification.SetActive(false);
             imageSeeHide.transform.localScale = new Vector3(1,1,1);
         }
-        chat.gameObject.SetActive(!chat.gameObject.activeSelf);
+        chat.gameObject.SetActive(!chat.activeSelf);
         isHide = !isHide;
     }
 }

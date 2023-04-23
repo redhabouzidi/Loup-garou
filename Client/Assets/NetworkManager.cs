@@ -591,7 +591,7 @@ public class NetworkManager : MonoBehaviour
                                 break;
                             }
                             Debug.Log("id = " + j+" real id = " + friends[j]+" name = " + names[j]+" status = " + status[j]);
-                            gma.addFriend(names[j],status[j],friends[j]);
+                            gma.addFriend(names[j],friends[j],status[j]);
                         }
                         j++;
                         for(;j< friends.Length;j++)
@@ -638,7 +638,8 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     int idStatus = decode(message, size);
 
-                    //CHANGER LE STATUS DU JOUEUR (INFORMATION EN PLUS ????)
+                    //CHANGER LE STATUS DU JOUEUR
+                    gma.UpdateStatusFriend(idPlayer, idStatus);
                     break;
                 case 108:
                     idPlayer = decode(message, size);
@@ -696,10 +697,12 @@ public class NetworkManager : MonoBehaviour
                     if(idSender == id)
                     {
                         //supprimer idFriend
+                        gma.SupprimerAmi(idFriend);
                     }else
                         if (idFriend == id)
                     {
                         //supprimer idSender
+                        gma.SupprimerAmi(idSender);
                     }
                     else
                     {
@@ -714,10 +717,12 @@ public class NetworkManager : MonoBehaviour
                     if (idSender == id)
                     {
                         //Je susi celui qui a répondu
+                        gma.AccepterAmi(idFriend, answer);
                     }else
                     if (idFriend == id)
                     {
                         //Je suis ceuli a qui on a répondu
+                        gma.ReponseAccepterAmi(idSender, answer);
                     }
                     else
                     {

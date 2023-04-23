@@ -183,6 +183,8 @@ public class GameManagerApp : MonoBehaviour
     }
     private void OnButtonClickResearch()
     {
+        ClearListGameObject(listAdd);
+
         TMP_InputField input_research = GO_add_research.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
         string pseudo = input_research.text;
         // appel fonction pour la requete
@@ -278,7 +280,13 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.ajoutAmi(NetworkManager.id, id);
         });
-        Friend f = new Friend(id, newFriend);
+        Button bCancel = button_cancel.GetComponent<Button>();
+        bCancel.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, false);
+        });
+        Friend f = new Friend(id, name, newFriend);
+
         listAdd.Add(f);
     }
 
@@ -292,7 +300,18 @@ public class GameManagerApp : MonoBehaviour
         button_add.SetActive(false);
         button_cancel.SetActive(true);
 
-        Friend f = new Friend(id, newFriend);
+        Button bAdd = button_add.GetComponent<Button>();
+        bAdd.onClick.AddListener(() =>
+        {
+            NetworkManager.ajoutAmi(NetworkManager.id, id);
+        });
+        Button bCancel = button_cancel.GetComponent<Button>();
+        bCancel.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, false);
+        });
+
+        Friend f = new Friend(id, name, newFriend);
         listWait.Add(f);
 
     }
@@ -304,39 +323,45 @@ public class GameManagerApp : MonoBehaviour
         textName.text = name;
 
         Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
-        Debug.Log(newFriend);
         GameObject infoStatus = newFriend.transform.Find("Info_status").gameObject;
         TextMeshProUGUI textStatus = infoStatus.transform.Find("Text_status").GetComponent<TextMeshProUGUI>();
+        infoStatus.SetActive(false);
 
         GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
         GO_buttonJoin.SetActive(false);
         Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
-
         buttonJoin.onClick.AddListener(() =>
         {
             //network join avec id
         });
+
+        Button buttonDelete = newFriend.transform.Find("Button-delete").GetComponent<Button>();
+        buttonDelete.onClick.AddListener(() =>
+        {
+            NetworkManager.supprimerAmi(NetworkManager.id, id);
+        });
+        
         switch(status){
             case 2:
                 GO_buttonJoin.SetActive(true);
-                imgStatus.color = new Color32(79,200,74,100);
+                imgStatus.color = new Color32(79,200,74,255);
                 textStatus.text = "Online";
                 break;
             case 1:
-                imgStatus.color = new Color32(79,200,74,100);
+                imgStatus.color = new Color32(79,200,74,255);
                 textStatus.text = "Online";
                 break;
             case 3:
-                imgStatus.color = new Color32(74,156,200,100);
+                imgStatus.color = new Color32(74,156,200,255);
                 textStatus.text = "In Game";
                 break;
             default:
-                imgStatus.color = new Color32(128,128,128,100);
+                imgStatus.color = new Color32(128,128,128,255);
                 textStatus.text = "Offline";
                 break;
 
         }
-        Friend f = new Friend(id, newFriend);
+        Friend f = new Friend(id, name, newFriend);
         listFriend.Add(f);
     }
 // status:
@@ -361,22 +386,113 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.reponseAmi(NetworkManager.id, id, false);
         });
-        Friend f =new Friend(id, newFriend);
+        Friend f =new Friend(id, name, newFriend);
         listRequest.Add(f);
     }
 
-    public void addNoFriend (string msg, GameObject container, List<GameObject> list){
+    public void addNoFriend (string msg, GameObject container, List<Friend> list){
         GameObject newObject = Instantiate(componentNo, container.transform);
 
         TextMeshProUGUI textName = newObject.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         textName.text = msg;
+
         
-        list.Add(newObject);
+        list.Add(new Friend(newObject));
     }
 
-    public void ClearListGameObject(List<GameObject> list){
-        foreach (GameObject obj in list){
-            Destroy(obj);
+    public void UpdateStatusFriend(int id, int status)
+    {
+        int indice = GetIndiceFriendId(id, listFriend);
+        GameObject newFriend = listFriend[indice].obj;
+
+        Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
+        GameObject infoStatus = newFriend.transform.Find("Info_status").gameObject;
+        TextMeshProUGUI textStatus = infoStatus.transform.Find("Text_status").GetComponent<TextMeshProUGUI>();
+
+        GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
+        Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
+        GO_buttonJoin.SetActive(false);
+
+        buttonJoin.onClick.AddListener(() =>
+        {
+            //network join avec id
+        });
+        
+        switch(status){
+            case 2:
+                GO_buttonJoin.SetActive(true);
+                imgStatus.color = new Color32(79,200,74,255);
+                textStatus.text = "Online";
+                break;
+            case 1:
+                imgStatus.color = new Color32(79,200,74,255);
+                textStatus.text = "Online";
+                break;
+            case 3:
+                imgStatus.color = new Color32(74,156,200,255);
+                textStatus.text = "In Game";
+                break;
+            default:
+                imgStatus.color = new Color32(128,128,128,255);
+                textStatus.text = "Offline";
+                break;
+
+        }
+
+    }
+
+    public void SupprimerAmi(int id){
+        int indice = GetIndiceFriendId(id, listFriend);
+        Destroy(listFriend[indice].obj);
+        listFriend.Remove(listFriend[indice]);
+    }
+
+    // Modification des amis de la personne qui répond
+    // il faudra probablement ajouter la recherche dans la liste listadd et listwait
+    // si c'est le même message envoyé quand on annule une demande d'ami
+    public void AccepterAmi(int id, bool answer)
+    {
+        int indice = GetIndiceFriendId(id, listRequest);
+        if(indice == -1){
+            return; // error
+        }
+        Friend f = listRequest[indice];
+        if(answer){
+            addFriend(f.name, f.id, -1);
+        }
+        Destroy(f.obj);
+        listRequest.Remove(f);
+    }
+
+    // Modification des amis de la personne qui a eu une réponse
+    public void ReponseAccepterAmi(int id, bool answer)
+    {
+        int indice = GetIndiceFriendId(id, listWait);
+        if(indice == -1){
+            return; // error
+        }
+        Friend f = listWait[indice];
+        if(answer){
+            addFriend(f.name, f.id, -1);
+        }
+        Destroy(f.obj);
+        listRequest.Remove(f);
+    }
+
+    public int GetIndiceFriendId(int id, List<Friend> list){
+        int indice = -1; 
+        for(int i=0; i<list.Count ; i++){
+            if(list[i].id == id){
+                indice = i;
+                break;
+            }
+        }
+        return indice;
+    }
+
+    public void ClearListGameObject(List<Friend> list){
+        foreach (Friend obj in list){
+            Destroy(obj.obj);
         }
         list.Clear();
     }
@@ -416,21 +532,28 @@ public class Game
 public class Friend
 {
     public int id;
+    public string name;
     public int status;
     public GameObject obj;
 
     public Friend(){}
 
-    public Friend(int id, int status, GameObject obj)
+    public Friend(GameObject obj){
+        this.obj = obj;
+    }
+
+    public Friend(int id, string name, int status, GameObject obj)
     {
         this.id = id;
+        this.name = name;
         this.status = status;
         this.obj = obj;
     }
 
-    public Friend(int id, GameObject obj)
+    public Friend(int id, string name, GameObject obj)
     {
         this.id = id;
+        this.name = name;
         this.obj = obj;
     }
 
