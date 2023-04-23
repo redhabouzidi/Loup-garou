@@ -1017,7 +1017,7 @@ public class Game
             }
             i++;
         }
-        //SendPoints(_joueurs,id,score);       TODO: Team Network
+        SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)
     {

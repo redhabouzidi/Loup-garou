@@ -224,8 +224,8 @@ public class GameManager : MonoBehaviour
     }
     private void OnButtonClickSePresenter()
     {
-        SendMessageToChat("" + p.GetPseudo() + " stands for Mayor elections !", Message.MsgType.system);
-        sestPresente = true;
+        
+        NetworkManager.sendMayorPresentation();
     }
     private void OnButtonClickLeaveGame()
     {

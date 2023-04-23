@@ -140,6 +140,7 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.reseau(email,password);
         });
+        Debug.Log(NetworkManager.client);
         
     }
 
@@ -172,14 +173,14 @@ public class GameManagerApp : MonoBehaviour
 
     private void OnButtonClickJoin()
     {
-        NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
+        NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id);
     }
     private void onButtonClickAdd()
     {
     }
     private void onButtonClickAccept()
     {
-        NetworkManager.reponseAmi( NetworkManager.id, 4,true);
+
     }
     private void OnButtonClickResearch()
     {
@@ -332,7 +333,9 @@ public class GameManagerApp : MonoBehaviour
         Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
         buttonJoin.onClick.AddListener(() =>
         {
-            //network join avec id
+            NetworkManager.joinFriend(id, NetworkManager.id);
+            GameObject.Find("Canvas").transform.Find("Friends").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("Home").gameObject.SetActive(true);
         });
 
         Button buttonDelete = newFriend.transform.Find("Button-delete").GetComponent<Button>();
