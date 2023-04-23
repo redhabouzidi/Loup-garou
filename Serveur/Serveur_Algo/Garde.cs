@@ -13,11 +13,10 @@ public class Garde : Role
         description = "blabla";
     }
     
-    public override void Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs)
     { // écrire l'action de la Voyante
-            sendTurn(listJoueurs, GetIdRole());
-        
-        
+        string retour;
+        sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -36,8 +35,8 @@ public class Garde : Role
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
 
@@ -70,8 +69,8 @@ public class Garde : Role
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
                             Console.WriteLine("le Garde a voté, ça passe à 5sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }
@@ -80,12 +79,15 @@ public class Garde : Role
         }
         if(player != null) {
             Idsave = player.GetId();
+            retour = "Pendant ce temps-là, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, décide de rester défendre la maison de " + player.GetPseudo() + " cette nuit. ";
         } 
         else
         {
             Idsave = -1;
+            retour = "Pendant ce temps-là, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, décide de passer la nuit tranquillement et ne défendra personne cette nuit… ";
         }
 
+        return retour;
     }
 
     public override int GetIdRole() {

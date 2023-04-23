@@ -15,7 +15,7 @@ public abstract class Role
         return name;
     }
 
-    public abstract void Action(List<Joueur> listJoueurs);
+    public abstract string Action(List<Joueur> listJoueurs);
 
 
     public (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)
@@ -54,9 +54,9 @@ public abstract class Role
             {
                 read.Add(socket);
             }
-	    Console.WriteLine("bah on attends alors");
+	        Console.WriteLine("bah on attends alors");
             Socket.Select(read, null, null, -1);
-	    Console.WriteLine("ici c'est 3");
+	        Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
                 Console.WriteLine("on va sortir");
@@ -97,22 +97,22 @@ public abstract class Role
                     if (role.Contains(sock))
                     {
             
-			    if (message[0] == 1)
+			            if (message[0] == 1)
+                        {
+				            Console.WriteLine("ici c'est 5");
+                            int idVoter = server.decodeInt(message, size);
+                            int idVoted = server.decodeInt(message, size);
+                            Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
+                            if (idVoter == dictJoueur[sock].GetId())
                             {
-				    Console.WriteLine("ici c'est 5");
-                                int idVoter = server.decodeInt(message, size);
-                                int idVoted = server.decodeInt(message, size);
-                                Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
-                                if (idVoter == dictJoueur[sock].GetId())
-                                {
-                                    return (idVoter, idVoted);
-                                }
+                                return (idVoter, idVoted);
+                            }
 
-                            }
-                            else
-                            {
-				        server.recvMessageGame(sockets,message,recvSize);
-                            }
+                        }
+                        else
+                        {
+				            server.recvMessageGame(sockets,message,recvSize);
+                        }
                         
                     }
                     else

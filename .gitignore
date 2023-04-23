@@ -16,6 +16,7 @@ server
 
 # Visual Studio Code generated
 /.vscode/
+/.vs/
 
 # Rider generated
 .idea/

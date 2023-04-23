@@ -11,10 +11,10 @@ public class Voyante : Role
         description = "blabla";
     }
 
-    public override void Action(List<Joueur> listJoueurs)
-    { // Ã©crire l'action de la Voyante
+    public override string Action(List<Joueur> listJoueurs)
+    { // écrire l'action de la Voyante
+        string retour;
         sendTurn(listJoueurs, GetIdRole());
-
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -62,6 +62,18 @@ public class Voyante : Role
                 }
             }
         }
+
+        if (player != null)
+        {
+            retour = JoueurVoyante.GetPseudo() + " se met à regarder dans sa boule de cristal… elle voit… " + player.GetPseudo() + " qui s’avère être " + player.GetRole() + ". ";
+        }
+        else
+        {
+            retour = JoueurVoyante.GetPseudo() +
+                     " se met à regarder dans sa boule de cristal… elle ne voit rien de spécial ce soir-là… ";
+        }
+
+        return retour;
     }
 
     public override int GetIdRole()

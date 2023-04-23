@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,9 +10,9 @@ using UnityEngine.SceneManagement;
 
 public class GameManagerApp : MonoBehaviour
 {
-
+    public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -17,22 +20,48 @@ public class GameManagerApp : MonoBehaviour
     public TMP_InputField inputEmailForgotPass, inputCodeForgotPass, inputPassForgotPass, inputPassForgotPass2;
     public static List<Game> listGame = new List<Game>();
     public GameObject containerGame, componentGame, toggleGroupGame;
-
+    public static string email;
 
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
-    public GameObject componentAddWait, componentRequest, componentFriend;
-    public List<GameObject> listFriend, listAdd, listRequest, listWait;
+    public GameObject componentAddWait, componentRequest, componentFriend, componentNo;
+    public List<Friend> listFriend, listAdd, listRequest, listWait;
     public static int scene;
+
+    // profile
+    //NetworkManager
+    public static Socket client=null;
     // Start is called before the first frame update
     void Start()
     {
+        if (client != null)
+        {
+            NetworkManager.client = client;
+        }
+        else
+        {
+        NetworkManager.rep = new List<byte[]>();
+
+        }
+        NetworkManager.canvas = GameObject.Find("Canvas");
+        NetworkManager.ho = NetworkManager.canvas.transform.Find("Home").gameObject;
+        NetworkManager.cpo = NetworkManager.canvas.transform.Find("ConnectionPage").gameObject;
+        NetworkManager.sp = NetworkManager.canvas.transform.Find("StartPage").gameObject;
+        NetworkManager.wso = NetworkManager.canvas.transform.Find("WaitingScreen").gameObject;
+        NetworkManager.lo = NetworkManager.canvas.transform.Find("Lobby").gameObject;
+        NetworkManager.gmao = GameObject.Find("GameManagerApp").gameObject;
+        NetworkManager.gma = NetworkManager.gmao.GetComponent<GameManagerApp>();
+        NetworkManager.ws = NetworkManager.wso.GetComponent<WaitingScreen>();
+
+
         GameManagerApp.players = new List<player>();
-        listFriend = new List<GameObject>();
-        listAdd = new List<GameObject>();
-        listRequest = new List<GameObject>();
-        listWait = new List<GameObject>();
+        listFriend = new List<Friend>();
+        listAdd = new List<Friend>();
+        listRequest = new List<Friend>();
+        listWait = new List<Friend>();
         Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
+        profileUsername.text = inputFRegPseudo.text;
+
 
         buttonResearch.onClick.AddListener(OnButtonClickResearch);
         buttonQuit.onClick.AddListener(OnButtonClickQuit);
@@ -46,20 +75,22 @@ public class GameManagerApp : MonoBehaviour
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonAccept.onClick.AddListener(onButtonClickAccept);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
+        buttonLogout.onClick.AddListener(onButtonClickLogout);
 
         if (scene == 1)
         {
             scene = 0;
             Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
             temp.Find("Home").gameObject.SetActive(true);
+            Debug.Log("scene 1");
         }else
         if (scene == 2)
         {
             scene = 0;
-            NetworkManager.sendRequestGames(NetworkManager.client);
+            NetworkManager.sendRequestGames();
             Transform temp = GameObject.Find("Canvas").transform;
-            temp.Find("StartPage").gameObject.SetActive(false);
+            temp.Find("Home").gameObject.SetActive(true);
+            Debug.Log("scene 2");
 
         }
     }
@@ -72,6 +103,7 @@ public class GameManagerApp : MonoBehaviour
             exitGame();
             // Quit the game
         }
+        NetworkManager.listener();
     }
 
     public static void exitGame()
@@ -86,7 +118,10 @@ public class GameManagerApp : MonoBehaviour
 #endif
 
     }
-
+    private void onButtonClickLogout()
+    {
+        NetworkManager.logout(NetworkManager.client);
+    }
     private void OnButtonClickQuit()
     {
         exitGame();
@@ -94,28 +129,24 @@ public class GameManagerApp : MonoBehaviour
     }
     public void onButtonClickQuitLobby()
     {
-        NetworkManager.sendQuitLobbyMessage(NetworkManager.client);
+        NetworkManager.sendQuitLobbyMessage();
     }
     private void OnButtonClickConnection()
     {
+        box_error.SetActive(false);
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
-
-        // hash password avant
-        NetworkManager.login(NetworkManager.client, email, password);
-        //isSuccess = ??
-        /*if (isSuccess){
-            box_error.SetActive(false);
-            loginPage.SetActive(false);
-            waitPage.SetActive(true);
-        }
-        else{
-            AfficheError("Error: Email/Pseudo or password is invalide");
-        }*/
+        NetworkManager.task = Task.Run(() =>
+        {
+            NetworkManager.reseau(email,password);
+        });
+        
     }
 
     private void OnButtonClickRegistration()
     {
+
+        box_error.SetActive(false);
         string email = inputFRegEmail.text;
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
@@ -123,50 +154,47 @@ public class GameManagerApp : MonoBehaviour
 
         if (password == password2)
         {
-            NetworkManager.sendInscription(NetworkManager.client, pseudo, password, email);
-            //isSuccess = retour du serveur / bdd
-            /*if (isSuccess){
-                box_error.SetActive(false);
-                registrationPage.SetActive(false);
-                loginPage.SetActive(true);
-            }
-            else {
-                AfficheError("Error: Dire ce qu'il va pas");
-            }*/
+            NetworkManager.reseau(pseudo, password, email);
         }
         else
         {
             AfficheError("Error: the password is not the same");
         }
+        NetworkManager.recvMessage(NetworkManager.client);
     }
 
     private void OnButtonClickPublic()
     {
-        NetworkManager.sendRequestGames(NetworkManager.client);
+        NetworkManager.sendRequestGames();
+        Debug.Log("join should work");
+
     }
 
     private void OnButtonClickJoin()
     {
-        NetworkManager.join(NetworkManager.client, GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
+        NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id, NetworkManager.username);
     }
     private void onButtonClickAdd()
     {
-        NetworkManager.ajoutAmi(NetworkManager.client,NetworkManager.id,"demonow");
     }
     private void onButtonClickAccept()
     {
-        NetworkManager.reponseAmi(NetworkManager.client, NetworkManager.id, 4,true);
+        NetworkManager.reponseAmi( NetworkManager.id, 4,true);
     }
     private void OnButtonClickResearch()
     {
         TMP_InputField input_research = GO_add_research.transform.Find("InputField (TMP)").GetComponent<TMP_InputField>();
         string pseudo = input_research.text;
-
         // appel fonction pour la requete
+        NetworkManager.sendSearchRequest(NetworkManager.id, pseudo);
     }
     private void onButtonClickSendForgotPass()
     {
-        string email = inputEmailForgotPass.text;
+        email = inputEmailForgotPass.text;
+        NetworkManager.reseau(email);
+
+        byte [] message=new byte[1+sizeof(bool)];
+        NetworkManager.recvMessage(NetworkManager.client);
 
     }
     private void onButtonClickChangeForgotPass()
@@ -174,13 +202,14 @@ public class GameManagerApp : MonoBehaviour
         string code = inputCodeForgotPass.text;
         string pass = inputPassForgotPass.text;
         string pass2 = inputPassForgotPass2.text;
-
+        
         if(pass == pass2){
-            // envoyer 
+            NetworkManager.ResetPassw(email,code,pass);
         }
         else{
             AfficheError("Your password is not the same.");
         }
+        NetworkManager.recvMessage(NetworkManager.client);
     }
 
     public void AfficheError(string msg)
@@ -235,7 +264,7 @@ public class GameManagerApp : MonoBehaviour
         return -1;
     }
 
-    public void addFriendAdd(string name){
+    public void addFriendAdd(string name,int id){
         GameObject newFriend = Instantiate(componentAddWait, containerAdd.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -244,11 +273,16 @@ public class GameManagerApp : MonoBehaviour
         GameObject button_cancel = newFriend.transform.Find("Button-cancel").gameObject;
         button_add.SetActive(true);
         button_cancel.SetActive(false);
-
-        listAdd.Add(newFriend);
+        Button bAdd = button_add.GetComponent<Button>();
+        bAdd.onClick.AddListener(() =>
+        {
+            NetworkManager.ajoutAmi(NetworkManager.id, id);
+        });
+        Friend f = new Friend(id, newFriend);
+        listAdd.Add(f);
     }
 
-    public void addFriendWait(string name){
+    public void addFriendWait(string name,int id){
         GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -258,25 +292,86 @@ public class GameManagerApp : MonoBehaviour
         button_add.SetActive(false);
         button_cancel.SetActive(true);
 
-        listWait.Add(newFriend);
+        Friend f = new Friend(id, newFriend);
+        listWait.Add(f);
+
     }
 
-    public void addFriend(string name){
+    public void addFriend(string name,int id,int status){
         GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
         textName.text = name;
 
-        listFriend.Add(newFriend);
-    }
+        Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
+        Debug.Log(newFriend);
+        GameObject infoStatus = newFriend.transform.Find("Info_status").gameObject;
+        TextMeshProUGUI textStatus = infoStatus.transform.Find("Text_status").GetComponent<TextMeshProUGUI>();
 
-    public void addFriendRequest(string name){
+        GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
+        GO_buttonJoin.SetActive(false);
+        Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
+
+        buttonJoin.onClick.AddListener(() =>
+        {
+            //network join avec id
+        });
+        switch(status){
+            case 2:
+                GO_buttonJoin.SetActive(true);
+                imgStatus.color = new Color32(79,200,74,100);
+                textStatus.text = "Online";
+                break;
+            case 1:
+                imgStatus.color = new Color32(79,200,74,100);
+                textStatus.text = "Online";
+                break;
+            case 3:
+                imgStatus.color = new Color32(74,156,200,100);
+                textStatus.text = "In Game";
+                break;
+            default:
+                imgStatus.color = new Color32(128,128,128,100);
+                textStatus.text = "Offline";
+                break;
+
+        }
+        Friend f = new Friend(id, newFriend);
+        listFriend.Add(f);
+    }
+// status:
+        // 3 = in game
+        // 2 = in lobby/waitscreen
+        // 1 = connecté
+        // 0 = invitation en attente amis
+        // -1 = hors ligne
+
+    public void addFriendRequest(string name,int id){
         GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
         textName.text = name;
+        Button accepter = newFriend.transform.Find("Button-add").GetComponent<Button>();
+        accepter.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, true);
+        });
+        Button refuser = newFriend.transform.Find("Button-reject").GetComponent<Button>();
+        refuser.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, id, false);
+        });
+        Friend f =new Friend(id, newFriend);
+        listRequest.Add(f);
+    }
 
-        listRequest.Add(newFriend);
+    public void addNoFriend (string msg, GameObject container, List<GameObject> list){
+        GameObject newObject = Instantiate(componentNo, container.transform);
+
+        TextMeshProUGUI textName = newObject.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+        textName.text = msg;
+        
+        list.Add(newObject);
     }
 
     public void ClearListGameObject(List<GameObject> list){
@@ -300,19 +395,43 @@ public class GameManagerApp : MonoBehaviour
 
 [System.Serializable]
 public class Game
-    {
-        public int id;
-        public string name;
-        public int nbPlayer;
-        public int nbPlayer_rest;
-        public GameObject game;
+{
+    public int id;
+    public string name;
+    public int nbPlayer;
+    public int nbPlayer_rest;
+    public GameObject game;
 
-        public Game(int id, string name, int nbPlayer, GameObject game)
-        {
-            this.id = id;
-            this.name = name;
-            this.nbPlayer = nbPlayer;
-            this.game = game;
-            nbPlayer_rest = nbPlayer;
-        }
+    public Game(int id, string name, int nbPlayer, GameObject game)
+    {
+        this.id = id;
+        this.name = name;
+        this.nbPlayer = nbPlayer;
+        this.game = game;
+        nbPlayer_rest = nbPlayer;
     }
+}
+
+[System.Serializable]
+public class Friend
+{
+    public int id;
+    public int status;
+    public GameObject obj;
+
+    public Friend(){}
+
+    public Friend(int id, int status, GameObject obj)
+    {
+        this.id = id;
+        this.status = status;
+        this.obj = obj;
+    }
+
+    public Friend(int id, GameObject obj)
+    {
+        this.id = id;
+        this.obj = obj;
+    }
+
+}

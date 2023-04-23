@@ -5,16 +5,17 @@ using System.Net.Sockets;
 public class Chasseur : Role 
 {
     private new const int IdRole = 6;
+    private Joueur? victime;
     public Chasseur()
     {
         name = "Chasseur";
         description = "blabla";
     }
     
-    public override void Action(List<Joueur> listJoueurs)
-    { // Ã©crire l'action de la Voyante
+    public override string Action(List<Joueur> listJoueurs)
+    { // écrire l'action de la Voyante
+        string retour;
         sendTurn(listJoueurs, GetIdRole());
-
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -30,8 +31,8 @@ public class Chasseur : Role
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
 
@@ -48,7 +49,7 @@ public class Chasseur : Role
         int v,c;
         Joueur? player = null;
 
-        Console.WriteLine("Le chasseur executera son rÃ´le");
+        Console.WriteLine("Le chasseur executera son rôle");
         while(boucle) 
         {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
@@ -68,18 +69,35 @@ public class Chasseur : Role
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
-                            Console.WriteLine("le Chasseur a votÃ©, Ã§a passe Ã  5sec d'attente");
-                            vide.Send(new byte[1] { 0 });
+                            Console.WriteLine("le Chasseur a voté, ça passe à 5sec d'attente");
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }     
             }
         }
+
+        if (player != null)
+        {
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" était chargé à côté de son corps… dans son dernier souffle de vie il décide de tirer à bout portant sur " + player.GetPseudo() + ". ";
+            victime = player;
+        }
+        else
+        {
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " était chargé à côté de son corps… dans un élan de bonté il enleva le chargeur de son arme pour que personne ne se blesse avec… ";
+        }
+
+        return retour;
     }
 
     public override int GetIdRole() 
     {
         return IdRole; 
+    }
+
+    public Joueur? GetVictime()
+    {
+        return victime;
     }
 }

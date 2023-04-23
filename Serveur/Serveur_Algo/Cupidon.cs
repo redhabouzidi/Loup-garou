@@ -12,8 +12,9 @@ public class Cupidon : Role
         description = "blabla";
     }
 
-    public override void Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs)
     {
+        string retour;
         sendTurn(listJoueurs, GetIdRole());
         // écrire l'action du Cupidon
         // choix des amoureux
@@ -27,22 +28,23 @@ public class Cupidon : Role
         Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
+            Console.WriteLine("on viens d'attendre 15 s");
             reduceTimer = true;
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
 
-        int? idJCupidon = null;
+        Joueur? JoueurCupidon = null;
 
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetRole() is Cupidon)
             {
-                idJCupidon = j.GetId();
+                JoueurCupidon = j;
             }
         }
 
@@ -55,7 +57,7 @@ public class Cupidon : Role
         while (boucle)
         {
             (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
-            if (v == idJCupidon)
+            if (v == JoueurCupidon.GetId())
             {
                 boolAmoureux = false;
                 amoureux = listJoueurs.Find(j => j.GetId() == c1);
@@ -72,20 +74,31 @@ public class Cupidon : Role
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
                             Console.WriteLine("le Cupidon a voté, ça passe à 5sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }
             }
         }
-
+        Console.WriteLine("on sort de la boucle");
         if (boolAmoureux)
         {
             amoureux.SetAmoureux(amoureux2);
             amoureux2.SetAmoureux(amoureux);
+            Console.WriteLine(amoureux.GetId()+" amoureux "+amoureux2.GetId());
+            retour = JoueurCupidon.GetPseudo() +
+                     " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il décide de tirer les flèches sur " +
+                     amoureux.GetPseudo() + " et " + amoureux2.GetPseudo() +
+                     " qui tombèrent fou amoureux l’un de l’autre. ";
        	    server.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
        	}
+        else
+        {
+            retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il tente de tirer mais ses flèches tombent toutes les deux dans la rivière du village… ";
+        }
+
+        return retour;
     }
 
     public override int GetIdRole()
@@ -104,17 +117,10 @@ public class Cupidon : Role
 
         foreach (Joueur j in listJoueurs)
         {
-            Console.WriteLine(j.GetSocket().Connected);
-            if (j.GetSocket().Connected == true)
+            if (j.GetSocket() != null && j.GetSocket().Connected)
             {
-                Console.WriteLine(j.GetSocket());
                 sockets.Add(j.GetSocket());
-                if (idRole == 1 && j.GetEnVie())
-                {
-                    dictJoueur[j.GetSocket()] = j;
-                    role.Add(j.GetSocket());
-                }
-                else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
+                if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
                 {
                     dictJoueur[j.GetSocket()] = j;
                     role.Add(j.GetSocket());
@@ -122,11 +128,12 @@ public class Cupidon : Role
             }
         }
         Console.WriteLine("ici c'est 2");
-        Console.WriteLine(sockets.Count);
+        
         while (true)
         {
             foreach (Socket socket in sockets)
             {
+                Console.WriteLine(sockets.Count);
                 read.Add(socket);
             }
             Console.WriteLine("bah on attends alors");
@@ -152,14 +159,15 @@ public class Cupidon : Role
                 {
                     if (sock.Available == 0)
                     {
-                        Console.WriteLine("un joueur quitte");
                         sockets.Remove(sock);
                         foreach (Joueur j in listJoueurs)
                         {
                             if (j.GetSocket() == sock)
                             {
+                                server.userData[j.GetId()].SetStatus(j.GetId(), -1);
+                                server.userData.Remove(j.GetId());
+                                j.SetSocket(null);
                                 sock.Close();
-
                                 return (-1, -1,-1);
                             }
                         }
