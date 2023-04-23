@@ -176,15 +176,8 @@ namespace Server
                 {
                     if (fd.Available == 0)
                     {
-                        list.Remove(fd);
-                        if (connected.ContainsKey(fd))
-                        {
-                            userData[connected[fd]].SetStatus(connected[fd], -1);
-                            userData.Remove(connected[fd]);
-                            disconnectFromLobby(fd);
-                            connected.Remove(fd);
-                        }
-                        fd.Close();
+                        
+                        disconnectPlayer(list,fd);
 
 
                     }
@@ -197,7 +190,18 @@ namespace Server
 
 
         }
-
+        public static void disconnectPlayer(List<Socket> list,Socket fd)
+        {
+            list.Remove(fd);
+            if (connected.ContainsKey(fd))
+            {
+                userData[connected[fd]].SetStatus(connected[fd], -1);
+                userData.Remove(connected[fd]);
+                disconnectFromLobby(fd);
+                connected.Remove(fd);
+            }
+            fd.Close();
+        }
         //fonction qui cree le socket serveur sur le port donné en parametre et qui fait un listen sur ce socket
         public static Socket setupSocketClient(int port)
         {
@@ -867,36 +871,7 @@ namespace Server
                     }
                     break;
                 case 100://disconnects
-                    list.Remove(client);
-                    if (connected.ContainsKey(client))
-                    {
-                        if (players.ContainsKey(connected[client]))
-                        {
-                            if (!players[connected[client]].GetStart())
-                            {
-                                Console.WriteLine(("on supprime bien le joueur"));
-                                Game g = players[connected[client]];
-                                g.RemovePlayer(client);
-
-                                if (g._nbrJoueurs == g.GetJoueurManquant())
-                                {
-                                    Console.WriteLine("we delete the game" + connected[client]);
-                                    games.Remove(g.GetGameId());
-                                }
-                                else
-                                if (games.ContainsKey(connected[client]))
-                                {
-                                    int newId = g.GetJoueurs()[0].GetId();
-                                    games[newId] = g;
-                                    g.SetGameId(newId);
-                                    games.Remove(connected[client]);
-                                }
-                                players.Remove(connected[client]);
-                            }
-                        }
-                        connected.Remove(client);
-                    }
-                    client.Close();
+                    disconnectPlayer(list,client);
 
                     break;
                 case 103://informations des lobby
