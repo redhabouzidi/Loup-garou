@@ -145,7 +145,7 @@ class Amis
         List<(int id,DateTime date)> data_f=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=false}).ToList();
         data_f.Add((-1,new DateTime()));
         //Recuperer les amis qui a envoyé une demande au joueur idPlayer
-        query="SELECT idUsers2,date_amis FROM Amis WHERE idUsers2=@IDF AND status_ami=@SA";
+        query="SELECT idUsers1,date_amis FROM Amis WHERE idUsers2=@IDF AND status_ami=@SA";
         List<(int id,DateTime date)> data_s=conn.Query<(int,DateTime)>(query,new{IDF=idPlayer,SA=false}).ToList();
         //concatenation des listes reçu
         int[] identifiants = data_f.Select(r => r.id).Concat(data_s.Select(r=>r.id)).ToArray();
@@ -153,6 +153,7 @@ class Amis
         //Recuperer les pseudos a partir du liste des identifiants
         query = "SELECT pseudo FROM Utilisateurs WHERE idUsers IN @IDS ORDER BY FIELD(idUsers, " + string.Join(",", identifiants) + ")";
         string[]temp=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
+        Console.WriteLine(string.Join(",", identifiants));
         string[]pseudos = new string[temp.Length + 1];
         Array.Copy(temp, 0, pseudos, 0, temp.Length);
         pseudos[pseudos.Length - 1] = "";

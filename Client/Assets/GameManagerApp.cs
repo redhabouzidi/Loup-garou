@@ -12,7 +12,7 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -75,6 +75,7 @@ public class GameManagerApp : MonoBehaviour
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonAccept.onClick.AddListener(onButtonClickAccept);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
+        buttonLogout.onClick.AddListener(onButtonClickLogout);
 
         if (scene == 1)
         {
@@ -117,7 +118,10 @@ public class GameManagerApp : MonoBehaviour
 #endif
 
     }
-
+    private void onButtonClickLogout()
+    {
+        NetworkManager.logout(NetworkManager.client);
+    }
     private void OnButtonClickQuit()
     {
         exitGame();
@@ -307,6 +311,7 @@ public class GameManagerApp : MonoBehaviour
         GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
         GO_buttonJoin.SetActive(false);
         Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
+
         buttonJoin.onClick.AddListener(() =>
         {
             //network join avec id

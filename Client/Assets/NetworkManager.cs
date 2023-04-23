@@ -144,7 +144,6 @@ public class NetworkManager : MonoBehaviour
         {
             recvMessage(client);
         }
-        client.Close();
     }
     public static void listener()
     {
@@ -290,6 +289,7 @@ public class NetworkManager : MonoBehaviour
         {
             byte[] message = new byte[1] { 100 };
             server.Send(message, 1, SocketFlags.None);
+            rep.Add(new byte[1] { 100 });
             return 0;
         }
         catch (SocketException)
@@ -317,7 +317,7 @@ public class NetworkManager : MonoBehaviour
             if (server.Available == 0)
             {
                 prog = false;
-                rep.Add(new byte[1]{255});
+                rep.Add(new byte[1]{100});
                 return;
             }
 
@@ -477,6 +477,25 @@ public class NetworkManager : MonoBehaviour
 
                     time = decode(message, size);
                     break;
+                case 13:
+                    idPlayers = new int[decode(message, size)];
+                    for (int i = 0; i < idPlayers.Length; i++)
+                    {
+                        idPlayers[i] = decode(message, size);
+                    }
+                    int[] score = new int[decode(message, size)];
+                    for (int i = 0; i < score.Length; i++)
+                    {
+                        score[i] = decode(message, size);
+                    }
+                    //afficher le score
+                    break;
+                case 100:
+                    client.Close();
+                    id = -1;
+                    username = "";
+                    LoadScene("Jeu");
+                    break;
                 case 101:
                     sp.SetActive(false);
                     wso.SetActive(true);
@@ -500,19 +519,6 @@ public class NetworkManager : MonoBehaviour
                     }
                     setGameInfo(name, idPlayers, playerNames);
                     ws.newGame = true;
-                    break;
-                case 13:
-                    idPlayers= new int[decode(message,size)];
-                    for (int i = 0; i < idPlayers.Length; i++)
-                    {
-                        idPlayers[i] = decode(message, size);
-                    }
-                    int[] score = new int[decode(message, size)];
-                    for(int i = 0; i < score.Length; i++)
-                    {
-                        score[i] = decode(message, size);
-                    }
-                    //afficher le score
                     break;
                 case 102:
                     idP = decode(message, size);
@@ -584,6 +590,7 @@ public class NetworkManager : MonoBehaviour
                             {
                                 break;
                             }
+                            Debug.Log("id = " + j+" real id = " + friends[j]+" name = " + names[j]+" status = " + status[j]);
                             gma.addFriend(names[j],status[j],friends[j]);
                         }
                         j++;
@@ -714,7 +721,7 @@ public class NetworkManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("je ne suis pas sense recevoir ca");
+                        Debug.Log("je ne suis pas sense recevoir ca "+ id);
                     }
                     //REPONSE DEMANDE D'AMIS
                     break;
