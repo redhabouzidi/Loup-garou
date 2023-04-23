@@ -8,6 +8,7 @@ using System.Text;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Security.Cryptography;
 public class NetworkManager : MonoBehaviour
 {
 
@@ -23,6 +24,9 @@ public class NetworkManager : MonoBehaviour
     public static GameManagerApp gma;
     public static WPlayer[] players;
     public static Task task;
+
+    public static Aes aes;
+    public static RSA rsa;
     public class answer
     {
         public bool error;
@@ -78,6 +82,11 @@ public class NetworkManager : MonoBehaviour
                 client.Connect(iep);
                 Console.Write("Connected to the server\n");
                 Debug.Log("socket created");
+                rsa = Crypto.RecvCertificate(client);
+                Debug.Log("RSA received");
+                aes = Crypto.SendAes(client, rsa);
+                Debug.Log("AES sent");
+
             }
             catch (Exception e)
             {
@@ -88,6 +97,7 @@ public class NetworkManager : MonoBehaviour
 
         ResetPasswReq(email);
     }
+
     public static void reseau(string pseudo, string password, string email)
     {
         if (!prog)
@@ -104,15 +114,21 @@ public class NetworkManager : MonoBehaviour
                 client.Connect(iep);
                 Console.Write("Connected to the server\n");
                 Debug.Log("socket created");
+                rsa = Crypto.RecvCertificate(client);
+                Debug.Log("RSA received");
+                aes = Crypto.SendAes(client, rsa);
+                Debug.Log("AES sent");
             }
             catch (Exception e)
             {
-                Console.Write(e.Message);
+                Debug.Log(e.Message);
+                // Console.Write(e.Message);
                 prog = false;
             }
         }
         sendInscription(pseudo, password, email);
     }
+
 
     public static void reseau(string email, string password)
     {
@@ -130,9 +146,14 @@ public class NetworkManager : MonoBehaviour
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(iep);
                 Console.Write("Connected to the server\n");
+                rsa = Crypto.RecvCertificate(client);
+                Debug.Log("RSA received");
+                aes = Crypto.SendAes(client, rsa);
+                Debug.Log("AES sent");
             }
             catch (Exception e)
             {
+                Debug.Log(e);
                 Console.Write(e.Message);
                 prog = false;
             }
@@ -317,14 +338,14 @@ public class NetworkManager : MonoBehaviour
             if (server.Available == 0)
             {
                 prog = false;
-                rep.Add(new byte[1]{100});
+                rep.Add(new byte[1] { 100 });
                 return;
             }
 
             recvSize = server.Receive(message);
+
             Debug.Log("recv =" + message[0]);
-            byte[] newMessage = new byte[recvSize];
-            Array.Copy(message, 0, newMessage, 0, recvSize);
+            byte[] newMessage = Crypto.DecryptMessage(message, aes, recvSize);
             rep.Add(newMessage);
 
         }
@@ -590,11 +611,11 @@ public class NetworkManager : MonoBehaviour
                             {
                                 break;
                             }
-                            Debug.Log("id = " + j+" real id = " + friends[j]+" name = " + names[j]+" status = " + status[j]);
-                            gma.addFriend(names[j],status[j],friends[j]);
+                            Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
+                            gma.addFriend(names[j], status[j], friends[j]);
                         }
                         j++;
-                        for(;j< friends.Length;j++)
+                        for (; j < friends.Length; j++)
                         {
                             if (friends[j] == -1)
                             {
@@ -674,13 +695,13 @@ public class NetworkManager : MonoBehaviour
                     string pseudoFriend = decodeString(message, size);
                     if (id == idSender)
                     {
-                        Debug.Log("je suis celui qui envoie"+idSender+" "+ idFriend);
+                        Debug.Log("je suis celui qui envoie" + idSender + " " + idFriend);
                         gma.addFriendWait(pseudoFriend, idFriend);
 
                     }
-                    else if(id== idFriend)
+                    else if (id == idFriend)
                     {
-                        Debug.Log("je suis celui qui recoit"+idFriend+" "+idSender);
+                        Debug.Log("je suis celui qui recoit" + idFriend + " " + idSender);
                         gma.addFriendRequest(pseudoFriend, idFriend);
                     }
                     else
@@ -693,10 +714,11 @@ public class NetworkManager : MonoBehaviour
                     answer = decodeBool(message, size);
                     idSender = decode(message, size);
                     idFriend = decode(message, size);
-                    if(idSender == id)
+                    if (idSender == id)
                     {
                         //supprimer idFriend
-                    }else
+                    }
+                    else
                         if (idFriend == id)
                     {
                         //supprimer idSender
@@ -708,20 +730,21 @@ public class NetworkManager : MonoBehaviour
                     //SUPPRESSION D'UN AMIS
                     break;
                 case 155:
-                    answer=decodeBool(message, size);   
-                    idSender=decode(message, size);
-                    idFriend=decode(message, size);
+                    answer = decodeBool(message, size);
+                    idSender = decode(message, size);
+                    idFriend = decode(message, size);
                     if (idSender == id)
                     {
                         //Je susi celui qui a répondu
-                    }else
+                    }
+                    else
                     if (idFriend == id)
                     {
                         //Je suis ceuli a qui on a répondu
                     }
                     else
                     {
-                        Debug.Log("je ne suis pas sense recevoir ca "+ id);
+                        Debug.Log("je ne suis pas sense recevoir ca " + id);
                     }
                     //REPONSE DEMANDE D'AMIS
                     break;
@@ -740,19 +763,19 @@ public class NetworkManager : MonoBehaviour
                 case 158:
                     int idSize = decode(message, size);
                     idPlayers = new int[idSize];
-                    for(int i = 0; i < idSize; i++)
+                    for (int i = 0; i < idSize; i++)
                     {
-                        idPlayers[i]=decode(message, size);
+                        idPlayers[i] = decode(message, size);
                     }
                     idSize = decode(message, size);
                     playerNames = new string[idSize];
-                    for(int i = 0; i < idSize; i++)
+                    for (int i = 0; i < idSize; i++)
                     {
                         playerNames[i] = decodeString(message, size);
                     }
                     if (idPlayers.Length == playerNames.Length)
                     {
-                        for(int i = 0; i < idPlayers.Length; i++)
+                        for (int i = 0; i < idPlayers.Length; i++)
                         {
                             gma.addFriendAdd(playerNames[i], idPlayers[i]);
 
@@ -783,8 +806,10 @@ public class NetworkManager : MonoBehaviour
     }
     public static int SendMessageToServer(Socket server, byte[] message)
     {
+        byte[] msg = Crypto.EncryptMessage(message, aes);
+        Debug.Log("message crypté");
         Debug.Log("msgsize=" + message.Length);
-        return server.Send(message, message.Length, SocketFlags.None);
+        return server.Send(msg, msg.Length, SocketFlags.None);
     }
 
     public static int sendInscription(string username, string password, string email)
@@ -892,9 +917,9 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(client, message);
     }
 
-    public static int ajoutAmi( int idUser, int id)
+    public static int ajoutAmi(int idUser, int id)
     {
-        byte[] message = new byte[1 + sizeof(int) * 2 ];
+        byte[] message = new byte[1 + sizeof(int) * 2];
         int[] size = new int[1] { 1 };
         message[0] = 153;
         encode(message, idUser, size);
@@ -954,7 +979,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, newPassw, index);
         return SendMessageToServer(client, message);
     }
-    public static int sendSearchRequest(int id,string pseudo)
+    public static int sendSearchRequest(int id, string pseudo)
     {
         byte[] message = new byte[1 + sizeof(int) * 2 + pseudo.Length];
         message[0] = 158;
