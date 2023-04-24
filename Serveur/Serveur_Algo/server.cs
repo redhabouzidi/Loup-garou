@@ -17,6 +17,7 @@ namespace Server
     {
         private Socket sock;
         private int status;
+        private string username;
         private List<int> friendList = new List<int>();
         public Amis(Socket sock, int status)
         {
@@ -54,6 +55,14 @@ namespace Server
                         server.sendStatus(server.userData[i].GetSocket(), key, status);
                 }
             }
+        }
+        public void SetUsername(string username)
+        {
+            this.username = username;
+        }
+        public string GetUsername()
+        {
+            return username;
         }
     }
     public class Queue
@@ -326,7 +335,72 @@ namespace Server
             size[0] += val.Length;
 
         }
+        public static void joinGame(Socket client,int gameId,int idj)
+        {
+            if (games.ContainsKey(gameId))
+            {
 
+                if (connected.ContainsKey(client))
+                {
+
+                    if (!players.ContainsKey(connected[client]))
+                    {
+                        if (games[gameId].GetJoueurManquant() != 0)
+                        {
+                            Console.WriteLine($"joins game {gameId}");
+                            Console.WriteLine("id joueur : " + idj);
+                            games[gameId].Join(new Client(idj, client, userData[idj].GetUsername()));
+                            players[idj] = games[gameId];
+                            userData[idj].SetStatus(idj, 2);
+                        }
+                        else
+                        {
+                            sendMessage(client, new byte[] { 255 });
+                        }
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("already Playing");
+                        Game g = players[connected[client]];
+                        foreach (Joueur j in g.GetJoueurs())
+                        {
+                            if (j.GetId() == idj)
+                            {
+                                Console.WriteLine("envoie d'info et mises a jjour");
+                                j.SetSocket(client);
+                                g.sendGameInfo(client);
+                                g.sendRoles(j);
+
+                                //envoyer les information déjà connue
+                            }
+                        }
+                        foreach (Joueur j in g.GetJoueurs())
+                        {
+                            if (!j.GetEnVie())
+                            {
+                                annonceMort(client, j.GetId(), j.GetRole().GetIdRole());
+                            }
+                        }
+                        connected.Remove(client);
+                        g.vide.Send(new byte[1] { 0 });
+
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not connected(shouldn't be possible)");
+                }
+
+
+
+
+            }
+            else
+            {
+                sendMessage(client, new byte[] { 255 });
+            }
+        }
         //fonction qui sert a envoyer les informztion d'une game a un client
         public static void sendGameInfo(Socket client, int nbPlayers, int nbLoup, bool sorciere, bool voyante, bool cupidon, string name, int[] idPlayers, string[] playerNames)
         {
@@ -643,46 +717,7 @@ namespace Server
             }
         }
 
-        public static void recvMessageGame(List<Socket> list, byte[] message, int receivedBytes)
-        {
-            int[] size = new int[1];
-            string chat;
-            int idPlayer, vote, idUser;
-            switch (message[0])
-            {
-                case 0://chat message
-                    Console.WriteLine("chat marche");
-                    size[0] = 1;
-                    foreach (Socket s in list)
-                    {
-                        sendMessage(s, message, receivedBytes);
-                    }
-                    break;
-                case 1://voter
-                    size[0] = 1;
-                    idUser = decodeInt(message, size);
-                    vote = decodeInt(message, size);
-                    break;
-
-
-                case 101://information de la partie
-
-                    break;
-
-                case 200://begin kicking
-                    size[0] = 1;
-                    idPlayer = decodeInt(message, size);
-                    vote = decodeInt(message, size);
-                    break;
-                case 201://votes for kick
-                    size[0] = 1;
-                    idPlayer = decodeInt(message, size);
-                    vote = decodeInt(message, size);
-                    break;
-                default:
-                    break;
-            }
-        }
+        
         public static bool alreadyConnected(Dictionary<Socket, int> connected, int idPlayer)
         {
             foreach (KeyValuePair<Socket, int> input in connected)
@@ -756,7 +791,59 @@ namespace Server
                 }
             }
         }
-        public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket, int> connected, Queue queue, Dictionary<int, Game> players, Dictionary<Socket, Aes> keys)
+        public static void sendSystemMessage(List<Socket> clients,byte val,string username)
+        {
+            byte[] message = new byte[1 + 1+sizeof(int)+username.Length];
+            int[] size = new int[1] { 2 };
+            message[0] = 16;
+            message[1] = val;
+            encode(message, username, size);
+            foreach(Socket sock in clients)
+            {
+                sendMessage(sock, message);
+
+            }
+        }
+        public static void recvMessageGame(List<Socket> list, byte[] message, int receivedBytes)
+        {
+            int[] size = new int[1];
+            string chat;
+            int idPlayer, vote, idUser;
+            switch (message[0])
+            {
+                case 0://chat message
+                    Console.WriteLine("chat marche");
+                    size[0] = 1;
+                    foreach (Socket s in list)
+                    {
+                        sendMessage(s, message, receivedBytes);
+                    }
+                    break;
+                case 16:
+                    size[0] = 2;
+                    idPlayer = decodeInt(message, size);
+                    sendSystemMessage(list, message[1], userData[idPlayer].GetUsername());
+                    break;
+
+                case 101://information de la partie
+
+                    break;
+
+                case 200://begin kicking
+                    size[0] = 1;
+                    idPlayer = decodeInt(message, size);
+                    vote = decodeInt(message, size);
+                    break;
+                case 201://votes for kick
+                    size[0] = 1;
+                    idPlayer = decodeInt(message, size);
+                    vote = decodeInt(message, size);
+                    break;
+                default:
+                    break;
+            }
+        }
+        public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket, int> connected, Queue queue, Dictionary<int, Game> players)
         {
             int[] size = new int[1];
             int dataSize, tableSize, id;
@@ -770,6 +857,18 @@ namespace Server
             int idPlayer, vote;
             switch (message[0])
             {
+                case 2:
+                    size[0] = 1;
+                    int friendId = decodeInt(message, size);
+                    int idj = decodeInt(message, size);
+                    if (players.ContainsKey(friendId))
+                    {
+                        Game g = players[friendId];
+                        Console.WriteLine("gameid=" + g.GetGameId());
+                        joinGame(client, g.GetGameId(), idj);
+
+                    }
+                    break;
                 case 3:
                     size[0] = 1;
 
@@ -821,72 +920,10 @@ namespace Server
                 case 4:
                     size[0] = 1;
                     int gameId = decodeInt(message, size);
-                    int idj = decodeInt(message, size);
-                    username = decodeString(message, size);
+                    idj = decodeInt(message, size);
                     Console.WriteLine("gameid=" + gameId);
-                    if (games.ContainsKey(gameId))
-                    {
-
-                        if (connected.ContainsKey(client))
-                        {
-
-                            if (!players.ContainsKey(connected[client]))
-                            {
-                                if (games[gameId].GetJoueurManquant() != 0)
-                                {
-                                    Console.WriteLine($"joins game {gameId}");
-                                    Console.WriteLine("id joueur : " + idj);
-                                    games[gameId].Join(new Client(idj, client, username));
-                                    players[idj] = games[gameId];
-                                    userData[idj].SetStatus(idj, 2);
-                                }
-                                else
-                                {
-                                    sendMessage(client, new byte[] { 255 });
-                                }
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("already Playing");
-                                Game g = players[connected[client]];
-                                foreach (Joueur j in g.GetJoueurs())
-                                {
-                                    if (j.GetId() == idj)
-                                    {
-                                        Console.WriteLine("envoie d'info et mises a jjour");
-                                        j.SetSocket(client);
-                                        g.sendGameInfo(client);
-                                        g.sendRoles(j);
-
-                                        //envoyer les information déjà connue
-                                    }
-                                }
-                                foreach (Joueur j in g.GetJoueurs())
-                                {
-                                    if (!j.GetEnVie())
-                                    {
-                                        annonceMort(client, j.GetId(), j.GetRole().GetIdRole());
-                                    }
-                                }
-                                connected.Remove(client);
-                                g.vide.Send(new byte[1] { 0 });
-
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Not connected(shouldn't be possible)");
-                        }
-
-
-
-
-                    }
-                    else
-                    {
-                        sendMessage(client, new byte[] { 255 });
-                    }
+                    joinGame(client, gameId, idj);
+                    
                     break;
                 case 100://disconnects
                     disconnectPlayer(list, client);
@@ -1078,6 +1115,7 @@ namespace Server
                                 userData[idPlayer].SetStatus(idPlayer, 1);
 
                             }
+                            userData[idPlayer].SetUsername(username);
                             //recuperer la liste d'amis ( a faire )
                             list.Remove(queue.queue[queueId]);
                             connected.Add(queue.queue[queueId], idPlayer);

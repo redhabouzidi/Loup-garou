@@ -165,6 +165,8 @@ public class NetworkManager : MonoBehaviour
         {
             recvMessage(client);
         }
+
+        client.Close();
     }
     public static void listener()
     {
@@ -372,6 +374,8 @@ public class NetworkManager : MonoBehaviour
         string name, usernameP;
         int[] size = new int[1] { 0 };
         Debug.Log(BitConverter.ToString(message));
+        rep.RemoveAt(0);
+
         while (read)
         {
             Debug.Log("code == " + message[size[0]]);
@@ -403,7 +407,7 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
 
-                    gm.setAmoureux(idPlayer, id);
+                    gm.setAmoureux(idPlayer, idp);
 
                     gm.lover1_id = gm.p.GetId();
                     string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
@@ -498,7 +502,7 @@ public class NetworkManager : MonoBehaviour
 
                     time = decode(message, size);
                     break;
-                case 13:
+                case 15:
                     idPlayers = new int[decode(message, size)];
                     for (int i = 0; i < idPlayers.Length; i++)
                     {
@@ -511,8 +515,14 @@ public class NetworkManager : MonoBehaviour
                     }
                     //afficher le score
                     break;
+                case 16:
+                    size[0] = 2;
+                    usernameP = decodeString(message, size);
+                    gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
+                    gm.sestPresente = true;
+                    break;
+
                 case 100:
-                    client.Close();
                     id = -1;
                     username = "";
                     LoadScene("Jeu");
@@ -611,8 +621,8 @@ public class NetworkManager : MonoBehaviour
                             {
                                 break;
                             }
-                            Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
-                            gma.addFriend(names[j], status[j], friends[j]);
+                            Debug.Log("id = " + j+" real id = " + friends[j]+" name = " + names[j]+" status = " + status[j]);
+                            gma.addFriend(names[j],friends[j],status[j]);
                         }
                         j++;
                         for (; j < friends.Length; j++)
@@ -632,7 +642,7 @@ public class NetworkManager : MonoBehaviour
                             }
                             gma.addFriendRequest(names[j], friends[j]);
                         }
-
+                        gma.AfficheNoObject();
                     }
                     else
                     {
@@ -659,7 +669,8 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     int idStatus = decode(message, size);
 
-                    //CHANGER LE STATUS DU JOUEUR (INFORMATION EN PLUS ????)
+                    //CHANGER LE STATUS DU JOUEUR
+                    gma.UpdateStatusFriend(idPlayer, idStatus);
                     break;
                 case 108:
                     idPlayer = decode(message, size);
@@ -717,11 +728,12 @@ public class NetworkManager : MonoBehaviour
                     if (idSender == id)
                     {
                         //supprimer idFriend
-                    }
-                    else
+                        gma.SupprimerAmi(idFriend);
+                    }else
                         if (idFriend == id)
                     {
                         //supprimer idSender
+                        gma.SupprimerAmi(idSender);
                     }
                     else
                     {
@@ -736,11 +748,12 @@ public class NetworkManager : MonoBehaviour
                     if (idSender == id)
                     {
                         //Je susi celui qui a répondu
-                    }
-                    else
+                        gma.ReponseAmi(idFriend, answer);
+                    }else
                     if (idFriend == id)
                     {
                         //Je suis ceuli a qui on a répondu
+                        gma.ReponseAmi(idSender, answer);
                     }
                     else
                     {
@@ -780,6 +793,7 @@ public class NetworkManager : MonoBehaviour
                             gma.addFriendAdd(playerNames[i], idPlayers[i]);
 
                         }
+                        gma.AfficheNoObject();
                     }
                     else
                     {
@@ -801,7 +815,6 @@ public class NetworkManager : MonoBehaviour
             }
 
         }
-        rep.RemoveAt(0);
 
     }
     public static int SendMessageToServer(Socket server, byte[] message)
@@ -877,14 +890,22 @@ public class NetworkManager : MonoBehaviour
     public static int sendchatMessage(string message)
     {
         byte[] msg = new byte[1 + sizeof(int) + message.Length];
-        Console.WriteLine("lllllll {0}", msg.Length);
         msg[0] = 0;
         int[] size = new int[1] { 1 };
         encode(msg, message, size);
         SendMessageToServer(client, msg);
         return 0;
     }
+    public static void sendMayorPresentation()
+    {
+        byte[] message = new byte[1 + 1+sizeof(int)];
+        int[] size = new int[1] { 2 };
+        message[0] = 16;
+        message[1] = 0;
+        encode(message, id, size);
 
+        SendMessageToServer(client, message);
+    }
     public static int createGame(int id, string username, string name, int nbPlayers, int nbLoups, bool sorciere, bool voyante, bool cupidon, bool hunter, bool guardian, bool dictator)
     {
         byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool) * 6 + username.Length + name.Length];
@@ -905,14 +926,23 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(client, message);
     }
 
-    public static int join(int gameId, int id, string username)
+    public static int join(int gameId, int id)
     {
-        byte[] message = new byte[1 + sizeof(int) * 3 + username.Length];
+        byte[] message = new byte[1 + sizeof(int) * 2];
         int[] size = new int[1] { 1 };
         message[0] = 4;
         encode(message, gameId, size);
         encode(message, id, size);
-        encode(message, username, size);
+
+        return SendMessageToServer(client, message);
+    }
+    public static int joinFriend(int friendId, int id)
+    {
+        byte[] message = new byte[1 + sizeof(int) * 2];
+        int[] size = new int[1] { 1 };
+        message[0] = 2;
+        encode(message, friendId, size);
+        encode(message, id, size);
 
         return SendMessageToServer(client, message);
     }

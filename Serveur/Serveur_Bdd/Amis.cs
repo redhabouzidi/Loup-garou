@@ -155,9 +155,9 @@ class Amis
         string[]temp=conn.Query<string>(query,new{IDS=identifiants}).ToArray();
         Console.WriteLine(string.Join(",", identifiants));
         string[]pseudos = new string[temp.Length + 1];
-        Array.Copy(temp, 0, pseudos, 0, temp.Length);
-        pseudos[pseudos.Length - 1] = "";
-        Console.WriteLine(pseudos.Length+" hey "+ identifiants.Length );
+        Array.Copy(temp, 0, pseudos, 0, data_f.Count-1);
+        pseudos[data_f.Count-1] = "";
+        Array.Copy(temp, data_f.Count-1, pseudos, data_f.Count, data_s.Count);
         //retour
         return (identifiants,pseudos,dates);
     }
