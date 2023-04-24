@@ -185,7 +185,7 @@ namespace Server
                     }
                     else
                     {
-                        recvMessage(fd, bdd, list, connected, queue, players);
+                        recvMessage(fd, bdd, list, connected, queue, players, client_keys);
                     }
                 }
             }
@@ -235,11 +235,12 @@ namespace Server
         //fonction qui accepte une nouvelle connexion d'un client au serveur et qui l'ajoite a la liste des client qui sont sur le serveur
         public static void acceptConnexions(List<Socket> clients, Socket server, Dictionary<Socket, Aes> keys, Crypto crp)
         {
+
             Socket new_client = server.Accept();
             crp.SendCertificateToClient(new_client);
-            keys.Add(new_client, crp.RecvAes(new_client));
+            Aes tmp_aes = crp.RecvAes(new_client);
+            keys.TryAdd(new_client, tmp_aes);
             clients.Add(new_client);
-            WakeUpMain();
             return;
         }
         //fonction qui envoie un message a un socket donne en parametre
@@ -256,7 +257,7 @@ namespace Server
                 Console.Write(b + " ");
             }
             Console.WriteLine("");
-            byte [] encryptMessage=Crypto.EncryptMessage(message,client_keys[client],recvSize);
+            byte[] encryptMessage = Crypto.EncryptMessage(message, client_keys[client], recvSize);
             client.Send(encryptMessage, encryptMessage.Length, SocketFlags.None);
         }
 
@@ -753,14 +754,16 @@ namespace Server
                 }
             }
         }
-        public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket, int> connected, Queue queue, Dictionary<int, Game> players)
+        public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket, int> connected, Queue queue, Dictionary<int, Game> players, Dictionary<Socket, Aes> keys)
         {
             int[] size = new int[1];
             int dataSize, tableSize, id;
 
             byte[] cryptedMessage = new byte[2048];
             int receivedBytes = client.Receive(cryptedMessage);
-            byte[] message = Crypto.DecryptMessage(cryptedMessage, client_keys[client], receivedBytes);
+            Aes tmp_aes;
+            keys.TryGetValue(client, out tmp_aes);
+            byte[] message = Crypto.DecryptMessage(cryptedMessage, tmp_aes, receivedBytes);
             string username, password, chat;
             int idPlayer, vote;
             switch (message[0])
