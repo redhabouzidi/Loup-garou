@@ -268,6 +268,8 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void addFriendAdd(string name,int id){
+        SupprNoObject(listAdd);
+
         GameObject newFriend = Instantiate(componentAddWait, containerAdd.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -292,6 +294,8 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void addFriendWait(string name,int id){
+        SupprNoObject(listWait);
+
         GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -318,6 +322,8 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void addFriend(string name,int id,int status){
+        SupprNoObject(listFriend);
+
         GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -375,6 +381,7 @@ public class GameManagerApp : MonoBehaviour
         // -1 = hors ligne
 
     public void addFriendRequest(string name,int id){
+        SupprNoObject(listRequest);
         GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -399,8 +406,7 @@ public class GameManagerApp : MonoBehaviour
         TextMeshProUGUI textName = newObject.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         textName.text = msg;
 
-        
-        list.Add(new Friend(newObject));
+        list.Add(new Friend(-1, newObject));
     }
 
     public void UpdateStatusFriend(int id, int status)
@@ -448,38 +454,63 @@ public class GameManagerApp : MonoBehaviour
         int indice = GetIndiceFriendId(id, listFriend);
         Destroy(listFriend[indice].obj);
         listFriend.Remove(listFriend[indice]);
+        AfficheNoObject();
     }
 
-    // Modification des amis de la personne qui répond
-    // il faudra probablement ajouter la recherche dans la liste listadd et listwait
-    // si c'est le même message envoyé quand on annule une demande d'ami
-    public void AccepterAmi(int id, bool answer)
+    // Modification des amis par une reponse à une demande d'ami
+    public void ReponseAmi(int id, bool answer)
     {
+        List<Friend> list = listRequest;
         int indice = GetIndiceFriendId(id, listRequest);
         if(indice == -1){
-            return; // error
+            list = listWait;
+            indice = GetIndiceFriendId(id, listWait);
+            if(indice == -1){
+                Debug.Log("id de l'ami introuvable");
+                return; // error
+            }
         }
-        Friend f = listRequest[indice];
+        Friend f = list[indice];
+
+        // vérifier si l'ami est dans add avec le bouton cancel
+        int indiceAdd = GetIndiceFriendId(id, listAdd);
+        if(indiceAdd != -1){
+            GameObject obj = listAdd[indiceAdd].obj;
+            obj.transform.Find("Button-add").gameObject.SetActive(true);
+            obj.transform.Find("Button-cancel").gameObject.SetActive(false);
+        } 
+
+        // mise a jour
         if(answer){
             addFriend(f.name, f.id, -1);
         }
         Destroy(f.obj);
-        listRequest.Remove(f);
+        list.Remove(f);
+        AfficheNoObject();
     }
 
-    // Modification des amis de la personne qui a eu une réponse
-    public void ReponseAccepterAmi(int id, bool answer)
-    {
-        int indice = GetIndiceFriendId(id, listWait);
-        if(indice == -1){
-            return; // error
+    // affiche dans les container des différents interface pour les amis
+    // qu'il n'y a pas d'obejct (demande, resultat, ami) si les listes sont vides
+    public void AfficheNoObject(){
+        if(listRequest.Count == 0){
+            addNoFriend("No request", containerRequest, listRequest);
         }
-        Friend f = listWait[indice];
-        if(answer){
-            addFriend(f.name, f.id, -1);
+        if(listWait.Count == 0){
+            addNoFriend("No request", containerWait, listWait);
         }
-        Destroy(f.obj);
-        listRequest.Remove(f);
+        if(listAdd.Count == 0){
+            addNoFriend("No result", containerAdd, listAdd);
+        }
+        if(listFriend.Count == 0){
+            addNoFriend("No friend", containerFriend, listFriend);
+        }
+    }
+
+    public void SupprNoObject(List<Friend> list){
+        if(list.Count == 1 && list[0].id == -1){
+            Destroy(list[0].obj);
+            list.Remove(list[0]);
+        }
     }
 
     public int GetIndiceFriendId(int id, List<Friend> list){
@@ -557,6 +588,12 @@ public class Friend
     {
         this.id = id;
         this.name = name;
+        this.obj = obj;
+    }
+
+    public Friend(int id, GameObject obj)
+    {
+        this.id = id;
         this.obj = obj;
     }
 

@@ -386,7 +386,7 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
 
-                    gm.setAmoureux(idPlayer, id);
+                    gm.setAmoureux(idPlayer, idp);
 
                     gm.lover1_id = gm.p.GetId();
                     string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
@@ -621,7 +621,7 @@ public class NetworkManager : MonoBehaviour
                             }
                             gma.addFriendRequest(names[j], friends[j]);
                         }
-
+                        gma.AfficheNoObject();
                     }
                     else
                     {
@@ -727,12 +727,12 @@ public class NetworkManager : MonoBehaviour
                     if (idSender == id)
                     {
                         //Je susi celui qui a répondu
-                        gma.AccepterAmi(idFriend, answer);
+                        gma.ReponseAmi(idFriend, answer);
                     }else
                     if (idFriend == id)
                     {
                         //Je suis ceuli a qui on a répondu
-                        gma.ReponseAccepterAmi(idSender, answer);
+                        gma.ReponseAmi(idSender, answer);
                     }
                     else
                     {
@@ -772,6 +772,7 @@ public class NetworkManager : MonoBehaviour
                             gma.addFriendAdd(playerNames[i], idPlayers[i]);
 
                         }
+                        gma.AfficheNoObject();
                     }
                     else
                     {
