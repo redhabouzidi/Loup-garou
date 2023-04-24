@@ -720,16 +720,31 @@ public class GameManager : MonoBehaviour
 
         AllToggleOff();
     }
+    
+     public void chatInteractable() {
 
-    public void OnOff()
-    {
-        for(int i=0; i<nbPlayer; i++){
-            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
-            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable = !listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable;
+        /*if(isNight && p.GetIsAlive() && p.GetRole() == "Loup-Garou" && turn == 4) {
+            sendChat.interactable = true;
+            inputChat.interactable = true;
         }
-        sendChat.interactable = !sendChat.interactable;
-        inputChat.interactable = !inputChat.interactable;
+
+        else */
+        if(!p.GetIsAlive()) {
+            sendChat.interactable = false;
+            inputChat.interactable = false;
+        }
+
+        else if(isNight) {
+            sendChat.interactable = false;
+            inputChat.interactable = false;
+        }
+
+        else {
+            sendChat.interactable = true;
+            inputChat.interactable = true;
+        }       
     }
+
 
     public void MiseAJourCarte(int indice)
     {
