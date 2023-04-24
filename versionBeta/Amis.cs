@@ -161,4 +161,34 @@ public (int[],string[],DateTime[]) get_liste_amis_enattente(MySqlConnection conn
         friend_count=conn.QueryFirstOrDefault<int>(query,new{IDS=id_player,IDF=id_player,SA=true});
         return friend_count;
     }
+
+
+    //fonction qui permet de faire la recherche des personnes qui ne sont pas amis avec l'utilisateurs!!!
+    
+    public List<string> searchNonAmis(MySqlConnection conn, int idUsers)
+    {
+        List<string> result = new List<string>();
+
+        using (MySqlCommand command = new MySqlCommand())
+        {
+            command.Connection = conn;
+            command.CommandText = "SELECT U.pseudo FROM Utilisateurs U " +
+                            "WHERE U.idUsers NOT IN " +
+                            "(SELECT A.idUsers2 FROM Amis A WHERE A.idUsers1 = @id) " +
+                            "AND U.idUsers != @id;";
+            command.Parameters.AddWithValue("@id", idUsers);
+
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    result.Add(reader["pseudo"].ToString());
+                }
+            }
+        }
+
+        return result;
+}
+
+
 }
