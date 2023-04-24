@@ -1185,10 +1185,10 @@ public class Player
             case 6:
                 role = "Chasseur";
                 break;
-            case 8:
+            case 7:
                 role = "Dictateur";
                 break;
-            case 7:
+            case 8:
                 role = "Garde";
                 break;
 

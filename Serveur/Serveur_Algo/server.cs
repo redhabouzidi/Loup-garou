@@ -573,6 +573,7 @@ namespace Server
             encode(message, idJoueur.Length, size);
             for (int i = 0; i < idJoueur.Length; i++)
             {
+                Console.WriteLine(idJoueur[i]);
                 encode(message, idJoueur[i], size);
             }
             encode(message, role.Length, size);
@@ -978,6 +979,7 @@ namespace Server
                             {
                                 idj = connected[client];
                                 players[connected[client]].ToggleReady(idj);
+                                Console.WriteLine("yo");
                             }
 
                         }

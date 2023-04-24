@@ -261,10 +261,6 @@ public class Game
     public void Start()
     {
         _start = true;
-        foreach(Joueur j in _joueurs)
-        {
-            server.connected.Remove(j.GetSocket());
-        }
         
         // mélange des rôles et répartition pour les joueurs
         InitiateGame();
@@ -945,6 +941,7 @@ public class Game
             }
             server.sendReady(j.GetSocket(), id, ready);
         }
+        
         if (sum == _nbrJoueurs)
         {
             foreach (Joueur j in _joueurs)
@@ -952,9 +949,9 @@ public class Game
                 server.connected.Remove(j.GetSocket());
                 server.userData[j.GetId()].SetStatus(j.GetId(), 3);
             }
+            Console.WriteLine("on lance la game");
             Task.Run(() =>
             {
-                Thread.Sleep(1000);
                 Start();
             });
         }

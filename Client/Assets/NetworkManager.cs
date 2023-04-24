@@ -203,7 +203,7 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i]);
-        }
+        }   
     }
 
     public static int decode(byte[] message, int[] size)
@@ -498,7 +498,8 @@ public class NetworkManager : MonoBehaviour
                     size[0] = 2;
                     usernameP = decodeString(message, size);
                     gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
-                    gm.sestPresente = true;
+                    if (usernameP == username)
+                        gm.sestPresente = true;
                     break;
 
                 case 100:
@@ -669,6 +670,14 @@ public class NetworkManager : MonoBehaviour
                     for (int i = 0; i < dataSize; i++)
                     {
                         roles[i] = decode(message, size);
+                    }
+                    
+                    for (int i = 0; i < idPlayers.Length;i++)
+                    {
+                        Debug.Log(idPlayers[i]);
+                        Player p = gm.listPlayer.Find(j => j.GetId() == idPlayers[i]);
+                        p.SetRole(roles[i]);
+
                     }
                     gm.isVillageWin = win;
                     gm.gameover = true;
