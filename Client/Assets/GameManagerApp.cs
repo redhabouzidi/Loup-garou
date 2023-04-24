@@ -60,7 +60,6 @@ public class GameManagerApp : MonoBehaviour
         listRequest = new List<Friend>();
         listWait = new List<Friend>();
         Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
-        profileUsername.text = inputFRegPseudo.text;
 
 
         buttonResearch.onClick.AddListener(OnButtonClickResearch);
@@ -136,6 +135,7 @@ public class GameManagerApp : MonoBehaviour
         box_error.SetActive(false);
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
+        profileUsername.text = email;
         NetworkManager.task = Task.Run(() =>
         {
             NetworkManager.reseau(email,password);
@@ -152,6 +152,7 @@ public class GameManagerApp : MonoBehaviour
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
         string password2 = inputFRegConfirmPassword.text;
+        profileUsername.text = pseudo;
 
         if (password == password2)
         {
