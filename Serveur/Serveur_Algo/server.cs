@@ -168,7 +168,7 @@ namespace Server
                 else
                 if (fds.Contains(server))
                 {
-                    acceptConnexions(list, server, client_keys, crypto);
+                    acceptConnexions(list, server, crypto);
                     fds.Remove(server);
                     Console.WriteLine("got a new client ! it's " + list.Last().RemoteEndPoint.ToString());
                 }
@@ -183,9 +183,13 @@ namespace Server
                     {
                         disconnectPlayer(list, fd);
                     }
-                    else
+                    else if (client_keys.ContainsKey(fd))
                     {
                         recvMessage(fd, bdd, list, connected, queue, players, client_keys);
+                    }
+                    else
+                    {
+                        client_keys.TryAdd(fd, crypto.RecvAes(fd));
                     }
                 }
             }
@@ -233,13 +237,11 @@ namespace Server
             return server;
         }
         //fonction qui accepte une nouvelle connexion d'un client au serveur et qui l'ajoite a la liste des client qui sont sur le serveur
-        public static void acceptConnexions(List<Socket> clients, Socket server, Dictionary<Socket, Aes> keys, Crypto crp)
+        public static void acceptConnexions(List<Socket> clients, Socket server, Crypto crp)
         {
 
             Socket new_client = server.Accept();
             crp.SendCertificateToClient(new_client);
-            Aes tmp_aes = crp.RecvAes(new_client);
-            keys.TryAdd(new_client, tmp_aes);
             clients.Add(new_client);
             return;
         }
