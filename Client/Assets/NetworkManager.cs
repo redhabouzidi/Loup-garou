@@ -500,6 +500,8 @@ public class NetworkManager : MonoBehaviour
                     gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
                     if (usernameP == username)
                         gm.sestPresente = true;
+                    Player _p = gm.listPlayer.Find(j => j.GetPseudo() == usernameP);
+                    _p.SetIsMaire(true);
                     break;
 
                 case 100:
