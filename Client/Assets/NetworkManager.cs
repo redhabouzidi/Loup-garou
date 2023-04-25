@@ -12,7 +12,7 @@ public class NetworkManager : MonoBehaviour
 {
 
     public static int nbplayeres, time;
-    public static bool prog = false;
+    public static bool prog = false, ready;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id, tour;
@@ -500,6 +500,8 @@ public class NetworkManager : MonoBehaviour
                     gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
                     if (usernameP == username)
                         gm.sestPresente = true;
+                    Player _p = gm.listPlayer.Find(j => j.GetPseudo() == usernameP);
+                    _p.SetIsMaire(true);
                     break;
 
                 case 100:
@@ -654,7 +656,9 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 108:
                     idPlayer = decode(message, size);
-                    bool ready = decodeBool(message, size);
+                    ready = decodeBool(message, size);
+                    ws.ChangeReady(idPlayer);
+
                     //METTRE LE JOUEUR A PRET 
                     break;
                 case 110:

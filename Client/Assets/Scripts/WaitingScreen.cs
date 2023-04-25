@@ -20,6 +20,7 @@ public class WaitingScreen : MonoBehaviour
     // description des roles
     public Image image_carte;
     public Button right_button, left_button,button_ready;
+    public Color colorWhite, colorGreen;
     public TextMeshProUGUI role_name, descripts;
     public List<InfoRole> infoRole = new List<InfoRole>();
     public List<Roles> roles_presents=new List<Roles>();
@@ -83,6 +84,7 @@ public class WaitingScreen : MonoBehaviour
         {
             status.text = " ready yourselves";
         }
+
     }
     public void toggleReady()
     {
@@ -221,11 +223,21 @@ public class WaitingScreen : MonoBehaviour
 
     public void AffichageUsernameText(){
         for (int i=0; i<no_players; i++){
+            Image check = listCard[i].transform.Find("image-card").GetComponent<Image>();
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
+            listCard[i].transform.Find("card").GetComponent<Image>().enabled = true;
+            if(NetworkManager.ready) check.enabled = true;
+            else check.enabled = false;
+
+            if(players_waiting[i].readyp) {
+                listCard[i].transform.Find("image-card").GetComponent<Image>().enabled = true;
+            }
+            else listCard[i].transform.Find("image-card").GetComponent<Image>().enabled = false;
         }
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
+            listCard[i].transform.Find("card").GetComponent<Image>().enabled = false;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = "";
         }
 
@@ -246,6 +258,41 @@ public class WaitingScreen : MonoBehaviour
         for (int i=0; i<max_player; i++){
             AjoutCarte(i);
         }
+    }
+
+    public void ChangeReady(int id) {
+        button_ready.transform.Find("check").GetComponent<Image>().color = colorGreen;
+        
+
+        
+        foreach (WPlayer p in players_waiting) {
+            if(p.GetId() == id) {
+                p.readyp = NetworkManager.ready;
+                
+                if(NetworkManager.id == id) {
+                    if(NetworkManager.ready) {
+                        
+                        button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
+                        button_ready.GetComponent<Image>().color = colorGreen;
+                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
+                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+                    }
+
+                    else {
+                        button_ready.transform.Find("check").GetComponent<Image>().enabled = false;
+                        button_ready.GetComponent<Image>().color = colorWhite;
+                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorWhite;
+                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
+                    }
+                }
+                // mettre le check
+                
+                if(NetworkManager.ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = true;
+                else cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = false;
+            }
+        }
+        AffichageUsernameText();
+        
     }
 
     void change_image()
@@ -284,6 +331,7 @@ public class WPlayer
     private string username;
     private int id;
     private int role;
+    public bool readyp;
     //....
 
     public WPlayer(string uname, int id)

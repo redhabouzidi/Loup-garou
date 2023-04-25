@@ -739,7 +739,7 @@ public class GameManager : MonoBehaviour
             inputChat.interactable = false;
         }
 
-        else {
+        else if(p.GetIsAlive()) {
             sendChat.interactable = true;
             inputChat.interactable = true;
         }       
