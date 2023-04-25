@@ -139,7 +139,7 @@ public class GameManagerApp : MonoBehaviour
         box_error.SetActive(false);
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
-        profileUsername.text = email;
+        if (email != "") profileUsername.text = email;
         NetworkManager.task = Task.Run(() =>
         {
             NetworkManager.reseau(email,password);
@@ -156,7 +156,7 @@ public class GameManagerApp : MonoBehaviour
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
         string password2 = inputFRegConfirmPassword.text;
-        profileUsername.text = pseudo;
+        if (pseudo != "") profileUsername.text = pseudo;
 
         if (password == password2)
         {
