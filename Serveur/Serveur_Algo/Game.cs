@@ -250,17 +250,14 @@ public class Game
     }
     public int CountSockets()
     {
-        Console.WriteLine("hey "+_joueurs.Count);
         int sum = 0;
         foreach (Joueur j in _joueurs)
         {
             if (j.GetSocket() != null && j.GetSocket().Connected)
             {
-                Console.WriteLine("hey " + _joueurs.Count);
                 sum++;
             }
         }
-        Console.WriteLine("hey");
 
         return sum;
     }
@@ -804,6 +801,7 @@ public class Game
         {
             _joueurs[i].SetRole(_roles[i]);
         }
+        Console.WriteLine("count == " + _joueurs.Count);
         foreach (Joueur j in _joueurs)
         {
             sendRoles(j);

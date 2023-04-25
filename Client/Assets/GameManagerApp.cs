@@ -25,7 +25,7 @@ public class GameManagerApp : MonoBehaviour
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
     public GameObject componentAddWait, componentRequest, componentFriend, componentNo;
-    public List<Friend> listFriend, listAdd, listRequest, listWait;
+    public static List<Friend> listFriend, listAdd, listRequest, listWait;
     public static int scene;
 
     // profile
@@ -39,6 +39,7 @@ public class GameManagerApp : MonoBehaviour
 
     void Start()
     {
+        NetworkManager.inGame = false;
         if (client != null)
         {
             NetworkManager.client = client;
@@ -60,10 +61,14 @@ public class GameManagerApp : MonoBehaviour
 
 
         GameManagerApp.players = new List<player>();
+        if(listFriend==null)
         listFriend = new List<Friend>();
-        listAdd = new List<Friend>();
-        listRequest = new List<Friend>();
-        listWait = new List<Friend>();
+        if (listAdd == null)
+            listAdd = new List<Friend>();
+        if (listRequest == null)
+            listRequest = new List<Friend>();
+        if (listWait == null)
+            listWait = new List<Friend>();
         Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
 
 
@@ -80,6 +85,9 @@ public class GameManagerApp : MonoBehaviour
         buttonAccept.onClick.AddListener(onButtonClickAccept);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
+
+        
+        refreshAll();
 
         if (scene == 1)
         {
@@ -301,8 +309,8 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void addFriendWait(string name,int id){
-        SupprNoObject(listWait);
-
+        if (!NetworkManager.inGame)
+        {
         GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -326,11 +334,141 @@ public class GameManagerApp : MonoBehaviour
         Friend f = new Friend(id, name, newFriend);
         listWait.Add(f);
 
+        }
+        else
+        {
+            Friend f = new Friend(id, name, null);
+            listWait.Add(f);
+        }
+
+
     }
+    public void refreshAll()
+    {
+        Debug.Log("val = " + listFriend.Count + "val = " + listRequest.Count + "val = " + listWait.Count );
+        if (listFriend != null && listFriend.Count != 0)
+        {
+            foreach (Friend f in listFriend)
+            {
+                Debug.Log("on ajout un ami");
+                refreshFriend(f);
+            }
+        }
+        if (listRequest != null && listRequest.Count != 0)
+        {
+            foreach (Friend f in listRequest)
+            {
+                Debug.Log("on ajout un ami2");
 
+                refreshFriendR(f);
+            }
+        }
+        if (listWait != null && listWait.Count != 0)
+        {
+            foreach (Friend f in listWait)
+            {
+                Debug.Log("on ajout un ami3");
+
+                refreshFriendW(f);
+            }
+        }
+    }
+    public void refreshFriend(Friend f)
+    {
+        GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = f.name;
+
+        Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
+        GameObject infoStatus = newFriend.transform.Find("Info_status").gameObject;
+        TextMeshProUGUI textStatus = infoStatus.transform.Find("Text_status").GetComponent<TextMeshProUGUI>();
+        infoStatus.SetActive(false);
+
+        GameObject GO_buttonJoin = newFriend.transform.Find("Button-join").gameObject;
+        GO_buttonJoin.SetActive(false);
+        Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
+        buttonJoin.onClick.AddListener(() =>
+        {
+            NetworkManager.joinFriend(f.id, NetworkManager.id);
+            GameObject.Find("Canvas").transform.Find("Friends").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("Home").gameObject.SetActive(true);
+        });
+
+        Button buttonDelete = newFriend.transform.Find("Button-delete").GetComponent<Button>();
+        buttonDelete.onClick.AddListener(() =>
+        {
+            NetworkManager.supprimerAmi(NetworkManager.id, f.id);
+        });
+
+        switch (f.status)
+        {
+            case 2:
+                GO_buttonJoin.SetActive(true);
+                imgStatus.color = new Color32(79, 200, 74, 255);
+                textStatus.text = "Online";
+                break;
+            case 1:
+                imgStatus.color = new Color32(79, 200, 74, 255);
+                textStatus.text = "Online";
+                break;
+            case 3:
+                imgStatus.color = new Color32(74, 156, 200, 255);
+                textStatus.text = "In Game";
+                break;
+            default:
+                imgStatus.color = new Color32(128, 128, 128, 255);
+                textStatus.text = "Offline";
+                break;
+
+        }
+        f.obj = newFriend;
+    }
+    public void refreshFriendR(Friend f)
+    {
+        GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = f.name;
+        Button accepter = newFriend.transform.Find("Button-add").GetComponent<Button>();
+        accepter.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, f.id, true);
+        });
+        Button refuser = newFriend.transform.Find("Button-reject").GetComponent<Button>();
+        refuser.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, f.id, false);
+        });
+        f.obj = newFriend;
+    }
+    public void refreshFriendW(Friend f)
+    {
+        GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
+
+        TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
+        textName.text = f.name;
+        GameObject button_add = newFriend.transform.Find("Button-add").gameObject;
+        GameObject button_cancel = newFriend.transform.Find("Button-cancel").gameObject;
+        button_add.SetActive(false);
+        button_cancel.SetActive(true);
+
+        Button bAdd = button_add.GetComponent<Button>();
+        bAdd.onClick.AddListener(() =>
+        {
+            NetworkManager.ajoutAmi(NetworkManager.id, f.id);
+        });
+        Button bCancel = button_cancel.GetComponent<Button>();
+        bCancel.onClick.AddListener(() =>
+        {
+            NetworkManager.reponseAmi(NetworkManager.id, f.id, false);
+        });
+        f.obj = newFriend;
+    }
     public void addFriend(string name,int id,int status){
-        SupprNoObject(listFriend);
-
+        //SupprNoObject(listFriend);
+        if (!NetworkManager.inGame)
+        {
         GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -379,6 +517,13 @@ public class GameManagerApp : MonoBehaviour
         }
         Friend f = new Friend(id, name, newFriend);
         listFriend.Add(f);
+
+        }
+        else
+        {
+            Friend f = new Friend(id, name, null);
+            listFriend.Add(f);
+        }
     }
 // status:
         // 3 = in game
@@ -388,7 +533,7 @@ public class GameManagerApp : MonoBehaviour
         // -1 = hors ligne
 
     public void addFriendRequest(string name,int id){
-        SupprNoObject(listRequest);
+
         GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -419,6 +564,10 @@ public class GameManagerApp : MonoBehaviour
     public void UpdateStatusFriend(int id, int status)
     {
         int indice = GetIndiceFriendId(id, listFriend);
+        listFriend[indice].status = status;
+        if (!NetworkManager.inGame)
+        {
+        
         GameObject newFriend = listFriend[indice].obj;
 
         Image imgStatus = newFriend.transform.Find("Image_status").GetComponent<Image>();
@@ -452,6 +601,8 @@ public class GameManagerApp : MonoBehaviour
                 imgStatus.color = new Color32(128,128,128,255);
                 textStatus.text = "Offline";
                 break;
+
+        }
 
         }
 

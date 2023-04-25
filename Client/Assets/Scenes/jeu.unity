@@ -7815,7 +7815,7 @@ MonoBehaviour:
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
   mfont: {fileID: 0}
-  nbPlayerP: {fileID: 1736376916}
+  nbPlayerP: {fileID: 984951783}
   cardContainer: {fileID: 478001514}
   cardComponent: {fileID: 2504628310605923534, guid: eb7821d7c90dfa74c8f48b1d4461a24d, type: 3}
   colorNone: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0.19607843}
@@ -17146,10 +17146,6 @@ MonoBehaviour:
   componentRequest: {fileID: 2237941835360150366, guid: c2b4b79c90837d741ac4be903ae497c9, type: 3}
   componentFriend: {fileID: 3622561982937576409, guid: f2b416b80c4acef43b00be35b54919e5, type: 3}
   componentNo: {fileID: 8831091367290923777, guid: 3c7de8377d220ed4290f015ebafb3b4e, type: 3}
-  listFriend: []
-  listAdd: []
-  listRequest: []
-  listWait: []
   colorGreen: {r: 0, g: 0.7169812, b: 0.033398233, a: 1}
   colorWhite: {r: 0.8784314, g: 0.8784314, b: 0.8784314, a: 1}
   readyCheck: {fileID: 0}

@@ -12,7 +12,7 @@ public class NetworkManager : MonoBehaviour
 {
 
     public static int nbplayeres, time;
-    public static bool prog = false, ready;
+    public static bool prog = false, ready,inGame;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id, tour;
@@ -24,6 +24,9 @@ public class NetworkManager : MonoBehaviour
     public static WPlayer[] players;
     public static Task task;
     public static List<int> rolews = new List<int>(), nbRole ;
+
+    public static List<(int, string, int)> ListFriend= new List<(int, string, int)>(), ListFriendR=new List<(int, string, int)>(), ListFriendP= new List<(int, string, int)>();
+
     public class answer
     {
         public bool error;
@@ -450,6 +453,7 @@ public class NetworkManager : MonoBehaviour
                     }
 
                     ws.players_waiting.CopyTo(players);
+                    inGame = true;
                     LoadScene("game_scene");
 
                     break;

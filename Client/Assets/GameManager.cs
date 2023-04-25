@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;

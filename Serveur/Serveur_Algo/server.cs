@@ -1172,11 +1172,19 @@ namespace Server
                         if (userData.ContainsKey(id))
                         {
                             userData[id].AddFriend(idFriend);
+                            redirect(userData[id].GetSocket(), message, recvSize);
+
                         }
                         if (userData.ContainsKey(idFriend))
                         {
-                            userData[id].AddFriend(id);
+                            userData[idFriend].AddFriend(id);
                             redirect(userData[idFriend].GetSocket(), message, recvSize);
+                            
+                        }
+                        if (userData.ContainsKey(idFriend) && userData.ContainsKey(id))
+                        {
+                            sendStatus(userData[id].GetSocket(), idFriend, userData[idFriend].GetStatus());
+                            sendStatus(userData[idFriend], id, userData[id].GetStatus());
                         }
                     }
                     else
@@ -1184,6 +1192,10 @@ namespace Server
                         if (userData.ContainsKey(idFriend))
                         {
                             redirect(userData[idFriend].GetSocket(), message, recvSize);
+                        }
+                        if (userData.ContainsKey(id))
+                        {
+                            redirect(userData[id].GetSocket(), message, recvSize);
                         }
                     }
                     client = queue.queue[queueId];
