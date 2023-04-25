@@ -225,11 +225,13 @@ public class WaitingScreen : MonoBehaviour
             Image check = listCard[i].transform.Find("image-card").GetComponent<Image>();
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
+            listCard[i].transform.Find("card").GetComponent<Image>().enabled = true;
             if(NetworkManager.ready) check.enabled = true;
             else check.enabled = false;
         }
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
+            listCard[i].transform.Find("card").GetComponent<Image>().enabled = false;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = "";
         }
 
