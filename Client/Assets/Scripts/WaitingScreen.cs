@@ -84,6 +84,7 @@ public class WaitingScreen : MonoBehaviour
         {
             status.text = " ready yourselves";
         }
+
     }
     public void toggleReady()
     {
@@ -256,27 +257,31 @@ public class WaitingScreen : MonoBehaviour
 
     public void ChangeReady(int id) {
         button_ready.transform.Find("check").GetComponent<Image>().color = colorGreen;
-        if(NetworkManager.ready) {
-            button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
-            button_ready.GetComponent<Image>().color = colorGreen;
-            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
-            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
-        }
+        
 
-        else {
-            button_ready.transform.Find("check").GetComponent<Image>().enabled = false;
-            button_ready.GetComponent<Image>().color = colorWhite;
-            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorWhite;
-            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
-        }
-
-        /*foreach (WPlayer p in NetworkManager.players) {
+        
+        foreach (WPlayer p in NetworkManager.players) {
             if(p.GetId() == id) {
                 // mettre le check
-                if(NetworkManager.ready) buttonReady.transform.Find("image-card").GetComponent<Image>().enabled = true;
-                else buttonReady.transform.Find("image-card").GetComponent<Image>().enabled = false;
+                if(NetworkManager.ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = true;
+                else cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = false;
+
+                if(NetworkManager.ready) {
+                    button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
+                    button_ready.GetComponent<Image>().color = colorGreen;
+                    button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
+                    button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+                }
+
+                else {
+                    button_ready.transform.Find("check").GetComponent<Image>().enabled = false;
+                    button_ready.GetComponent<Image>().color = colorWhite;
+                    button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorWhite;
+                    button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
+                }
             }
-        }*/
+        }
+        
     }
 
     void change_image()
