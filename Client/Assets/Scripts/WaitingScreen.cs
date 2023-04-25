@@ -20,6 +20,7 @@ public class WaitingScreen : MonoBehaviour
     // description des roles
     public Image image_carte;
     public Button right_button, left_button,button_ready;
+    public Color colorWhite, colorGreen;
     public TextMeshProUGUI role_name, descripts;
     public List<InfoRole> infoRole = new List<InfoRole>();
     public List<Roles> roles_presents=new List<Roles>();
@@ -221,8 +222,11 @@ public class WaitingScreen : MonoBehaviour
 
     public void AffichageUsernameText(){
         for (int i=0; i<no_players; i++){
+            Image check = listCard[i].transform.Find("image-card").GetComponent<Image>();
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
+            if(NetworkManager.ready) check.enabled = true;
+            else check.enabled = false;
         }
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
@@ -246,6 +250,31 @@ public class WaitingScreen : MonoBehaviour
         for (int i=0; i<max_player; i++){
             AjoutCarte(i);
         }
+    }
+
+    public void ChangeReady(int id) {
+        button_ready.transform.Find("check").GetComponent<Image>().color = colorGreen;
+        if(NetworkManager.ready) {
+            button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
+            button_ready.GetComponent<Image>().color = colorGreen;
+            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
+            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+        }
+
+        else {
+            button_ready.transform.Find("check").GetComponent<Image>().enabled = false;
+            button_ready.GetComponent<Image>().color = colorWhite;
+            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorWhite;
+            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
+        }
+
+        /*foreach (WPlayer p in NetworkManager.players) {
+            if(p.GetId() == id) {
+                // mettre le check
+                if(NetworkManager.ready) buttonReady.transform.Find("image-card").GetComponent<Image>().enabled = true;
+                else buttonReady.transform.Find("image-card").GetComponent<Image>().enabled = false;
+            }
+        }*/
     }
 
     void change_image()

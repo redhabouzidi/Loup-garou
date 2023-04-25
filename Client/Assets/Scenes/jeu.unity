@@ -7800,7 +7800,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &404978934
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7886,6 +7886,8 @@ MonoBehaviour:
   right_button: {fileID: 1587421622}
   left_button: {fileID: 1280778111}
   button_ready: {fileID: 1967423922}
+  colorWhite: {r: 0.8784314, g: 0.8784314, b: 0.8784314, a: 1}
+  colorGreen: {r: 0, g: 0.7169812, b: 0.033398233, a: 1}
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
   mfont: {fileID: 0}
@@ -17193,6 +17195,7 @@ MonoBehaviour:
   buttonChangeForgotPass: {fileID: 536321812}
   buttonQuitLobby: {fileID: 937178621}
   buttonLogout: {fileID: 1019389989}
+  buttonReady: {fileID: 1967423922}
   box_error: {fileID: 1245871327}
   loginPage: {fileID: 329998960}
   registrationPage: {fileID: 151734975}
@@ -17223,6 +17226,9 @@ MonoBehaviour:
   listAdd: []
   listRequest: []
   listWait: []
+  colorGreen: {r: 0, g: 0.7169812, b: 0.033398233, a: 1}
+  colorWhite: {r: 0.8784314, g: 0.8784314, b: 0.8784314, a: 1}
+  readyCheck: {fileID: 0}
 --- !u!4 &894909610
 Transform:
   m_ObjectHideFlags: 0

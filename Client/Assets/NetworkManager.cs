@@ -12,7 +12,7 @@ public class NetworkManager : MonoBehaviour
 {
 
     public static int nbplayeres, time;
-    public static bool prog = false;
+    public static bool prog = false, ready;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id, tour;
@@ -654,7 +654,9 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 108:
                     idPlayer = decode(message, size);
-                    bool ready = decodeBool(message, size);
+                    ready = decodeBool(message, size);
+                    ws.ChangeReady(idPlayer);
+
                     //METTRE LE JOUEUR A PRET 
                     break;
                 case 110:

@@ -12,7 +12,7 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -32,6 +32,10 @@ public class GameManagerApp : MonoBehaviour
     //NetworkManager
     public static Socket client=null;
     // Start is called before the first frame update
+
+    //Waiting screen
+    public Color colorGreen, colorWhite;
+    public Image readyCheck;
     void Start()
     {
         if (client != null)
