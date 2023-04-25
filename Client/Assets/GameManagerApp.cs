@@ -36,6 +36,7 @@ public class GameManagerApp : MonoBehaviour
     //Waiting screen
     public Color colorGreen, colorWhite;
     public Image readyCheck;
+
     void Start()
     {
         if (client != null)
@@ -96,6 +97,7 @@ public class GameManagerApp : MonoBehaviour
             Debug.Log("scene 2");
 
         }
+        if (NetworkManager.username != "") profileUsername.text = NetworkManager.username;
     }
     // Update is called once per frame
     void Update()
