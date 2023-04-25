@@ -23,6 +23,7 @@ public class NetworkManager : MonoBehaviour
     public static GameManagerApp gma;
     public static WPlayer[] players;
     public static Task task;
+    public static List<int> rolews = new List<int>(), nbRole ;
     public class answer
     {
         public bool error;
@@ -512,11 +513,65 @@ public class NetworkManager : MonoBehaviour
                 case 101:
                     sp.SetActive(false);
                     wso.SetActive(true);
+                    nbRole = new List<int>();
+                    rolews = new List<int>();
                     nbplayeres = decode(message, size);
                     int nbLoup = decode(message, size);
                     bool sorciere = decodeBool(message, size);
                     bool voyante = decodeBool(message, size);
                     bool cupidon = decodeBool(message, size);
+                    bool chasseur = decodeBool(message, size);
+                    bool garde = decodeBool(message, size);
+                    bool dictateur = decodeBool(message, size);
+                    int nbVillagers = nbplayeres;
+                    
+                    if (nbLoup != 0)
+                    {
+                        rolews.Add(4);
+                        nbRole.Add(nbLoup);
+                        nbVillagers -= nbLoup;
+                    }
+                    if (sorciere)
+                    {
+                        rolews.Add(5);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (voyante)
+                    {
+                        rolews.Add(3);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (cupidon)
+                    {
+                        rolews.Add(2);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (chasseur)
+                    {
+                        rolews.Add(6);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (garde)
+                    {
+                        rolews.Add(7);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (dictateur)
+                    {
+                        rolews.Add(8);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (nbVillagers >0)
+                    {
+                        rolews.Add(1);
+                        nbRole.Add(nbVillagers);
+                    }
                     name = decodeString(message, size);
                     tableSize = decode(message, size);
                     idPlayers = new int[tableSize];
@@ -531,6 +586,7 @@ public class NetworkManager : MonoBehaviour
 
                     }
                     setGameInfo(name, idPlayers, playerNames);
+                    ws.add_role(rolews.ToArray(), nbRole.ToArray());
                     ws.newGame = true;
                     break;
                 case 102:
@@ -679,8 +735,17 @@ public class NetworkManager : MonoBehaviour
                     for (int i = 0; i < idPlayers.Length;i++)
                     {
                         Debug.Log(idPlayers[i]);
+                        if (gm.listPlayer[i].GetId() == idPlayers[i])
+                        {
+                            gm.listPlayer[i].SetRole(roles[i]);
+                        }
+                        else
+                        {
+                            Debug.Log("pas cool");
                         Player p = gm.listPlayer.Find(j => j.GetId() == idPlayers[i]);
                         p.SetRole(roles[i]);
+
+                        }
 
                     }
                     gm.isVillageWin = win;

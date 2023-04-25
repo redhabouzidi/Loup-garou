@@ -387,14 +387,14 @@ namespace Server
             }
         }
         //fonction qui sert a envoyer les informztion d'une game a un client
-        public static void sendGameInfo(Socket client, int nbPlayers, int nbLoup, bool sorciere, bool voyante, bool cupidon, string name, int[] idPlayers, string[] playerNames)
+        public static void sendGameInfo(Socket client, int nbPlayers, int nbLoup, bool sorciere, bool voyante, bool cupidon, bool chasseur, bool guardien, bool dictateur ,string name, int[] idPlayers, string[] playerNames)
         {
             //variable d'index pour ne pas se perdre dans le tableau de bytes
             int[] size = new int[1] { 0 };
             //recuperer le nombre total de caracteres
             int pnsize = getStringLength(playerNames);
             //declarer un tableau de bytes avec le bon nombre de bytes
-            byte[] message = new byte[1 + sizeof(int) + sizeof(int) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
+            byte[] message = new byte[1 + sizeof(int) + sizeof(int) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(int) + name.Length + sizeof(int) + idPlayers.Length * sizeof(int) + sizeof(int) * playerNames.Length + pnsize];
             //mettre le code du message dans le premier byte
             message[0] = 101;
             //inrementer l'index
@@ -405,6 +405,9 @@ namespace Server
             encode(message, sorciere, size);
             encode(message, voyante, size);
             encode(message, cupidon, size);
+            encode(message, chasseur, size);
+            encode(message, guardien, size);
+            encode(message, dictateur, size);
             encode(message, name, size);
             //ajouter le nombre d'elements du tableau idPlayers dans le message pour savoir combien il faut lire a la reception du packet
             encode(message, idPlayers.Length, size);

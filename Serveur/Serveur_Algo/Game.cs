@@ -14,7 +14,7 @@ public class Game
     public int _nbrJoueurs;
     public string name, recit;
     private int _nbLoups;
-    private bool sorciere, voyante, cupidon;
+    private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
     public static Socket listener = Server.server.setupSocketGame();
     public Socket vide,reveille;
     public Game()
@@ -30,6 +30,9 @@ public class Game
         sorciere = true;
         voyante = true;
         cupidon = false;
+        chasseur = false;
+        guardien = false;
+        dictateur = false;
         testNombre();
         // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
         // on va admettre que joueurs max = 6
@@ -103,6 +106,9 @@ public class Game
         this.sorciere = sorciere;
         this.cupidon = cupidon;
         this.voyante = voyante;
+        this.chasseur = chasseur;
+        this.guardien = guardien;
+        this.dictateur = dictateur;
         _nbLoups= nbLoups;
         if (!testNombre()){
             _nbrJoueurs= 0;
@@ -833,7 +839,7 @@ public class Game
             id[i] = _joueurs[i].GetId();
             name[i] = _joueurs[i].GetPseudo();
         }
-        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon, this.name, id, name);
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name);
     }
     public void sendGameState(bool day)
     {
