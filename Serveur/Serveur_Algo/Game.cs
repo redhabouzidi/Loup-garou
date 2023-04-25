@@ -494,6 +494,7 @@ public class Game
                 {
                     sockets.Add(j.GetSocket());
                 }
+                i++;
             }
             server.sendEndState(sockets, retour, id, idr);
         }
