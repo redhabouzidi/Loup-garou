@@ -12,7 +12,7 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout;
+    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -32,6 +32,11 @@ public class GameManagerApp : MonoBehaviour
     //NetworkManager
     public static Socket client=null;
     // Start is called before the first frame update
+
+    //Waiting screen
+    public Color colorGreen, colorWhite;
+    public Image readyCheck;
+
     void Start()
     {
         if (client != null)
@@ -92,6 +97,7 @@ public class GameManagerApp : MonoBehaviour
             Debug.Log("scene 2");
 
         }
+        if (NetworkManager.username != "") profileUsername.text = NetworkManager.username;
     }
     // Update is called once per frame
     void Update()
@@ -135,7 +141,7 @@ public class GameManagerApp : MonoBehaviour
         box_error.SetActive(false);
         string email = inputFConnEmail.text;
         string password = inputFConnPassword.text;
-        profileUsername.text = email;
+        if (email != "") profileUsername.text = email;
         NetworkManager.task = Task.Run(() =>
         {
             NetworkManager.reseau(email,password);
@@ -152,7 +158,7 @@ public class GameManagerApp : MonoBehaviour
         string pseudo = inputFRegPseudo.text;
         string password = inputFRegPassword.text;
         string password2 = inputFRegConfirmPassword.text;
-        profileUsername.text = pseudo;
+        if (pseudo != "") profileUsername.text = pseudo;
 
         if (password == password2)
         {
