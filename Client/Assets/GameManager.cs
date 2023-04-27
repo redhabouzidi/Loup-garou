@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Linq;
+
 
 
 public class GameManager : MonoBehaviour
@@ -830,6 +832,15 @@ public class GameManager : MonoBehaviour
         affiche_choix_action(msg);
     }
 
+    public void ChoixDictateur() {
+        affiche_choix_action("Wanna do a putsch ?");
+    }
+
+    public void ActionDictateur() {
+        // Lancer le vote
+        Vote(); // Fin du vote
+    }
+
     public int chercheIndiceJoueurId (int id){
         for(int i=0; i<listPlayer.Count; i++){
             if(listPlayer[i].GetId() == id){
@@ -867,6 +878,38 @@ public class GameManager : MonoBehaviour
         listPlayer[indice].SetSeen(true);
         SendMessageToChat(msg, Message.MsgType.system);
         Change_text_screen(msg);
+    }
+
+    public void affiche_egalite(int[] id)
+    {
+        AllToggleOff();
+        for(int i = 0; i<id.Length; i++) {
+            listCard[chercheIndiceJoueurId(i)].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
+
+        }
+        panel_text_screen.SetActive(true);
+        Change_text_screen("It's a draw...\n You have to settle now..");
+        AllToggleOff();
+        
+        for(int i = 0; i<id.Length; i++) {
+            if(id.Contains(i)) listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
+        }
+
+        // Lancer le vote
+
+        Vote(); // Confirmation de vote
+    }
+
+    public void prochainMaire() {
+        Image dead_bg = GO_dead_bg.GetComponent<Image>();
+        dead_bg.enabled = false;
+        panel_text_screen.SetActive(true);
+        Change_text_screen("Chose who will be the next mayor...");
+
+        // Lancer le vote
+
+        Vote(); // Confirmation de vote
+        dead_bg.enabled = true;
     }
 
     public string idRoleToStringRole(int idRole)
@@ -1098,7 +1141,7 @@ public class Player
     private int roleId;
     private bool seen = false;
     private int vote = -1;
-    private bool isMaire = false;
+    private bool isMaire;
 
     public Player() { }
 
