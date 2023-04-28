@@ -11,8 +11,8 @@ using UnityEngine.SceneManagement;
 public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
-    public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, 
-    buttonPublic, buttonJoin, buttonAdd, buttonAccept, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady;
+    public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, 
+    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -79,10 +79,8 @@ public class GameManagerApp : MonoBehaviour
         buttonRegistration.onClick.AddListener(OnButtonClickRegistration);
         buttonPublic.onClick.AddListener(OnButtonClickPublic);
         buttonJoin.onClick.AddListener(OnButtonClickJoin);
-        buttonAdd.onClick.AddListener(onButtonClickAdd);
         buttonChangeForgotPass.onClick.AddListener(onButtonClickChangeForgotPass);
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
-        buttonAccept.onClick.AddListener(onButtonClickAccept);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
 
@@ -131,19 +129,39 @@ public class GameManagerApp : MonoBehaviour
 #endif
 
     }
+
+    /**
+        Action executé lorsque le bouton logout est appuyé
+        Permet de se deconnecter
+    **/
     private void onButtonClickLogout()
     {
         NetworkManager.logout(NetworkManager.client);
     }
+
+    /**
+        Action executé lorsque le bouton quit est appuyé
+        Permet de quitter l'application
+    **/
     private void OnButtonClickQuit()
     {
         exitGame();
-        //Application.Quit();
     }
+
+    /**
+        Action executé lorsque le bouton quit dans un waiting screen est appuyé
+        Permet de quitter le waiting screen d'une partie
+    **/
     public void onButtonClickQuitLobby()
     {
         NetworkManager.sendQuitLobbyMessage();
     }
+
+    /**
+        Action executé lorsque le bouton connection est appuyé
+        Recupere les informations des input et les envoye au serveur
+        pour verifier les infos et etablir la connection 
+    **/
     private void OnButtonClickConnection()
     {
         box_error.SetActive(false);
@@ -158,6 +176,11 @@ public class GameManagerApp : MonoBehaviour
         
     }
 
+    /**
+        Action executé lorsque le bouton d'inscription est appuyé
+        Recupere les informations des input et les envoye au serveur
+        pour creer un compte au joueur 
+    **/
     private void OnButtonClickRegistration()
     {
 
@@ -179,6 +202,10 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.recvMessage(NetworkManager.client);
     }
 
+    /**
+        Action executé lorsque le bouton des games est appuyé
+        demande au serveur les parties crées
+    **/
     private void OnButtonClickPublic()
     {
         NetworkManager.sendRequestGames();
@@ -186,17 +213,20 @@ public class GameManagerApp : MonoBehaviour
 
     }
 
+    /**
+        Action executé lorsque le bouton rejoindre est appuyé
+        envoie au serveur que le joueur veut rejoindre la partie qu'il a selectionne
+    **/
     private void OnButtonClickJoin()
     {
         NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id);
     }
-    private void onButtonClickAdd()
-    {
-    }
-    private void onButtonClickAccept()
-    {
 
-    }
+    /**
+        Action executé lorsque le bouton de recherche est appuyé
+        envoie au serveur l'input de recherche pour effectuer la recherche de joueurs
+        commencant par par le texte de l'input 
+    **/
     private void OnButtonClickResearch()
     {
         ClearListGameObject(listAdd);
@@ -206,6 +236,12 @@ public class GameManagerApp : MonoBehaviour
         // appel fonction pour la requete
         NetworkManager.sendSearchRequest(NetworkManager.id, pseudo);
     }
+
+    /**
+        Action executé lorsque le bouton envoyer l'email est appuyé
+        pour changer son mot de passe lorsqu'on l'oublie
+        envoie au serveur l'email donné par le joueur
+    **/
     private void onButtonClickSendForgotPass()
     {
         email = inputEmailForgotPass.text;
@@ -215,6 +251,10 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.recvMessage(NetworkManager.client);
 
     }
+
+    /**
+        
+    **/
     private void onButtonClickChangeForgotPass()
     {
         string code = inputCodeForgotPass.text;
