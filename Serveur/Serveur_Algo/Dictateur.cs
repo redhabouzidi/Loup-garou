@@ -14,7 +14,7 @@ public class Dictateur : Role
     }
 
     public override string Action(List<Joueur> listJoueurs)
-    { // écrire l'action du loup
+    { // ï¿½crire l'action du loup
         string retour = ""; 
         if (coupEtatRestant)
         {
@@ -29,13 +29,13 @@ public class Dictateur : Role
             }
             bool boucle = true;
             
-            // on définit une "alarme" qui modifie la valeur du boolean
+            // on dï¿½finit une "alarme" qui modifie la valeur du boolean
             Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             reveille.Connect(Game.listener.LocalEndPoint);
             Socket vide;
             vide = Game.listener.Accept();
             // bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-            sendTime(listJoueurs, GetDelaiAlarme());
+            sendTime(listJoueurs, GetDelaiAlarme()/4);
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
@@ -47,7 +47,7 @@ public class Dictateur : Role
             bool coupEtat = false, firstTime = true;
             while (boucle)
             {
-                // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
+                // on dï¿½finit que (v, c) si c == 1 alors le joueur dï¿½cide de sauver, sinon 0
                 (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
                 if (v == joueurDictateur.GetId())
                 {
@@ -68,7 +68,7 @@ public class Dictateur : Role
                 coupEtatRestant = false;
                 boucle = true;
                 bool reduceTimer = false, LaunchThread2 = false;
-                
+                sendTime(listJoueurs,GetDelaiAlarme()*3/4);
                 Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
@@ -103,7 +103,7 @@ public class Dictateur : Role
                                 Task.Run(() =>
                                 {
                                     Thread.Sleep(GetDelaiAlarme() * 250);
-                                    Console.WriteLine("le dictateur a voté, ça passe à 5sec d'attente");
+                                    Console.WriteLine("le dictateur a votï¿½, ï¿½a passe ï¿½ 5sec d'attente");
                                     vide.Send(new byte[1] { 0 });
                                     boucle = false;
                                 });
@@ -115,7 +115,7 @@ public class Dictateur : Role
 
                 if (victime != null)
                 {
-                    retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " décide de prendre les armes et de faire un coup d’état organisé. Après réflexion et pour montrer sa bonne foi il décide d’égorger " + victime.GetPseudo() + ". ";
+                    retour = "Enfin, juste avant lï¿½aube, " + joueurDictateur.GetPseudo() + " dï¿½cide de prendre les armes et de faire un coup dï¿½ï¿½tat organisï¿½. Aprï¿½s rï¿½flexion et pour montrer sa bonne foi il dï¿½cide dï¿½ï¿½gorger " + victime.GetPseudo() + ". ";
                     victime.SetDoitMourir(true);
                     if (victime.GetRole() is Loup)
                     { 
@@ -127,25 +127,25 @@ public class Dictateur : Role
                             }
                         }
                         joueurDictateur.SetEstMaire(true);
-                        retour = retour + "Quel sauveur ! C’était un loup ! La foule acclama son nouveau dirigeant… ";
+                        retour = retour + "Quel sauveur ! Cï¿½ï¿½tait un loup ! La foule acclama son nouveau dirigeantï¿½ ";
                     }
                     else
                     {
                         joueurDictateur.SetDoitMourir(true);
                         aTueInnocent = true;
                         retour = retour +
-                                 "Quel assassin ! Tuer un innocent de sang-froid, quelle honte ! La foule poignarda ce dictateur… ";
+                                 "Quel assassin ! Tuer un innocent de sang-froid, quelle honte ! La foule poignarda ce dictateurï¿½ ";
                     }
                 }
                 else
                 {
-                    retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " qui était pourtant décidé à prendre les armes pour renverser le pouvoir loupa son réveil et se rendormi... ";
+                    retour = "Enfin, juste avant lï¿½aube, " + joueurDictateur.GetPseudo() + " qui ï¿½tait pourtant dï¿½cidï¿½ ï¿½ prendre les armes pour renverser le pouvoir loupa son rï¿½veil et se rendormi... ";
                 }
                 
             }
             else
             {
-                retour = "Enfin, juste avant l’aube, " + joueurDictateur.GetPseudo() + " hésite à prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer à l’action il décide de procrastiner à un autre jour… ";
+                retour = "Enfin, juste avant lï¿½aube, " + joueurDictateur.GetPseudo() + " hï¿½site ï¿½ prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer ï¿½ lï¿½action il dï¿½cide de procrastiner ï¿½ un autre jourï¿½ ";
             }
         }
 

@@ -427,6 +427,7 @@ public class NetworkManager : MonoBehaviour
                     gm.GO_tourRoles.SetActive(false);
                     idPlayer = decode(message, size);
                     gm.ActionSorciere(idPlayer);
+                    GameManager.turn = 5;
 
                     break;
                 case 9:
@@ -476,7 +477,9 @@ public class NetworkManager : MonoBehaviour
                         Debug.Log(p.GetIsAlive());
                     }
                     gm.updateImage(val, role);
-                    gm.LITTERALLYDIE();
+                    if(!gm.p.GetIsMaire()){
+                        gm.LITTERALLYDIE();
+                    }
                     gm.MiseAJourAffichage();
                     break;
                 case 11:
@@ -516,7 +519,18 @@ public class NetworkManager : MonoBehaviour
                     {
                         ids[i]=decode(message,size);
                     }
+                    if(gm.p.GetIsMaire()){
                     gm.affiche_egalite(ids);
+                    }
+                break;
+                case 18:
+                    size[0]=1;
+                    if(decode(message,size)==id){
+                        gm.p.SetIsMaire(true);
+                    }
+                    if(!gm.p.GetIsAlive()){
+                        gm.GO_dead_bg.SetActive(true);
+                    }
                 break;
                 case 100:
                     id = -1;

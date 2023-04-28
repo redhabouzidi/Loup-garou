@@ -271,6 +271,9 @@ public class GameManager : MonoBehaviour
         {
             action = false;
             electionMaire = false;
+            if(p.GetRoleId() == 7){
+                Debug.Log("c'est le 7 mec");
+            }
             switch (turn)
             {
 
@@ -303,22 +306,29 @@ public class GameManager : MonoBehaviour
                 case 6:
                     affiche_tour_role("It is Hunter's turn...", turn);
                     break;
-                case 8:
-                    affiche_tour_role("It is Guard's turn...", turn);
-                    break;
                 case 7:
                     affiche_tour_role("It is Dictator's turn...", turn);
-                    if(p.GetRoleId()==7);
+                    if (p.GetRoleId() == 7)
                     {
                         ChoixDictateur();
                     }
+                    break;
+                case 8:
+                    affiche_tour_role("It is Guard's turn...", turn);
                     break;
                 case 255:
                     affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
                     break;
                 case 254 :
-                    // affiche_egalite(); 
+                    affiche_tour_role("The mayor will choose the one to die ...", turn); 
+                    break;
+                case 253:
+                    affiche_tour_role("Mayor must select his new successor ...", turn);
+                    if(p.GetIsMaire()){
+                        GO_dead_bg.SetActive(false);
+                        prochainMaire();
+                    }
                     break;
             }
             foreach (Player p in listPlayer)
@@ -387,8 +397,11 @@ public class GameManager : MonoBehaviour
     public void affiche_tour_role(string msg,int tour)
     {
         
-        if (p.GetRoleId() != tour && tour!= 1 && tour!=255 && tour!=254)
+        if (p.GetRoleId() != tour && tour!= 1 && tour!=255 && tour != 254 && tour !=253)
         {
+            GO_tourRoles.SetActive(true);
+        }
+        else if((tour == 254 || tour == 253) && !p.GetIsMaire()){
             GO_tourRoles.SetActive(true);
         }
         else
@@ -918,9 +931,6 @@ public class GameManager : MonoBehaviour
         Change_text_screen("Chose who will be the next mayor...");
 
         // Lancer le vote
-        int indice = GetIndiceToggleOn();
-        Vote(); // Confirmation de vote
-        dead_bg.enabled = true;
     }
 
     public string idRoleToStringRole(int idRole)

@@ -563,7 +563,17 @@ namespace Server
             //envoyer a tous les joueurs
             sendMessage(client, message);
         }
-
+        public static void sendMaire(Socket client,int id){
+            int[] size = new int[1] { 1 };
+            int byteSize = 1 + sizeof(int);
+            byte[] message = new byte[byteSize];
+            //ajouter le code du packet
+            message[0] = 18;
+            //ajouter l'id de celui qui a voté
+            encode(message, id, size);
+            //envoyer a tous les joueurs
+            sendMessage(client, message);
+        }
         //fonctions qui envoie les roles de tous les joueurs a la fin de la partie
         public static void sendEndState(List<Socket> clients, int win, int[] idJoueur, int[] role)
         {

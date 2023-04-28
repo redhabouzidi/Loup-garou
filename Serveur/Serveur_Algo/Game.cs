@@ -441,7 +441,7 @@ public class Game
         
         if (maireMort != null)
         {
-            int idSuccesseur = DecisionDuMaire(_joueurs);
+            int idSuccesseur = DecisionDuMaire(_joueurs,253);
             if (idSuccesseur == -1)
             {
                 List<int> joueursEnVie = new List<int>();
@@ -458,9 +458,12 @@ public class Game
             }
             Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
             player.SetEstMaire(true);
+            sendMaire(listJoueurs,idSuccesseur);
+
             ConcatRecit("Alors quil sapprtait  mourir, le maire demanda au village dcouter ses dernires paroles. Il dcide de nommer " + player.GetPseudo() + " comme son successeur  la tte du village ");
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
+
         }
 
     }
@@ -615,9 +618,16 @@ public class Game
 
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
         playerVictime.SetEstMaire(true);
+        sendMaire(listJoueurs,playerVictime.GetId());
     }
+    public void sendMaire(List<Joueur> list,int maire){
+        foreach(Joueur j in list){
+            server.sendMaire(j.GetSocket(),maire);
+        }
 
-    public static void SendEgalite(List<Joueur> client, List<int> victime)
+    }
+    
+    public void SendEgalite(List<Joueur> client, List<int> victime)
     {
         int [] ids=victime.ToArray();
         foreach (var joueur in client)
@@ -687,7 +697,7 @@ public class Game
                     tiedVictimsJoueur.Add(listJoueurs.Find(j => j.GetId() == tiedVictims[i]));
                 }
                 SendEgalite(listJoueurs,tiedVictims);
-                victime = DecisionDuMaire(tiedVictimsJoueur);
+                victime = DecisionDuMaire(tiedVictimsJoueur,254);
             }
 
             Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
@@ -910,7 +920,7 @@ public class Game
         server.WakeUpMain();
     }
     // La fonction renvoie celui qui est choisi par le maire (la victime en cas d'�galit� ou son successeur si le maire est mort) 
-    public int DecisionDuMaire(List<Joueur> listJoueurs)
+    public int DecisionDuMaire(List<Joueur> listJoueurs,int role)
     {
         int retour = -1;
         Joueur? maire = null;
@@ -923,7 +933,7 @@ public class Game
         }
         Role r = new Villageois();
         // 255 = id du maire
-        r.sendTurn(_joueurs, 254);
+        r.sendTurn(_joueurs, role);
 
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
