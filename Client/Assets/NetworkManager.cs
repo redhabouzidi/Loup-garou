@@ -508,7 +508,16 @@ public class NetworkManager : MonoBehaviour
                     Player _p = gm.listPlayer.Find(j => j.GetPseudo() == usernameP);
                     _p.SetIsMaire(true);
                     break;
-
+                case 17:
+                    size[0]=1;
+                    tableSize=decode(message,size);
+                    ids=new int[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        ids[i]=decode(message,size);
+                    }
+                    gm.affiche_egalite(ids);
+                break;
                 case 100:
                     id = -1;
                     username = "";

@@ -308,10 +308,17 @@ public class GameManager : MonoBehaviour
                     break;
                 case 7:
                     affiche_tour_role("It is Dictator's turn...", turn);
+                    if(p.GetRoleId()==7);
+                    {
+                        ChoixDictateur();
+                    }
                     break;
                 case 255:
                     affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
+                    break;
+                case 254 :
+                    // affiche_egalite(); 
                     break;
             }
             foreach (Player p in listPlayer)
@@ -380,7 +387,7 @@ public class GameManager : MonoBehaviour
     public void affiche_tour_role(string msg,int tour)
     {
         
-        if (p.GetRoleId() != tour && tour!= 1 && tour!=255)
+        if (p.GetRoleId() != tour && tour!= 1 && tour!=255 && tour!=254)
         {
             GO_tourRoles.SetActive(true);
         }
@@ -414,6 +421,7 @@ public class GameManager : MonoBehaviour
             player_role.color = colorWhite;
             player_role.text = p.GetRole();
             sePresenter.gameObject.SetActive(false);
+            
         }
         else
         {
@@ -885,7 +893,7 @@ public class GameManager : MonoBehaviour
     {
         AllToggleOff();
         for(int i = 0; i<id.Length; i++) {
-            listCard[chercheIndiceJoueurId(i)].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
+            listCard[chercheIndiceJoueurId(id[i])].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
 
         }
         panel_text_screen.SetActive(true);
