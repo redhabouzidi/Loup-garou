@@ -364,13 +364,13 @@ public class GameManager : MonoBehaviour
         GO_rolesRestant.SetActive(!active);
     }
 
-    private void OnButtonClickNon() {
+    public void OnButtonClickNon() {
         choixAction.SetActive(false);
         NetworkManager.Vote( NetworkManager.id,0);
         // envoyer au serveur NON
     }
 
-    private void OnButtonClickOui() {
+    public void OnButtonClickOui() {
         choixAction.SetActive(false);
         NetworkManager.Vote( NetworkManager.id, 1);
         // envoyer au serveur OUI
