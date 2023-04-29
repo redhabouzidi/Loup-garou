@@ -25,8 +25,6 @@ public class NetworkManager : MonoBehaviour
     public static Task task;
     public static List<int> rolews = new List<int>(), nbRole ;
 
-    public static List<(int, string, int)> ListFriend= new List<(int, string, int)>(), ListFriendR=new List<(int, string, int)>(), ListFriendP= new List<(int, string, int)>();
-
     public class answer
     {
         public bool error;
@@ -535,6 +533,10 @@ public class NetworkManager : MonoBehaviour
                 case 100:
                     id = -1;
                     username = "";
+                    GameManagerApp.listFriend.Clear();
+                    GameManagerApp.listAdd.Clear();
+                    GameManagerApp.listRequest.Clear();
+                    GameManagerApp.listWait.Clear();
                     LoadScene("Jeu");
                     break;
                 case 101:
@@ -797,7 +799,7 @@ public class NetworkManager : MonoBehaviour
                     else if(id== idFriend)
                     {
                         Debug.Log("je suis celui qui recoit"+idFriend+" "+idSender);
-                        gma.addFriendRequest(pseudoFriend, idFriend);
+                        gma.addFriendRequest(pseudo, idSender);
                     }
                     else
                     {

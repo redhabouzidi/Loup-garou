@@ -39,7 +39,6 @@ public class GameManagerApp : MonoBehaviour
 
     void Start()
     {
-        NetworkManager.inGame = false;
         if (client != null)
         {
             NetworkManager.client = client;
@@ -84,9 +83,8 @@ public class GameManagerApp : MonoBehaviour
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
 
-        
         refreshAll();
-
+        NetworkManager.inGame = false;
         if (scene == 1)
         {
             scene = 0;
@@ -349,6 +347,7 @@ public class GameManagerApp : MonoBehaviour
     }
 
     public void addFriendWait(string name,int id){
+        
         if (!NetworkManager.inGame)
         {
         GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
@@ -385,12 +384,10 @@ public class GameManagerApp : MonoBehaviour
     }
     public void refreshAll()
     {
-        Debug.Log("val = " + listFriend.Count + "val = " + listRequest.Count + "val = " + listWait.Count );
         if (listFriend != null && listFriend.Count != 0)
         {
             foreach (Friend f in listFriend)
             {
-                Debug.Log("on ajout un ami");
                 refreshFriend(f);
             }
         }
@@ -398,7 +395,6 @@ public class GameManagerApp : MonoBehaviour
         {
             foreach (Friend f in listRequest)
             {
-                Debug.Log("on ajout un ami2");
 
                 refreshFriendR(f);
             }
@@ -407,7 +403,6 @@ public class GameManagerApp : MonoBehaviour
         {
             foreach (Friend f in listWait)
             {
-                Debug.Log("on ajout un ami3");
 
                 refreshFriendW(f);
             }

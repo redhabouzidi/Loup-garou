@@ -1157,32 +1157,39 @@ namespace Server
                     size[0] = 1;
                     queueId = decodeInt(message, size);
                     answer = decodeBool(message, size);
-                    decodeInt(message, size);
+                    int idAdd=decodeInt(message, size);
                     decodeString(message, size);
                     int idFriend = decodeInt(message, size);
                     decodeString(message, size);
-                    if (answer && userData.ContainsKey(idFriend))
+                    if (userData.ContainsKey(idFriend))
                     {
                         redirect(userData[idFriend].GetSocket(), message, recvSize);
                     }
+                    if(userData.ContainsKey(idAdd)){
+                        redirect(userData[idAdd].GetSocket(), message, recvSize);
+                    }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, recvSize);
 
                     break;
                 case 154:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
                     answer = decodeBool(message, size);
-                    decodeInt(message, size);
+                    idAdd=decodeInt(message, size);
                     idFriend = decodeInt(message, size);
-                    if (answer && userData.ContainsKey(idFriend))
+                    if (userData.ContainsKey(idFriend))
                     {
+                        userData[idFriend].RemoveFriend(idAdd);
                         redirect(userData[idFriend].GetSocket(), message, recvSize);
+                    }
+                    if (userData.ContainsKey(idAdd))
+                    {
+                        userData[idAdd].RemoveFriend(idFriend);
+                        redirect(userData[idAdd].GetSocket(), message, recvSize);
                     }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, recvSize);
 
                     break;
                 case 155:
@@ -1224,7 +1231,6 @@ namespace Server
                     }
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
-                    redirect(client, message, recvSize);
 
                     break;
                 case 156:
