@@ -3,18 +3,16 @@ using Dapper;
 
 class Partie{
 
-    public static int create_partie(MySqlConnection conn,string nompartie){
-        string query = "INSERT INTO Partie (nomPartie) VALUES(@NP)";
+    public void create_partie(MySqlConnection conn,string nompartie){
+        string query = "INSERT INTO Partie (nomPartie,Datesauvegarde) VALUES(@NP,@DT)";
 
-        conn.Execute(query,new{NP=nompartie});//Execution de la requete parametree
-        query = "SELECT LAST_INSERT_ID()";
-        return conn.QueryFirstOrDefault<int>(query);
+        conn.Execute(query,new{NP=nompartie,DT=DateTime.Now});//Execution de la requete parametree
     }
 
-    public static void init_sauvegardepartie(MySqlConnection conn,int id_partie,int id_user){
-        string query = "INSERT INTO SauvegardePartie (idPartie,idUsers,Datesauvegarde) VALUES(@IDP,@IDU,@DTS)";
+    public void init_sauvegardepartie(MySqlConnection conn,int id_partie,int id_user,int score){
+        string query = "INSERT INTO SauvegardePartie (idPartie,idUsers,scoregained) VALUES(@IDP,@IDU,@SCO)";
 
-        conn.Execute(query,new{IDP=id_partie,IDU=id_user,DTS=DateTime.Now});//Execution de la requete parametree
+        conn.Execute(query,new{IDP=id_partie,IDU=id_user,SCO=score});//Execution de la requete parametree
     }
     public static void write_action(MySqlConnection conn,string action,int id_partie){
         string query = "INSERT INTO Actions (idPartie,actions) VALUES(@ID,@ACT)";
