@@ -388,7 +388,7 @@ public class NetworkManager : MonoBehaviour
                     idPlayer = decode(message, size);
                     idp = decode(message, size);
 
-                    gm.setAmoureux(idPlayer, idp);
+                    gm.setAmoureux(idPlayer, id);
 
                     gm.lover1_id = gm.p.GetId();
                     string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
