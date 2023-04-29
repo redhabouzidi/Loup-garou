@@ -107,7 +107,7 @@ namespace Server
         public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
         public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
-        public static Socket wakeUpMain;
+        public static Socket wakeUpMain,bdd;
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -122,7 +122,7 @@ namespace Server
             }*/
             int port = 10000;
             bool reading = true, a = true;
-            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10001), bdd;
+            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10001);
             byte[] message = new byte[1024];
             // try
             // {
@@ -547,7 +547,15 @@ namespace Server
                 sendMessage(socket, message);
             }
         }
+        public static void sendMatch(Socket bdd,string recit){
+            byte [] message = new byte[1+sizeof(int)+recit.Length];
+            int [] size = new int[1]{1};
+            message[0]=159;
 
+            encode(message,recit,size);
+
+            sendMessage(bdd,message);
+        }
         //focntion qui envoie aux joueurs le choix du vote d'un joueurs
         public static void sendVote(Socket client, int id, int cible)
         {
@@ -850,25 +858,26 @@ namespace Server
             byte[] message = new byte[2048];
             int receivedBytes = client.Receive(message);
             string username, password, chat;
-            int idPlayer, vote;
+            int idPlayer, vote,idj;
             switch (message[0])
             {
                 case 2:
                     size[0] = 1;
                     int friendId = decodeInt(message, size);
-                    int idj = decodeInt(message, size);
-                    if (players.ContainsKey(friendId))
-                    {
-                        Game g = players[friendId];
-                        Console.WriteLine("gameid=" + g.GetGameId());
-                        joinGame(client, g.GetGameId(), idj);
+                    if(connected.ContainsKey(client)){
+                        if (players.ContainsKey(friendId))
+                        {
+                            Game g = players[friendId];
+                            Console.WriteLine("gameid=" + g.GetGameId());
+                            joinGame(client, g.GetGameId(), connected[client]);
+
+                        }
 
                     }
                     break;
                 case 3:
                     size[0] = 1;
 
-                    id = decodeInt(message, size);
                     username = decodeString(message, size);
                     string name = decodeString(message, size);
                     int nbPlayers = decodeInt(message, size);
@@ -882,7 +891,8 @@ namespace Server
 
                     if (connected.ContainsKey(client))
                     {
-
+                        id = connected[client];
+                        
                         if (!games.ContainsKey(id) && !players.ContainsKey(id))
                         {
                             Console.WriteLine("game created");
@@ -916,9 +926,8 @@ namespace Server
                 case 4:
                     size[0] = 1;
                     int gameId = decodeInt(message, size);
-                    idj = decodeInt(message, size);
                     Console.WriteLine("gameid=" + gameId);
-                    joinGame(client, gameId, idj);
+                    joinGame(client, gameId, connected[client]);
 
                     break;
                 case 100://disconnects
@@ -1000,17 +1009,31 @@ namespace Server
                     }
                     break;
                 case 153:
-                    if (connected.ContainsKey(client))
-                        redirect(bdd, queue.addVal(client), message);
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
                     break;
                 case 154:
-                    if (connected.ContainsKey(client))
-                        redirect(bdd, queue.addVal(client), message);
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
                     break;
                 case 155:
-                    if (connected.ContainsKey(client))
-                        redirect(bdd, queue.addVal(client), message);
-                    break;
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
                     break;
                 case 156:
                     redirect(bdd, queue.addVal(client), message);
@@ -1019,9 +1042,41 @@ namespace Server
                     redirect(bdd, queue.addVal(client), message);
                     break;
                 case 158:
-                    if (connected.ContainsKey(client))
-                        redirect(bdd, queue.addVal(client), message);
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
                     break;
+                case 160:
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
+                    break;
+                case 161:
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
+                    break;
+                case 162:
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id)
+                            redirect(bdd, queue.addVal(client), message);
+                        else
+                            sendMessage(client,new byte[2]{255,message[0]});
+                    }
+                break;
                 case 255:
                     return;
                 default:

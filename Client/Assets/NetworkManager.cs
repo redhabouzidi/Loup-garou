@@ -886,6 +886,18 @@ public class NetworkManager : MonoBehaviour
                         Debug.Log("shouldn't happen");
                     }
                     break;
+                case 160:
+                    //montre l'historique de quelqu'un
+                    break;
+                case 161:
+                    //review d'une partie
+                    break;
+                case 162:
+                    //demande de statistique ( retour )
+                    break;
+                case 255:
+                    //faire les cas d'erreurs
+                    break;
                 default:
                     Debug.Log("problem message");
                     break;
@@ -943,6 +955,23 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
+    public static void sendHistoryRequest(int idPlayer){
+        byte[] message = new byte[1 + 2*sizeof(int)];
+        message[0] = 160;
+        int[] size = new int[1] { 1 };
+        encode(message, id, size);
+        encode(message, idPlayer, size);
+
+        SendMessageToServer(client, message);
+    }
+    public static void sendMatchRequest(int idMatch){
+        byte[] message = new byte[1 + 2*sizeof(int)];
+        message[0] = 161;
+        int[] size = new int[1] { 1 };
+        encode(message, id, size);
+        encode(message, idMatch, size);
+        SendMessageToServer(client, message);
+    }
     public static int sendStartKickVote(int idPlayer, int voted)
     {
 
@@ -990,12 +1019,11 @@ public class NetworkManager : MonoBehaviour
 
         SendMessageToServer(client, message);
     }
-    public static int createGame(int id, string username, string name, int nbPlayers, int nbLoups, bool sorciere, bool voyante, bool cupidon, bool hunter, bool guardian, bool dictator)
+    public static int createGame(string username, string name, int nbPlayers, int nbLoups, bool sorciere, bool voyante, bool cupidon, bool hunter, bool guardian, bool dictator)
     {
-        byte[] message = new byte[1 + sizeof(int) * 5 + sizeof(bool) * 6 + username.Length + name.Length];
+        byte[] message = new byte[1 + sizeof(int) * 4 + sizeof(bool) * 6 + username.Length + name.Length];
         int[] size = new int[1] { 1 };
         message[0] = 3;
-        encode(message, id, size);
         encode(message, username, size);
         encode(message, name, size);
         encode(message, nbPlayers, size);
@@ -1010,23 +1038,21 @@ public class NetworkManager : MonoBehaviour
         return SendMessageToServer(client, message);
     }
 
-    public static int join(int gameId, int id)
+    public static int join(int gameId)
     {
-        byte[] message = new byte[1 + sizeof(int) * 2];
+        byte[] message = new byte[1 + sizeof(int)];
         int[] size = new int[1] { 1 };
         message[0] = 4;
         encode(message, gameId, size);
-        encode(message, id, size);
 
         return SendMessageToServer(client, message);
     }
-    public static int joinFriend(int friendId, int id)
+    public static int joinFriend(int friendId)
     {
-        byte[] message = new byte[1 + sizeof(int) * 2];
+        byte[] message = new byte[1 + sizeof(int)];
         int[] size = new int[1] { 1 };
         message[0] = 2;
         encode(message, friendId, size);
-        encode(message, id, size);
 
         return SendMessageToServer(client, message);
     }

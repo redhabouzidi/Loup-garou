@@ -217,7 +217,7 @@ public class GameManagerApp : MonoBehaviour
     **/
     private void OnButtonClickJoin()
     {
-        NetworkManager.join(GetIdToggleGameOn(), NetworkManager.id);
+        NetworkManager.join(GetIdToggleGameOn());
     }
 
     /**
@@ -425,7 +425,7 @@ public class GameManagerApp : MonoBehaviour
         Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
         buttonJoin.onClick.AddListener(() =>
         {
-            NetworkManager.joinFriend(f.id, NetworkManager.id);
+            NetworkManager.joinFriend(f.id);
             GameObject.Find("Canvas").transform.Find("Friends").gameObject.SetActive(false);
             GameObject.Find("Canvas").transform.Find("Home").gameObject.SetActive(true);
         });
@@ -519,7 +519,7 @@ public class GameManagerApp : MonoBehaviour
         Button buttonJoin = GO_buttonJoin.GetComponent<Button>();
         buttonJoin.onClick.AddListener(() =>
         {
-            NetworkManager.joinFriend(id, NetworkManager.id);
+            NetworkManager.joinFriend(id);
             GameObject.Find("Canvas").transform.Find("Friends").gameObject.SetActive(false);
             GameObject.Find("Canvas").transform.Find("Home").gameObject.SetActive(true);
         });

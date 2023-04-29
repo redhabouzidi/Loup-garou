@@ -113,7 +113,18 @@ public class bdd
                     case 158:
                         searchForPlayer(bdd, message);
                         break;
-
+                    case 159:
+                        //SAUVEGUARDER LA GAME 
+                        break;
+                    case 160:
+                        //ENVOYER HISTORIQUE DE PARTIE
+                        break;
+                    case 161:
+                        //ENVOYER DONNE DE LA PARTIE DEMANDE
+                        break;
+                    case 162:
+                        //ENVOYER STATISTIQUE
+                        break;
                 }
             }
             else

@@ -357,11 +357,13 @@ public class Game
             RemoveSaveStatus();
         }
 	    PointShare(checkWin);
-        Console.WriteLine(recit+"fin de jeu");
+        saveGame(recit);
         EndGameInitializer();
 
     }
-
+    public void saveGame(string recit){
+        server.sendMatch(server.bdd,recit);
+    }
     private void RemoveSaveStatus()
     {
         foreach (var j in _joueurs)
