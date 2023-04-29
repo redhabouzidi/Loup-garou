@@ -114,10 +114,10 @@ public class bdd
                         searchForPlayer(bdd, message);
                         break;
                     case 159:
-                        //SAUVEGUARDER LA GAME 
+                        saveGame(bdd,message);
                         break;
                     case 160:
-                        //ENVOYER HISTORIQUE DE PARTIE
+                        
                         break;
                     case 161:
                         //ENVOYER DONNE DE LA PARTIE DEMANDE
@@ -243,7 +243,31 @@ public class bdd
         else
             connexionAnswer(bdd, queueId, false, 0, username, new int[0], new string[0]);
     }
+    public static void saveGame(Socket bdd, byte[] message){
+        int[] size = new int[1]{1};
+        string name=decodeString(message,size);
+        Console.WriteLine("name ="+name);
+        string action=decodeString(message,size);
+        Console.WriteLine("action  ="+action );
 
+        int tableSize=decodeInt(message,size);
+        int[] ids=new int [tableSize];
+        for(int i=0;i<ids.Length;i++){
+            ids[i]=decodeInt(message,size);
+        }
+        tableSize=decodeInt(message,size);
+        int[] score=new int [tableSize];
+        for(int i=0;i<score.Length;i++){
+            score[i]=decodeInt(message,size);
+        }
+        
+        int idPartie=Partie.create_partie(conn,name);
+        Partie.write_action(conn,action,idPartie);
+        foreach(int id in ids){
+            Partie.init_sauvegardepartie(conn,idPartie,id);
+        }
+
+    }
     public static int ajoutAmi(Socket bdd, byte[] message)
     {
         int[] size = new int[1] { 1 };

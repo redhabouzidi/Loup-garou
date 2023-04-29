@@ -356,13 +356,16 @@ public class Game
             // enl ve   tout le monde l'immunit  accord  par le Garde
             RemoveSaveStatus();
         }
-	    PointShare(checkWin);
-        saveGame(recit);
+	    PointShare(checkWin,recit);
         EndGameInitializer();
 
     }
-    public void saveGame(string recit){
-        server.sendMatch(server.bdd,recit);
+    public void saveGame(string recit,int [] score){
+        int[] ids=new int[_joueurs.Count];
+        for(int i=0;i<_joueurs.Count;i++){
+            ids[i]=_joueurs[i].GetId();
+        }
+        server.sendMatch(server.bdd,name,recit,ids,score);
     }
     private void RemoveSaveStatus()
     {
@@ -1021,7 +1024,7 @@ public class Game
         }
     }
 
-    public void PointShare(int check) {
+    public void PointShare(int check,string recit) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
@@ -1076,6 +1079,7 @@ public class Game
             }
             i++;
         }
+        saveGame(recit,score);
         SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)

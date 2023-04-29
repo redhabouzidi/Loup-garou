@@ -547,12 +547,23 @@ namespace Server
                 sendMessage(socket, message);
             }
         }
-        public static void sendMatch(Socket bdd,string recit){
-            byte [] message = new byte[1+sizeof(int)+recit.Length];
+        public static void sendMatch(Socket bdd,string nom,string recit,int[] ids,int[] score){
+            byte [] message = new byte[1+sizeof(int)+nom.Length+sizeof(int)+recit.Length+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length];
             int [] size = new int[1]{1};
             message[0]=159;
-
+            Console.WriteLine("name ="+nom);
+            Console.WriteLine("recit ="+recit);
+            
+            encode(message,nom,size);
             encode(message,recit,size);
+            encode(message,ids.Length,size);
+            foreach(int id in ids){
+                encode(message,id,size);
+            }
+            encode(message,score.Length,size);
+            foreach(int id in score){
+                encode(message,id,size);
+            }
 
             sendMessage(bdd,message);
         }
