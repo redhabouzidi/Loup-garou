@@ -1020,6 +1020,7 @@ namespace Server
                     }
                     break;
                 case 153:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1029,6 +1030,7 @@ namespace Server
                     }
                     break;
                 case 154:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1038,6 +1040,7 @@ namespace Server
                     }
                     break;
                 case 155:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1053,6 +1056,7 @@ namespace Server
                     redirect(bdd, queue.addVal(client), message);
                     break;
                 case 158:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1062,15 +1066,20 @@ namespace Server
                     }
                     break;
                 case 160:
-                    if (connected.ContainsKey(client)){
+                        size[0]=1;
+                        if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
-                            redirect(bdd, queue.addVal(client), message);
+                        if(connected[client]==id){
+                            redirect(bdd, queue.addVal(client), message);Console.WriteLine(" he count"+queue.queue[1]);
+
+                        }
                         else
-                            sendMessage(client,new byte[2]{255,message[0]});
+                            sendMessage(client,new byte[2]{255,message[0]});Console.WriteLine(id+"   et   "+connected[client]);
                     }
+                    
                     break;
                 case 161:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1080,6 +1089,7 @@ namespace Server
                     }
                     break;
                 case 162:
+                    size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id)
@@ -1316,6 +1326,14 @@ namespace Server
                 case 158:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
+                case 160:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
+                    Console.WriteLine(queueId+"quee");
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);

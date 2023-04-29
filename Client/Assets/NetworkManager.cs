@@ -888,6 +888,19 @@ public class NetworkManager : MonoBehaviour
                     break;
                 case 160:
                     //montre l'historique de quelqu'un
+                    tableSize=decode(message,size);
+                    ids=new int[tableSize];
+                    for(int i=0;i<tableSize;i++){
+                        ids[i]=decode(message,size);
+                        Debug.Log(ids[i]);
+                    }
+                    tableSize=decode(message,size);
+                    string[] namesPartie = new string[tableSize];
+                    for(int i=0;i<namesPartie.Length;i++){
+                        namesPartie[i]=decodeString(message,size);
+                        Debug.Log(namesPartie[i]);
+                    }
+                    
                     break;
                 case 161:
                     //review d'une partie
@@ -959,6 +972,7 @@ public class NetworkManager : MonoBehaviour
         byte[] message = new byte[1 + 2*sizeof(int)];
         message[0] = 160;
         int[] size = new int[1] { 1 };
+        Debug.Log(id);
         encode(message, id, size);
         encode(message, idPlayer, size);
 

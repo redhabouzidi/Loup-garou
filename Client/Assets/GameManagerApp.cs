@@ -12,7 +12,7 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, 
-    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady;
+    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady,buttonTest;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -82,6 +82,7 @@ public class GameManagerApp : MonoBehaviour
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
+        buttonTest.onClick.AddListener(test);
 
         refreshAll();
         NetworkManager.inGame = false;
@@ -319,7 +320,9 @@ public class GameManagerApp : MonoBehaviour
         }
         return -1;
     }
-
+    private void test(){
+        NetworkManager.sendHistoryRequest(21);
+    }
     public void addFriendAdd(string name,int id){
         SupprNoObject(listAdd);
 

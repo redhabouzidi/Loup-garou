@@ -114,10 +114,10 @@ public class bdd
                         searchForPlayer(bdd, message);
                         break;
                     case 159:
-                        saveGame(bdd,message);
+                        saveGame(message);
                         break;
                     case 160:
-                        
+                        sendHistory(bdd,message);
                         break;
                     case 161:
                         //ENVOYER DONNE DE LA PARTIE DEMANDE
@@ -243,7 +243,7 @@ public class bdd
         else
             connexionAnswer(bdd, queueId, false, 0, username, new int[0], new string[0]);
     }
-    public static void saveGame(Socket bdd, byte[] message){
+    public static void saveGame(byte[] message){
         int[] size = new int[1]{1};
         string name=decodeString(message,size);
         Console.WriteLine("name ="+name);
@@ -263,10 +263,35 @@ public class bdd
         
         int idPartie=Partie.create_partie(conn,name);
         Partie.write_action(conn,action,idPartie);
-        foreach(int id in ids){
-            Partie.init_sauvegardepartie(conn,idPartie,id);
+        for(int i=0;i<ids.Length;i++){
+
+            Partie.init_sauvegardepartie(conn,idPartie,ids[i],score[i]);
         }
 
+    }
+    public static void sendHistory(Socket bdd, byte[] message){
+        int[] size = new int[1]{1};
+        int queueId=decodeInt(message,size);
+        Console.WriteLine("queue="+queueId);
+        int id=decodeInt(message,size);
+        int idUser = decodeInt(message,size);
+        int[] ids;
+        string[] names;
+        (ids,names) = Partie.get_partie(conn,idUser);
+        int pname = getStringLength(names);
+        byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*names.Length+pname];
+        newMessage[0]=160;
+        size[0]=1;
+        encode(newMessage,queueId,size);
+        encode(newMessage,ids.Length,size);
+        for(int i=0;i<ids.Length;i++){
+            encode(newMessage,ids[i],size);
+        }
+        encode(newMessage,names.Length,size);
+        for(int i=0;i<names.Length;i++){
+            encode(newMessage,names[i],size);
+        }
+        sendMessage(bdd, newMessage);
     }
     public static int ajoutAmi(Socket bdd, byte[] message)
     {
