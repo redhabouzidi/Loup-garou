@@ -11,7 +11,6 @@ public class bdd
     public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
-        Console.WriteLine(message.Length);  
         return client.Send(message, message.Length, SocketFlags.None);
 
     }
@@ -246,7 +245,6 @@ public class bdd
         (int[] score,string[] names)=Statistique.Trierpar_score(conn);
         int pname=getStringLength(names);
         byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*score.Length+sizeof(int)+sizeof(int)*names.Length+pname]; 
-        Console.WriteLine(1+sizeof(int)*2+sizeof(int)*score.Length+sizeof(int)+sizeof(int)*names.Length+pname);
         newMessage[0]=162;
         size[0]=1;
         encode(newMessage,queueId,size);
@@ -344,9 +342,7 @@ public class bdd
         
         int[] size = new int[1]{1};
         string name=decodeString(message,size);
-        Console.WriteLine("name ="+name);
         string action=decodeString(message,size);
-        Console.WriteLine("action  ="+action );
 
         int tableSize=decodeInt(message,size);
         int[] ids=new int [tableSize];
@@ -377,7 +373,6 @@ public class bdd
     public static void sendHistory(Socket bdd, byte[] message){
         int[] size = new int[1]{1};
         int queueId=decodeInt(message,size);
-        Console.WriteLine("queue="+queueId);
         int id=decodeInt(message,size);
         int idUser = decodeInt(message,size);
         int[] ids;
@@ -385,9 +380,6 @@ public class bdd
         DateTime[] dates;
         int[] score;
         (ids,names,dates,score) = Partie.get_partie(conn,idUser);
-        foreach(DateTime d in dates){
-            Console.WriteLine("date="+d);
-        }
         int pname = getStringLength(names);
         byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*names.Length+pname+sizeof(int)+sizeof(long)*dates.Length+sizeof(int)+sizeof(int)*score.Length];
         newMessage[0]=160;
@@ -417,7 +409,7 @@ public class bdd
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         int idFriend = decodeInt(message, size);
-        Amis.send_friend_request(conn, id, idFriend);
+        Console.WriteLine("return = "+Amis.send_friend_request(conn, id, idFriend));
         string pseudoJoueur = Amis.get_pseudo(conn, id);
         string username = Amis.get_pseudo(conn, idFriend);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
@@ -565,7 +557,7 @@ public class bdd
         int id = decodeInt(message, size);
         string username = decodeString(message, size);
         int[] ids; string[] usernames;
-        (ids, usernames) = Amis.search_for_player(conn,username);
+        (ids, usernames) = Amis.search_for_player(conn,id,username);
         sendSearchPlayer(bdd, queueId, ids, usernames);
 
     }
