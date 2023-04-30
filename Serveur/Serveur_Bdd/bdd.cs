@@ -11,6 +11,7 @@ public class bdd
     public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
+        Console.WriteLine(message.Length);  
         return client.Send(message, message.Length, SocketFlags.None);
 
     }
@@ -133,7 +134,10 @@ public class bdd
                         sendAction(bdd,message);
                         break;
                     case 162:
-                        //ENVOYER STATISTIQUE
+                        sendRank(bdd,message);
+                        break;
+                    case 163:
+                        
                         break;
                 }
             }
@@ -192,6 +196,29 @@ public class bdd
         encode(newMessage,queueId,size);
         encode(newMessage,action,size);
         sendMessage(bdd,newMessage);
+    }
+    public static void sendRank(Socket bdd,byte[] message){
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        (int[] score,string[] names)=Statistique.Trierpar_score(conn);
+        int pname=getStringLength(names);
+        byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*score.Length+sizeof(int)+sizeof(int)*names.Length+pname]; 
+        Console.WriteLine(1+sizeof(int)*2+sizeof(int)*score.Length+sizeof(int)+sizeof(int)*names.Length+pname);
+        newMessage[0]=162;
+        size[0]=1;
+        encode(newMessage,queueId,size);
+        encode(newMessage,score.Length,size);
+        for(int i=0;i<score.Length;i++){
+            encode(newMessage,score[i],size);
+        }
+        encode(newMessage,names.Length,size);
+        for(int i=0;i<score.Length;i++){
+            encode(newMessage,names[i],size);
+        }
+        sendMessage(bdd,newMessage);
+
+
     }
     public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
     {
@@ -272,6 +299,7 @@ public class bdd
             connexionAnswer(bdd, queueId, false, 0, username, new int[0], new string[0]);
     }
     public static void saveGame(byte[] message){
+        
         int[] size = new int[1]{1};
         string name=decodeString(message,size);
         Console.WriteLine("name ="+name);
@@ -288,13 +316,20 @@ public class bdd
         for(int i=0;i<score.Length;i++){
             score[i]=decodeInt(message,size);
         }
-        
+        tableSize=decodeInt(message,size);
+        bool[] win=new bool[tableSize];
+        for(int i=0;i<score.Length;i++){
+            win[i]=decodeBool(message,size);
+        }
         int idPartie=Partie.create_partie(conn,name);
         Partie.write_action(conn,action,idPartie);
         for(int i=0;i<ids.Length;i++){
 
             Partie.init_sauvegardepartie(conn,idPartie,ids[i],score[i]);
         }
+        Statistique.nouveau_jeu(conn,ids);
+        Statistique.score_gain(conn,ids,score);
+        Statistique.jeu_gagne(conn,ids,win);
 
     }
     public static void sendHistory(Socket bdd, byte[] message){

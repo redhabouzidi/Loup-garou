@@ -361,12 +361,12 @@ public class Game
         EndGameInitializer();
 
     }
-    public void saveGame(string recit,int [] score){
+    public void saveGame(string recit,int [] score,bool[] victoire){
         int[] ids=new int[_joueurs.Count];
         for(int i=0;i<_joueurs.Count;i++){
             ids[i]=_joueurs[i].GetId();
         }
-        server.sendMatch(server.bdd,name,recit,ids,score);
+        server.sendMatch(server.bdd,name,recit,ids,score,victoire);
     }
     private void RemoveSaveStatus()
     {
@@ -724,6 +724,8 @@ public class Game
 
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
+        try{
+
         if (CountSockets() == 0)
         {
             server.games.Remove(GetGameId());
@@ -765,8 +767,8 @@ public class Game
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
         Console.WriteLine("5");
@@ -789,7 +791,9 @@ public class Game
                 }
                 if (condition)
                 {
+                    Console.WriteLine("8");
                     index = votant.IndexOf(v);
+                    Console.WriteLine("index="+v);
                     cible[index] = c;
 
                     bool allVote = true;
@@ -810,14 +814,22 @@ public class Game
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
                             Console.WriteLine("tout le monde a vot ,  a passe   10sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }
             }
         }
+         for(int i=0;i<cible.Count;i++)
+        {
+            Console.WriteLine("Le joueur avec l'id " + votant[i] + " a voté pour " + cible[i]);
+        }
         return cible;
+        }catch(Exception e ){
+            Console.WriteLine(e.Message);
+            return null;
+        }
     }
 
     private void InitiateGame()
@@ -966,7 +978,8 @@ public class Game
         this.vide = listener.Accept();
         while (boucle)
         {
-            (v, c) = r.gameVote(_joueurs, 255, reveille);
+            (v, c) = r.gameVote(_joueurs, role, reveille);
+                Console.WriteLine("Le joueur avec l'id " + v + " a voté pour " + c+" et le maire = "+maire.GetId());
             if (v == maire.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
@@ -1034,6 +1047,8 @@ public class Game
         foreach(var joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
+            victoire[i]=false;
+            score[i]=0;
             if(check == 1) 
 	    {
                 if(joueur.GetRole() is not Loup) 
@@ -1045,7 +1060,7 @@ public class Game
                     }
                     else 
 		    {
-                        victoire[i]=false;
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -1061,7 +1076,7 @@ public class Game
                     }
                     else 
 		    {
-                        victoire[i]=false;
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -1069,7 +1084,7 @@ public class Game
             else if(check == 3) 
 	    {
                 if(joueur.GetEnVie()) 
-		{
+		        {
                     victoire[i]=true;
                     score[i] = 10;
                 }
@@ -1083,13 +1098,13 @@ public class Game
                 }
                 else 
 		{
-                    victoire[i]=false;
+                    victoire[i]=true;
                     score[i] = 2;
                 }
             }
             i++;
         }
-        saveGame(recit,score);
+        saveGame(recit,score,victoire);
         SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)

@@ -13,10 +13,6 @@ public class rank : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        string[]pseudos={"Tombala78","Tombala31","Tombala23","Tombala24","Tombala699","Tombala728"};
-        int[]scores={50,40,20,0,-10,-20};
-        createFields(pseudos,scores);
-        StartCoroutine(refresh_test());
     }
 IEnumerator refresh_test()
 {
@@ -66,6 +62,7 @@ IEnumerator refresh_test()
                 textPseudo.color=new Color(0.6f, 0.6f, 0.6f, 1f);
                 textScore.color=new Color(0.6f, 0.6f, 0.6f, 1f);
             }
+                textNum.text=""+(i+1);
                 textPseudo.text=pseudos[i];
                 textScore.text=""+scores[i];
             }

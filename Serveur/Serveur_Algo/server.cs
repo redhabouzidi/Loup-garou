@@ -547,8 +547,8 @@ namespace Server
                 sendMessage(socket, message);
             }
         }
-        public static void sendMatch(Socket bdd,string nom,string recit,int[] ids,int[] score){
-            byte [] message = new byte[1+sizeof(int)+nom.Length+sizeof(int)+recit.Length+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length];
+        public static void sendMatch(Socket bdd,string nom,string recit,int[] ids,int[] score,bool[] victoire){
+            byte [] message = new byte[1+sizeof(int)+nom.Length+sizeof(int)+recit.Length+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length+sizeof(int)+sizeof(bool)*victoire.Length];
             int [] size = new int[1]{1};
             message[0]=159;
             Console.WriteLine("name ="+nom);
@@ -564,7 +564,10 @@ namespace Server
             foreach(int id in score){
                 encode(message,id,size);
             }
-
+            encode(message,victoire.Length,size);
+            foreach(bool id in victoire){
+                encode(message,id,size);
+            }
             sendMessage(bdd,message);
         }
         //focntion qui envoie aux joueurs le choix du vote d'un joueurs
@@ -1000,8 +1003,6 @@ namespace Server
                         disconnectFromLobby(client);
                     else
                         Console.WriteLine("nope pas co");
-
-
                     break;
                 case 108:
                     if (connected.ContainsKey(client))
@@ -1012,7 +1013,6 @@ namespace Server
                             {
                                 idj = connected[client];
                                 players[connected[client]].ToggleReady(idj);
-                                Console.WriteLine("yo");
                             }
 
                         }
@@ -1023,30 +1023,42 @@ namespace Server
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
+
+                        }
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                     break;
                 case 154:
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
+
+                        }
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                     break;
                 case 155:
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
+
+                        }
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                     break;
                 case 156:
@@ -1059,22 +1071,28 @@ namespace Server
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
+
+                        }
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                     break;
                 case 160:
                         size[0]=1;
-                        if (connected.ContainsKey(client)){
+                    if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
 
                         }
-                        else
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                     
                     break;
@@ -1082,13 +1100,12 @@ namespace Server
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        Console.WriteLine(id+ " and "+connected[client]);
                         if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
 
                         }
                         else{
-                            sendMessage(client,new byte[2]{255,message[0]});Console.WriteLine("on passe ici");
+                            sendMessage(client,new byte[2]{255,message[0]});
 
                         }
                     }
@@ -1097,10 +1114,28 @@ namespace Server
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
+
+                        }
+                        else{
                             sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
+                    }
+                break;
+                case 163:
+                    size[0]=1;
+                    if (connected.ContainsKey(client)){
+                        id=decodeInt(message,size);
+                        if(connected[client]==id){
+                            redirect(bdd, queue.addVal(client), message);
+
+                        }
+                        else{
+                            sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
                     }
                 break;
                 case 255:
@@ -1355,6 +1390,14 @@ namespace Server
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);
+                    break;
+                case 163:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
                     break;
 
             }

@@ -71,6 +71,7 @@ public class Sorciere : Role
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
+                sendTurn(listJoueurs,GetIdRole());
                 EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
                 
                 bool boucle = true;

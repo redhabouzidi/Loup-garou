@@ -18,7 +18,8 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao,sgo;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao,sgo,ro;
+    public static rank r;
     public static SavedGames sg;
     public static WaitingScreen ws;
     public static GameManagerApp gma;
@@ -433,7 +434,6 @@ public class NetworkManager : MonoBehaviour
                     gm.GO_tourRoles.SetActive(false);
                     idPlayer = decode(message, size);
                     gm.ActionSorciere(idPlayer);
-                    GameManager.turn = 5;
 
                     break;
                 case 9:
@@ -928,7 +928,19 @@ public class NetworkManager : MonoBehaviour
                     sg.show_history();
                     break;
                 case 162:
-                    //demande de statistique ( retour )
+                    tableSize=decode(message,size);
+                    score=new int[tableSize];
+                    for(int i=0;i<score.Length;i++){
+                        score[i]=decode(message,size);
+                    }
+                    tableSize=decode(message,size);
+                    playerNames=new string[tableSize];
+                    for(int i=0;i<playerNames.Length;i++){
+                        playerNames[i]=decodeString(message,size);
+                        Debug.Log("nom = " + playerNames[i]);
+                    }
+                    r.refresh_fields(playerNames,score);
+
                     break;
                 case 255:
                     //faire les cas d'erreurs
@@ -983,6 +995,9 @@ public class NetworkManager : MonoBehaviour
     }
     public static int Vote(int idUser, int idVote)
     {
+        if(idVote==0){
+            Debug.Log("IL A DIT NON");
+        }
         byte[] message = new byte[1 + 2 * sizeof(int)];
         message[0] = 1;
         int[] size = new int[1] { 1 };
@@ -990,6 +1005,20 @@ public class NetworkManager : MonoBehaviour
         encode(message, idVote, size);
 
         return SendMessageToServer(client, message);
+    }
+    public static void sendRankRequest(){
+        byte[] message = new byte[1 +  sizeof(int)];
+        message[0] = 162;
+        int[] size = new int[1] { 1 };
+        encode(message, id, size);
+        SendMessageToServer(client,message);
+    }
+    public static void sendStatRequest(){
+        byte[] message = new byte[1 +  sizeof(int)];
+        message[0] = 163;
+        int[] size = new int[1] { 1 };
+        encode(message, id, size);
+        SendMessageToServer(client,message);
     }
     public static void sendHistoryRequest(){
         byte[] message = new byte[1 + 2*sizeof(int)];
