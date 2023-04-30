@@ -22,12 +22,7 @@ public class Statistiques : MonoBehaviour
         butNbPartie.onClick.AddListener(sort_by_partie_joue);
         butWinrate.onClick.AddListener(sort_by_winrate);
         butPoints.onClick.AddListener(sort_by_points);
-        string[]pseudos={"Tombala78","Tombala31","Tombala23","Tombala24","Tombala699","Tombala728"};
-        int[]nbpartiesjoues={50,40,20,0,-10,-20};
-        int[]nbvictoires={50,40,20,0,-10,-20};
-        double[]winrates={10.2,20.2,30.2,60.5,68.2,90.2};
-        createFields_stat(pseudos,nbpartiesjoues,nbvictoires,winrates);
-        StartCoroutine(refresh_test());
+        NetworkManager.sendStatRequest(0);
     }
 IEnumerator refresh_test()
 {
@@ -48,16 +43,20 @@ IEnumerator refresh_test()
         
     }
     public void sort_by_pseudo (){
-        Debug.Log("Pseudo");
+        //3
+        NetworkManager.sendStatRequest(3);
     }
     public void sort_by_partie_joue(){
-        Debug.Log("PartieJoue");
+        NetworkManager.sendStatRequest(1);
+        //1
     }
     public void sort_by_winrate(){
-        Debug.Log("Winrate");
+        NetworkManager.sendStatRequest(2);
+        //2
     }
     public void sort_by_points(){
-        Debug.Log("Points");
+        NetworkManager.sendStatRequest(0);
+        //0
     }
     public void refresh_fields_stat(string[] pseudos,int[] nbpartiesjoues,int[]nbvictoires,double[]winrate){
         Image[] childTextComponents = BoiteContent.GetComponentsInChildren<Image>();
@@ -76,7 +75,7 @@ IEnumerator refresh_test()
                 textPseudo.text=pseudos[i];
                 textPartiejoue.text=""+nbpartiesjoues[i];
                 Points.text=""+nbvictoires[i];
-                textWinrate.text=""+winrate[i];
+                textWinrate.text=""+winrate[i].ToString("0.##")+"%";
                 if(i==0){
                     textNum.color=new Color(1f, 0.843f, 0f, 1f);
                     textPseudo.color=new Color(1f, 0.843f, 0f, 1f);

@@ -30,6 +30,11 @@ public class bdd
         size[0] += sizeof(int);
         return result;
     }
+    public static double decodeDouble(byte[] message,int[] size){
+        double result = BitConverter.ToDouble(message, size[0]);
+        size[0] += sizeof(double);
+        return result;
+    }
     public static bool decodeBool(byte[] message, int[] size)
     {
         bool result = BitConverter.ToBoolean(message, size[0]);
@@ -54,6 +59,10 @@ public class bdd
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
         size[0] += sizeof(int);
+    }
+    public static void encode(byte[] message,double val,int[] size){
+        Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(double));
+        size[0] += sizeof(double);
     }
     public static void encode(byte[] message, bool val, int[] size)
     {
@@ -137,7 +146,7 @@ public class bdd
                         sendRank(bdd,message);
                         break;
                     case 163:
-                        
+                        sendStats(bdd,message);
                         break;
                 }
             }
@@ -195,6 +204,39 @@ public class bdd
         size[0]=1;
         encode(newMessage,queueId,size);
         encode(newMessage,action,size);
+        sendMessage(bdd,newMessage);
+    }
+    public static void sendStats(Socket bdd,byte[] message){
+        int[] size = new int[1]{1};
+        int queueId = decodeInt(message,size);
+        int id = decodeInt(message, size);
+        int trier = decodeInt(message, size);
+        (string[] pseudo,int[] ids,int[] score,int[] nbPartie,double[] winrate)=Statistique.Get_all(conn,id,trier);
+        int pname=getStringLength(pseudo);
+        byte[] newMessage = new byte[1+sizeof(int)+sizeof(int)+sizeof(int)*pseudo.Length+pname+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length+sizeof(int)+sizeof(int)*nbPartie.Length+sizeof(int)+sizeof(double)*winrate.Length];
+        size[0]=1;
+        newMessage[0]=163;
+        encode(newMessage,queueId,size);
+        encode(newMessage,pseudo.Length,size);
+        for(int i=0;i<pseudo.Length;i++){
+            encode(newMessage,pseudo[i],size);
+        }
+        encode(newMessage,ids.Length,size);
+        for(int i=0;i<ids.Length;i++){
+            encode(newMessage,ids[i],size);
+        }
+        encode(newMessage,score.Length,size);
+        for(int i=0;i<score.Length;i++){
+            encode(newMessage,score[i],size);
+        }
+        encode(newMessage,nbPartie.Length,size);
+        for(int i=0;i<nbPartie.Length;i++){
+            encode(newMessage,nbPartie[i],size);
+        }
+        encode(newMessage,winrate.Length,size);
+        for(int i=0;i<winrate.Length;i++){
+            encode(newMessage,winrate[i],size);
+        }
         sendMessage(bdd,newMessage);
     }
     public static void sendRank(Socket bdd,byte[] message){

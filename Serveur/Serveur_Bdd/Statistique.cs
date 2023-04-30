@@ -171,7 +171,7 @@ class Statistique{
         return (nb_joues,pseudo);
     }
 	//retourne pseudos,idusers,score,nb_partiejoue,nb_victoire
-	public (string[],int[],int[],int[],double[]) Get_all(MySqlConnection conn,int id,int trier){//trier 0-> par score, trier 1->nb_partiejoue, trier 2->winrate, trier 3->pseudo
+	public static (string[],int[],int[],int[],double[]) Get_all(MySqlConnection conn,int id,int trier){//trier 0-> par score, trier 1->nb_partiejoue, trier 2->winrate, trier 3->pseudo
         //La requete pour recuperer l'identifiant,le nombre de parties joues des 50 joueurs (trié par nombre parties joues)
 string query = "SELECT idUsers, score,nb_partiejoue,nb_victoire " +
                "FROM Statistiques " +

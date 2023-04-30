@@ -1398,7 +1398,6 @@ namespace Server
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);
                     break;
-                    break;
 
             }
         }
