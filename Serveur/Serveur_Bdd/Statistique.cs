@@ -170,4 +170,62 @@ class Statistique{
         string pseudo=conn.QueryFirstOrDefault<string>(query,new{ID=id});
         return (nb_joues,pseudo);
     }
+	//retourne pseudos,idusers,score,nb_partiejoue,nb_victoire
+	public (string[],int[],int[],int[],double[]) Get_all(MySqlConnection conn,int id,int trier){//trier 0-> par score, trier 1->nb_partiejoue, trier 2->winrate, trier 3->pseudo
+        //La requete pour recuperer l'identifiant,le nombre de parties joues des 50 joueurs (trié par nombre parties joues)
+string query = "SELECT idUsers, score,nb_partiejoue,nb_victoire " +
+               "FROM Statistiques " +
+               "WHERE idUsers IN (SELECT idUsers1 FROM Amis WHERE idUsers2 = @idu AND status_ami = @SA) " +
+               "UNION " +
+               "SELECT idUsers, score,nb_partiejoue,nb_victoire " +
+               "FROM Statistiques " +
+               "WHERE idUsers IN (SELECT idUsers2 FROM Amis WHERE idUsers1 = @idu AND status_ami = @SA) "+
+               "UNION "+
+               "SELECT idUsers, score,nb_partiejoue,nb_victoire FROM Statistiques WHERE idUsers=@idu";
+    List<(int idUsers, int score,int nb_partiejoue,int nb_victoire)> data = conn.Query<(int, int,int,int)>(query, new { idu = id, SA = true }).ToList();
+    
+
+        int[] identifiants = data.Select(r => r.idUsers).ToArray();
+        int[] score=data.Select(r=>r.score).ToArray();
+        int[] nb_partiejoue=data.Select(r=>r.nb_partiejoue).ToArray();
+        int[] nb_victoire=data.Select(r=>r.nb_victoire).ToArray();
+        double[] winrates=new double[nb_victoire.Length];
+        for(int i=0;i<nb_victoire.Length;i++){
+            winrates[i]=(nb_victoire[i]/(double)nb_partiejoue[i])*100;
+        }
+
+        query = "SELECT pseudo FROM Utilisateurs WHERE idUsers IN @IDS ORDER BY FIELD(idUsers, " + string.Join(",", identifiants) + ")";
+        string[] pseudos = conn.Query<string>(query, new { IDS = identifiants }).ToArray();
+        List<(string pseudo, int id, int score, int nb_partiejoue, double winrate)> dataList = new List<(string, int, int, int, double)>();
+        for (int i = 0; i < pseudos.Length; i++)
+{
+    dataList.Add((pseudos[i], identifiants[i], score[i], nb_partiejoue[i], winrates[i]));
+}
+    if(trier==0){
+        dataList = dataList.OrderByDescending(d => d.score)
+                   .ThenByDescending(d => d.winrate)
+                   .ThenByDescending(d => d.nb_partiejoue)
+                   .ToList();
+    }
+    else if(trier==1){
+        dataList = dataList.OrderByDescending(d => d.nb_partiejoue)
+                   .ThenByDescending(d => d.winrate)
+                   .ThenByDescending(d => d.score)
+                   .ToList();
+    }
+    else if(trier==2){
+        dataList = dataList.OrderByDescending(d => d.winrate)
+                   .ThenByDescending(d => d.score)
+                   .ThenByDescending(d => d.nb_partiejoue)
+                   .ToList();
+    }
+    else if(trier==3){
+        dataList = dataList.OrderBy(d => d.pseudo)
+                   .ThenByDescending(d => d.winrate)
+                   .ThenByDescending(d => d.score)
+                   .ThenByDescending(d => d.nb_partiejoue)
+                   .ToList();
+    }
+        return (dataList.Select(r => r.pseudo).ToArray(),dataList.Select(r => r.id).ToArray(),dataList.Select(r => r.score).ToArray(),dataList.Select(r => r.nb_partiejoue).ToArray(),dataList.Select(r => r.winrate).ToArray());
+    }
 }
