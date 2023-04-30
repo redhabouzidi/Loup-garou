@@ -174,7 +174,28 @@ class Amis
         int[] id = data.Select(r => r.id).ToArray();
         return (id,username);
     }
+	public List<string> searchNonAmis(MySqlConnection conn, int idUsers)
+    {
+        List<string> result = new List<string>();
 
+        using (MySqlCommand command = new MySqlCommand())
+        {
+            command.Connection = conn;
+            command.CommandText = "SELECT U.pseudo FROM Utilisateurs U " +
+                            "WHERE U.idUsers NOT IN " +
+                            "(SELECT A.idUsers2 FROM Amis A WHERE A.idUsers1 = @id) " +
+                            "AND U.idUsers != @id;";
+            command.Parameters.AddWithValue("@id", idUsers);
+
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    result.Add(reader["pseudo"].ToString());
+                }
+            }
+        }
+	}
     public static int get_friend_count(MySqlConnection conn,int id_player){
         int friend_count=0;
         //Recuperer le nombre d'amis d'un joueur
