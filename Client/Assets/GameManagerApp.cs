@@ -12,7 +12,8 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, 
-    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady,buttonSaveGames;
+    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady,buttonSaveGames,
+    buttonRank,buttonRank2;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -59,6 +60,11 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.ws = NetworkManager.wso.GetComponent<WaitingScreen>();
         NetworkManager.sgo = NetworkManager.canvas.transform.Find("SavedGames").gameObject;
         NetworkManager.sg = NetworkManager.sgo.GetComponent<SavedGames>();
+        NetworkManager.ro = NetworkManager.canvas.transform.Find("Ranking").gameObject;
+        NetworkManager.r = NetworkManager.ro.GetComponent<rank>();
+        NetworkManager.so = NetworkManager.canvas.transform.Find("Statistiques").gameObject;
+        NetworkManager.s = NetworkManager.so.GetComponent<Statistiques>();
+
 
 
         GameManagerApp.players = new List<player>();
@@ -85,7 +91,9 @@ public class GameManagerApp : MonoBehaviour
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
         buttonSaveGames.onClick.AddListener(onButtonClickSaveGames);
-
+        buttonRank.onClick.AddListener(onButtonClickRank);
+        buttonRank2.onClick.AddListener(onButtonClickRank);
+        
         refreshAll();
         NetworkManager.inGame = false;
         if (scene == 1)
@@ -270,7 +278,9 @@ public class GameManagerApp : MonoBehaviour
         }
         NetworkManager.recvMessage(NetworkManager.client);
     }
-
+    private void onButtonClickRank(){
+        NetworkManager.sendRankRequest();
+    }
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);

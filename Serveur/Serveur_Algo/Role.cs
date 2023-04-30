@@ -34,7 +34,12 @@ public abstract class Role
         if (j.GetSocket()!=null&&j.GetSocket().Connected == true)
         {
             sockets.Add(j.GetSocket());
-            if (idRole == 1 || idRole==255 && j.GetEnVie())
+            if(idRole==253||idRole==254){
+                if(j.GetEstMaire()){
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                }
+            }else if (((idRole == 1||idRole==255) && j.GetEnVie()))
             {
                 dictJoueur[j.GetSocket()] = j;
                 role.Add(j.GetSocket());

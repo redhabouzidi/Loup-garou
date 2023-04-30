@@ -71,6 +71,7 @@ public class Sorciere : Role
                 idJoueurVise = listJoueurs[i].GetId();
                 // envoieInformation(x,y)
                 // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
+                sendTurn(listJoueurs,GetIdRole());
                 EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
                 
                 bool boucle = true;
@@ -173,52 +174,27 @@ public class Sorciere : Role
         if (wantToKill)
         {
             bool boucleKill = true;
-            bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
             Joueur? cible = null;
             sendTime(listJoueurs, GetDelaiAlarme()/2);
             Task.Run(() =>
             {
-                Thread.Sleep(GetDelaiAlarme() * 375); // 7,30 secondes
-                reduceTimer = true;
-                if (reduceTimer && !LaunchThread2)
-                {
-                    Thread.Sleep(GetDelaiAlarme() * 125); // 2,30 secondes
-                    boucleKill = false;
-                    vide.Send(new byte[1] { 0 });
-                }
+                Thread.Sleep(GetDelaiAlarme() * 1000); // 10 secondes
+                boucleKill = false;
+                vide.Send(new byte[1] { 0 });
             });
+
             while (boucleKill)
             {
                 (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
                 if (v == joueurSorciere.GetId() && c != -1)
                 {
-                    if (cible != null)
-                    {
-                        cible.SetDoitMourir(false);
-                    }
-
                     cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);
                     if (cible != null && cible.GetRole() is not Sorciere &&
                         (idJoueurVise == -1 || cible.GetId() != idJoueurVise) && cible.GetEnVie())
                     {
                         cible.SetDoitMourir(true);
-                    }
-                    
-                    if (!reduceTimer && firstTime)
-                    {
-                        firstTime = false;
-                        LaunchThread2 = true;
-                            sendTime(listJoueurs, GetDelaiAlarme()/8);
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(GetDelaiAlarme() * 125);
-                            Console.WriteLine("le Garde a voté, ça passe à 2,30sec d'attente");
-                            boucleKill = false;
-                            vide.Send(new byte[1] { 0 });
-                        });
-                    }
-
-                    
+                        boucleKill = false;
+                    }                    
                 }
             }
 
