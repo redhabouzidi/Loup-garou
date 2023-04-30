@@ -38,9 +38,15 @@ class Amis
 
 
 
-    public static void send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
+    public void send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
         try{
             using(MySqlCommand command=new MySqlCommand()){
+                string query="SELECT count(*) FROM Amis WHERE idUsers1=@ids AND idUsers2=@idu";
+                int rowcount=conn.QueryFirstOrDefault<int>(query,new{ids=sender,idu=receiver});
+                if(rowcount>0)return;
+                query="SELECT count(*) FROM Amis WHERE idUsers2=@ids AND idUsers1=@idu";
+                rowcount=conn.QueryFirstOrDefault<int>(query,new{ids=sender,idu=receiver});
+                if(rowcount>0)return;
                 //Attribuer la connection à la commande
                 command.Connection=conn;
                 //Inserer dans la BDD, Creation d'un lien amitié
@@ -51,7 +57,7 @@ class Amis
                 command.Parameters.AddWithValue("@STA",false);
                 command.Parameters.AddWithValue("@DA",DateTime.Now);
                 //Execution
-                int rowcount=command.ExecuteNonQuery();
+                rowcount=command.ExecuteNonQuery();
                 //si rowcount (ligne inseré) = 0
                 if(rowcount==0)Console.WriteLine("Failed while inserting");
                 else Console.WriteLine("Success");
