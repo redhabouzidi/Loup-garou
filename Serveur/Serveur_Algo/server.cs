@@ -1070,11 +1070,11 @@ namespace Server
                         if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
                         if(connected[client]==id){
-                            redirect(bdd, queue.addVal(client), message);Console.WriteLine(" he count"+queue.queue[1]);
+                            redirect(bdd, queue.addVal(client), message);
 
                         }
                         else
-                            sendMessage(client,new byte[2]{255,message[0]});Console.WriteLine(id+"   et   "+connected[client]);
+                            sendMessage(client,new byte[2]{255,message[0]});
                     }
                     
                     break;
@@ -1082,10 +1082,15 @@ namespace Server
                     size[0]=1;
                     if (connected.ContainsKey(client)){
                         id=decodeInt(message,size);
-                        if(connected[client]==id)
+                        Console.WriteLine(id+ " and "+connected[client]);
+                        if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);
-                        else
-                            sendMessage(client,new byte[2]{255,message[0]});
+
+                        }
+                        else{
+                            sendMessage(client,new byte[2]{255,message[0]});Console.WriteLine("on passe ici");
+
+                        }
                     }
                     break;
                 case 162:
@@ -1333,7 +1338,20 @@ namespace Server
                 case 160:
                     size[0] = 1;
                     queueId = decodeInt(message, size);
-                    Console.WriteLine(queueId+"quee");
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
+                case 161:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
+                    client = queue.queue[queueId];
+                    queue.queue.Remove(queueId);
+                    redirect(client, message, recvSize);
+                    break;
+                case 162:
+                    size[0] = 1;
+                    queueId = decodeInt(message, size);
                     client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, recvSize);

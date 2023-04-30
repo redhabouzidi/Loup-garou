@@ -21,21 +21,28 @@ class Partie{
 
         conn.Execute(query,new{ID=id_partie,ACT=action});//Execution de la requete parametree
     }
-    public static string get_village_name(MySqlConnection conn,int id_partie){
-        string query="SELECT nomPartie FROM Partie WHERE idPartie=@id";
-        string village_name = conn.QueryFirstOrDefault<string>(query,new{id=id_partie});
-        return village_name;
+    public (string,DateTime) get_village_name(MySqlConnection conn,int id_partie){
+        string query="SELECT nomPartie,Datesauvegarde FROM Partie WHERE idPartie=@id";
+        (string village_name,DateTime datesauv) = conn.QueryFirstOrDefault<(string,DateTime)>(query,new{id=id_partie});
+        return (village_name,datesauv);
     }
-    public static string get_action(MySqlConnection conn,int id_partie){
-        string query="SELECT actions FROM Actions WHERE idPartie=@id";
-        string act_all=conn.QueryFirstOrDefault<string>(query,new{id=id_partie});
+    public static string get_action(MySqlConnection conn,int id,int id_partie){
+        string query="SELECT count(*) FROM SauvegardePartie WHERE idUsers=@idU AND idPartie=@idP";
+        int rowcount=conn.QueryFirstOrDefault<int>(query,new{idU=id,idP=id_partie});
+        if(rowcount>0){
+        query="SELECT actions FROM Actions WHERE idPartie=@id";
+        string act_all=conn.QueryFirstOrDefault<string>(query,new{id=id_partie});   
         return act_all;
+        }
+        return null;
     }
-    public static (int[],string[]) get_partie(MySqlConnection conn,int idUser){
-        string query="SELECT SauvegardePartie.idPartie,Partie.nomPartie FROM SauvegardePartie join Partie on SauvegardePartie.idPartie = Partie.idPartie WHERE idUsers=@id";
-        List<(int id,string names)> data=conn.Query<(int,string)>(query,new{id=idUser}).ToList();
+    public static (int[],string[],DateTime[],int[]) get_partie(MySqlConnection conn,int idUser){
+        string query="SELECT SauvegardePartie.idPartie,Partie.nomPartie,Partie.Datesauvegarde,SauvegardePartie.scoregained FROM SauvegardePartie join Partie on SauvegardePartie.idPartie = Partie.idPartie WHERE idUsers=@id";
+        List<(int id,string names,DateTime date,int score)> data=conn.Query<(int,string,DateTime,int)>(query,new{id=idUser}).ToList();
         int[] identifiants = data.Select(r => r.id).ToArray();
         string[] names = data.Select(r => r.names).ToArray();
-        return (identifiants,names);
+        DateTime[] dates = data.Select(r=> r.date).ToArray();
+        int[] score= data.Select(r=> r.score).ToArray();
+        return (identifiants,names,dates,score);
     }
 }

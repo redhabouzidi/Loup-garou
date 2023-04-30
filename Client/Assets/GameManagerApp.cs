@@ -12,7 +12,7 @@ public class GameManagerApp : MonoBehaviour
 {
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic, 
-    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady,buttonTest;
+    buttonJoin, buttonSendForgotPass, buttonChangeForgotPass,buttonQuitLobby,buttonLogout, buttonReady,buttonSaveGames;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
@@ -57,6 +57,8 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.gmao = GameObject.Find("GameManagerApp").gameObject;
         NetworkManager.gma = NetworkManager.gmao.GetComponent<GameManagerApp>();
         NetworkManager.ws = NetworkManager.wso.GetComponent<WaitingScreen>();
+        NetworkManager.sgo = NetworkManager.canvas.transform.Find("SavedGames").gameObject;
+        NetworkManager.sg = NetworkManager.sgo.GetComponent<SavedGames>();
 
 
         GameManagerApp.players = new List<player>();
@@ -82,7 +84,7 @@ public class GameManagerApp : MonoBehaviour
         buttonSendForgotPass.onClick.AddListener(onButtonClickSendForgotPass);
         buttonQuitLobby.onClick.AddListener(onButtonClickQuitLobby);
         buttonLogout.onClick.AddListener(onButtonClickLogout);
-        buttonTest.onClick.AddListener(test);
+        buttonSaveGames.onClick.AddListener(onButtonClickSaveGames);
 
         refreshAll();
         NetworkManager.inGame = false;
@@ -320,8 +322,8 @@ public class GameManagerApp : MonoBehaviour
         }
         return -1;
     }
-    private void test(){
-        NetworkManager.sendHistoryRequest(21);
+    private void onButtonClickSaveGames(){
+        NetworkManager.sendHistoryRequest();
     }
     public void addFriendAdd(string name,int id){
         SupprNoObject(listAdd);

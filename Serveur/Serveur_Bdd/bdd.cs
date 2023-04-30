@@ -43,6 +43,12 @@ public class bdd
 
         return name;
     }
+    public static DateTime decodeDate(byte[] message,int[] size){
+        DateTime date = DateTime.FromBinary(BitConverter.ToInt64(message, size[0]));
+        size[0]+=sizeof(long);
+        return date;
+    }
+    
     public static void encode(byte[] message, int val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
@@ -60,6 +66,10 @@ public class bdd
         Array.Copy(Encoding.ASCII.GetBytes(val), 0, message, size[0], val.Length);
         size[0] += val.Length;
 
+    }
+    public static void encode(byte[] message,DateTime val,int[] size){
+        Array.Copy(BitConverter.GetBytes(val.Ticks), 0, message, size[0], sizeof(long));
+        size[0]+=sizeof(long);
     }
     public static void encodeString(byte[] message, string val, int[] size)
     {
@@ -120,7 +130,7 @@ public class bdd
                         sendHistory(bdd,message);
                         break;
                     case 161:
-                        //ENVOYER DONNE DE LA PARTIE DEMANDE
+                        sendAction(bdd,message);
                         break;
                     case 162:
                         //ENVOYER STATISTIQUE
@@ -164,6 +174,24 @@ public class bdd
             inscriptionAnswer(bdd, queueId, false);
         }
 
+    }
+    public static void sendAction(Socket bdd,byte[] message){
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        int idPartie = decodeInt(message,size);
+        string action=Partie.get_action(conn,id,idPartie);
+        byte[] newMessage;
+        if(action==null){
+            newMessage=new byte[2]{255,161};
+            return;
+        }
+        newMessage=new byte[1+sizeof(int)+sizeof(int)+action.Length];
+        newMessage[0]=161;
+        size[0]=1;
+        encode(newMessage,queueId,size);
+        encode(newMessage,action,size);
+        sendMessage(bdd,newMessage);
     }
     public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
     {
@@ -277,9 +305,14 @@ public class bdd
         int idUser = decodeInt(message,size);
         int[] ids;
         string[] names;
-        (ids,names) = Partie.get_partie(conn,idUser);
+        DateTime[] dates;
+        int[] score;
+        (ids,names,dates,score) = Partie.get_partie(conn,idUser);
+        foreach(DateTime d in dates){
+            Console.WriteLine("date="+d);
+        }
         int pname = getStringLength(names);
-        byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*names.Length+pname];
+        byte[] newMessage = new byte[1+sizeof(int)*2+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*names.Length+pname+sizeof(int)+sizeof(long)*dates.Length+sizeof(int)+sizeof(int)*score.Length];
         newMessage[0]=160;
         size[0]=1;
         encode(newMessage,queueId,size);
@@ -290,6 +323,14 @@ public class bdd
         encode(newMessage,names.Length,size);
         for(int i=0;i<names.Length;i++){
             encode(newMessage,names[i],size);
+        }
+        encode(newMessage,dates.Length,size);
+        for(int i=0;i<dates.Length;i++){
+            encode(newMessage,dates[i],size);
+        }
+        encode(newMessage,score.Length,size);
+        for(int i=0;i<score.Length;i++){
+            encode(newMessage,score[i],size);
         }
         sendMessage(bdd, newMessage);
     }

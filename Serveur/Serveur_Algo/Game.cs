@@ -311,6 +311,8 @@ public class Game
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
+            // enl ve   tout le monde l'immunit  accord  par le Garde
+            RemoveSaveStatus();
             for (int i = 0; i < _joueurs.Count; i++)
             {
                 Console.WriteLine(_joueurs[i].GetPseudo() + " a comme r le : " + _joueurs[i].GetRole() +
@@ -353,8 +355,7 @@ public class Game
             
             ConcatRecit("\n\n");
             
-            // enl ve   tout le monde l'immunit  accord  par le Garde
-            RemoveSaveStatus();
+            
         }
 	    PointShare(checkWin,recit);
         EndGameInitializer();
@@ -637,9 +638,10 @@ public class Game
     public void SendEgalite(List<Joueur> client, List<int> victime)
     {
         int [] ids=victime.ToArray();
-        foreach (var joueur in client)
+        foreach (Joueur j in client)
         {
-            server.SendVictime(joueur.GetSocket(),ids);
+            if(j.GetSocket()!=null && j.GetSocket().Connected)
+                server.SendVictime(j.GetSocket(),ids);
         }
     }
 
@@ -1028,6 +1030,7 @@ public class Game
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
+        bool [] victoire = new bool[_nbrJoueurs]; 
         foreach(var joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
@@ -1037,10 +1040,12 @@ public class Game
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=false;
                         score[i] = 5;
                     }
                 }
@@ -1051,10 +1056,12 @@ public class Game
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=false;
                         score[i] = 5;
                     }
                 }
@@ -1063,6 +1070,7 @@ public class Game
 	    {
                 if(joueur.GetEnVie()) 
 		{
+                    victoire[i]=true;
                     score[i] = 10;
                 }
             }
@@ -1070,10 +1078,12 @@ public class Game
 	    {
                 if(joueur.GetEnVie()) 
 		{
+                    victoire[i]=true;
                     score[i] = 5;
                 }
                 else 
 		{
+                    victoire[i]=false;
                     score[i] = 2;
                 }
             }

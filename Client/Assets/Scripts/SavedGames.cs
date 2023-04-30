@@ -21,11 +21,7 @@ public class SavedGames : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        refresh_string("Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"Les Loups-Garous doivent prendre le dessus sur le village!\r\n\n"+"asdasdasdasdasdasdasdasdsadas");
-        for(int i=0;i<10;i++){
-
-        add_savedgame("VillageTest",DateTime.Now,1000);
-        }
+        
         return_button.onClick.AddListener(returnto_history);
 
     }
@@ -38,7 +34,7 @@ public class SavedGames : MonoBehaviour
     public void refresh_string(string historique){
         texto.text=historique;
     }
-    public void add_savedgame(string villagename,DateTime date,int duree){
+    public void add_savedgame(string villagename,DateTime date,int duree,int id){
         GameObject newPrefab=Instantiate(prefab_saved,BoiteContent.transform);
         newPrefab.transform.localScale = new Vector3(1, 1, 1);
         TextMeshProUGUI textGame=newPrefab.transform.Find("TextGame").GetComponent<TextMeshProUGUI>();
@@ -46,20 +42,24 @@ public class SavedGames : MonoBehaviour
         TextMeshProUGUI Duree=newPrefab.transform.Find("Duree").GetComponent<TextMeshProUGUI>();
         textGame.text=villagename;
         textDate.text=date.ToString();
-        Duree.text=""+duree+" Min";
+        Duree.text=""+duree+" Gained";
         //
         EventTrigger eventTrigger = newPrefab.AddComponent<EventTrigger>();
 
         // Add a PointerClick event to the EventTrigger component
         EventTrigger.Entry entry = new EventTrigger.Entry();
         entry.eventID = EventTriggerType.PointerClick;
-        entry.callback.AddListener((data) => { OnPointerClick((PointerEventData)data); });
+        entry.callback.AddListener((data) => { NetworkManager.sendMatchRequest(id); });
         eventTrigger.triggers.Add(entry);
     }
-    void OnPointerClick(PointerEventData eventData)
-    {
-        // Call the ShowHistory method
-        show_history();
+    public void actualize(string[] names,int[] id,DateTime[] dates,int[] score){
+        foreach(Transform child in BoiteContent.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        for(int i=0;i<names.Length;i++){
+            add_savedgame(names[i],dates[i],score[i],id[i]);
+        }
     }
     public void show_history(){
         saved_games.gameObject.SetActive(false);

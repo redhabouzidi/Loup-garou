@@ -18,7 +18,8 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao,sgo;
+    public static SavedGames sg;
     public static WaitingScreen ws;
     public static GameManagerApp gma;
     public static WPlayer[] players;
@@ -231,7 +232,11 @@ public class NetworkManager : MonoBehaviour
 
         return name;
     }
-
+    public static DateTime decodeDate(byte[] message,int[] size){
+        DateTime date = DateTime.FromBinary(BitConverter.ToInt64(message, size[0]));
+        size[0]+=sizeof(long);
+        return date;
+    }
     public static void encode(byte[] message, int val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
@@ -251,7 +256,10 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(Encoding.ASCII.GetBytes(val), 0, message, size[0], val.Length);
         size[0] += val.Length;
     }
-
+    public static void encode(byte[] message,DateTime val,int[] size){
+        Array.Copy(BitConverter.GetBytes(val.Ticks), 0, message, size[0], sizeof(long));
+        size[0]+=sizeof(long);
+    }
     public static void encodeString(byte[] message, string val, int[] size)
     {
         string name = Encoding.ASCII.GetString(message, size[0], val.Length);
@@ -900,16 +908,31 @@ public class NetworkManager : MonoBehaviour
                         namesPartie[i]=decodeString(message,size);
                         Debug.Log(namesPartie[i]);
                     }
-                    
+                    tableSize=decode(message,size);
+                    DateTime[] dates = new DateTime[tableSize];
+                    for(int i=0;i<dates.Length;i++){
+                        dates[i]=decodeDate(message,size);
+                    }
+                    tableSize=decode(message,size);
+                    score=new int[tableSize];
+                    for(int i=0;i<score.Length;i++){
+                        score[i]=decode(message,size);
+                    }
+                    sg.actualize(namesPartie,ids,dates,score);
                     break;
                 case 161:
-                    //review d'une partie
+
+                    string action=decodeString(message,size);
+                    Debug.Log(action);
+                    sg.refresh_string(action);
+                    sg.show_history();
                     break;
                 case 162:
                     //demande de statistique ( retour )
                     break;
                 case 255:
                     //faire les cas d'erreurs
+                    size[0]++;
                     break;
                 default:
                     Debug.Log("problem message");
@@ -968,13 +991,13 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-    public static void sendHistoryRequest(int idPlayer){
+    public static void sendHistoryRequest(){
         byte[] message = new byte[1 + 2*sizeof(int)];
         message[0] = 160;
         int[] size = new int[1] { 1 };
         Debug.Log(id);
         encode(message, id, size);
-        encode(message, idPlayer, size);
+        encode(message, id, size);
 
         SendMessageToServer(client, message);
     }
