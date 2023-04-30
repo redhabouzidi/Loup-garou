@@ -21,19 +21,13 @@ public class Chasseur : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme()/2);
 
-        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
-            reduceTimer = true;
-            if (reduceTimer && !LaunchThread2)
-            {
-                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                boucle = false;
-                vide.Send(new byte[1] { 0 });
-            }
+            Thread.Sleep(GetDelaiAlarme() * 500); // 10 secondes
+            boucle = false;
+            vide.Send(new byte[1] { 0 });
         });
 
         Joueur? JoueurChasseur = null;
@@ -54,26 +48,12 @@ public class Chasseur : Role
         {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v == JoueurChasseur.GetId()) 
-            {     
-                if(player != null) {
-                    player.SetDoitMourir(false);
-                }
+            {
                 player = listJoueurs.Find(j => j.GetId() == c);
                 if(player != null && player.GetEnVie() && player.GetRole() is not Chasseur) 
                 {
                     player.SetDoitMourir(true);
-                    if (!reduceTimer && firstTime)
-                    {
-                        firstTime = false;
-                        LaunchThread2 = true;
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(GetDelaiAlarme() * 250);
-                            Console.WriteLine("le Chasseur a vot, a passe  5sec d'attente");
-                            boucle = false;
-                            vide.Send(new byte[1] { 0 });
-                        });
-                    }
+                    boucle = false;
                 }     
             }
         }
