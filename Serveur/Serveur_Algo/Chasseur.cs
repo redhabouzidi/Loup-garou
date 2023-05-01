@@ -5,6 +5,7 @@ using System.Net.Sockets;
 public class Chasseur : Role 
 {
     private new const int IdRole = 6;
+    private Joueur? victime;
     public Chasseur()
     {
         name = "Chasseur";
@@ -12,7 +13,7 @@ public class Chasseur : Role
     }
     
     public override string Action(List<Joueur> listJoueurs)
-    { // écrire l'action de la Voyante
+    { // crire l'action de la Voyante
         string retour;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -48,7 +49,7 @@ public class Chasseur : Role
         int v,c;
         Joueur? player = null;
 
-        Console.WriteLine("Le chasseur executera son rôle");
+        Console.WriteLine("Le chasseur executera son rle");
         while(boucle) 
         {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
@@ -68,7 +69,7 @@ public class Chasseur : Role
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);
-                            Console.WriteLine("le Chasseur a voté, ça passe à 5sec d'attente");
+                            Console.WriteLine("le Chasseur a vot, a passe  5sec d'attente");
                             boucle = false;
                             vide.Send(new byte[1] { 0 });
                         });
@@ -79,11 +80,12 @@ public class Chasseur : Role
 
         if (player != null)
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" était chargé à côté de son corps… dans son dernier souffle de vie il décide de tirer à bout portant sur " + player.GetPseudo() + ". ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" tait charg  ct de son corps dans son dernier souffle de vie il dcide de tirer  bout portant sur " + player.GetPseudo() + ". ";
+            victime = player;
         }
         else
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " était chargé à côté de son corps… dans un élan de bonté il enleva le chargeur de son arme pour que personne ne se blesse avec… ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " tait charg  ct de son corps dans un lan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
         }
 
         return retour;
@@ -92,5 +94,10 @@ public class Chasseur : Role
     public override int GetIdRole() 
     {
         return IdRole; 
+    }
+
+    public Joueur? GetVictime()
+    {
+        return victime;
     }
 }

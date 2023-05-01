@@ -12,8 +12,6 @@ public class CreateScreen : MonoBehaviour
     private List<Toggle> listToggle = new List<Toggle>();
     public Button buttonCreate;
 
-    private int nbPlayer, nbLG;
-
 
     // Start is called before the first frame update
     void Start()
@@ -30,8 +28,8 @@ public class CreateScreen : MonoBehaviour
     void Update()
     {
         // mise a jour des roles
-        nbLG = int.Parse(inputLG.text);
-        nbPlayer = int.Parse(inputPlayers.text);
+        int nbLG = int.Parse(inputLG.text);
+        int nbPlayer = int.Parse(inputPlayers.text);
 
         // impossible d'avoir plus de la moitie des joueurs loups
         if(nbLG > 1 && nbLG > nbPlayer/2){
@@ -50,6 +48,7 @@ public class CreateScreen : MonoBehaviour
 
         int nbVillager = GetNbPlayerRest();
         textVillager.text = "" + nbVillager;
+
     }
 
     public int CountToggleOn(){
@@ -63,7 +62,7 @@ public class CreateScreen : MonoBehaviour
     }
 
     public int GetNbPlayerRest(){
-        return nbPlayer - (nbLG + CountToggleOn());
+        return int.Parse(inputPlayers.text) - (int.Parse(inputLG.text) + CountToggleOn());
     }
 
     private void AddToggleInList(){
@@ -92,7 +91,7 @@ public class CreateScreen : MonoBehaviour
         dictator = toggleDictator.isOn;
 
         // envoyer au serveur les données
-        NetworkManager.createGame(NetworkManager.id, NetworkManager.username, name, nbPlayer, nbLG, witch, seer, cupidon,hunter,guardian,dictator);
+        NetworkManager.createGame(NetworkManager.username, name, nbPlayer, nbLG, witch, seer, cupidon,hunter,guardian,dictator);
         Debug.Log("envoyé");
     }
 
