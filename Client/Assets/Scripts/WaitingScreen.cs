@@ -231,21 +231,25 @@ public class WaitingScreen : MonoBehaviour
 
     public void AffichageUsernameText(){
         for (int i=0; i<no_players; i++){
-            Image check = listCard[i].transform.Find("image-card").GetComponent<Image>();
+            Image check = listCard[i].transform.Find("image-check").GetComponent<Image>();
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorCard;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = players_waiting[i].GetUsername();
-            listCard[i].transform.Find("card").GetComponent<Image>().enabled = true;
-            if(NetworkManager.ready) check.enabled = true;
-            else check.enabled = false;
-
-            if(players_waiting[i].readyp) {
-                listCard[i].transform.Find("image-card").GetComponent<Image>().enabled = true;
+            if(NetworkManager.ready){
+                check.enabled = true;
             }
-            else listCard[i].transform.Find("image-card").GetComponent<Image>().enabled = false;
+            else{
+                check.enabled = false;
+            }
+            if(players_waiting[i].readyp) {
+                check.enabled = true;
+            }
+            else {
+                check.enabled = false;
+            }
         }
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
-            listCard[i].transform.Find("card").GetComponent<Image>().enabled = false;
+            listCard[i].transform.Find("image-check").GetComponent<Image>().enabled = false;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = "";
         }
 
@@ -283,7 +287,7 @@ public class WaitingScreen : MonoBehaviour
                         button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
                         button_ready.GetComponent<Image>().color = colorGreen;
                         button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
-                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready!";
                     }
 
                     else {
@@ -295,8 +299,8 @@ public class WaitingScreen : MonoBehaviour
                 }
                 // mettre le check
                 
-                if(NetworkManager.ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = true;
-                else cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = false;
+                if(NetworkManager.ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-check").GetComponent<Image>().enabled = true;
+                else cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-check").GetComponent<Image>().enabled = false;
             }
         }
         AffichageUsernameText();

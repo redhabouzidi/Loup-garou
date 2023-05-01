@@ -20,6 +20,7 @@ public class ButtonClick : MonoBehaviour
     {
         if (!isHide){
             imageSeeHide.transform.localScale = new Vector3(-1,1,1);
+            
         }
         else {
             chatNotification.SetActive(false);

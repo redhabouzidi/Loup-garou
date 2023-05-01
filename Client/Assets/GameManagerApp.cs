@@ -28,10 +28,8 @@ public class GameManagerApp : MonoBehaviour
     public static List<Friend> listFriend, listAdd, listRequest, listWait;
     public static int scene;
 
-    // profile
     //NetworkManager
     public static Socket client=null;
-    // Start is called before the first frame update
 
     //Waiting screen
     public Color colorGreen, colorWhite;
