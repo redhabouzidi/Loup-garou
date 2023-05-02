@@ -69,11 +69,14 @@ public class GameManager : MonoBehaviour
     // options page
     public Button buttonLeaveGame;
 
-    
+    public AudioSource soundManager_day,soundManager_night;
 
     // Start is called before the first frame update
     void Start()
     {
+		soundManager_day = GameObject.Find("SoundManager_day").GetComponent<AudioSource>();
+        soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
+        play_sound_night();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
@@ -228,7 +231,17 @@ public class GameManager : MonoBehaviour
         
 
     }
-
+    //Fonctions pour les sons ->
+    //Son à jouer pendant la nuit
+public void play_sound_night(){
+            soundManager_day.Stop();
+            soundManager_night.Play();
+    }
+    //Son à jouer pendant la journée
+    public void play_sound_day(){
+        soundManager_night.Stop();
+        soundManager_day.Play();
+    }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet d'envoyer une candidature pour le vote du maire
