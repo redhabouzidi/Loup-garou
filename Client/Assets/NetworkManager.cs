@@ -524,10 +524,8 @@ public class NetworkManager : MonoBehaviour
                     gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
                     if (usernameP == username)
                         gm.sestPresente = true;
-                    Player _p = gm.listPlayer.Find(j => j.GetPseudo() == usernameP);
-                    _p.SetIsMaire(true);
                     break;
-                case 17:
+                case 17://
                     size[0]=1;
                     tableSize=decode(message,size);
                     ids=new int[tableSize];
@@ -541,12 +539,24 @@ public class NetworkManager : MonoBehaviour
                 break;
                 case 18:
                     size[0]=1;
-                    if(decode(message,size)==id){
+                    idp=decode(message,size);
+                    if(idp==id){
                         gm.p.SetIsMaire(true);
+                    }else{
+                        gm.p.SetIsMaire(false);
+                        
                     }
                     if(!gm.p.GetIsAlive()){
                         gm.GO_dead_bg.SetActive(true);
                     }
+                    foreach(Player j in gm.listPlayer){
+                        if(j.GetId()==idp){
+                            j.SetIsMaire(true);
+                        }else{
+                            j.SetIsMaire(false);
+                        }
+                    }
+                    gm.MiseAJourAffichage();
                 break;
                 case 100:
                     id = -1;
