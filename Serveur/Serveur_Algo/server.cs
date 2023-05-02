@@ -835,9 +835,12 @@ namespace Server
                 case 0://chat message
                     Console.WriteLine("chat marche");
                     size[0] = 1;
+                    if(receivedBytes<=257){
                     foreach (Socket s in list)
                     {
                         sendMessage(s, message, receivedBytes);
+                    }
+
                     }
                     break;
                 case 16:
@@ -845,9 +848,18 @@ namespace Server
                     idPlayer = decodeInt(message, size);
                     sendSystemMessage(list, message[1], userData[idPlayer].GetUsername());
                     break;
-
+                case 20:
+                    Console.WriteLine("chat loup marche");
+                    size[0] = 1;
+                    if(receivedBytes<=257){
+                    foreach (Socket s in list)
+                    {
+                        sendMessage(s, message, receivedBytes);
+                    }
+                    }
+                    break;
                 case 101://information de la partie
-
+                    
                     break;
 
                 case 200://begin kicking

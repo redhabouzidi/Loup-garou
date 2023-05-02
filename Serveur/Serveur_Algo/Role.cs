@@ -116,15 +116,19 @@ public abstract class Role
                         }
                         else
                         {
+                            if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
 				            server.recvMessageGame(sockets,message,recvSize);
+                            }
                         }
                         
                     }
                     else
                     {
 			
-                        server.recvMessageGame(sockets,message,recvSize);
-			Console.WriteLine("apres recv2");
+                        if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
+				            server.recvMessageGame(sockets,message,recvSize);
+                        }
+			            Console.WriteLine("apres recv2");
                     }
                 }
 		
