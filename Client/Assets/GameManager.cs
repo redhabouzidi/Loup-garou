@@ -923,6 +923,9 @@ public class GameManager : MonoBehaviour
 
         if(listPlayer[indice].GetIsMaire()) {
             maire.enabled = true;
+        }else{
+            maire.enabled = false;
+
         }
 
         if (!listPlayer[indice].GetIsAlive())
