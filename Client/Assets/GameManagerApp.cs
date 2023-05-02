@@ -40,6 +40,7 @@ public class GameManagerApp : MonoBehaviour
 
     void Start()
     {
+        
         if (client != null)
         {
             NetworkManager.client = client;

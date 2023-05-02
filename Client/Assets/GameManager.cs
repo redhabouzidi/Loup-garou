@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false;
+    public bool soundNight;
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
@@ -76,7 +77,6 @@ public class GameManager : MonoBehaviour
     {
 		soundManager_day = GameObject.Find("SoundManager_day").GetComponent<AudioSource>();
         soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
-        play_sound_night();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
@@ -93,7 +93,8 @@ public class GameManager : MonoBehaviour
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
-
+        soundNight=true;
+        play_sound_night();
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         isNight = true;
         tour = 0;
@@ -197,7 +198,14 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         NetworkManager.listener();
-
+        if(isNight!=soundNight){
+            if(isNight){
+                play_sound_night();
+            }else{
+                play_sound_day();
+            }
+            soundNight=isNight;
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             LoadScene("jeu");

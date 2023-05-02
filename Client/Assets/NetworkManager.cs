@@ -398,9 +398,12 @@ public class NetworkManager : MonoBehaviour
                     GameManager.turn = 1;
                     bool ra = decodeBool(message, size);
                     GameManager.isNight = !ra;
+                    
                     if (!ra)
                     {
                         GameManager.tour++;
+
+                    }else{
                     }
                     break;
                 case 6:
