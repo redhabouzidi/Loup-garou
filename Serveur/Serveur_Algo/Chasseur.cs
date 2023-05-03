@@ -12,7 +12,7 @@ public class Chasseur : Role
         description = "blabla";
     }
     
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     { // crire l'action de la Voyante
         string retour;
         sendTurn(listJoueurs, GetIdRole());
@@ -21,7 +21,7 @@ public class Chasseur : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme()/2);
+        sendTime(listJoueurs, GetDelaiAlarme()/2,game);
 
         Task.Run(() =>
         {

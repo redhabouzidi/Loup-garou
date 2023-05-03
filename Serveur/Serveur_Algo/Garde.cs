@@ -13,7 +13,7 @@ public class Garde : Role
         description = "blabla";
     }
     
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la Voyante
         string retour;
         sendTurn(listJoueurs, GetIdRole());
@@ -22,10 +22,9 @@ public class Garde : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        foreach (Joueur j in listJoueurs)
-        {
-            server.sendTime(j.GetSocket(), GetDelaiAlarme());
-        }
+
+            sendTime(listJoueurs,GetDelaiAlarme(),game);
+        
 
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>

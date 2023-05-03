@@ -9,12 +9,13 @@ public class Game
     private List<Role> _roles;
     private int _nbrJoueursManquants,gameId;
     private bool _start;
-    public int _nbrJoueurs;
+    public int _nbrJoueurs,currentTime;
     public string name, recit;
     private int _nbLoups;
     private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
     public static Socket listener = Server.server.setupSocketGame();
     public Socket vide,reveille;
+    public DateTime t;
     public Game()
     {
         _start = false;
@@ -212,9 +213,9 @@ public class Game
             {
                 Console.WriteLine(p.GetSocket() + " id " + j.GetId() + " pseudo " + j.GetPseudo());
                 server.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
-                foreach(Joueur j in _joueurs){
-                    if(j.GetReady()){
-                        server.sendReady(c.GetSoket(),j.GetId(),true);
+                foreach(Joueur joueur in _joueurs){
+                    if(joueur.GetReady()){
+                        server.sendReady(c.GetSocket(),joueur.GetId(),true);
                     }
                 }
             }
@@ -246,7 +247,7 @@ public class Game
             {
                 _joueurs[i].GetRole().gameListener = reveille;
 
-                ConcatRecit(_joueurs[i].FaireAction(_joueurs));
+                ConcatRecit(_joueurs[i].FaireAction(_joueurs,this));
                 break;
             }
         }
@@ -764,7 +765,7 @@ public class Game
         vide = Game.listener.Accept();
         Console.WriteLine("4");
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3);
+        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3,this);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 2500); // 45 secondes
@@ -814,7 +815,7 @@ public class Game
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2);
+                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2,this);
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
@@ -966,7 +967,7 @@ public class Game
         vide = Game.listener.Accept();
         
         bool boucle = true;
-        r.sendTime(_joueurs, Role.GetDelaiAlarme()/2);
+        r.sendTime(_joueurs, Role.GetDelaiAlarme()/2,this);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10 secondes
