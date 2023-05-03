@@ -5,10 +5,14 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Linq;
+
 
 
 public class GameManager : MonoBehaviour
 {
+    ////////////////////////// Variables //////////////////////
+    
     // joueur
     public Player p;
     // jeu
@@ -18,6 +22,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false;
+    public bool soundNight;
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
@@ -65,11 +70,14 @@ public class GameManager : MonoBehaviour
     // options page
     public Button buttonLeaveGame;
 
-    
+    public AudioSource soundManager_day,soundManager_night;
 
     // Start is called before the first frame update
     void Start()
     {
+		soundManager_day = GameObject.Find("SoundManager_day").GetComponent<AudioSource>();
+        soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
+        NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;
@@ -80,16 +88,18 @@ public class GameManager : MonoBehaviour
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
         buttonRole.onClick.AddListener(OnButtonClickRole);
-        //buttonLeaveGame.onClick.AddListener(OnButtonClickLeave);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
-
+        soundNight=true;
+        play_sound_night();
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         isNight = true;
         tour = 0;
+
+        // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
             switch (p.GetRole())
@@ -188,7 +198,14 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         NetworkManager.listener();
-
+        if(isNight!=soundNight){
+            if(isNight){
+                play_sound_night();
+            }else{
+                play_sound_day();
+            }
+            soundNight=isNight;
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             LoadScene("jeu");
@@ -222,25 +239,52 @@ public class GameManager : MonoBehaviour
         
 
     }
+    //Fonctions pour les sons ->
+    //Son à jouer pendant la nuit
+public void play_sound_night(){
+            soundManager_day.Stop();
+            soundManager_night.Play();
+    }
+    //Son à jouer pendant la journée
+    public void play_sound_day(){
+        soundManager_night.Stop();
+        soundManager_day.Play();
+    }
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer une candidature pour le vote du maire
+    **/
     private void OnButtonClickSePresenter()
     {
-        
         NetworkManager.sendMayorPresentation();
     }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet de quitter la partie de loup garou
+    **/
     private void OnButtonClickLeaveGame()
     {
         GameManagerApp.client = NetworkManager.client;
         GameManagerApp.scene = 1;
         LoadScene("Jeu");
-
-
     }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet de rejouer au loup-garou, conduit dans la page home
+    **/
     private void OnButtonClickPlayAgain()
     {
         GameManagerApp.client = NetworkManager.client;
         GameManagerApp.scene = 2;
         LoadScene("Jeu");
     }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer un message dans le chat
+    **/
     private void OnButtonClickSendMsg()
     {
         if (inputChat.text != "")
@@ -252,22 +296,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnButtonClickLeave()
-    {
-        LoadScene("jeu");
-    }
-
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet de valider et envoyer le vote au serveur
+    **/
     private void OnButtonClickVote()
     {
         Vote();
-        
     }
+
+    /**
+        Affiche à qui c'est le tour en grand sur l'écran
+    **/
     public void changeTurn()
     {
         if (turn!=0)
         {
             action = false;
             electionMaire = false;
+            if(p.GetRoleId() == 7){
+                Debug.Log("c'est le 7 mec");
+            }
             switch (turn)
             {
 
@@ -300,15 +349,29 @@ public class GameManager : MonoBehaviour
                 case 6:
                     affiche_tour_role("It is Hunter's turn...", turn);
                     break;
-                case 8:
-                    affiche_tour_role("It is Guard's turn...", turn);
-                    break;
                 case 7:
                     affiche_tour_role("It is Dictator's turn...", turn);
+                    if (p.GetRoleId() == 7)
+                    {
+                        ChoixDictateur();
+                    }
+                    break;
+                case 8:
+                    affiche_tour_role("It is Guard's turn...", turn);
                     break;
                 case 255:
                     affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
+                    break;
+                case 254 :
+                    affiche_tour_role("The mayor will choose the one to die ...", turn); 
+                    break;
+                case 253:
+                    affiche_tour_role("Mayor must select his new successor ...", turn);
+                    if(p.GetIsMaire()){
+                        GO_dead_bg.SetActive(false);
+                        prochainMaire();
+                    }
                     break;
             }
             foreach (Player p in listPlayer)
@@ -319,6 +382,12 @@ public class GameManager : MonoBehaviour
             turn = 0;
         }
     }
+
+    /**
+        La fonction permet d'afficher l'image de role d'un joueur dans sa carte
+        Args :  - id : l'id du joueur dont on veut afficher son role
+                - role : role d'un joueur
+    **/
     public void updateImage(int id, int role)
     {
         int indice = chercheIndiceJoueurId(id);
@@ -353,32 +422,57 @@ public class GameManager : MonoBehaviour
         }
         roleImg.enabled = true;
     }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet de voir la carte d'un joueur (action de la voyante)
+    **/
     private void OnButtonClickAffiche(){
         AfficheVoyante();
     }
 
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'afficher à l'écran la page des roles restants
+    **/
     private void OnButtonClickRole(){
         bool active = GO_rolesRestant.activeSelf;
         GO_rolesRestant.SetActive(!active);
     }
 
-    private void OnButtonClickNon() {
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer au serveur que la reponse au choix est négative
+    **/
+    public void OnButtonClickNon() {
         choixAction.SetActive(false);
         NetworkManager.Vote( NetworkManager.id,0);
         // envoyer au serveur NON
     }
 
-    private void OnButtonClickOui() {
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer au serveur que la reponse au choix est positive
+    **/
+    public void OnButtonClickOui() {
         choixAction.SetActive(false);
         NetworkManager.Vote( NetworkManager.id, 1);
         // envoyer au serveur OUI
     }
 
+    /**
+        La fonction permet de modifier le message qui indique que c'est le tour de ce rôle de jouer
+        Args:   - msg, une chaine de caractuères, le message à afficher
+                - tour, un entier représentant le role qui joue
+    **/
     public void affiche_tour_role(string msg,int tour)
     {
         
-        if (p.GetRoleId() != tour && tour!= 1 && tour!=255)
+        if (p.GetRoleId() != tour && tour!= 1 && tour!=255 && tour != 254 && tour !=253)
         {
+            GO_tourRoles.SetActive(true);
+        }
+        else if((tour == 254 || tour == 253) && !p.GetIsMaire()){
             GO_tourRoles.SetActive(true);
         }
         else
@@ -390,6 +484,10 @@ public class GameManager : MonoBehaviour
         text_role.text = msg;
         
     }
+
+    /**
+        met a jour le texte indiquant si c'est la nuit, le jour et si c'est election du maire
+    **/
     public void AfficherJour()
     {
         if (electionMaire)
@@ -411,6 +509,7 @@ public class GameManager : MonoBehaviour
             player_role.color = colorWhite;
             player_role.text = p.GetRole();
             sePresenter.gameObject.SetActive(false);
+            
         }
         else
         {
@@ -423,6 +522,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        Affiche et met a jour la nouvelle valeur du timer dans le jeu
+    **/
     public void AfficheTimer(){
         if (NetworkManager.time != 0)
         {
@@ -442,6 +544,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        Ajoute un objet "text" dans le conteneur du win-screen,
+        Ecrit dans l'objet text: le pseudo du joueur et son role, indique s'il est en vie ou mort
+        Args:   - panel, objet dans le quel ajouter l'objet "text"
+                - num, le numéro du joueur, dans la liste des joueurs, à afficher avec le texte
+    **/
     public void AjoutTextWin(GameObject panel, int num)
     {
         TextMeshProUGUI newText;
@@ -462,6 +570,10 @@ public class GameManager : MonoBehaviour
         listTextwin.Add(newText);
     }
 
+    /**
+        Affiche le win screen, les joueurs, leur role et leur état (mort/vivant)
+        et qui a gagné
+    **/
     public void AfficheWinScreen()
     {
         GO_dead_bg.SetActive(false);
@@ -499,6 +611,10 @@ public class GameManager : MonoBehaviour
         }
 
     }
+
+    /**
+        Modifie l'affiche pour indiquer les 2 joueurs amoureux
+    **/
     public void AfficheAmoureux(){
          if(lover1_id==-1||lover2_id==-1)return;
         if(p.GetRoleId() == 2||p.GetId()==lover1_id||p.GetId()==lover2_id){
@@ -516,6 +632,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        Affiche dans le chat un message
+        Args:   - text, le message à afficher dans le chat
+                - type, le type du message
+    **/
     public void SendMessageToChat(string text, Message.MsgType type)
     {
         if (msgList.Count > maxMsg)
@@ -533,6 +654,7 @@ public class GameManager : MonoBehaviour
 
         msgList.Add(newMsg);
 
+        // affiche si necessaire l'icone de notification de nouveaux messages
         if(ButtonClick.isHide && type == Message.MsgType.player){
             chatNotification.SetActive(true);
         }
@@ -542,6 +664,10 @@ public class GameManager : MonoBehaviour
 
     }
 
+    /**
+        Renvoie une couleur en fonction du type de message
+        Arg: type, le type du message
+    **/
     private Color MessageColor(Message.MsgType type)
     {
         Color color;
@@ -557,11 +683,20 @@ public class GameManager : MonoBehaviour
         return color;
     }
 
+    /**
+        change/charge une scene
+        Arg: sceneName, le nom de la scene a charger
+    **/
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
     }
 
+    /**
+        ajout une carte dans le conteneur des cartes des joueurs,
+        et affiche les informations du joueur
+        Arg: id, le numéro du joueur dont appartient la carte
+    **/
     public void AjoutCarte(int id)
     {
         GameObject newCard = Instantiate(cardComponent, cardContainer.transform);
@@ -613,6 +748,9 @@ public class GameManager : MonoBehaviour
         listCard.Add(newCard);
     }
 
+    /**
+        affiche les cartes des joueurs dans le jeu
+    **/
     public void AfficheCard()
     {
         Debug.Log("nbp="+nbPlayer);
@@ -626,6 +764,12 @@ public class GameManager : MonoBehaviour
 
     }
 
+    /**
+        Fonction executee lorsque un toggle change de valeur (on/off)
+        La fonction vérifie s'il y a trop de toggle selectionne, si oui 
+        elle desactive le plus ancien toggle selectionné
+        Arg: change, le toggle qui a change de valeur
+    **/
     public void OnToggleValueChanged(Toggle change){
         bool value = change.isOn;
 
@@ -651,6 +795,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        La fonction permet d'obtenir l'indice dans la liste du toggle selectionne
+        indice valide pour les listes: listCard, listPlayer
+    **/
     public int GetIndiceToggleOn(){
         int indice = -1;
         for(int i = 0; i < nbPlayer; i++) {
@@ -661,12 +809,19 @@ public class GameManager : MonoBehaviour
         return indice;
     }
 
+    /**
+        La fonction met la valeur, de tous les toggles des cartes des joueurs, a false
+    **/
     public void AllToggleOff(){
         for(int i = 0; i < nbPlayer; i++) {
             listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
         }
     }
 
+    /**
+        Permet de faire tomber deux joueurs amoureux
+        (action du cupidon)
+    **/
     public void actionCupidon(){
         int indice1, indice2, id1=-1, id2=-1;
         string msg;
@@ -693,6 +848,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        La fonction rend les deux joueurs amoureux
+        Args:   - id1, l'id de l'un des deux joueurs tombe amoureux
+                - id2, l'id de l'autre joueur tombe amoureux
+    **/
     public void setAmoureux(int id1, int id2){
         int indice1 = chercheIndiceJoueurId(id1);
         int indice2 = chercheIndiceJoueurId(id2);
@@ -701,6 +861,10 @@ public class GameManager : MonoBehaviour
         listPlayer[indice2].SetIsMarried(true);
     }
 
+    /**
+        la fonction permet de voter pour un joueur
+        et envoie au serveur le resultat du vote
+    **/
     public void Vote()
     {
         if(p.GetRoleId() ==2 && action){
@@ -721,16 +885,30 @@ public class GameManager : MonoBehaviour
         AllToggleOff();
     }
 
-    public void OnOff()
-    {
-        for(int i=0; i<nbPlayer; i++){
-            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = false;
-            listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable = !listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().interactable;
+    /**
+        la fonction rend le chat interactif (ou non)
+    **/
+    public void chatInteractable() {
+
+        /*if(isNight && p.GetIsAlive() && p.GetRole() == "Loup-Garou" && turn == 4) {
+            sendChat.interactable = true;
+            inputChat.interactable = true;
         }
-        sendChat.interactable = !sendChat.interactable;
-        inputChat.interactable = !inputChat.interactable;
+        else */
+        if(isNight || !p.GetIsAlive()) {
+            sendChat.interactable = false;
+            inputChat.interactable = false;
+        }
+        else if(p.GetIsAlive()) {
+            sendChat.interactable = true;
+            inputChat.interactable = true;
+        }       
     }
 
+    /**
+        la fonction met a jour les informations de la carte d'un joueur
+        Arg: indice, l'indice du joueur dans listPlayer
+    **/
     public void MiseAJourCarte(int indice)
     {
 
@@ -766,6 +944,9 @@ public class GameManager : MonoBehaviour
 
         if(listPlayer[indice].GetIsMaire()) {
             maire.enabled = true;
+        }else{
+            maire.enabled = false;
+
         }
 
         if (!listPlayer[indice].GetIsAlive())
@@ -784,6 +965,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        Met a jour l'affiche des cartes des joueurs
+    **/
     public void MiseAJourAffichage()
     {
         for (int i = 0; i < listPlayer.Count; i++)
@@ -792,6 +976,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        Envoie au serveur quelle est la carte que la voyante veut voir
+    **/
     public void AfficheVoyante() {
         int selectedId = GetIndiceToggleOn();
         if(player_role.text == "Fortune teller" && isNight) {
@@ -802,12 +989,21 @@ public class GameManager : MonoBehaviour
         } 
     }
 
+    /**
+        Affiche dans le jeu un choix (oui/non) avec comme texte le message donné en argument
+        Arg: msg, le texte a afficher pour le choix a faire
+    **/
     public void affiche_choix_action(string msg){
         choixAction.SetActive(true);
         TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
         text_action.text = msg;
     }
 
+    /**
+        La fonction indique a la sorciere quelle personne est mort cette nuit
+        et demande si elle veut utilise sa potion de vie
+        Arg: id, l'id du joueur mort dans la nuit
+    **/
     public void ActionSorciere(int id){
         int indice = chercheIndiceJoueurId(id);
         if (indice == -1) return;   // erreur l'id du joueur ne correspond a aucun joueur
@@ -815,6 +1011,24 @@ public class GameManager : MonoBehaviour
         affiche_choix_action(msg);
     }
 
+    /**
+        La fonction affiche au dictateur un choix
+        s'il veut faire son action 
+    **/
+    public void ChoixDictateur() {
+        affiche_choix_action("Wanna do a putsch ?");
+    }
+
+    /*public void ActionDictateur() {
+        // Lancer le vote
+        Vote(); // Fin du vote
+    }*/
+
+    /**
+        la fonction permet d'obtenir l'indice du joueur dans la liste
+        des joueurs avec son id
+        Arg: id, l'id du joueur
+    **/
     public int chercheIndiceJoueurId (int id){
         for(int i=0; i<listPlayer.Count; i++){
             if(listPlayer[i].GetId() == id){
@@ -824,12 +1038,21 @@ public class GameManager : MonoBehaviour
         return -1;
     }
 
+    /**
+        affiche le texte donné en argument dans l'objet text_screen et 
+        lance le timer d'affichage pour l'objet text_screen
+        Arg: msg, le texte a afficher dans l'objet
+    **/
     public void Change_text_screen(string msg) {
         timer_text_screen = 2;
         text_screen.text = msg;
         text_screen_active = true;
     }
 
+    /**
+        met a jour la valeur du timer du text_screen et 
+        desactive l'objet text_screen lorsque le timer est ecoule
+    **/
     public void Timer_text_screen(){
         if(text_screen_active){
             if(timer_text_screen > 0){
@@ -843,6 +1066,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        la fonction permet d'afficher un texte à l'écran indiquant le role du joueur
+        Args:   - id, l'id du joueur
+                - idrole, le numéro correspondant au role du joueur
+    **/
     public void affiche_text_role(int id, int idrole)
     {
         GO_buttonAfficheCarte.SetActive(false);
@@ -854,6 +1082,47 @@ public class GameManager : MonoBehaviour
         Change_text_screen(msg);
     }
 
+    /**
+        
+    **/
+    public void affiche_egalite(int[] id)
+    {
+        AllToggleOff();
+        for(int i = 0; i<id.Length; i++) {
+            listCard[chercheIndiceJoueurId(id[i])].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
+
+        }
+        panel_text_screen.SetActive(true);
+        Change_text_screen("It's a draw...\n You have to settle now..");
+
+        /*
+        AllToggleOff();
+        
+        for(int i = 0; i<id.Length; i++) {
+            if(id.Contains(i)) listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>().isOn = true;
+        }*/
+
+        // Lancer le vote
+
+        //Vote(); // Confirmation de vote
+    }
+
+    /**
+        la fonction indique au maire mourant de choisir son succeseur
+    **/
+    public void prochainMaire() {
+        Image dead_bg = GO_dead_bg.GetComponent<Image>();
+        dead_bg.enabled = false;
+        panel_text_screen.SetActive(true);
+        Change_text_screen("Chose who will be the next mayor...");
+
+        // Lancer le vote
+    }
+
+    /**
+        La fonction permet d'obtenir le nom d'un role avec son numero
+        Arg: idRole, le numéro du role
+    **/
     public string idRoleToStringRole(int idRole)
     {
         string role="";
@@ -888,11 +1157,17 @@ public class GameManager : MonoBehaviour
         return role;
     }
 
+    /**
+        modifie l'affichage du jeu si le joueur est mort
+    **/
     public void LITTERALLYDIE() {
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         if(p.GetIsAlive() == false) dead_bg.enabled = true;
     }
 
+    /**
+        la fonction permet de compter combien il y a de joueurs a chaque role 
+    **/
     public void listerRoles() {
         List<string> roleList = new List<string>();
         List<int> nb = new List<int>();
@@ -928,6 +1203,9 @@ public class GameManager : MonoBehaviour
         textRolesRestant.text = txt;
     }
 
+    /**
+        la fonction permet d'afficher les potions au debut de la partie (si sorciere)
+    **/
     public void InitPotion(){
         if (p.GetRoleId() == 5){
             Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
@@ -940,6 +1218,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        la fonction met a jour l'affichage de la potion de vie
+    **/
     public void UseHealthPotion(){
         Image potionVie = GO_potion.transform.Find("Potion_vie").GetComponent<Image>();
         Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
@@ -948,6 +1229,9 @@ public class GameManager : MonoBehaviour
         SendMessageToChat("You used your life potion!", Message.MsgType.system);
     }
 
+    /**
+        la fonction met a jour l'affichage de la potion de mort
+    **/
     public void UseDeathPotion(){
         Image potionMort = GO_potion.transform.Find("Potion_mort").GetComponent<Image>();
         Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
@@ -956,6 +1240,9 @@ public class GameManager : MonoBehaviour
         SendMessageToChat("You used your death potion!", Message.MsgType.system);
     }
 
+    /**
+        la fonction réinitilise les compteurs de votes
+    **/
     public void EndVote(){
         for(int i=0; i<nbPlayer; i++){
             Toggle toggleCard = listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>();
@@ -968,6 +1255,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        la fonction met a jour les compteurs de votes de chaque joueur
+    **/
     public void UpdateVote(){
         for(int i=0; i<nbPlayer; i++){
             Toggle toggleCard = listCard[i].transform.Find("Toggle-Card").GetComponent<Toggle>();
@@ -990,6 +1280,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        la fonction affiche le nombre de points gagnés par chaque joueur
+        a la fin de la partie sur le win-screen
+    **/
     public void calculPoints() {
         if(isVillageWin == 1) {
             if(p.GetRole() != "Loup-Garou") {
@@ -1083,7 +1377,7 @@ public class Player
     private int roleId;
     private bool seen = false;
     private int vote = -1;
-    private bool isMaire = false;
+    private bool isMaire;
 
     public Player() { }
 
@@ -1170,10 +1464,10 @@ public class Player
             case 6:
                 role = "Chasseur";
                 break;
-            case 8:
+            case 7:
                 role = "Dictateur";
                 break;
-            case 7:
+            case 8:
                 role = "Garde";
                 break;
 

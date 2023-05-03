@@ -9,7 +9,7 @@ public class Joueur
     private string pseudo;
     private Role role;
     private Joueur? amoureux;
-    private bool aEteSave; // pour le rôle du garde plus tard
+    private bool aEteSave;
     private bool enVie;
     private bool doitMourir;
     private bool estMaire;
@@ -40,17 +40,6 @@ public class Joueur
         {
             server.annonceMort(p.GetSocket(), GetId(), GetRole().GetIdRole());
         }
-        if (GetAmoureux() != null)
-        {
-            AmoureuxTuerJoueur(GetAmoureux(), ListJoueurs);
-            SetAmoureux(null); 
-        }
-    }
-
-    public void AmoureuxTuerJoueur(Joueur j, List<Joueur> ListJoueurs)
-    {
-        j.SetAmoureux(null);
-        j.TuerJoueur(ListJoueurs);
     }
 
     public void SetAmoureux(Joueur? j)

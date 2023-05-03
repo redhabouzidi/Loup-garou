@@ -3,8 +3,6 @@ using System.Net.Sockets;
 using Server;
 namespace LGproject;
 
-// on part du principe que la partie se lance à 6 joueurs
-
 public class Game
 {
     private List<Joueur> _joueurs;
@@ -14,7 +12,7 @@ public class Game
     public int _nbrJoueurs;
     public string name, recit;
     private int _nbLoups;
-    private bool sorciere, voyante, cupidon;
+    private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
     public static Socket listener = Server.server.setupSocketGame();
     public Socket vide,reveille;
     public Game()
@@ -24,14 +22,17 @@ public class Game
          // A ENLEVER PLUS TARD "=6"
         _nbrJoueurs = 3;
         _nbrJoueursManquants = _nbrJoueurs;
-        // création de la liste de joueurs et de rôles
+        // cr ation de la liste de joueurs et de r les
         _roles = new List<Role>();
         _nbLoups = 1;
         sorciere = true;
         voyante = true;
         cupidon = false;
+        chasseur = false;
+        guardien = false;
+        dictateur = false;
         testNombre();
-        // la partie est créé maintenant j'attends les input du frontend et j'envoie mon client à waiting screen
+        // la partie est cr   maintenant j'attends les input du frontend et j'envoie mon client   waiting screen
         // on va admettre que joueurs max = 6
         Role[] startingRoles = new Role[_nbrJoueurs];
         int i;
@@ -62,7 +63,7 @@ public class Game
 
         if (!checkRoles())
         {
-            Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
+            Console.WriteLine("Tu n'as pas respect  les conditions de r les pour lancer ta partie !");
         }
         
         _joueurs = new List<Joueur>();
@@ -96,13 +97,16 @@ public class Game
         _nbrJoueursManquants = nbPlayers;
         _nbrJoueurs = nbPlayers;
         this.name = name;
-        // création de la liste de joueurs et de rôles
+        // cr ation de la liste de joueurs et de r les
         _roles = new List<Role>();
         Role[] startingRoles = new Role[nbPlayers];
         //affectation des parametres
         this.sorciere = sorciere;
         this.cupidon = cupidon;
         this.voyante = voyante;
+        this.chasseur = chasseur;
+        this.guardien = guardien;
+        this.dictateur = dictateur;
         _nbLoups= nbLoups;
         if (!testNombre()){
             _nbrJoueurs= 0;
@@ -150,7 +154,7 @@ public class Game
 
         if (!checkRoles())
         {
-            Console.WriteLine("Tu n'as pas respecté les conditions de rôles pour lancer ta partie !");
+            Console.WriteLine("Tu n'as pas respect  les conditions de r les pour lancer ta partie !");
         }
         gameId = c.GetId();
         _joueurs = new List<Joueur>();
@@ -244,29 +248,22 @@ public class Game
     }
     public int CountSockets()
     {
-        Console.WriteLine("hey "+_joueurs.Count);
         int sum = 0;
         foreach (Joueur j in _joueurs)
         {
             if (j.GetSocket() != null && j.GetSocket().Connected)
             {
-                Console.WriteLine("hey " + _joueurs.Count);
                 sum++;
             }
         }
-        Console.WriteLine("hey");
 
         return sum;
     }
     public void Start()
     {
         _start = true;
-        foreach(Joueur j in _joueurs)
-        {
-            server.connected.Remove(j.GetSocket());
-        }
         
-        // mélange des rôles et répartition pour les joueurs
+        // m lange des r les et r partition pour les joueurs
         InitiateGame();
         reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(listener.LocalEndPoint);
@@ -282,7 +279,7 @@ public class Game
             // boucle qui affiche pour check si tout va bien
             for (int i = 0; i < _joueurs.Count; i++)
             {
-                Console.WriteLine(_joueurs[i].GetPseudo() + " a comme rôle : " + _joueurs[i].GetRole() +
+                Console.WriteLine(_joueurs[i].GetPseudo() + " a comme r le : " + _joueurs[i].GetRole() +
                                   " status enVie : " + _joueurs[i].GetEnVie() + " status doitMourir : " +
                                   _joueurs[i].GetDoitMourir());
                 if (_joueurs[i].GetAmoureux() is not null)
@@ -298,7 +295,7 @@ public class Game
             Console.WriteLine("on passe ?");
             LanceAction(typeof(Voyante));
             LanceAction(typeof(Garde));
-            Console.WriteLine("début vote loup");
+            Console.WriteLine("d but vote loup");
             // appeller Loup si il y en a un
             LanceAction(typeof(Loup));
             Console.WriteLine("fin du vote des loups");
@@ -308,17 +305,19 @@ public class Game
             {
                 LanceAction(typeof(Dictateur));
             }
-            // broadcast du serveur : c'est la journée
+            // broadcast du serveur : c'est la journ e
             sendGameState(day);
-            ConcatRecit("\n\nLe soleil se lève enfin sur le village de " + name + ". ");
+            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ");
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
+            // enl ve   tout le monde l'immunit  accord  par le Garde
+            RemoveSaveStatus();
             for (int i = 0; i < _joueurs.Count; i++)
             {
-                Console.WriteLine(_joueurs[i].GetPseudo() + " a comme rôle : " + _joueurs[i].GetRole() +
+                Console.WriteLine(_joueurs[i].GetPseudo() + " a comme r le : " + _joueurs[i].GetRole() +
                                   " status enVie : " + _joueurs[i].GetEnVie() + " status doitMourir : " +
-                                  _joueurs[i].GetDoitMourir() + " et possède l'id : " + _joueurs[i].GetId());
+                                  _joueurs[i].GetDoitMourir() + " et poss de l'id : " + _joueurs[i].GetId());
                 if (_joueurs[i].GetAmoureux() is not null)
                 {
                     Console.WriteLine("\t en + ce mec est amoureux !");
@@ -341,7 +340,7 @@ public class Game
                         maire = j;
                     }
                 }
-                ConcatRecit("Après un long débat rempli de rebondissements le village décide de nommer " + maire.GetPseudo() + " maire pour rétablir la paix dans " + name + ". ");
+                ConcatRecit("Apr s un long d bat rempli de rebondissements le village d cide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ");
             }
             
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
@@ -356,15 +355,19 @@ public class Game
             
             ConcatRecit("\n\n");
             
-            // enlève à tout le monde l'immunité accordé par le Garde
-            RemoveSaveStatus();
+            
         }
-	    PointShare(checkWin);
-        Console.WriteLine(recit+"fin de jeu");
+	    PointShare(checkWin,recit);
         EndGameInitializer();
 
     }
-
+    public void saveGame(string recit,int [] score,bool[] victoire){
+        int[] ids=new int[_joueurs.Count];
+        for(int i=0;i<_joueurs.Count;i++){
+            ids[i]=_joueurs[i].GetId();
+        }
+        server.sendMatch(server.bdd,name,recit,ids,score,victoire);
+    }
     private void RemoveSaveStatus()
     {
         foreach (var j in _joueurs)
@@ -378,58 +381,99 @@ public class Game
 
     private void GestionMorts(List<Joueur> listJoueurs)
     {
-        Joueur? victimeChasseur = null;
+        Joueur? chasseurMort = null;
+        Joueur? maireMort = null;
+        bool reboucle = false;
         for (int i = 0; i < _joueurs.Count; i++)
         {
+            if (reboucle)
+            {
+                i = 0;
+                reboucle = false;
+            }
             if (_joueurs[i].GetDoitMourir())
             {
-                if (_joueurs[i].GetAEteSave() && _joueurs[i] != victimeChasseur)
+                if (_joueurs[i].GetAEteSave() && (_joueurs[i].GetRole() is not Dictateur || !((Dictateur)_joueurs[i].GetRole()).GetATueInnocent()))
                 {
                     _joueurs[i].SetAEteSave(false);
                     _joueurs[i].SetDoitMourir(false);
                 }
                 else
                 {
-                    if (_joueurs[i].GetRole() is Chasseur)
-                    {
-                        LanceAction(typeof(Chasseur));
-                        victimeChasseur = ((Chasseur)_joueurs[i].GetRole()).GetVictime();
-                    }
-                    _joueurs[i].TuerJoueur(listJoueurs);
                     if (_joueurs[i].GetEstMaire())
                     {
-                        _joueurs[i].SetEnVie(true);
-                        int idSuccesseur = DecisionDuMaire(_joueurs);
-                        if (idSuccesseur == -1)
-                        {
-                            List<int> joueursEnVie = new List<int>();
-                            foreach (Joueur j in listJoueurs)
-                            {
-                                if (j.GetEnVie() && j != _joueurs[i] && j != victimeChasseur)
-                                {
-                                    joueursEnVie.Add(j.GetId());
-                                }
-                            }
-                            // ON CHOISIT UN NOUVEAU MAIRE ALEATOIREMENT
-                            Random random = new Random();
-                            idSuccesseur = joueursEnVie[random.Next(joueursEnVie.Count)];
-                        }
-                        Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
-                        player.SetEstMaire(true);
-                        ConcatRecit("Alors qu�il s�appr�tait � mourir, le maire demanda au village d��couter ses derni�res paroles. Il d�cide de nommer " + player.GetPseudo() + " comme son successeur � la t�te du village� ");
-                        // on enl�ve le statut de maire � l'ancien maire
-                        _joueurs[i].SetEstMaire(false);
-                        _joueurs[i].SetEnVie(false);
+                        maireMort = _joueurs[i];
                     }
-
-                    ConcatRecit("Une victime est allong�e au centre du village. Il s�agit de " + _joueurs[i].GetPseudo() + " qui s�av�rait �tre " + _joueurs[i].GetRole() + " � ses temps perdus. ");
+                    if (_joueurs[i].GetAmoureux() != null)
+                    {
+                        _joueurs[i].GetAmoureux().SetDoitMourir(true);
+                        _joueurs[i].GetAmoureux().SetAEteSave(false);
+                        _joueurs[i].GetAmoureux().SetAmoureux(null); 
+                        _joueurs[i].SetAmoureux(null);
+                        reboucle = true;
+                    }
                     if (_joueurs[i].GetRole() is Chasseur)
                     {
-                        i = 0;
+                        _joueurs[i].SetDoitMourir(false);
+                        chasseurMort = _joueurs[i];
                     }
+                    else
+                    {
+                        _joueurs[i].TuerJoueur(listJoueurs);
+                    }
+                    
+                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ");
                 }
             }
         }
+
+        if (chasseurMort != null)
+        {
+            LanceAction(typeof(Chasseur));
+            Joueur? victimeChasseur;
+            victimeChasseur = ((Chasseur)chasseurMort.GetRole()).GetVictime();
+            if (victimeChasseur != null)
+            {
+                if (victimeChasseur.GetEstMaire())
+                {
+                    maireMort = victimeChasseur;
+                }
+                victimeChasseur.TuerJoueur(listJoueurs);
+            }
+            chasseurMort.TuerJoueur(listJoueurs);
+        }
+        
+        if (maireMort != null)
+        {
+            List<int> joueursEnVie = new List<int>();
+            foreach (Joueur j in listJoueurs)
+            {
+                if (j.GetEnVie() && j != maireMort)
+                {
+                    joueursEnVie.Add(j.GetId());
+                }
+            }
+            if (joueursEnVie.Count == 0)
+            {
+                // La liste est vide donc tout le monde est mort
+                return;
+            }
+            int idSuccesseur = DecisionDuMaire(_joueurs,253);
+            if (idSuccesseur == -1)
+            {
+                // ON CHOISIT UN NOUVEAU MAIRE ALEATOIREMENT SI IL N'A PAS VOTE
+                Random random = new Random();
+                idSuccesseur = joueursEnVie[random.Next(joueursEnVie.Count)];
+            }
+            Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
+            player.SetEstMaire(true);
+            sendMaire(listJoueurs,idSuccesseur);
+
+            ConcatRecit("Alors quil sapprtait  mourir, le maire demanda au village dcouter ses dernires paroles. Il dcide de nommer " + player.GetPseudo() + " comme son successeur  la tte du village ");
+            // on enlve le statut de maire  l'ancien maire
+            maireMort.SetEstMaire(false);
+        }
+
     }
 
     // retourne 0 si personne n'a encore win, 1 en cas de victoire du village, 2 en cas de victoire des loups, 3 en cas de victoire du couple et 4 en cas d'egalite
@@ -483,13 +527,13 @@ public class Game
             }
         }
 
-        // check la valeur de checkWin si on veut envoyer qui a gagné
+        // check la valeur de checkWin si on veut envoyer qui a gagn 
         if (retour != 0)
         {
             List<Socket> sockets = new List<Socket>();
             int[] id = new int[listJoueurs.Count];
             int[] idr = new int[listJoueurs.Count];
-            int i = 0; ;
+            int i = 0;
             foreach(Joueur j in listJoueurs)
             {
                 id[i] = j.GetId();
@@ -498,6 +542,7 @@ public class Game
                 {
                     sockets.Add(j.GetSocket());
                 }
+                i++;
             }
             server.sendEndState(sockets, retour, id, idr);
         }
@@ -506,7 +551,7 @@ public class Game
 
     private void ElectionMaire(List<int> cible, List<Joueur> listJoueurs)
     {
-        // ici on a le résultat final du vote
+        // ici on a le r sultat final du vote
         if (cible == null)
         {
             return;
@@ -516,21 +561,21 @@ public class Game
         {
             if (cible[i] != -1)
             {
-                // Vérification si le nombre existe déjà dans le dictionnaire
+                // V rification si le nombre existe d j  dans le dictionnaire
                 if (occurrences.ContainsKey(cible[i]))
                 {
-                    // Si oui, on incrémente son compteur
+                    // Si oui, on incr mente son compteur
                     occurrences[cible[i]]++; // VOIR SI CA FONCTIONNE BIEN
                 }
                 else
                 {
-                    // Sinon, on l'ajoute avec un compteur initialisé à 1
+                    // Sinon, on l'ajoute avec un compteur initialis    1
                     occurrences.Add(cible[i], 1);
                 }
             }
         }
 
-        // determine la cible qui possède le + de votes
+        // determine la cible qui poss de le + de votes
         int victime = -1;
         int maxVotes = 0;
 
@@ -543,15 +588,15 @@ public class Game
             }
         }
 
-        // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
+        // regarde si il existe plusieurs victimes poss dant le nombre maximal de vote
         Random random = new Random();
         if (victime != -1)
         {
             bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
 
-            if (estMultiple) // si il y a plusieurs occurences ( = si le village ne s'est pas mis d'accord sur qui élire maire)
+            if (estMultiple) // si il y a plusieurs occurences ( = si le village ne s'est pas mis d'accord sur qui  lire maire)
             {
-                // alors on créé une liste qui recense toutes les victimes égalités
+                // alors on cr   une liste qui recense toutes les victimes  galit s
                 List<int> tiedVictims = new List<int>();
                 foreach (KeyValuePair<int, int> pair in occurrences)
                 {
@@ -581,11 +626,28 @@ public class Game
 
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
         playerVictime.SetEstMaire(true);
+        sendMaire(listJoueurs,playerVictime.GetId());
+    }
+    public void sendMaire(List<Joueur> list,int maire){
+        foreach(Joueur j in list){
+            server.sendMaire(j.GetSocket(),maire);
+        }
+
+    }
+    
+    public void SendEgalite(List<Joueur> client, List<int> victime)
+    {
+        int [] ids=victime.ToArray();
+        foreach (Joueur j in client)
+        {
+            if(j.GetSocket()!=null && j.GetSocket().Connected)
+                server.SendVictime(j.GetSocket(),ids);
+        }
     }
 
     public void SentenceJournee(List<int> cible, List<Joueur> listJoueurs)
     {
-        // ici on a le résultat final du vote
+        // ici on a le r sultat final du vote
         if (cible == null)
             return;
         Dictionary<int, int> occurrences = new Dictionary<int, int>();
@@ -593,21 +655,21 @@ public class Game
         {
             if (cible[i] != -1)
             {
-                // Vérification si le nombre existe déjà dans le dictionnaire
+                // V rification si le nombre existe d j  dans le dictionnaire
                 if (occurrences.ContainsKey(cible[i]))
                 {
-                    // Si oui, on incrémente son compteur
+                    // Si oui, on incr mente son compteur
                     occurrences[cible[i]]++; // VOIR SI CA FONCTIONNE BIEN
                 }
                 else
                 {
-                    // Sinon, on l'ajoute avec un compteur initialisé à 1
+                    // Sinon, on l'ajoute avec un compteur initialis    1
                     occurrences.Add(cible[i], 1);
                 }
             }
         }
 
-        // determine la cible qui possède le + de votes
+        // determine la cible qui poss de le + de votes
         int victime = -1;
         int maxVotes = 0;
 
@@ -620,14 +682,14 @@ public class Game
             }
         }
 
-        // regarde si il existe plusieurs victimes possédant le nombre maximal de vote
+        // regarde si il existe plusieurs victimes poss dant le nombre maximal de vote
         if (victime != -1)
         {
             bool estMultiple = occurrences.Count(x => x.Value == maxVotes) > 1;
 
             if (estMultiple) // si il y a plusieurs occurences ( = si les loups ne sont pas mis d'accord sur qui tuer)
             {
-                // alors on créé une liste qui recense toutes les victimes égalités
+                // alors on cr   une liste qui recense toutes les victimes  galit s
                 List<int> tiedVictims = new List<int>();
                 foreach (KeyValuePair<int, int> pair in occurrences)
                 {
@@ -643,24 +705,27 @@ public class Game
                 {
                     tiedVictimsJoueur.Add(listJoueurs.Find(j => j.GetId() == tiedVictims[i]));
                 }
-                victime = DecisionDuMaire(tiedVictimsJoueur);
+                SendEgalite(listJoueurs,tiedVictims);
+                victime = DecisionDuMaire(tiedVictimsJoueur,254);
             }
 
             Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
             if (playerVictime != null)
             {
                 playerVictime.SetDoitMourir(true);
-                ConcatRecit("Les habitants du village débâtent et décide de pointer " + playerVictime.GetPseudo() + " comme responsable des catastrophes du village... Ils décident de le tuer sur la place publique. ");
+                ConcatRecit("Les habitants du village d b tent et d cide de pointer " + playerVictime.GetPseudo() + " comme responsable des catastrophes du village... Ils d cident de le tuer sur la place publique. ");
             }
             else
             {
-                ConcatRecit("Les habitants du village débâtent mais n’arrivent pas à trouver de solution au problème... Ils décident de rentrer calmement chez eux. ");
+                ConcatRecit("Les habitants du village d b tent mais n arrivent pas   trouver de solution au probl me... Ils d cident de rentrer calmement chez eux. ");
             }
         }
     }
 
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
+        try{
+
         if (CountSockets() == 0)
         {
             server.games.Remove(GetGameId());
@@ -686,8 +751,7 @@ public class Game
         }
         Console.WriteLine("2");
         bool boucle = true;
-        // on définit une "alarme" sur 60 secondes
-        /*/ demander Redha /*/
+        // on definit une "alarme" sur 60 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
@@ -703,8 +767,8 @@ public class Game
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
         Console.WriteLine("5");
@@ -727,7 +791,9 @@ public class Game
                 }
                 if (condition)
                 {
+                    Console.WriteLine("8");
                     index = votant.IndexOf(v);
+                    Console.WriteLine("index="+v);
                     cible[index] = c;
 
                     bool allVote = true;
@@ -747,15 +813,23 @@ public class Game
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
-                            Console.WriteLine("tout le monde a voté, ça passe à 10sec d'attente");
-                            vide.Send(new byte[1] { 0 });
+                            Console.WriteLine("tout le monde a vot ,  a passe   10sec d'attente");
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }
             }
         }
+         for(int i=0;i<cible.Count;i++)
+        {
+            Console.WriteLine("Le joueur avec l'id " + votant[i] + " a voté pour " + cible[i]);
+        }
         return cible;
+        }catch(Exception e ){
+            Console.WriteLine(e.Message);
+            return null;
+        }
     }
 
     private void InitiateGame()
@@ -767,6 +841,7 @@ public class Game
         {
             _joueurs[i].SetRole(_roles[i]);
         }
+        Console.WriteLine("count == " + _joueurs.Count);
         foreach (Joueur j in _joueurs)
         {
             sendRoles(j);
@@ -802,7 +877,7 @@ public class Game
             id[i] = _joueurs[i].GetId();
             name[i] = _joueurs[i].GetPseudo();
         }
-        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon, this.name, id, name);
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name);
     }
     public void sendGameState(bool day)
     {
@@ -848,7 +923,7 @@ public class Game
 
         return retour;
     }
-    //La fonction s'occupe de lier les joueurs encore connecté au serveur
+    //La fonction s'occupe de lier les joueurs encore connect  au serveur
     public void EndGameInitializer()
     {
         foreach(Joueur j in _joueurs)
@@ -864,8 +939,8 @@ public class Game
         server.games.Remove(gameId);
         server.WakeUpMain();
     }
-    // La fonction renvoie celui qui est choisi par le maire (la victime en cas d'égalité ou son successeur si le maire est mort) 
-    public int DecisionDuMaire(List<Joueur> listJoueurs)
+    // La fonction renvoie celui qui est choisi par le maire (la victime en cas d' galit  ou son successeur si le maire est mort) 
+    public int DecisionDuMaire(List<Joueur> listJoueurs,int role)
     {
         int retour = -1;
         Joueur? maire = null;
@@ -878,7 +953,7 @@ public class Game
         }
         Role r = new Villageois();
         // 255 = id du maire
-        r.sendTurn(_joueurs, 255);
+        r.sendTurn(_joueurs, role);
 
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
@@ -896,14 +971,15 @@ public class Game
 
         int v, c;
         Joueur? player = null;
-        Console.WriteLine("Le maire doit prendre sa décision");
+        Console.WriteLine("Le maire doit prendre sa d cision");
         
         r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         r.gameListener.Connect(listener.LocalEndPoint);
         this.vide = listener.Accept();
         while (boucle)
         {
-            (v, c) = r.gameVote(_joueurs, 255, reveille);
+            (v, c) = r.gameVote(_joueurs, role, reveille);
+                Console.WriteLine("Le joueur avec l'id " + v + " a voté pour " + c+" et le maire = "+maire.GetId());
             if (v == maire.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
@@ -945,6 +1021,7 @@ public class Game
             }
             server.sendReady(j.GetSocket(), id, ready);
         }
+        
         if (sum == _nbrJoueurs)
         {
             foreach (Joueur j in _joueurs)
@@ -952,9 +1029,9 @@ public class Game
                 server.connected.Remove(j.GetSocket());
                 server.userData[j.GetId()].SetStatus(j.GetId(), 3);
             }
+            Console.WriteLine("on lance la game");
             Task.Run(() =>
             {
-                Thread.Sleep(1000);
                 Start();
             });
         }
@@ -962,23 +1039,28 @@ public class Game
         }
     }
 
-    public void PointShare(int check) {
+    public void PointShare(int check,string recit) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
+        bool [] victoire = new bool[_nbrJoueurs]; 
         foreach(var joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
+            victoire[i]=false;
+            score[i]=0;
             if(check == 1) 
 	    {
                 if(joueur.GetRole() is not Loup) 
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -989,10 +1071,12 @@ public class Game
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -1000,7 +1084,8 @@ public class Game
             else if(check == 3) 
 	    {
                 if(joueur.GetEnVie()) 
-		{
+		        {
+                    victoire[i]=true;
                     score[i] = 10;
                 }
             }
@@ -1008,15 +1093,18 @@ public class Game
 	    {
                 if(joueur.GetEnVie()) 
 		{
+                    victoire[i]=true;
                     score[i] = 5;
                 }
                 else 
 		{
+                    victoire[i]=true;
                     score[i] = 2;
                 }
             }
             i++;
         }
+        saveGame(recit,score,victoire);
         SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)
@@ -1055,4 +1143,3 @@ public class Game
         recit = recit + s;
     }
 }
-
