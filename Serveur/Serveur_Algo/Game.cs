@@ -212,6 +212,11 @@ public class Game
             {
                 Console.WriteLine(p.GetSocket() + " id " + j.GetId() + " pseudo " + j.GetPseudo());
                 server.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
+                foreach(Joueur j in _joueurs){
+                    if(j.GetReady()){
+                        server.sendReady(c.GetSoket(),j.GetId(),true);
+                    }
+                }
             }
 
         }
