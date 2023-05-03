@@ -173,8 +173,10 @@ public class Cupidon : Role
                         }
                     }
                     int[] size = new int[1] { 1 };
-                    byte[] message = new byte[4096];
-                    int recvSize = sock.Receive(message);
+                    byte[] encryptedMessage = new byte[4096];
+                    int recvSize = sock.Receive(encryptedMessage);
+                    byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
+                    recvSize=message.Length;
 
                     if (role.Contains(sock))
                     {

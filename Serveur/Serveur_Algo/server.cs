@@ -188,6 +188,9 @@ namespace Server
                 }
                 foreach (Socket fd in fds)
                 {
+
+                    Console.WriteLine("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK "+ list.Contains(fd));
+                    // Console.WriteLine("le ie point du waikupmain is "+wakeUpMain.RemoteEndPoint.ToString());
                     if (fd.Available == 0)
                     {
                         disconnectPlayer(list, fd);
@@ -198,7 +201,7 @@ namespace Server
                     }
                     else
                     {
-                        client_keys.Add(fd, crypto.RecvAes(fd));
+                        client_keys.TryAdd(fd, crypto.RecvAes(fd));
                     }
                 }
             }
@@ -864,6 +867,7 @@ namespace Server
                     vote = decodeInt(message, size);
                     break;
                 default:
+                    Console.WriteLine("on est la et le code est "+message[0]);
                     break;
             }
         }
