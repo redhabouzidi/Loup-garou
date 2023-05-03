@@ -73,7 +73,7 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18000;
+                int port = 18004;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -105,7 +105,7 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18000;
+                int port = 18004;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -138,7 +138,7 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18000;
+                int port = 18004;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -347,8 +347,7 @@ public class NetworkManager : MonoBehaviour
             recvSize = server.Receive(message);
 
             Debug.Log("recv =" + message[0]);
-            byte[] newMessage = Crypto.DecryptMessage(message, aes, recvSize);
-            rep.Add(newMessage);
+            Crypto.DecryptMessage(message, aes, recvSize);
 
         }
         return;

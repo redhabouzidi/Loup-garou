@@ -29,43 +29,46 @@ namespace Server
 
         public static byte[] EncryptMessage(byte[] message, Aes aes)
         {
-            aes.GenerateIV();
+
             aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.ISO10126;
             var encryptor = aes.CreateEncryptor();
             byte[] data = encryptor.TransformFinalBlock(message, 0, message.Length);
-            byte[] combinedData = new byte[aes.IV.Length + data.Length];
-            Array.Copy(aes.IV, 0, combinedData, 0, aes.IV.Length);
-            Array.Copy(data, 0, combinedData, aes.IV.Length, data.Length);
-
-            return combinedData;
+            byte[] toSend = new byte[data.Length + sizeof(int)];
+            int[] size = new int[1] { 0 };
+            server.encode(toSend, data.Length, size);
+            Array.Copy(data, 0, toSend, size[0], data.Length);
+            return toSend;
         }
-        public static byte[] EncryptMessage(byte[] message, Aes aes,int size)
+        public static byte[] EncryptMessage(byte[] message, Aes aes, int size)
         {
-            byte [] msg = new byte[size];
-            Array.Copy(message,0,msg,0,size);
-            return (EncryptMessage(msg,aes));
+            byte[] msg = new byte[size];
+            Array.Copy(message, 0, msg, 0, size);
+            return (EncryptMessage(msg, aes));
         }
 
         public static byte[] DecryptMessage(byte[] message, Aes aes, int tabSize)
         {
             aes.Mode = CipherMode.CBC;
-            byte[] encryptedData = new byte[tabSize - aes.IV.Length];
-            byte[] iv = new byte[aes.IV.Length];
-            Array.Copy(message, 0, iv, 0, aes.IV.Length);
-            Array.Copy(message, aes.IV.Length, encryptedData, 0, tabSize - aes.IV.Length);
-            aes.IV = iv;
-            ICryptoTransform decryptor = aes.CreateDecryptor();
+            aes.Padding = PaddingMode.ISO10126;
+            Console.WriteLine("iv received");
+            ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+            Console.WriteLine("iv received");
             // Decrypt data
-            byte[] decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
+            byte[] decryptedBytes = decryptor.TransformFinalBlock(message, 0, tabSize);
+            Console.WriteLine("iv received");
             return decryptedBytes;
+
         }
 
         public Aes RecvAes(Socket client)
         {
             byte[] recvMessage = new byte[256];
-            int read = client.Receive(recvMessage,0,256,SocketFlags.None);
+            int read = client.Receive(recvMessage, 0, 256, SocketFlags.None);
             Aes aes = Aes.Create();
             aes.Key = this.rsa.Decrypt(recvMessage, RSAEncryptionPadding.OaepSHA1);
+            client.Receive(recvMessage, 0, 256, SocketFlags.None);
+            aes.IV = this.rsa.Decrypt(recvMessage, RSAEncryptionPadding.OaepSHA1);
             return aes;
         }
     }
