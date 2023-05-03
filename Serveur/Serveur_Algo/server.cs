@@ -112,6 +112,7 @@ namespace Server
         public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
         public static Dictionary<Socket, Aes> client_keys = new Dictionary<Socket, Aes>();
         public static Socket wakeUpMain;
+        public static List<Socket> waitingKeys = new List<Socket>();
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -188,20 +189,19 @@ namespace Server
                 }
                 foreach (Socket fd in fds)
                 {
-
-                    Console.WriteLine("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK "+ list.Contains(fd));
                     // Console.WriteLine("le ie point du waikupmain is "+wakeUpMain.RemoteEndPoint.ToString());
                     if (fd.Available == 0)
                     {
                         disconnectPlayer(list, fd);
                     }
-                    else if (client_keys.ContainsKey(fd) || fd.Equals(wakeUpMain))
+                    else if (waitingKeys.Contains(fd))
                     {
-                        recvMessage(fd, bdd, list, connected, queue, players);
+                        client_keys.TryAdd(fd, crypto.RecvAes(fd));
+                        waitingKeys.Remove(fd);
                     }
                     else
                     {
-                        client_keys.TryAdd(fd, crypto.RecvAes(fd));
+                        recvMessage(fd, bdd, list, connected, queue, players);
                     }
                 }
             }
@@ -256,6 +256,7 @@ namespace Server
             Socket new_client = server.Accept();
             crp.SendCertificateToClient(new_client);
             clients.Add(new_client);
+            waitingKeys.Add(new_client);
             return;
         }
         //fonction qui envoie un message a un socket donne en parametre
@@ -867,7 +868,7 @@ namespace Server
                     vote = decodeInt(message, size);
                     break;
                 default:
-                    Console.WriteLine("on est la et le code est "+message[0]);
+                    Console.WriteLine("on est la et le code est " + message[0]);
                     break;
             }
         }
@@ -876,7 +877,7 @@ namespace Server
             int[] size = new int[1];
             int dataSize, tableSize, id;
             byte[] message;
-            if (client.Equals(wakeUpMain))
+            if (!client_keys.ContainsKey(client))
             {
                 message = new byte[2048];
                 int receivedBytes = client.Receive(message);
