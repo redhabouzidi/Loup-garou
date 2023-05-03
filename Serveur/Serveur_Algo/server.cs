@@ -399,7 +399,14 @@ namespace Server
                                 j.SetSocket(client);
                                 g.sendGameInfo(client);
                                 g.sendRoles(j);
-
+                                if(j.GetRole().GetIdRole()==5){
+                                    if(((Sorciere)j.GetRole()).GetPotionKill()==0){
+                                        sendUseItem(client,1);
+                                    }
+                                    if(((Sorciere)j.GetRole()).GetPotionSoin()==0){
+                                        sendUseItem(client,0);
+                                    }
+                                }
                                 //envoyer les information déjà connue
                             }
                         }
@@ -409,7 +416,13 @@ namespace Server
                             {
                                 annonceMort(client, j.GetId(), j.GetRole().GetIdRole());
                             }
+                            if(j.GetEstMaire()){
+                                sendMaire(client,j.GetId());
+                            }
                         }
+                        TimeSpan timeSpent = DateTime.Now - g.t;
+                        int timeToSend = g.currentTime- (int)timeSpent.TotalSeconds;
+                        sendTime(client,timeToSend);
                         connected.Remove(client);
                         g.vide.Send(new byte[1] { 0 });
 
@@ -612,6 +625,17 @@ namespace Server
                 encode(message,id,size);
             }
             sendMessage(bdd,message);
+        }
+        public static void sendUseItem(Socket client,int item){
+            int[] size = new int[1] { 1 };
+            int byteSize = 1 + sizeof(int);
+            byte[] message = new byte[byteSize];
+            //ajouter le code du packet
+            message[0] = 19;
+            //ajouter l'id de l'objet
+            encode(message, item, size);
+            //envoyer a tous les joueurs
+            sendMessage(client, message);
         }
         //focntion qui envoie aux joueurs le choix du vote d'un joueurs
         public static void sendVote(Socket client, int id, int cible)
@@ -1241,14 +1265,19 @@ namespace Server
                     size = new int[1] { 1 };
                     int queueId = decodeInt(message, size);
                     bool answer = decodeBool(message, size);
-
+                    Socket client = queue.queue[queueId];
+                    
                     if (answer)
                     {
                         int idPlayer = decodeInt(message, size);
                         string username = decodeString(message, size);
-                        userData[idPlayer] = new Amis(queue.queue[queueId], 0);
-                        if (!alreadyConnected(connected, idPlayer))
+                        userData[idPlayer] = new Amis(client, 0);
+                        if (!connected.ContainsKey(client))
                         {
+                            userData[idPlayer].SetUsername(username);
+
+                            list.Remove(client);
+                            connected.Add(client, idPlayer);
                             int friendsSize = decodeInt(message, size);
                             int[] friendList = new int[friendsSize];
 
@@ -1302,22 +1331,20 @@ namespace Server
                                 userData[idPlayer].SetStatus(idPlayer, 3);
 
                                 //Player reconnect function
-
+                                Console.WriteLine("test envoie join");
+                                joinGame(client,players[idPlayer].GetGameId(),idPlayer);
                             }
                             else
                             {
                                 userData[idPlayer].SetStatus(idPlayer, 1);
 
                             }
-                            userData[idPlayer].SetUsername(username);
-                            //recuperer la liste d'amis ( a faire )
-                            list.Remove(queue.queue[queueId]);
-                            connected.Add(queue.queue[queueId], idPlayer);
+                            
 
 
                         }
+                        
                     }
-                    Socket client = queue.queue[queueId];
                     queue.queue.Remove(queueId);
                     redirect(client, message, size[0]);
                     break;

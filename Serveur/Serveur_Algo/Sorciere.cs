@@ -19,7 +19,7 @@ public class Sorciere : Role
         potionKill = 1;
     }
 
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la sorciere
         string retour;
         Console.WriteLine("Appel à la sorcière !");
@@ -39,12 +39,12 @@ public class Sorciere : Role
         idJoueurVise = -1;
         if (potionSoin != 0)
         {
-            potionHealUse = PotionVie(listJoueurs, joueurSorciere);
+            potionHealUse = PotionVie(listJoueurs, joueurSorciere,game);
         }
 
         if (potionKill != 0 && !potionHealUse)
         {
-            potionKillUse = PotionMort(listJoueurs, joueurSorciere);
+            potionKillUse = PotionMort(listJoueurs, joueurSorciere,game);
         }
 
         if (potionHealUse || potionKillUse)
@@ -59,7 +59,7 @@ public class Sorciere : Role
         return retour;
     }
 
-    public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere)
+    public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere,Game game)
     {
         bool retour = false;
         int v, c;
@@ -82,7 +82,7 @@ public class Sorciere : Role
                 reveille.Connect(Game.listener.LocalEndPoint);
                 Socket vide;
                 vide = Game.listener.Accept();
-                sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
+                sendTime(listJoueurs, GetDelaiAlarme()*375/1000,game);
                 Task t = Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 375);
@@ -120,6 +120,7 @@ public class Sorciere : Role
             if (cible != null && !cible.GetDoitMourir())
             {
                 potionSoin--;
+                server.sendUseItem(joueurSorciere.GetSocket(),0);
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de sauver la victime en lui administrant un puissant remède. ";
             }
@@ -128,7 +129,7 @@ public class Sorciere : Role
         return retour;
     }
 
-    public bool PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere)
+    public bool PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere,Game game)
     {
         bool retour = false;
         sendTurn(listJoueurs, GetIdRole());
@@ -140,7 +141,7 @@ public class Sorciere : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme()*375/1000);
+        sendTime(listJoueurs, GetDelaiAlarme()*375/1000,game);
         Task t = Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 375);
@@ -175,7 +176,7 @@ public class Sorciere : Role
         {
             bool boucleKill = true;
             Joueur? cible = null;
-            sendTime(listJoueurs, GetDelaiAlarme()/2);
+            sendTime(listJoueurs, GetDelaiAlarme()/2,game);
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 1000); // 10 secondes
@@ -200,6 +201,7 @@ public class Sorciere : Role
 
             if (cible != null && cible.GetDoitMourir())
             {   
+                server.sendUseItem(joueurSorciere.GetSocket(),1);
                 potionKill -= 1;
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de se venger en empoisonnant l’eau de la maison de " + cible.GetPseudo() + ". ";
@@ -212,6 +214,12 @@ public class Sorciere : Role
     public override int GetIdRole()
     {
         return IdRole;
+    }
+    public int GetPotionKill(){
+        return potionKill;
+    }
+    public int GetPotionSoin(){
+        return potionSoin;
     }
     public void EnvoieInformation(Socket socket,int cible)
     {

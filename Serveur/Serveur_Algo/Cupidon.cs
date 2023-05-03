@@ -12,7 +12,7 @@ public class Cupidon : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     {
         string retour;
         sendTurn(listJoueurs, GetIdRole());
@@ -23,7 +23,7 @@ public class Cupidon : Role
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme(),game);
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
         {
@@ -69,7 +69,7 @@ public class Cupidon : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                        sendTime(listJoueurs, GetDelaiAlarme()/4);
+                        sendTime(listJoueurs, GetDelaiAlarme()/4,game);
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);

@@ -11,7 +11,7 @@ public Loup()
     description = "blabla";
 }
 
-public override string Action(List<Joueur> listJoueurs)
+public override string Action(List<Joueur> listJoueurs,Game game)
 { // écrire l'action du loup
     string retour;
     sendTurn(listJoueurs,GetIdRole());
@@ -60,7 +60,7 @@ public override string Action(List<Joueur> listJoueurs)
     Socket vide;
     vide = Game.listener.Accept();
     bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme(),game);
     Task.Run(() =>
     {
         Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
@@ -102,7 +102,7 @@ public override string Action(List<Joueur> listJoueurs)
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                            sendTime(listJoueurs, GetDelaiAlarme() / 4);
+                            sendTime(listJoueurs, GetDelaiAlarme() / 4,game);
                         Task.Run(() =>
                         {
 			    	

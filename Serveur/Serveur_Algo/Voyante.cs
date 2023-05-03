@@ -11,7 +11,7 @@ public class Voyante : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la Voyante
         string retour;
         sendTurn(listJoueurs, GetIdRole());
@@ -20,7 +20,7 @@ public class Voyante : Role
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme(),game);
         Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 1000); // 20 secondes

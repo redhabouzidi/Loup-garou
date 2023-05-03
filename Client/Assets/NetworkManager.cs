@@ -581,6 +581,17 @@ public class NetworkManager : MonoBehaviour
                     }
                     gm.MiseAJourAffichage();
                 break;
+                case 19:
+                    int item=decode(message,size);
+                    if(item==0){
+                        //UTILISER POTION DE VIE
+                    }else if(item==1){
+                        //UTILISER POTION DE MORT
+                    }
+                    break;
+                case 20:
+                    //MESSAGES LOUP
+                    break;
                 case 100:
                     id = -1;
                     username = "";

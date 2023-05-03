@@ -13,7 +13,7 @@ public class Dictateur : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs)
+    public override string Action(List<Joueur> listJoueurs,Game game)
     { // �crire l'action du loup
         string retour = ""; 
         if (coupEtatRestant)
@@ -35,7 +35,7 @@ public class Dictateur : Role
             Socket vide;
             vide = Game.listener.Accept();
             // bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-            sendTime(listJoueurs, GetDelaiAlarme()/4);
+            sendTime(listJoueurs, GetDelaiAlarme()/4,game);
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
@@ -68,7 +68,7 @@ public class Dictateur : Role
                 coupEtatRestant = false;
                 boucle = true;
                 bool reduceTimer = false, LaunchThread2 = false;
-                sendTime(listJoueurs,GetDelaiAlarme()*3/4);
+                sendTime(listJoueurs,GetDelaiAlarme()*3/4,game);
                 Task.Run(() =>
                 {
                     Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
