@@ -111,8 +111,9 @@ namespace Server
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
         public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
         public static Dictionary<Socket, Aes> client_keys = new Dictionary<Socket, Aes>();
-        public static Socket wakeUpMain;
+        public static Socket wakeUpMain,bdd;
         public static List<Socket> waitingKeys = new List<Socket>();
+        
         public static void Main(string[] args)
         {
             /*if (args.Length != 1)
@@ -127,7 +128,8 @@ namespace Server
             }*/
             int port = 10004;
             bool reading = true, a = true;
-            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10005), bdd;
+            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10005) ;
+ 
             byte[] message = new byte[1024];
             // try
             // {
