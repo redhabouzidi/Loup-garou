@@ -131,7 +131,7 @@ public class bdd
                         ResetPasswdReq(bdd, message);
                         break;
                     case 157:
-                        //ResetPassw(bdd, message);
+                        ResetPassw(bdd, message);
                         break;
                     case 158:
                         searchForPlayer(bdd, message);
