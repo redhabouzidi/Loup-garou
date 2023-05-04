@@ -1,0 +1,9 @@
+Key,English,French
+Friends.box.Text-Friends,Friends list,Liste d'amis
+Friends.box.Button.Button-add,Add,Ajouter
+Friends.box.Button.Button-request,Requests,Demandes
+Friends.box.Button.Button-demande,Pending,En attente
+Friends_Add.box.Text-Friends,Add a friend,Ajouter un ami
+Friends_Add.box.Research.InputField (TMP).Text Area,Enter your friend's username...,Entrez le nom d'utilisateur de votre ami...
+Friends_Request.box.Text-Friends,Friend request,Demande d'ami
+Friends_Demande.box.Text-Friends,Friend request pending,Demande d'ami en attente

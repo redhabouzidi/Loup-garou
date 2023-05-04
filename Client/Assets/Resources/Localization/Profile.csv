@@ -1,0 +1,11 @@
+Key,English,French
+box.Text-Profile,Profile,Profil
+box.cadre.Text-pseudo,Username,Pseudo
+box.cadre.Button-changePseudo,Change username,Changer le pseudo
+box.cadre.Button-changePassword,Change password,Changer le mot de passe
+box.cadre.Button-logout,Log out,Déconnexion
+box.ButtonBottom.Button-statistics,Statistics,Statistiques
+box.ButtonBottom.Button-savedGames,Saved games,Jeux sauvegardés
+ChangePseudo,Change your username,Changer votre mot de passe
+ChangePseudo.InputField-pseudo.Text Area,Enter a new username...,Entrez un nouveau nom d'utilisateur...
+ChangePseudo.Button-change,Change,Changer

@@ -1,0 +1,6 @@
+Key,English,French
+ConnectionPage,Connection,Connexion
+ConnectionPage.InputField Email.Text Area,Username,Pseudo
+ConnectionPage.InputField Password.Text Area,Password,Mot de Passe
+ConnectionPage.Button-connection,Log in,Se connecter
+ConnectionPage.Button-Forgot,Forgot Password?,Mot de passe oublié?

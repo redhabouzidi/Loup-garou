@@ -1,0 +1,21 @@
+Key,English,French
+Canvas-Game.Game.Button - se Presenter,Stand for elections,Se présenter aux élections
+Canvas-Game.Game.choix_action_sorciere,Veux-tu utiliser la potion de vie?,Do you want to use the life potion?
+Canvas-Game.Game.choix_action_sorciere.Button_Non,No,Non
+Canvas-Game.Game.choix_action_sorciere.Button_Oui,Yes,Oui
+Canvas-Game.Game.choix_dictateur.Panel.Button-Non,No,Non
+Canvas-Game.Game.choix_dictateur.Panel.Button-Oui,Yes,Oui
+WinScreen.Button-playAgain,Play Again,Jouer à nouveau
+WinScreen.Button-quit,Quit,Quitter
+Game.Settings.Text Options,Options,Paramètres
+Game.Settings.Sound.Text Sound,Sound:,Le son :
+Game.Settings.Sound.Text Music,Music,Musique
+Game.Settings.Sound.Text Effects,Effects,Effets
+Game.Settings.Sound.Text Mute,Mute,Muet
+Game.Settings.Language.Text Language,Language:,Langue :
+Game.Settings.Language.Button-English,English,Anglais
+Game.Settings.Language.Button-Francais,French,Français
+Game.Button-ValiderVote,Confirm vote,Confirmer le vote
+Canvas-Game.Game.choix_dictateur.Text-action,Wanna do a putsch ?,Vous voulez faire un putsch ?
+Canvas-Game.Game.Button-voirCarte,Voir la carte,View the card
+Canvas-Game.GroupChat.InputField-chat,Type here...,Tapez ici...

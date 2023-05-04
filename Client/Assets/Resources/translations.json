@@ -1,0 +1,78 @@
+{
+	"en"{
+		"connection":"Connection",
+		"inscription":"Registration",
+		"log":"Log in",
+		"forgot":"Forgot Password",
+		"inscrire":"Register",
+		"containPassword":"The password need to contain:\n- 8 characters minimum\n- Upper and lower case letters\n- Numbers- A special character",
+		"pseudo":"Username",
+		"email":"Email Address",
+		"password":"Password",
+		"confirmPassword":"Confirm password",
+		"public":"Public",
+		"ranking": "Ranking",
+		"changeUser":"Change Username",
+		"changePassword":"Change Password",
+		"logOut":"Log Out",
+		"stats":"Statistics",
+		"saveGame":"Saved Games",
+		"changeleUsername":"Change Username",
+		"change":"Change",
+		"changeleMdp":"Change Password",
+		"oldPassword":"Old password",
+		"newPassword":"New password",
+		"newConfirmPassword":"Confirm new password",
+		"friendList":"Friends List",
+		"addFriend":"Add",
+		"requestFriend":"Request",
+		"attenteFriend":"Pending",
+		"creationPartie":"Party Creation",
+		"villageName":"Village Name",
+		"numPlayer":"Amount of Players",
+		"quit":"Quit",
+		"lobby":"Public Games",
+		"join":"Join"
+	}
+	"fr"{
+		"connection":"Connexion",
+		"inscription":"Inscription",
+		"log":"Se Connecter",
+		"forgot":"Mot de Passe Oublié",
+		"inscrire":"S'inscrire",
+		"containPassword":"Le mot de passe doit contenir:\n- au minimum 8 caractere,\n- une lettre majuscule, une miniscule,\n- 1 chiffre et un caractere special",
+		"pseudo":"pseudo",
+		"email":"Adresse-mail",
+		"password":"Mot de Passe",
+		"confirmPassword":"Confirmer votre mot de passe",
+		"public":"Public",
+		"ranking": "Rang",
+		"changeUser":"Changer Pseudo",
+		"changePassword":"Changer Mot de Passe",
+		"logOut":"Log Out",
+		"stats":"Deconnexion",
+		"saveGame":"Jeux Sauvegardés",
+		"changeleUsername":"Changer Pseudo",
+		"change":"Changer",
+		"changeleMdp":"Changer Mot de Passe",
+		"oldPassword":"Ancien Mot de Passe",
+		"newPassword":"Nouveau Mot de Passe",
+		"newConfirmPassword":"Confirmer nouveau mot de passe",
+		"friendList":"Liste d'amis",
+		"addFriend":"Ajout",
+		"requestFriend":"Demande d'amis",
+		"attenteFriend":"En attente",
+		"creationPartie":"Creation de la partie",
+		"villageName":"Nom du village",
+		"numPlayer":"Nombre de joueurs",
+		"quit":"Quitter",
+		"lobby":"Jeu Public",
+		"join":"Rejoindre"
+		
+		
+		
+		
+	}
+	
+	
+}
