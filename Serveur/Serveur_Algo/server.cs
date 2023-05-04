@@ -270,7 +270,7 @@ namespace Server
                 byte[] cryptedMessage = Crypto.EncryptMessage(message, client_keys[client]);
                 Console.WriteLine("la taille du message crypté est de {0} et la taille normale {1}", cryptedMessage.Length, message.Length);
                 Console.WriteLine("Le premier byte crypté est {0}", cryptedMessage[4]);
-
+                Console.WriteLine("\non va envoyer un message au client ",client.RemoteEndPoint.ToString());
                 client.Send(cryptedMessage, cryptedMessage.Length, SocketFlags.None);
             }
             else

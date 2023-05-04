@@ -46,7 +46,6 @@ public class Crypto : MonoBehaviour
         int[] size = new int[1] { 0 };
         
         byte[] decryptedBytes = new byte[0];
-        int index = 0;
         int taille=0;
         while (size[0] < tabSize)
         {

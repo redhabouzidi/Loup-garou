@@ -15,7 +15,7 @@ public abstract class Role
         return name;
     }
 
-    public abstract string Action(List<Joueur> listJoueurs,Game game);
+    public abstract string Action(List<Joueur> listJoueurs, Game game);
 
 
     public (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)
@@ -44,109 +44,113 @@ public abstract class Role
                 }
                 else if (((idRole == 1 || idRole == 255) && j.GetEnVie()))
                 {
-                    sockets.Add(j.GetSocket());
-                    if (idRole == 1 || idRole == 255 && j.GetEnVie())
-                    {
-                        dictJoueur[j.GetSocket()] = j;
-                        role.Add(j.GetSocket());
-                    }
-                    else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
-                    {
-                        dictJoueur[j.GetSocket()] = j;
-                        role.Add(j.GetSocket());
-                    }
+                    // sockets.Add(j.GetSocket());
+                    // if (idRole == 1 || idRole == 255 && j.GetEnVie())
+                    // {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                    // }
+
+                }
+                else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
+                {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
                 }
             }
-            Console.WriteLine("ici c'est 2");
-            Console.WriteLine(sockets.Count);
-            while (true)
+        }
+        Console.WriteLine("ici c'est 2");
+        Console.WriteLine(sockets.Count);
+        while (true)
+        {
+            foreach (Socket socket in sockets)
             {
-                foreach (Socket socket in sockets)
-                {
-                    read.Add(socket);
-                }
-                Console.WriteLine("bah on attends alors");
-                Socket.Select(read, null, null, -1);
-                Console.WriteLine("ici c'est 3");
-                if (read.Contains(reveille))
-                {
-                    Console.WriteLine("on va sortir");
-                    reveille.Receive(new byte[1]);
+                read.Add(socket);
+            }
+            Console.WriteLine("bah on attends alors");
+            Socket.Select(read, null, null, -1);
+            Console.WriteLine("ici c'est 3");
+            if (read.Contains(reveille))
+            {
+                Console.WriteLine("on va sortir");
+                reveille.Receive(new byte[1]);
 
-                    return (-1, -1);
-                }
-                else if (read.Contains(this.gameListener))
+                return (-1, -1);
+            }
+            else if (read.Contains(this.gameListener))
+            {
+                Console.WriteLine("joueur se reconnecte");
+                this.gameListener.Receive(new byte[1]);
+                return (-1, -1);
+            }
+            else
+            {
+                Console.WriteLine("vote marche");
+                foreach (Socket sock in read)
                 {
-                    Console.WriteLine("joueur se reconnecte");
-                    this.gameListener.Receive(new byte[1]);
-                    return (-1, -1);
-                }
-                else
-                {
-                    Console.WriteLine("vote marche");
-                    foreach (Socket sock in read)
+                    if (sock.Available == 0)
                     {
-                        if (sock.Available == 0)
-                        {
 
-                            sockets.Remove(sock);
-                            foreach (Joueur joueur in listJoueurs)
+                        sockets.Remove(sock);
+                        foreach (Joueur joueur in listJoueurs)
+                        {
+                            if (joueur.GetSocket() == sock)
                             {
-                                if (joueur.GetSocket() == sock)
-                                {
-                                    server.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
-                                    server.userData.Remove(joueur.GetId());
-                                    joueur.SetSocket(null);
-                                    sock.Close();
-                                    return (-1, -1);
-                                }
+                                server.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
+                                server.userData.Remove(joueur.GetId());
+                                joueur.SetSocket(null);
+                                sock.Close();
+                                return (-1, -1);
                             }
                         }
-                        int[] size = new int[1] { 1 };
-                        byte[] encryptedMessage = new byte[4096];
-                        int recvSize = sock.Receive(encryptedMessage);
-                        byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
-                        recvSize = message.Length;
-                        if (role.Contains(sock))
+                    }
+                    int[] size = new int[1] { 1 };
+                    byte[] encryptedMessage = new byte[4096];
+                    int recvSize = sock.Receive(encryptedMessage);
+                    byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
+                    recvSize = message.Length;
+                    Console.WriteLine("dans game vote message[0]== {0}", message[0]);
+                    if (role.Contains(sock))
+                    {
+
+                        if (message[0] == 1)
                         {
-
-                            if (message[0] == 1)
+                            Console.WriteLine("ici c'est 5");
+                            int idVoter = server.decodeInt(message, size);
+                            int idVoted = server.decodeInt(message, size);
+                            Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
+                            if (idVoter == dictJoueur[sock].GetId())
                             {
-                                Console.WriteLine("ici c'est 5");
-                                int idVoter = server.decodeInt(message, size);
-                                int idVoted = server.decodeInt(message, size);
-                                Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
-                                if (idVoter == dictJoueur[sock].GetId())
-                                {
-                                    return (idVoter, idVoted);
-                                }
-
-                            }
-                            else
-                            {
-                                if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
-                                {
-                                    server.recvMessageGame(sockets, message, recvSize);
-                                }
+                                return (idVoter, idVoted);
                             }
 
                         }
                         else
                         {
-                            if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
-				            server.recvMessageGame(role,message,recvSize);
+                            if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
+                            {
+                                server.recvMessageGame(sockets, message, recvSize);
                             }
-                            Console.WriteLine("apres recv2");
                         }
-                    }
 
+                    }
+                    else
+                    {
+                        if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
+                        {
+                            server.recvMessageGame(role, message, recvSize);
+                        }
+                        Console.WriteLine("apres recv2");
+                    }
                 }
-                read.Clear();
+
             }
-            Console.WriteLine("ici c'est la fin de game vote");
-            return (-1, -1);
+            read.Clear();
         }
-        return (-1,-1);
+        Console.WriteLine("ici c'est la fin de game vote");
+        return (-1, -1);
+
+        return (-1, -1);
     }
 
     public void SendVote(List<Joueur> listJoueur, int vote, int voted, int idRole)
@@ -178,10 +182,10 @@ public abstract class Role
                 server.sendTurn(j.GetSocket(), idRole);
         }
     }
-    public void sendTime(List<Joueur> listJoueurs,int time,Game game)
+    public void sendTime(List<Joueur> listJoueurs, int time, Game game)
     {
-        game.currentTime=time;
-        game.t=DateTime.Now;
+        game.currentTime = time;
+        game.t = DateTime.Now;
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetSocket() != null && j.GetSocket().Connected)
