@@ -793,19 +793,6 @@ namespace Server
                 sendMessage(sock, message);
             }
         }
-        public static void ready(Socket client, List<Socket> clients, int id, bool status)
-        {
-            int msgSize = 1 + sizeof(int) + sizeof(bool);
-            byte[] message = new byte[msgSize];
-            int[] size = new int[1] { 1 };
-            message[0] = 14;
-            encode(message, id, size);
-            encode(message, status, size);
-            foreach (Socket sock in clients)
-            {
-                sendMessage(sock, message);
-            }
-        }
 
 
         public static bool alreadyConnected(Dictionary<Socket, int> connected, int idPlayer)

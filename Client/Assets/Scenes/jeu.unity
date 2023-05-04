@@ -31617,8 +31617,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63a456ee0c821ec4a8ed398ff7d01b87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FrenchB: {fileID: 0}
-  EnglishB: {fileID: 0}
+  FrenchB: {fileID: 444657886}
+  EnglishB: {fileID: 1520595310}
 --- !u!1 &1537362191
 GameObject:
   m_ObjectHideFlags: 0
@@ -34639,7 +34639,6 @@ GameObject:
   - component: {fileID: 1736780627}
   - component: {fileID: 1736780626}
   - component: {fileID: 1736780625}
-  - component: {fileID: 1736780628}
   m_Layer: 5
   m_Name: Points
   m_TagString: Untagged
@@ -34762,19 +34761,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1736780623}
   m_CullTransparentMesh: 1
---- !u!114 &1736780628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736780623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 309e53620f2ded140b67dfa71d85356c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LocalizationKey: 
 --- !u!1 &1739142068
 GameObject:
   m_ObjectHideFlags: 0

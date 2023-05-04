@@ -331,7 +331,7 @@ public class NetworkManager : MonoBehaviour
         try
         {
             byte[] message = new byte[1] { 100 };
-            server.Send(message, 1, SocketFlags.None);
+            SendMessageToServer(server,message);
             rep.Add(new byte[1] { 100 });
             return 0;
         }

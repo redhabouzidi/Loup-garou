@@ -220,13 +220,6 @@ public class GameManager : MonoBehaviour
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
-        if(inputChatLG.text != "" && Input.GetKeyDown(KeyCode.Return))
-        {
-            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-            NetworkManager.sendchatLGMessage(msg);
-            inputChatLG.text = "";
-            inputChatLG.ActivateInputField();
-        }
         if (gameover)
         {
             gamePage.transform.gameObject.SetActive(false);
