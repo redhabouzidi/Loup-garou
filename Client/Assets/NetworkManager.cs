@@ -585,12 +585,15 @@ public class NetworkManager : MonoBehaviour
                     int item=decode(message,size);
                     if(item==0){
                         //UTILISER POTION DE VIE
+                        gm.UseHealthPotion();
                     }else if(item==1){
                         //UTILISER POTION DE MORT
+                        gm.UseDeathPotion();
                     }
                     break;
                 case 20:
                     //MESSAGES LOUP
+                    gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
                     break;
                 case 100:
                     id = -1;
@@ -1156,6 +1159,15 @@ public class NetworkManager : MonoBehaviour
     {
         byte[] msg = new byte[1 + sizeof(int) + message.Length];
         msg[0] = 0;
+        int[] size = new int[1] { 1 };
+        encode(msg, message, size);
+        SendMessageToServer(client, msg);
+        return 0;
+    }
+    public static int sendchatLGMessage(string message)
+    {
+        byte[] msg = new byte[1 + sizeof(int) + message.Length];
+        msg[0] = 20;
         int[] size = new int[1] { 1 };
         encode(msg, message, size);
         SendMessageToServer(client, msg);

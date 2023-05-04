@@ -90,6 +90,10 @@ public class CreateScreen : MonoBehaviour
         guardian = toggleGuardian.isOn;
         dictator = toggleDictator.isOn;
 
+        if (name == ""){
+            name = "Village";
+        }
+
         // envoyer au serveur les données
         NetworkManager.createGame(NetworkManager.username, name, nbPlayer, nbLG, witch, seer, cupidon,hunter,guardian,dictator);
         Debug.Log("envoyé");

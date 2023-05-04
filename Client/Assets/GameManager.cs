@@ -57,17 +57,18 @@ public class GameManager : MonoBehaviour
     public int lover2_id=-1;
 
     // variable pour le chat
-    private int maxMsg = 100;
     List<Message> msgList = new List<Message>();
-    public GameObject chatPanel, textComponent, chatNotification;
-    public TMP_InputField inputChat;
-    public Button sendChat;
-    public Color playerC, systemC;
+    List<Message> msgListLG = new List<Message>();
+    public GameObject chat, chatLG, chatPanel, chatPanelLG, textComponent, chatNotification;
+    public TMP_InputField inputChat, inputChatLG;
+    public Button sendChat, sendChatLG;
+    public Color playerC, systemC, loupC;
 
     // choix pendant l'action
     public GameObject choixAction;
 
     // options page
+    public GameObject settingPage;
     public Button buttonLeaveGame;
 
     public AudioSource soundManager_day,soundManager_night;
@@ -85,6 +86,7 @@ public class GameManager : MonoBehaviour
         Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
         Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
+        sendChatLG.onClick.AddListener(OnButtonClickSendMsgLG);
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
         buttonRole.onClick.AddListener(OnButtonClickRole);
@@ -208,21 +210,22 @@ public class GameManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            LoadScene("jeu");
+            settingPage.SetActive(!settingPage.activeSelf);
         }
-        if (inputChat.text != "")
+        // envoyer un message dans le chat
+        if (inputChat.text != "" && Input.GetKeyDown(KeyCode.Return))
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                
-                if (inputChat.text != "")
-                {
-                    string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-                    NetworkManager.sendchatMessage( msg);
-                    inputChat.text = "";
-                    inputChat.ActivateInputField();
-                }
-            }
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            NetworkManager.sendchatMessage(msg);
+            inputChat.text = "";
+            inputChat.ActivateInputField();
+        }
+        if(inputChatLG.text != "" && Input.GetKeyDown(KeyCode.Return))
+        {
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            NetworkManager.sendchatLGMessage(msg);
+            inputChatLG.text = "";
+            inputChatLG.ActivateInputField();
         }
         if (gameover)
         {
@@ -291,6 +294,21 @@ public void play_sound_night(){
         {
             string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
             NetworkManager.sendchatMessage( msg);
+            inputChat.text = "";
+            inputChat.ActivateInputField();
+        }
+    }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer un message dans le chat des loups
+    **/
+    private void OnButtonClickSendMsgLG()
+    {
+        if (inputChat.text != "")
+        {
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            NetworkManager.sendchatLGMessage(msg);
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
@@ -503,6 +521,7 @@ public void play_sound_night(){
 
         else if (isNight == false)
         {
+            ChangeChat();
             banderoleMaire.enabled = false;
             text_day.text = "Day " + tour;
             text_day.color = colorWhite;
@@ -513,6 +532,7 @@ public void play_sound_night(){
         }
         else
         {
+            ChangeChat();
             banderoleMaire.enabled = false;
             text_day.text = "Night " + tour;
             text_day.color = colorRed;
@@ -639,11 +659,6 @@ public void play_sound_night(){
     **/
     public void SendMessageToChat(string text, Message.MsgType type)
     {
-        if (msgList.Count > maxMsg)
-        {
-            Destroy(msgList[0].textComponent.gameObject);
-            msgList.Remove(msgList[0]);
-        }
         GameObject newText = Instantiate(textComponent, chatPanel.transform);
         Message newMsg = new Message();
 
@@ -665,6 +680,33 @@ public void play_sound_night(){
     }
 
     /**
+        Affiche dans le chat des loup-garou un message
+        Args:   - text, le message à afficher dans le chat
+                - type, le type du message
+    **/
+    public void SendMessageToChatLG(string text, Message.MsgType type)
+    {
+        GameObject newText = Instantiate(textComponent, chatPanelLG.transform);
+        Message newMsg = new Message();
+
+        newMsg.msg = text;
+        newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
+        newMsg.textComponent.text = newMsg.msg;
+        newMsg.textComponent.color = MessageColor(type);
+
+        msgList.Add(newMsg);
+
+        // affiche si necessaire l'icone de notification de nouveaux messages
+        if(ButtonClick.isHide && type == Message.MsgType.loup){
+            chatNotification.SetActive(true);
+        }
+        else{
+            chatNotification.SetActive(false);
+        }
+
+    }
+
+    /**
         Renvoie une couleur en fonction du type de message
         Arg: type, le type du message
     **/
@@ -676,11 +718,27 @@ public void play_sound_night(){
             case Message.MsgType.player:
                 color = playerC;
                 break;
+            case Message.MsgType.loup:
+                color = loupC;
+                break;
             default:
                 color = systemC;
                 break;
         }
         return color;
+    }
+
+    /**
+        la fonction permet de changer de chat (géneral/loup)
+        si l'utilisateur est loup-garou
+    **/
+    public void ChangeChat(){
+        if(p.GetRoleId() == 4){
+            chat.SetActive(!chat.activeSelf);
+            chatLG.SetActive(!chat.activeSelf);
+        }
+        inputChat.text = "";
+        inputChatLG.text = "";
     }
 
     /**
@@ -1224,6 +1282,10 @@ public void play_sound_night(){
     public void UseHealthPotion(){
         Image potionVie = GO_potion.transform.Find("Potion_vie").GetComponent<Image>();
         Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
+        GameObject help = GO_potion.transform.Find("Text-PotionVie").gameObject;
+        TextMeshProUGUI textPotion = help.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+
+        textPotion.text = "Empty health potion";
         potionVie.enabled = false;
         potionVideV.enabled = true;
         SendMessageToChat("You used your life potion!", Message.MsgType.system);
@@ -1235,6 +1297,10 @@ public void play_sound_night(){
     public void UseDeathPotion(){
         Image potionMort = GO_potion.transform.Find("Potion_mort").GetComponent<Image>();
         Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
+        GameObject help = GO_potion.transform.Find("Text-PotionMort").gameObject;
+        TextMeshProUGUI textPotion = help.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+
+        textPotion.text = "Empty death potion";
         potionMort.enabled = false;
         potionVideM.enabled = true;
         SendMessageToChat("You used your death potion!", Message.MsgType.system);
@@ -1361,7 +1427,8 @@ public class Message
     public enum MsgType
     {
         player,
-        system
+        system,
+        loup
     }
 
 }
