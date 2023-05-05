@@ -19,12 +19,11 @@ public class WaitingScreen : MonoBehaviour
 
     // description des roles
     public Image image_carte;
+    public Sprite SpriteLoup, SpriteVillageois, SpriteSorciere, SpriteVoyante, SpriteChasseur, SpriteCupidon, SpriteDictateur, SpriteGarde;
     public Button right_button, left_button,button_ready;
     public Color colorWhite, colorGreen;
     public TextMeshProUGUI role_name, descripts;
-    public List<InfoRole> infoRole = new List<InfoRole>();
     public List<Roles> roles_presents=new List<Roles>();
-    public TMP_FontAsset mfont;
     public TextMeshProUGUI nbPlayerP;
     private string []roles=new string[8]{"Loup","Villageois","Cupidon","Sorciere","Voyante","Chasseur","Dictateur","Garde"};
     private string []description=new string[8]{"<color=#ff0000ff><size=22> Les Loups-Garous doivent prendre le dessus sur le village!</size></color>\r\n\n Chaque nuit, ils dévorent un Villageois. Le jour, ils essaient de masquer leur identité nocturne pour échapper à la vindicte  populaire. Leur nombre peut varier suivant le nombre de joueurs. En aucun cas un loup-garou ne peut dévorer un autre loup-garou."
@@ -50,8 +49,6 @@ public class WaitingScreen : MonoBehaviour
         left_button.onClick.AddListener(left_previous);
         right_button.onClick.AddListener(right_next);
         button_ready.onClick.AddListener(toggleReady);
-
-        
 
         AfficheCard();
     }
@@ -92,9 +89,7 @@ public class WaitingScreen : MonoBehaviour
         else role_count+=" Player";
         nbPlayerP.text=role_count;
         role_name.text=roles_presents[index_desc].get_role();
-        descripts.font=mfont;
         descripts.fontSize=20;
-        role_name.font=mfont;
         change_image();
     }
     //Fonction permettant d'obtenir le role precedent en cliquant le button gauche
@@ -110,9 +105,7 @@ public class WaitingScreen : MonoBehaviour
         else role_count+=" Player";
         nbPlayerP.text=role_count;
         role_name.text=roles_presents[index_desc].get_role();
-        descripts.font=mfont;
         descripts.fontSize=20;
-        role_name.font=mfont;
         change_image();
     }
     public void initialize()
@@ -135,9 +128,7 @@ public class WaitingScreen : MonoBehaviour
         Debug.Log(role_count);
         nbPlayerP.text = role_count;
         role_name.text = roles_presents[index_desc].get_role();
-        descripts.font = mfont;
         descripts.fontSize = 20;
-        role_name.font = mfont;
         change_image();//Charger le premier image
 
 
@@ -167,35 +158,35 @@ public class WaitingScreen : MonoBehaviour
         for(int i=0;i<rolp.Length;i++){
             switch(rolp[i]){
                 case 4:
-                    roles_presents.Add(new Roles(roles[0],description[0],number[i]));
+                    roles_presents.Add(new Roles(roles[0],description[0],number[i], SpriteLoup));
                     Debug.Log("Loup ");
                     break;
                 case 1:
-                    roles_presents.Add(new Roles(roles[1],description[1],number[i]));
+                    roles_presents.Add(new Roles(roles[1],description[1],number[i], SpriteVillageois));
                     Debug.Log("Vill ");
                     break;
                 case 2:
-                    roles_presents.Add(new Roles(roles[2],description[2],number[i]));
+                    roles_presents.Add(new Roles(roles[2],description[2],number[i], SpriteCupidon));
                     Debug.Log("Cupi ");
                     break;
                 case 5:
-                    roles_presents.Add(new Roles(roles[3],description[3],number[i]));
+                    roles_presents.Add(new Roles(roles[3],description[3],number[i], SpriteSorciere));
                     Debug.Log("Sorc ");
                     break;
                 case 3:
-                    roles_presents.Add(new Roles(roles[4],description[4],number[i]));
+                    roles_presents.Add(new Roles(roles[4],description[4],number[i], SpriteVoyante));
                     Debug.Log("Voyan ");
                     break;
                 case 6:
-                    roles_presents.Add(new Roles(roles[5],description[5],number[i]));
+                    roles_presents.Add(new Roles(roles[5],description[5],number[i], SpriteChasseur));
                     Debug.Log("Chasseur ");
                     break;
                 case 7:
-                    roles_presents.Add(new Roles(roles[6],description[6],number[i]));
+                    roles_presents.Add(new Roles(roles[6],description[6],number[i], SpriteDictateur));
                     Debug.Log("Dictateur ");
                     break;
                 case 8:
-                    roles_presents.Add(new Roles(roles[7],description[7],number[i]));
+                    roles_presents.Add(new Roles(roles[7],description[7],number[i], SpriteGarde));
                     Debug.Log("Garde ");
                     break;
             }
@@ -305,11 +296,7 @@ public class WaitingScreen : MonoBehaviour
 
     void change_image()
     {
-        Texture2D texture = LoadPNG(Application.dataPath + "/Cartes/" + roles_presents[index_desc].get_role() + ".png");//Trouver l'image des roles
-
-        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));//creer un sprite pour visualiser
-
-        image_carte.sprite = sprite;//attribuer
+        image_carte.sprite = roles_presents[index_desc].get_image();//attribuer
     }
 
     //Fonction retournant une image png qui se situe dans le chemin 'path' passÃ© en parametre
@@ -366,45 +353,18 @@ public class WPlayer
 
 }
 
-public class InfoRole
-{
-    private int roleId;
-    private string role;
-    private string description;
-    private string cheminImage;
-
-    public InfoRole(){}
-
-    public InfoRole(int roleId, string role, string desc, string chemin){
-        this.roleId = roleId;
-        this.role = role;
-        description = desc;
-        cheminImage = chemin;
-    }
-
-    public int GetRoleId(){
-        return roleId;
-    }
-    public string GetRole(){
-        return role;
-    }
-    public string GetDescription(){
-        return description;
-    }
-    public string GetChemin(){
-        return cheminImage;
-    }
-}
 
 public class Roles{
     private string role;
     private string description;
     private int role_count=1;
+    private Sprite image;
     
-    public Roles(string role,string description,int role_count){
+    public Roles(string role,string description,int role_count, Sprite image){
         this.role=role;
         this.description=description;
         this.role_count=role_count;
+        this.image=image;
     }
     public string get_role(){
         return role;
@@ -414,5 +374,8 @@ public class Roles{
     }
     public int get_role_count(){
         return role_count;
+    }
+    public Sprite get_image(){
+        return image;
     }
 }

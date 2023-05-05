@@ -10129,6 +10129,14 @@ MonoBehaviour:
   newGame: 0
   max_player: 8
   image_carte: {fileID: 1382151521}
+  SpriteLoup: {fileID: 21300000, guid: fc28b814d88877e4f9495d00dafd071d, type: 3}
+  SpriteVillageois: {fileID: 21300000, guid: b1e7c0c2d61f7184e8e867ae801e68a2, type: 3}
+  SpriteSorciere: {fileID: 21300000, guid: 7c533cf67339d994bae95afeb05097ed, type: 3}
+  SpriteVoyante: {fileID: 21300000, guid: 20c71f7f400e5ce49b95b25d94f04000, type: 3}
+  SpriteChasseur: {fileID: 21300000, guid: 0c3958694c9c0b2429c1ab3ead0c38da, type: 3}
+  SpriteCupidon: {fileID: 21300000, guid: 2d89a725353681e44adc1fb085652e1b, type: 3}
+  SpriteDictateur: {fileID: 21300000, guid: 298cc03db84b0c9438ed75cdce55070d, type: 3}
+  SpriteGarde: {fileID: 21300000, guid: 99ee42d898f5b914d9fb28681bd18ed8, type: 3}
   right_button: {fileID: 1587421622}
   left_button: {fileID: 1280778111}
   button_ready: {fileID: 1967423922}
@@ -10136,7 +10144,6 @@ MonoBehaviour:
   colorGreen: {r: 0, g: 0.7169812, b: 0.033398233, a: 1}
   role_name: {fileID: 917954568}
   descripts: {fileID: 1469473979}
-  mfont: {fileID: 0}
   nbPlayerP: {fileID: 984951783}
   cardContainer: {fileID: 478001514}
   cardComponent: {fileID: 2504628310605923534, guid: eb7821d7c90dfa74c8f48b1d4461a24d, type: 3}
