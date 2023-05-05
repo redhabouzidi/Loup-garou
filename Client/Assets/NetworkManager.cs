@@ -139,7 +139,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (!prog)
         {
-
+            rep=new List<byte[]>();
             prog = true;
             try
             {
@@ -162,6 +162,9 @@ public class NetworkManager : MonoBehaviour
                 Console.Write(e.Message);
                 prog = false;
             }
+        }
+        while(client.Available!=0){
+            client.Receive(new byte[4086]);
         }
         login(email, password);
 
@@ -353,16 +356,16 @@ public class NetworkManager : MonoBehaviour
         int recvSize;
         List<Socket> read = new List<Socket>();
         read.Add(server);
-        Socket.Select(read, null, null, 500000);
+        Socket.Select(read, null, null, 50000);
         if (read.Count != 0)
         {
-            if (server.Available == 0)
+            if (server.Available == 0||!server.Connected)
             {
                 prog = false;
                 rep.Add(new byte[1] { 100 });
                 return;
             }
-
+            
             recvSize = server.Receive(message);
 
             Debug.Log("recv =" + message[0]);
@@ -774,7 +777,7 @@ public class NetworkManager : MonoBehaviour
                     }
                     else
                     {
-                        // prog = false;
+                        prog = false;
                         gma.AfficheError("Error: Email/Pseudo or password is invalide");
                     }
                     break;

@@ -24,6 +24,9 @@ namespace Server
             byte[] certBytes = cert.Export(X509ContentType.Cert);
             byte[] certLength = BitConverter.GetBytes(certBytes.Length);
             byte[] message = certLength.Concat(certBytes).ToArray();
+            Console.WriteLine("cryptolen="+ message.Length+"msg = ");
+            Console.WriteLine(BitConverter.ToString(message));
+
             return (client.Send(message, message.Length, SocketFlags.None));
         }
 

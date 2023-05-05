@@ -281,6 +281,7 @@ namespace Server
                 Console.WriteLine("la taille du message crypté est de {0} et la taille normale {1}", cryptedMessage.Length, message.Length);
                 Console.WriteLine("Le premier byte crypté est {0}", cryptedMessage[4]);
                 Console.WriteLine("\non va envoyer un message au client ",client.RemoteEndPoint.ToString());
+                Console.WriteLine(BitConverter.ToString(cryptedMessage));
                 client.Send(cryptedMessage, cryptedMessage.Length, SocketFlags.None);
             }
             else
@@ -1081,7 +1082,7 @@ namespace Server
                     if (!connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     else
-                        sendMessage(client, new byte[] { 255 });
+                        sendMessage(client, new byte[] { 255,105 });
 
                     //check avec la base de donnees
 
@@ -1271,9 +1272,10 @@ namespace Server
                     {
                         int idPlayer = decodeInt(message, size);
                         string username = decodeString(message, size);
-                        userData[idPlayer] = new Amis(client, 0);
-                        if (!connected.ContainsKey(client))
+                        if (!connected.ContainsKey(client)&&!userData.ContainsKey(idPlayer))
                         {
+
+                            userData[idPlayer] = new Amis(client, 0);
                             userData[idPlayer].SetUsername(username);
 
                             list.Remove(client);
@@ -1326,6 +1328,7 @@ namespace Server
                                     encode(message, 0, size);
                                 }
                             }
+                            redirect(client, message, size[0]);
                             if (players.ContainsKey(idPlayer))
                             {
                                 userData[idPlayer].SetStatus(idPlayer, 3);
@@ -1342,11 +1345,13 @@ namespace Server
                             
 
 
+                        }else{
+                            sendMessage(client,new byte[] {255,105});
                         }
                         
                     }
                     queue.queue.Remove(queueId);
-                    redirect(client, message, size[0]);
+                    
                     break;
                 case 104:
                     size[0] = 1;
