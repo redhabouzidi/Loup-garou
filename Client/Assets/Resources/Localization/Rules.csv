@@ -1,0 +1,63 @@
+key,English,French
+Rules.content.rules.text,Rules,Règles
+Rules.content.image.text,"Players' goal:
+
+The villagers: Their goal is to unmask all werewolves in the village.
+
+Werewolves: Their goal is to devour all the villagers in the village.","Le but des joueurs:
+
+Les villageois: Leur but est de démasquer tous les loup-garous du village.
+
+Les loup-garous: Leur but est de dévorer tous les villageois présent dans le village."
+Rules.content.presentation,Presentation of the roles,Présentation des roles
+Role.image,"THE WOLVES
+
+Every night, they devour a victim. During the day, they try to hide their nightly identity in order to escape from the popular vindictiveness. Their number can vary according to the number of players. In no case can a werewolf devour another werewolf at night. 
+","LES LOUPS
+
+Chaque nuit, ils dévorent une victime. Le jour, ils essaient de masquer leur identité nocture pour échapper à la vindicte populaire. Leur nombre peut varier suivant le nombre de joueurs. En aucun cas un loup-garou ne peut dévorer un autre loup-garou la nuit. "
+Role.image1,"THE VILLAGERS
+
+The villagers do not have any particular skills, but their voice and their presence are nevertheless important for the village.","LES VILLAGEOIS
+
+Les villageois n'ont pas de compétences particulières, mais leur voix et leur présence restent néanmoins important pour le village."
+Role.image2,"THE WITCH
+
+She has 2 potions (usable once per game):
+- A poison potion to eliminate a player
+- A healing potion that resurrects the player devoured by the werewolves.
+She can't use both potions at the same time and she can use her healing potion to heal herself 
+  ","LA SORCIERE
+
+Elle possède 2 potions (utilisables une fois par partie) :
+- Une potion de poison pour éliminer un joueur
+- Une potion de soin qui ressuscite le joueur dévoré par les Loup-Garous.
+Elle ne peut pas se servir de ses deux potions la même nuit et elle peut aussi utiliser sa potion de guérison afin de se guérir elle même.
+"
+Role.image3,"CUPIDON
+The first night, he designates two players in love. Cupid can designate himself as a lover. The two lovers must win together. If one dies, the other also dies of grief.","CUPIDON
+La première nuit, il désigne deux joueurs amoureux. Cupidon peut se désigner lui même comme amoureux. Les deux amoureux doivent gagner ensemble. Si l'un meurt l'autre aussi meurt de chagrin."
+Role.image4,"THE GUARD
+
+Each night, he can protect a different player against a werewolf attack. He can of course protect himself.
+","LE GARDE
+
+Chaque nuit, il peut protéger un joueur différent contre une attaque des Loup-Garous. Il peut bien sûr assurer sa propre protection."
+Role.image5,"THE SEEING GIRL
+
+Each night, she can see the card of a player of her choice.
+","LA VOYANTE
+
+Chaque nuit, elle peut voir la carte d'un joueur de son choix."
+Role.image6,"THE HUNTER
+
+When the hunter dies, he may retaliate by immediately eliminating any other player of his choice.
+","LE CHASSEUR
+
+Lors de sa mort, le chasseur peut répliquer en élilminant immédiatement n'importe quel autre joueur de son choix."
+Role.image7,"THE DICTATOR
+
+He can carry out a coup d'état in order to designate a victim.  If he executes a Werewolf, he becomes Mayor, otherwise he dies. He can only use his coup d'état once and not on the first night.
+","LE DICTATEUR
+
+Il peut effectuer un coup d'état afin de désigner une victime.  Si il exécute un Loup-Garou, il devient Maire, sinon il meurt. Il ne peut utiliser qu'une seule fois son coup d'état et pas à la première nuit."
