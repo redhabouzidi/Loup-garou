@@ -139,7 +139,6 @@ public class NetworkManager : MonoBehaviour
     {
         if (!prog)
         {
-            rep=new List<byte[]>();
             prog = true;
             try
             {
