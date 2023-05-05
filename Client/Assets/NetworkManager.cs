@@ -424,7 +424,6 @@ public class NetworkManager : MonoBehaviour
 
                     }else{
                     }
-                    
                     break;
                 case 6:
                     idPlayer = decode(message, size);

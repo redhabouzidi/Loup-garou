@@ -101,6 +101,7 @@ public class GameManager : MonoBehaviour
         isNight = true;
         tour = 0;
         sceneNight=false;
+
         // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -240,12 +241,13 @@ public class GameManager : MonoBehaviour
         AfficherJour();
         Timer_text_screen();
         changeTurn();
-        
+
 
     }
+
     //Fonctions pour les sons ->
     //Son à jouer pendant la nuit
-public void play_sound_night(){
+    public void play_sound_night(){
             soundManager_day.Stop();
             soundManager_night.Play();
     }
@@ -254,6 +256,7 @@ public void play_sound_night(){
         soundManager_night.Stop();
         soundManager_day.Play();
     }
+
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet d'envoyer une candidature pour le vote du maire
@@ -540,7 +543,6 @@ public void play_sound_night(){
                 player_role.text = p.GetRole();
                 sePresenter.gameObject.SetActive(false);
             }
-            
             
         }
     }
