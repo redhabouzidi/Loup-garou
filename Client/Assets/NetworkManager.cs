@@ -395,9 +395,6 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(BitConverter.ToString(message));
         rep.RemoveAt(0);
 
-        while (read)
-        {
-            Debug.Log("code == " + message[size[0]]);
 
             switch (message[size[0]++])
             {
@@ -1039,17 +1036,12 @@ public class NetworkManager : MonoBehaviour
 
             }
 
-            Debug.Log("message = " + message[0] + "and " + size[0] + " == " + message.Length);
-            if (message.Length == size[0])
-            {
-                read = false;
-            }
-
-        }
+        
 
     }
     public static int SendMessageToServer(Socket server, byte[] message)
     {
+        Debug.Log(BitConverter.ToString(message));
         byte[] msg = Crypto.EncryptMessage(message, aes);
         Debug.Log("message crypté");
         Debug.Log("msgsize=" + message.Length);

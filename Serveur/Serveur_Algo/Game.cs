@@ -939,7 +939,9 @@ public class Game
             {
                 Console.WriteLine("debut de suppression ");
                 server.connected.Add(j.GetSocket(), j.GetId());
+                server.userData[j.GetId()].SetStatus(j.GetId(), 1);
             }
+            
             server.players.Remove(j.GetId());
         }
         server.games.Remove(gameId);

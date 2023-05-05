@@ -194,7 +194,12 @@ namespace Server
                     // Console.WriteLine("le ie point du waikupmain is "+wakeUpMain.RemoteEndPoint.ToString());
                     if (fd.Available == 0)
                     {
+                        try{
                         disconnectPlayer(list, fd);
+                        }
+                        catch(Exception e ){
+                            Console.WriteLine(e.ToString());
+                        }
                     }
                     else if (waitingKeys.Contains(fd))
                     {
@@ -1135,6 +1140,7 @@ namespace Server
                 case 155:
                     size[0]=1;
                     if (connected.ContainsKey(client)){
+                        bool answer=decodeBool(message,size);
                         id=decodeInt(message,size);
                         if(connected[client]==id){
                             redirect(bdd, queue.addVal(client), message);

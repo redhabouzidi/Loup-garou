@@ -125,6 +125,9 @@ public class GameManagerApp : MonoBehaviour
             // Quit the game
         }
         NetworkManager.listener();
+        if(waitPage.active){
+            
+        }
     }
 
     public static void exitGame()

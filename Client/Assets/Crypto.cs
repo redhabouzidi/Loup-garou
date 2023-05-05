@@ -53,11 +53,10 @@ public class Crypto : MonoBehaviour
             aes.Padding = PaddingMode.ISO10126;
             ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
             taille = NetworkManager.decode(message, size);
-            
+            Debug.Log(BitConverter.ToString(message));
             byte[] msg = new byte[taille];
             Debug.Log(taille);
             Array.Copy(message, size[0], msg, 0, taille);
-            Debug.Log(BitConverter.ToString(message));
             Debug.Log(BitConverter.ToString(msg));
             byte[] decryptedPart = decryptor.TransformFinalBlock(msg, 0, taille);
             NetworkManager.rep.Add(decryptedPart);
