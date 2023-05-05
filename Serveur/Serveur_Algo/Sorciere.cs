@@ -176,7 +176,7 @@ public class Sorciere : Role
         {
             bool boucleKill = true;
             Joueur? cible = null;
-            sendTime(listJoueurs, GetDelaiAlarme()/2,game);
+            sendTime(listJoueurs, GetDelaiAlarme(),game);
             Task.Run(() =>
             {
                 Thread.Sleep(GetDelaiAlarme() * 1000); // 10 secondes

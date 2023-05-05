@@ -203,7 +203,12 @@ namespace Server
                     }
                     else
                     {
+                        try{
+
                         recvMessage(fd, bdd, list, connected, queue, players);
+                        }catch(Exception e){
+                            Console.WriteLine(e.ToString());
+                        }
                     }
                 }
             }

@@ -332,7 +332,6 @@ public class NetworkManager : MonoBehaviour
         {
             byte[] message = new byte[1] { 100 };
             SendMessageToServer(server,message);
-            rep.Add(new byte[1] { 100 });
             return 0;
         }
         catch (SocketException)
@@ -425,6 +424,7 @@ public class NetworkManager : MonoBehaviour
 
                     }else{
                     }
+                    
                     break;
                 case 6:
                     idPlayer = decode(message, size);

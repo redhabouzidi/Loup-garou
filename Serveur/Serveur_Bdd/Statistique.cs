@@ -186,6 +186,9 @@ string query = "SELECT idUsers, score,nb_partiejoue,nb_victoire " +
     
 
         int[] identifiants = data.Select(r => r.idUsers).ToArray();
+        if(identifiants==null||identifiants.Length==0){
+            return (new string[0],new int[0],new int[0],new int[0],new double[0]);
+        }
         int[] score=data.Select(r=>r.score).ToArray();
         int[] nb_partiejoue=data.Select(r=>r.nb_partiejoue).ToArray();
         int[] nb_victoire=data.Select(r=>r.nb_victoire).ToArray();

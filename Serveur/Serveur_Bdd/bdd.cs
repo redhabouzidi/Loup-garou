@@ -109,7 +109,7 @@ public class bdd
             if (bdd.Available != 0)
             {
                 int val = bdd.Receive(message);
-
+                try{
                 switch (message[0])
                 {
                     case 105:
@@ -151,6 +151,9 @@ public class bdd
                     case 163:
                         sendStats(bdd, message);
                         break;
+                }
+                }catch(Exception e){
+                        Console.WriteLine(e.ToString());
                 }
             }
             else

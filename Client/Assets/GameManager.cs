@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false;
-    public bool soundNight;
+    public bool soundNight,sceneNight;
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
     public static float value_timer;
@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         isNight = true;
         tour = 0;
-
+        sceneNight=false;
         // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -220,6 +220,14 @@ public class GameManager : MonoBehaviour
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
+        if(inputChatLG.text != "" && Input.GetKeyDown(KeyCode.Return))
+        {
+            string msg = p.GetPseudo() + ": " + inputChatLG.text.ToString();
+            NetworkManager.sendchatLGMessage(msg);
+            inputChatLG.text = "";
+            inputChatLG.ActivateInputField();
+        }
+
         if (gameover)
         {
             gamePage.transform.gameObject.SetActive(false);
@@ -512,26 +520,28 @@ public void play_sound_night(){
             else sePresenter.gameObject.SetActive(false);
         }
 
-        else if (isNight == false)
+        else if (isNight != sceneNight)
         {
-            ChangeChat();
-            banderoleMaire.enabled = false;
-            text_day.text = "Day " + tour;
-            text_day.color = colorWhite;
-            player_role.color = colorWhite;
-            player_role.text = p.GetRole();
-            sePresenter.gameObject.SetActive(false);
+            sceneNight=isNight;
+            if(sceneNight==false){
+                ChangeChat();
+                banderoleMaire.enabled = false;
+                text_day.text = "Day " + tour;
+                text_day.color = colorWhite;
+                player_role.color = colorWhite;
+                player_role.text = p.GetRole();
+                sePresenter.gameObject.SetActive(false);
+            }else{
+                ChangeChat();
+                banderoleMaire.enabled = false;
+                text_day.text = "Night " + tour;
+                text_day.color = colorRed;
+                player_role.color = colorRed;
+                player_role.text = p.GetRole();
+                sePresenter.gameObject.SetActive(false);
+            }
             
-        }
-        else
-        {
-            ChangeChat();
-            banderoleMaire.enabled = false;
-            text_day.text = "Night " + tour;
-            text_day.color = colorRed;
-            player_role.color = colorRed;
-            player_role.text = p.GetRole();
-            sePresenter.gameObject.SetActive(false);
+            
         }
     }
 
@@ -681,7 +691,7 @@ public void play_sound_night(){
     {
         GameObject newText = Instantiate(textComponent, chatPanelLG.transform);
         Message newMsg = new Message();
-
+        Debug.Log(text);
         newMsg.msg = text;
         newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
         newMsg.textComponent.text = newMsg.msg;

@@ -4202,6 +4202,7 @@ MonoBehaviour:
   GO_rolesRestant: {fileID: 1160606122}
   GO_tourRoles: {fileID: 1442175405}
   soundNight: 0
+  sceneNight: 1
   timer: {fileID: 1096054381}
   sestPresente: 0
   electionMaire: 0
