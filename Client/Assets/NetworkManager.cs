@@ -481,7 +481,6 @@ public class NetworkManager : MonoBehaviour
                 break;
             case 9:
                     val = decode(message, size);
-                    players=new WPlayer[val];
                     ids = new int[val];
                     for (int i = 0; i < val; i++)
                     {
@@ -497,6 +496,7 @@ public class NetworkManager : MonoBehaviour
                     }
                         
                         if(ws.players_waiting!=null){
+                            players=new WPlayer[ws.players_waiting.Count];
                             ws.players_waiting.CopyTo(players);
                         }
                     
@@ -576,6 +576,9 @@ public class NetworkManager : MonoBehaviour
             case 18:
                 size[0] = 1;
                 idp = decode(message, size);
+                if(gm==null){
+                    GameManager.maire=idp;
+                }else{
                 if (idp == id)
                 {
                     gm.p.SetIsMaire(true);
@@ -601,6 +604,8 @@ public class NetworkManager : MonoBehaviour
                     }
                 }
                 gm.MiseAJourAffichage();
+                }
+                
                 break;
                 case 19:
                     int item=decode(message,size);

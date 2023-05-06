@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public GameObject cardContainer, cardComponent, containerRole, roleComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false,useHeal=false,useKill=false;
     public bool soundNight,sceneNight;
-    public static int tour = 0,turn; 
+    public static int tour = 0,turn,maire=-1; 
     public TextMeshProUGUI timer;
     public static float value_timer;
     public bool sestPresente = false, electionMaire = false;
@@ -103,7 +103,7 @@ public class GameManager : MonoBehaviour
         isNight = true;
         tour = 0;
         sceneNight=false;
-
+        
         // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -188,8 +188,37 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
+            
         }
-        
+        if(maire!=-1){
+            Debug.Log("mairefzfefeqfezfezf");
+            if (maire == p.GetId())
+                {
+                    p.SetIsMaire(true);
+                }
+                else
+                {
+                    p.SetIsMaire(false);
+
+                }
+                if (!p.GetIsAlive())
+                {
+                    GO_dead_bg.SetActive(true);
+                }
+                foreach (Player j in listPlayer)
+                {
+                    if (j.GetId() == maire)
+                    {
+                        j.SetIsMaire(true);
+                    }
+                    else
+                    {
+                        j.SetIsMaire(false);
+                    }
+                }
+                maire=-1;
+        }
+
         AfficherJour();
         AfficheCard();
         MiseAJourAffichage();

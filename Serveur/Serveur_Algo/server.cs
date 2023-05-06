@@ -274,6 +274,7 @@ namespace Server
         //fonction qui envoie un message a un socket donne en parametre
         public static void sendMessage(Socket client, byte[] message)
         {
+            if(client!=null && client.Connected){
             if (client_keys.ContainsKey(client))
             {
                 Console.WriteLine("Le premier byte non crtypté est est {0}", message[0]);
@@ -289,15 +290,14 @@ namespace Server
                 client.Send(message, message.Length, SocketFlags.None);
             }
 
+            }
+
 
         }
         public static void sendMessage(Socket client, byte[] message, int recvSize)
         {
-            foreach (byte b in message)
-            {
-                Console.Write(b + " ");
-            }
-            Console.WriteLine("");
+
+            if(client!=null && client.Connected){
             if (client_keys.ContainsKey(client))
             {
                 Console.WriteLine("Le premier byte est {0}", message[0]);
@@ -310,6 +310,7 @@ namespace Server
             else
             {
                 client.Send(message, recvSize, SocketFlags.None);
+            }
             }
         }
 

@@ -1073,7 +1073,19 @@ public class Game
             Console.WriteLine("on lance la game");
             Task.Run(() =>
             {
+                try{
+
                 Start();
+                }catch(Exception e){
+                    Console.WriteLine("message = "+e.ToString());
+                    List<Socket> sockets = new List<Socket>();
+                    foreach(Joueur j in _joueurs){
+                        sockets.Add(j.GetSocket());
+                    }
+                        server.sendEndState(sockets, 0, new int[0], new int[0]);
+                    
+                    EndGameInitializer();
+                }
             });
         }
 
