@@ -1074,7 +1074,7 @@ namespace Server
                                 idGames[i] = data.Key; ;
                                 nbPlayer[i] = data.Value._nbrJoueurs;
                                 gameNames[i] = data.Value.name;
-                                nbActualPlayer[i] = data.Value.GetJoueurs().Length;
+                                nbActualPlayer[i] = data.Value.GetJoueurs().Count;
                                 roles.Add(data.Value.GetRolesJoueurs());
                                 i++;
                             }

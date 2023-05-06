@@ -298,7 +298,7 @@ public class GameManagerApp : MonoBehaviour
         text_error.text = msg;
     }
 
-    public void AddGame(int id, string name, int nbPlayer,int[] actualPlayers,int[] roles){
+    public void AddGame(int id, string name, int nbPlayer,int actualPlayers,int[] roles){
         
         GameObject newGame = Instantiate(componentGame, containerGame.transform);
         Game g = new Game(id, name, nbPlayer, newGame);
@@ -308,7 +308,7 @@ public class GameManagerApp : MonoBehaviour
 
         GameObject GO_Player = newGame.transform.Find("numberPlayers").gameObject;
         TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
-        textPlayer.text = "" + (nbPlayer - g.nbPlayer_rest) + "/" + nbPlayer;
+        textPlayer.text = "" + (actualPlayers) + "/" + nbPlayer;
 
         //ajout dans le toggle groupe
         newGame.GetComponent<Toggle>().group = toggleGroupGame.GetComponent<ToggleGroup>();

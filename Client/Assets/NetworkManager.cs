@@ -397,7 +397,6 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log(message == null);
         Dictionary<int, int> dictJoueur;
-        bool read = true;
         int[] idPlayers, ids, roles, nbPlayers, gameId, nbPartie;
         double[] winrates;
         string[] playerNames, gameName;
@@ -482,7 +481,7 @@ public class NetworkManager : MonoBehaviour
                 break;
             case 9:
                     val = decode(message, size);
-
+                    players=new WPlayer[val];
                     ids = new int[val];
                     for (int i = 0; i < val; i++)
                     {
@@ -496,13 +495,13 @@ public class NetworkManager : MonoBehaviour
                         roles[i] = decode(message, size);
                         dictJoueur[ids[i]] = roles[i];
                     }
+                        
                         if(ws.players_waiting!=null){
                             ws.players_waiting.CopyTo(players);
                         }
                     
                     for (int i = 0; i < val; i++)
                     {
-
                         players[i].SetRole(dictJoueur[players[i].GetId()]);
                     }
                     inGame = true;
@@ -534,8 +533,6 @@ public class NetworkManager : MonoBehaviour
                     }
                     gm.MiseAJourAffichage();
                     break;
-
-                break;
             case 11:
                 GameManager.turn = decode(message, size);
                 break;
@@ -850,7 +847,7 @@ public class NetworkManager : MonoBehaviour
             case 108:
                 idPlayer = decode(message, size);
                 ready = decodeBool(message, size);
-                ws.ChangeReady(idPlayer);
+                ws.ChangeReady(idPlayer,ready);
 
                 //METTRE LE JOUEUR A PRET 
                 break;
