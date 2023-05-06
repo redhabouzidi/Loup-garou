@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public static List<Roles> roleRestant;
     public GameObject cardContainer, cardComponent, containerRole, roleComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
-    public static bool isNight = true,action=false;
+    public static bool isNight = true,action=false,useHeal=false,useKill=false;
     public bool soundNight,sceneNight;
     public static int tour = 0,turn; 
     public TextMeshProUGUI timer;
@@ -237,7 +237,14 @@ public class GameManager : MonoBehaviour
             AfficheWinScreen();
             gameover = false;
         }
-        
+        if(useHeal){
+            useHeal=false;
+            UseHealthPotion();
+        }
+        if(useKill){
+            useKill=false;
+            UseDeathPotion();
+        }
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();

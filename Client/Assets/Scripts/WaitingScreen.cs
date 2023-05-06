@@ -42,8 +42,6 @@ public class WaitingScreen : MonoBehaviour
     public GameObject cardContainer, cardComponent;
     private List<GameObject> listCard = new List<GameObject>();
     public Color colorNone, colorCard;
-
-
     // Start is called before the first frame update
     public void Start()
     {
@@ -134,16 +132,16 @@ public class WaitingScreen : MonoBehaviour
         //isStart = true;
         foreach (WPlayer p in NetworkManager.players)
         {
-            addplayer(p.GetUsername(), p.GetId());
+            addplayer(p.GetUsername(), p.GetId(),p.GetReady());
         }
     }
     //Fonction permettant de ajouter un joueur avec son nom d'utilisateur
-    public void addplayer(string username, int id)
+    public void addplayer(string username, int id,bool readyp)
     {
         if(players_waiting.Count >= max_player){
             return;
         }
-        players_waiting.Add(new WPlayer(username, id));
+        players_waiting.Add(new WPlayer(username, id,readyp));
         no_players++;
 
         if (nbjoueur_rest != 0) nbjoueur_rest--;
@@ -258,15 +256,15 @@ public class WaitingScreen : MonoBehaviour
         }
     }
 
-    public void ChangeReady(int id) {
+    public void ChangeReady(int id,bool ready) {
         button_ready.transform.Find("check").GetComponent<Image>().color = colorGreen;
         
         foreach (WPlayer p in players_waiting) {
             if(p.GetId() == id) {
-                p.readyp = NetworkManager.ready;
+                p.readyp = ready;
                 
                 if(NetworkManager.id == id) {
-                    if(NetworkManager.ready) {
+                    if(ready) {
                         
                         button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
                         button_ready.GetComponent<Image>().color = colorGreen;
@@ -283,7 +281,7 @@ public class WaitingScreen : MonoBehaviour
                 }
                 // mettre le check
                 
-                if(NetworkManager.ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = true;
+                if(ready) cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = true;
                 else cardContainer.transform.Find("WaitUserCard(Clone)").transform.Find("image-card").GetComponent<Image>().enabled = false;
             }
         }
@@ -306,10 +304,14 @@ public class WPlayer
     public bool readyp;
     //....
 
-    public WPlayer(string uname, int id)
+    public WPlayer(string uname, int id,bool readyp)
     {
         this.username = uname;
         this.id = id;
+        this.readyp=readyp;
+    }
+    public bool GetReady(){
+        return readyp;
     }
     public string GetUsername()
     {

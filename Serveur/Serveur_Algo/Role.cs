@@ -127,7 +127,7 @@ public abstract class Role
                         }
                         else
                         {
-                            if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
+                            if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4)||(idRole == 255 && message[0]==16))
                             {
                                 server.recvMessageGame(role, message, recvSize);
                             }

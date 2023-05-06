@@ -212,22 +212,22 @@ public class NetworkManager : MonoBehaviour
         Console.WriteLine($"player {vote} votes for {player}");
     }
 
-    public static void setGameInfo(string name, int[] idPlayers, string[] playerNames)
+    public static void setGameInfo(string name, int[] idPlayers, string[] playerNames,bool[] ready)
     {
         ws.name = name;
         players = new WPlayer[idPlayers.Length];
         for (int i = 0; i < idPlayers.Length; i++)
         {
-            players[i] = new WPlayer(playerNames[i], idPlayers[i]);
+            players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
         }
     }
 
-    public static void addGameInfo(int id, string username)
+    public static void addGameInfo(int id, string username,bool ready)
     {
-        ws.addplayer(username, id);
+        ws.addplayer(username, id,ready);
     }
 
-    public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name)
+    public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name,int[] actualPlayers,List<int[]> roles)
     {
         foreach (Transform child in gma.containerGame.transform)
         {
@@ -236,8 +236,8 @@ public class NetworkManager : MonoBehaviour
         GameManagerApp.listGame.Clear();
         for (int i = 0; i < nbPlayers.Length; i++)
         {
-            gma.AddGame(gameId[i], name[i], nbPlayers[i]);
-        }
+            gma.AddGame(gameId[i], name[i], nbPlayers[i],actualPlayers[i],roles[i]);
+        }   
     }
 
     public static int decode(byte[] message, int[] size)
@@ -405,6 +405,7 @@ public class NetworkManager : MonoBehaviour
         string name, usernameP;
         int[] size = new int[1] { 0 };
         Debug.Log(BitConverter.ToString(message));
+        Debug.Log("code== "+message[0]);
         rep.RemoveAt(0);
 
 
@@ -480,40 +481,40 @@ public class NetworkManager : MonoBehaviour
 
                 break;
             case 9:
-                val = decode(message, size);
+                    val = decode(message, size);
 
-                ids = new int[val];
-                for (int i = 0; i < val; i++)
-                {
-                    ids[i] = decode(message, size);
-                }
-                val = decode(message, size);
-                roles = new int[val];
-                dictJoueur = new Dictionary<int, int>();
-                for (int i = 0; i < val; i++)
-                {
-                    roles[i] = decode(message, size);
-                    dictJoueur[ids[i]] = roles[i];
-                }
-                players = new WPlayer[ws.players_waiting.Count];
-                for (int i = 0; i < val; i++)
-                {
-                    ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
-                }
-
-                ws.players_waiting.CopyTo(players);
-                inGame = true;
-                LoadScene("game_scene");
-
-                break;
-            case 10:
-                val = decode(message, size);
-                role = decode(message, size);
-                foreach (Player p in gm.listPlayer)
-                {
-                    if (p.GetId() == val)
+                    ids = new int[val];
+                    for (int i = 0; i < val; i++)
                     {
-                        if (p.GetId() == gm.p.GetId())
+                        ids[i] = decode(message, size);
+                    }
+                    val = decode(message, size);
+                    roles = new int[val];
+                    dictJoueur = new Dictionary<int, int>();
+                    for (int i = 0; i < val; i++)
+                    {
+                        roles[i] = decode(message, size);
+                        dictJoueur[ids[i]] = roles[i];
+                    }
+                        if(ws.players_waiting!=null){
+                            ws.players_waiting.CopyTo(players);
+                        }
+                    
+                    for (int i = 0; i < val; i++)
+                    {
+
+                        players[i].SetRole(dictJoueur[players[i].GetId()]);
+                    }
+                    inGame = true;
+                    LoadScene("game_scene");
+
+                    break;
+            case 10:
+                 val = decode(message, size);
+                    role = decode(message, size);
+                    foreach (Player p in gm.listPlayer)
+                    {
+                        if (p.GetId() == val)
                         {
                             if (p.GetId() == gm.p.GetId())
                             {
@@ -524,20 +525,16 @@ public class NetworkManager : MonoBehaviour
                             p.SetIsAlive(false);
                             gm.RemoveRoleRestant(role);
                         }
-                        p.SetRole(role);
-                        p.SetIsAlive(false);
-                        gm.RemoveRoleRestant(role);
-                        gm.UpdateRoles();
-                    }
 
-                    Debug.Log(p.GetIsAlive());
-                }
-                gm.updateImage(val, role);
-                if (!gm.p.GetIsMaire())
-                {
-                    gm.LITTERALLYDIE();
-                }
-                gm.MiseAJourAffichage();
+                        Debug.Log(p.GetIsAlive());
+                    }
+                    gm.updateImage(val, role);
+                    if(!gm.p.GetIsMaire()){
+                        gm.LITTERALLYDIE();
+                    }
+                    gm.MiseAJourAffichage();
+                    break;
+
                 break;
             case 11:
                 GameManager.turn = decode(message, size);
@@ -608,139 +605,153 @@ public class NetworkManager : MonoBehaviour
                 }
                 gm.MiseAJourAffichage();
                 break;
-            case 19:
-                int item = decode(message, size);
-                if (item == 0)
-                {
-                    //UTILISER POTION DE VIE
-                    gm.UseHealthPotion();
-                }
-                else if (item == 1)
-                {
-                    //UTILISER POTION DE MORT
-                    gm.UseDeathPotion();
-                }
-                break;
-            case 20:
-                //MESSAGES LOUP
-                gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
-                break;
-            case 100:
-                id = -1;
-                connected = false;
-                username = "";
-                GameManagerApp.listFriend.Clear();
-                GameManagerApp.listAdd.Clear();
-                GameManagerApp.listRequest.Clear();
-                GameManagerApp.listWait.Clear();
-                LoadScene("Jeu");
-                break;
-            case 101:
-                sp.SetActive(false);
-                wso.SetActive(true);
-                nbRole = new List<int>();
-                rolews = new List<int>();
-                nbplayeres = decode(message, size);
-                int nbLoup = decode(message, size);
-                bool sorciere = decodeBool(message, size);
-                bool voyante = decodeBool(message, size);
-                bool cupidon = decodeBool(message, size);
-                bool chasseur = decodeBool(message, size);
-                bool garde = decodeBool(message, size);
-                bool dictateur = decodeBool(message, size);
-                int nbVillagers = nbplayeres;
+                case 19:
+                    int item=decode(message,size);
+                    if(item==0){
+                        //UTILISER POTION DE VIE
+                        GameManager.useHeal=true;
+                    }else if(item==1){
+                        //UTILISER POTION DE MORT
+                        GameManager.useKill=true;
+                    }
+                    break;
+                case 20:
+                    //MESSAGES LOUP
+                    gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
+                    break;
+                case 100:
+                    id = -1;
+                    connected = false;
+                    username = "";
+                    GameManagerApp.listFriend.Clear();
+                    GameManagerApp.listAdd.Clear();
+                    GameManagerApp.listRequest.Clear();
+                    GameManagerApp.listWait.Clear();
+                    LoadScene("Jeu");
+                    break;
+                case 101:
+                    sp.SetActive(false);
+                    wso.SetActive(true);
+                    nbRole = new List<int>();
+                    rolews = new List<int>();
+                    nbplayeres = decode(message, size);
+                    int nbLoup = decode(message, size);
+                    bool sorciere = decodeBool(message, size);
+                    bool voyante = decodeBool(message, size);
+                    bool cupidon = decodeBool(message, size);
+                    bool chasseur = decodeBool(message, size);
+                    bool garde = decodeBool(message, size);
+                    bool dictateur = decodeBool(message, size);
+                    int nbVillagers = nbplayeres;
+                    
+                    if (nbLoup != 0)
+                    {
+                        rolews.Add(4);
+                        nbRole.Add(nbLoup);
+                        nbVillagers -= nbLoup;
+                    }
+                    if (sorciere)
+                    {
+                        rolews.Add(5);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (voyante)
+                    {
+                        rolews.Add(3);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (cupidon)
+                    {
+                        rolews.Add(2);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (chasseur)
+                    {
+                        rolews.Add(6);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (garde)
+                    {
+                        rolews.Add(7);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (dictateur)
+                    {
+                        rolews.Add(8);
+                        nbRole.Add(1);
+                        nbVillagers--;
+                    }
+                    if (nbVillagers >0)
+                    {
+                        rolews.Add(1);
+                        nbRole.Add(nbVillagers);
+                    }
+                    name = decodeString(message, size);
+                    tableSize = decode(message, size);
+                    idPlayers = new int[tableSize];
+                    playerNames = new string[tableSize];
+                    bool[] readyState=new bool[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        idPlayers[i] = decode(message, size);
+                    }
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        playerNames[i] = decodeString(message, size);
 
-                if (nbLoup != 0)
-                {
-                    rolews.Add(4);
-                    nbRole.Add(nbLoup);
-                    nbVillagers -= nbLoup;
-                }
-                if (sorciere)
-                {
-                    rolews.Add(5);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (voyante)
-                {
-                    rolews.Add(3);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (cupidon)
-                {
-                    rolews.Add(2);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (chasseur)
-                {
-                    rolews.Add(6);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (garde)
-                {
-                    rolews.Add(7);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (dictateur)
-                {
-                    rolews.Add(8);
-                    nbRole.Add(1);
-                    nbVillagers--;
-                }
-                if (nbVillagers > 0)
-                {
-                    rolews.Add(1);
-                    nbRole.Add(nbVillagers);
-                }
-                name = decodeString(message, size);
-                tableSize = decode(message, size);
-                idPlayers = new int[tableSize];
-                playerNames = new string[tableSize];
-                for (int i = 0; i < tableSize; i++)
-                {
-                    idPlayers[i] = decode(message, size);
-                }
-                for (int i = 0; i < tableSize; i++)
-                {
-                    playerNames[i] = decodeString(message, size);
-
-                }
-                setGameInfo(name, idPlayers, playerNames);
-                ws.add_role(rolews.ToArray(), nbRole.ToArray());
-                ws.newGame = true;
-                break;
-            case 102:
-                idP = decode(message, size);
-                usernameP = decodeString(message, size);
-                addGameInfo(idP, usernameP);
-                break;
-            case 103:
-                tableSize = decode(message, size);
-                nbPlayers = new int[tableSize];
-                for (int i = 0; i < tableSize; i++)
-                {
-                    nbPlayers[i] = decode(message, size);
-                }
-                tableSize = decode(message, size);
-                gameId = new int[tableSize];
-                for (int i = 0; i < tableSize; i++)
-                {
-                    gameId[i] = decode(message, size);
-                }
-                gameName = new string[tableSize];
-                for (int i = 0; i < tableSize; i++)
-                {
-                    gameName[i] = decodeString(message, size);
-                }
-                lo.SetActive(true);
-                SetCurrentGame(nbPlayers, gameId, gameName);
-                break;
-            case 104:
+                    }
+                    for(int i=0;i<tableSize;i++){
+                        readyState[i]=decodeBool(message,size);
+                    }
+                    setGameInfo(name, idPlayers, playerNames,readyState);
+                    ws.add_role(rolews.ToArray(), nbRole.ToArray());
+                    ws.newGame = true;
+                    break;
+                case 102:
+                    idP = decode(message, size);
+                    usernameP = decodeString(message, size);
+                    addGameInfo(idP, usernameP,false);
+                    break;
+                case 103:
+                    tableSize = decode(message, size);
+                    nbPlayers = new int[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        nbPlayers[i] = decode(message, size);
+                    }
+                    tableSize = decode(message, size);
+                    gameId = new int[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        gameId[i] = decode(message, size);
+                    }
+                    gameName = new string[tableSize];
+                    for (int i = 0; i < tableSize; i++)
+                    {
+                        gameName[i] = decodeString(message, size);
+                    }
+                    int [] actualPlayers = new int[tableSize];
+                    for(int i = 0;i<tableSize;i++){
+                        actualPlayers[i]=decode(message,size);
+                    }
+                    List<int[]> rolesJoueurs = new List<int[]>();
+                    for(int i=0;i<tableSize;i++){
+                        dataSize=decode(message,size);
+                        int[] rolesTemp = new int[dataSize];
+                        for(int j=0;j<dataSize;j++){
+                            rolesTemp[j]=decode(message,size);
+                        }
+                        rolesJoueurs.Add(rolesTemp);
+                    }
+                    lo.SetActive(true);
+                    SetCurrentGame(nbPlayers, gameId, gameName,actualPlayers,rolesJoueurs);
+                    break;
+                case 104:
                 if (decodeBool(message, size) == false)
                 {
                     gma.AfficheError("Inscription went wrong");
@@ -751,7 +762,6 @@ public class NetworkManager : MonoBehaviour
                     gma.registrationPage.SetActive(false);
                 }
                 break;
-
 
             case 105:
                 Debug.Log("hey");
@@ -814,6 +824,7 @@ public class NetworkManager : MonoBehaviour
                     gma.AfficheError("Error: Email/Pseudo or password is invalide");
                 }
                 break;
+
             case 106:
                 int idQuitter = decode(message, size);
                 if (idQuitter != id)
@@ -867,7 +878,7 @@ public class NetworkManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("pas cool");
+
                         Player p = gm.listPlayer.Find(j => j.GetId() == idPlayers[i]);
                         p.SetRole(roles[i]);
 

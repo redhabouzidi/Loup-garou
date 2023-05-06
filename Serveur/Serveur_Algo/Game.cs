@@ -7,6 +7,7 @@ public class Game
 {
     private List<Joueur> _joueurs;
     private List<Role> _roles;
+    private int[] rolesJoueurs;
     private int _nbrJoueursManquants,gameId;
     private bool _start;
     public int _nbrJoueurs,currentTime;
@@ -35,28 +36,50 @@ public class Game
         testNombre();
         // la partie est cr   maintenant j'attends les input du frontend et j'envoie mon client   waiting screen
         // on va admettre que joueurs max = 6
+        rolesJoueurs = new int[_nbrJoueurs];
         Role[] startingRoles = new Role[_nbrJoueurs];
         int i;
-        for (i = 0; i < _nbLoups; i++)
+        for( i=0;i<_nbLoups;i++)
         {
+            rolesJoueurs[i]=4;
             startingRoles[i] = new Loup();
         }
         if (sorciere)
         {
+            rolesJoueurs[i]=5;
             startingRoles[i++] = new Sorciere();
         }
         if (voyante)
         {
+            rolesJoueurs[i]=3;
             startingRoles[i++] = new Voyante();
         }
         if (cupidon)
         {
+            rolesJoueurs[i]=2;
             startingRoles[i++] = new Cupidon();
+        }
+        if (chasseur)
+        {
+            rolesJoueurs[i]=6;
+            startingRoles[i++] = new Chasseur();
+        }
+        if (guardien)
+        {
+            rolesJoueurs[i]=8;
+            startingRoles[i++] = new Garde();
+        }
+        if (dictateur)
+        {
+            rolesJoueurs[i]=7;
+            startingRoles[i++] = new Dictateur();
         }
         for (; i < _nbrJoueurs; i++)
         {
+            rolesJoueurs[i]=1;
             startingRoles[i] = new Villageois();
         }
+
         foreach (Role role in startingRoles)
         {
             _roles.Add(role);
@@ -100,6 +123,7 @@ public class Game
         this.name = name;
         // cr ation de la liste de joueurs et de r les
         _roles = new List<Role>();
+        rolesJoueurs = new int[nbPlayers];
         Role[] startingRoles = new Role[nbPlayers];
         //affectation des parametres
         this.sorciere = sorciere;
@@ -117,34 +141,42 @@ public class Game
         //initialisation des roles
         for( i=0;i<nbLoups;i++)
         {
+            rolesJoueurs[i]=4;
             startingRoles[i] = new Loup();
         }
         if (sorciere)
         {
+            rolesJoueurs[i]=5;
             startingRoles[i++] = new Sorciere();
         }
         if (voyante)
         {
+            rolesJoueurs[i]=3;
             startingRoles[i++] = new Voyante();
         }
         if (cupidon)
         {
+            rolesJoueurs[i]=2;
             startingRoles[i++] = new Cupidon();
         }
         if (chasseur)
         {
+            rolesJoueurs[i]=6;
             startingRoles[i++] = new Chasseur();
         }
         if (guardien)
         {
+            rolesJoueurs[i]=8;
             startingRoles[i++] = new Garde();
         }
         if (dictateur)
         {
+            rolesJoueurs[i]=7;
             startingRoles[i++] = new Dictateur();
         }
         for (; i < nbPlayers; i++)
         {
+            rolesJoueurs[i]=1;
             startingRoles[i] = new Villageois();
         }
 
@@ -213,11 +245,7 @@ public class Game
             {
                 Console.WriteLine(p.GetSocket() + " id " + j.GetId() + " pseudo " + j.GetPseudo());
                 server.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
-                foreach(Joueur joueur in _joueurs){
-                    if(joueur.GetReady()){
-                        server.sendReady(c.GetSocket(),joueur.GetId(),true);
-                    }
-                }
+                
             }
 
         }
@@ -878,12 +906,17 @@ public class Game
     {
         int[] id = new int[_joueurs.Count];
         string[] name = new string[_joueurs.Count];
+        bool[] ready = new bool[_joueurs.Count];
+        
         for (int i = 0; i < _joueurs.Count; i++)
         {
             id[i] = _joueurs[i].GetId();
             name[i] = _joueurs[i].GetPseudo();
+            ready[i] = _joueurs[i].GetReady();
         }
-        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name);
+        
+        
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name,ready);
     }
     public void sendGameState(bool day)
     {
@@ -1046,7 +1079,9 @@ public class Game
 
         }
     }
-
+    public int[] GetRolesJoueurs(){
+        return rolesJoueurs;
+    }
     public void PointShare(int check,string recit) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];

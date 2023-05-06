@@ -298,9 +298,8 @@ public class GameManagerApp : MonoBehaviour
         text_error.text = msg;
     }
 
-    public void AddGame(int id, string name, int nbPlayer)
-    {
-
+    public void AddGame(int id, string name, int nbPlayer,int[] actualPlayers,int[] roles){
+        
         GameObject newGame = Instantiate(componentGame, containerGame.transform);
         Game g = new Game(id, name, nbPlayer, newGame);
 
