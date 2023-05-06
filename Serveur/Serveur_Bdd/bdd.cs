@@ -168,7 +168,7 @@ public class bdd
     public static Socket setupSocketServer()
     {
         string ia = "192.168.100.116";
-        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10005);
+        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10001);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         client.Connect(iep);
         Console.WriteLine("Conenxion to server achieved");

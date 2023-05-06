@@ -13,13 +13,13 @@ public class NetworkManager : MonoBehaviour
 {
 
     public static int nbplayeres, time;
-    public static bool prog = false, ready,inGame;
+    public static bool prog = false, ready, inGame;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao,sgo,ro,so;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpw;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -30,7 +30,8 @@ public class NetworkManager : MonoBehaviour
 
     public static Aes aes;
     public static RSA rsa;
-    public static List<int> rolews = new List<int>(), nbRole ;
+    public static List<int> rolews = new List<int>(), nbRole;
+    public static bool connected = false;
 
     public class answer
     {
@@ -78,7 +79,8 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18004;
+                connected=false;
+                int port = 18000;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -110,7 +112,8 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18004;
+                connected=false;
+                int port = 18000;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -142,7 +145,8 @@ public class NetworkManager : MonoBehaviour
             prog = true;
             try
             {
-                int port = 18004;
+                connected=false;
+                int port = 18000;
                 string ia = "185.155.93.105";
                 // int port = 10000;
                 // string ia = "127.0.0.1";
@@ -162,7 +166,8 @@ public class NetworkManager : MonoBehaviour
                 prog = false;
             }
         }
-        while(client.Available!=0){
+        while (client.Available != 0)
+        {
             client.Receive(new byte[4086]);
         }
         login(email, password);
@@ -232,7 +237,7 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i]);
-        }   
+        }
     }
 
     public static int decode(byte[] message, int[] size)
@@ -241,7 +246,8 @@ public class NetworkManager : MonoBehaviour
         size[0] += sizeof(int);
         return result;
     }
-    public static double decodeDouble(byte[] message,int[] size){
+    public static double decodeDouble(byte[] message, int[] size)
+    {
         double result = BitConverter.ToDouble(message, size[0]);
         size[0] += sizeof(double);
         return result;
@@ -263,9 +269,10 @@ public class NetworkManager : MonoBehaviour
 
         return name;
     }
-    public static DateTime decodeDate(byte[] message,int[] size){
+    public static DateTime decodeDate(byte[] message, int[] size)
+    {
         DateTime date = DateTime.FromBinary(BitConverter.ToInt64(message, size[0]));
-        size[0]+=sizeof(long);
+        size[0] += sizeof(long);
         return date;
     }
     public static void encode(byte[] message, int val, int[] size)
@@ -273,7 +280,8 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
         size[0] += sizeof(int);
     }
-    public static void encode(byte[] message,double val,int[] size){
+    public static void encode(byte[] message, double val, int[] size)
+    {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(double));
         size[0] += sizeof(int);
     }
@@ -290,9 +298,10 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(Encoding.ASCII.GetBytes(val), 0, message, size[0], val.Length);
         size[0] += val.Length;
     }
-    public static void encode(byte[] message,DateTime val,int[] size){
+    public static void encode(byte[] message, DateTime val, int[] size)
+    {
         Array.Copy(BitConverter.GetBytes(val.Ticks), 0, message, size[0], sizeof(long));
-        size[0]+=sizeof(long);
+        size[0] += sizeof(long);
     }
     public static void encodeString(byte[] message, string val, int[] size)
     {
@@ -334,7 +343,7 @@ public class NetworkManager : MonoBehaviour
         try
         {
             byte[] message = new byte[1] { 100 };
-            SendMessageToServer(server,message);
+            SendMessageToServer(server, message);
             return 0;
         }
         catch (SocketException)
@@ -359,13 +368,13 @@ public class NetworkManager : MonoBehaviour
         Socket.Select(read, null, null, 50000);
         if (read.Count != 0)
         {
-            if (server.Available == 0||!server.Connected)
+            if (server.Available == 0 || !server.Connected)
             {
                 prog = false;
                 rep.Add(new byte[1] { 100 });
                 return;
             }
-            
+
             recvSize = server.Receive(message);
 
             Debug.Log("recv =" + message[0]);
@@ -389,7 +398,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(message == null);
         Dictionary<int, int> dictJoueur;
         bool read = true;
-        int[] idPlayers, ids, roles, nbPlayers, gameId,nbPartie;
+        int[] idPlayers, ids, roles, nbPlayers, gameId, nbPartie;
         double[] winrates;
         string[] playerNames, gameName;
         int dataSize, tableSize, idPlayer, idp, val, role, idP, win;
@@ -399,108 +408,112 @@ public class NetworkManager : MonoBehaviour
         rep.RemoveAt(0);
 
 
-            switch (message[size[0]++])
-            {
-                case 0:
-                    Debug.Log("I'm here");
-                    gm.SendMessageToChat(decodeString(message, size), Message.MsgType.player);
-                    Debug.Log("I am over here");
-                    break;
-                case 1:
-                    int vote = decode(message, size);
-                    int voted = decode(message, size);
-                    int indice = gm.chercheIndiceJoueurId(vote);
-                    gm.listPlayer[indice].SetVote(voted);
-                    gm.UpdateVote();
-                    break;
-                case 5:
-                    GameManager.turn = 1;
-                    bool ra = decodeBool(message, size);
-                    GameManager.isNight = !ra;
-                    
-                    if (!ra)
+        switch (message[size[0]++])
+        {
+            case 0:
+                Debug.Log("I'm here");
+                gm.SendMessageToChat(decodeString(message, size), Message.MsgType.player);
+                Debug.Log("I am over here");
+                break;
+            case 1:
+                int vote = decode(message, size);
+                int voted = decode(message, size);
+                int indice = gm.chercheIndiceJoueurId(vote);
+                gm.listPlayer[indice].SetVote(voted);
+                gm.UpdateVote();
+                break;
+            case 5:
+                GameManager.turn = 1;
+                bool ra = decodeBool(message, size);
+                GameManager.isNight = !ra;
+
+                if (!ra)
+                {
+                    GameManager.tour++;
+
+                }
+                else
+                {
+                }
+                break;
+            case 6:
+                idPlayer = decode(message, size);
+                idp = decode(message, size);
+
+                gm.setAmoureux(idPlayer, id);
+
+                gm.lover1_id = gm.p.GetId();
+                string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
+                switch (idp)
+                {
+                    case 1:
+                        msg += "Villageois";
+                        break;
+                    case 2:
+                        msg += "Cupidon";
+                        break;
+                    case 3:
+                        msg += "Voyante";
+                        break;
+                    case 4:
+                        msg += "Loup-garou";
+                        break;
+                    case 5:
+                        msg += "Sorciere";
+                        break;
+                }
+                gm.SendMessageToChat(msg, Message.MsgType.system);
+                gm.updateImage(idPlayer, idp);
+                gm.MiseAJourAffichage();
+                break;
+            case 7:
+                idPlayer = decode(message, size);
+                role = decode(message, size);
+                gm.updateImage(idPlayer, role);
+                gm.affiche_text_role(idPlayer, role);
+
+                break;
+            case 8:
+                gm.GO_tourRoles.SetActive(false);
+                idPlayer = decode(message, size);
+                gm.ActionSorciere(idPlayer);
+
+                break;
+            case 9:
+                val = decode(message, size);
+
+                ids = new int[val];
+                for (int i = 0; i < val; i++)
+                {
+                    ids[i] = decode(message, size);
+                }
+                val = decode(message, size);
+                roles = new int[val];
+                dictJoueur = new Dictionary<int, int>();
+                for (int i = 0; i < val; i++)
+                {
+                    roles[i] = decode(message, size);
+                    dictJoueur[ids[i]] = roles[i];
+                }
+                players = new WPlayer[ws.players_waiting.Count];
+                for (int i = 0; i < val; i++)
+                {
+                    ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
+                }
+
+                ws.players_waiting.CopyTo(players);
+                inGame = true;
+                LoadScene("game_scene");
+
+                break;
+            case 10:
+                val = decode(message, size);
+                role = decode(message, size);
+                foreach (Player p in gm.listPlayer)
+                {
+                    if (p.GetId() == val)
                     {
-                        GameManager.tour++;
-
-                    }else{
-                    }
-                    break;
-                case 6:
-                    idPlayer = decode(message, size);
-                    idp = decode(message, size);
-
-                    gm.setAmoureux(idPlayer, id);
-
-                    gm.lover1_id = gm.p.GetId();
-                    string msg = "vous etes amoureux avec " + gm.listPlayer[gm.chercheIndiceJoueurId(idPlayer)].GetPseudo() + " et son role est ";
-                    switch (idp)
-                    {
-                        case 1:
-                            msg += "Villageois";
-                            break;
-                        case 2:
-                            msg += "Cupidon";
-                            break;
-                        case 3:
-                            msg += "Voyante";
-                            break;
-                        case 4:
-                            msg += "Loup-garou";
-                            break;
-                        case 5:
-                            msg += "Sorciere";
-                            break;
-                    }
-                    gm.SendMessageToChat(msg, Message.MsgType.system);
-                    gm.updateImage(idPlayer, idp);
-                    gm.MiseAJourAffichage();
-                    break;
-                case 7:
-                    idPlayer = decode(message, size);
-                    role = decode(message, size);
-                    gm.updateImage(idPlayer, role);
-                    gm.affiche_text_role(idPlayer, role);
-
-                    break;
-                case 8:
-                    gm.GO_tourRoles.SetActive(false);
-                    idPlayer = decode(message, size);
-                    gm.ActionSorciere(idPlayer);
-
-                    break;
-                case 9:
-                    val = decode(message, size);
-
-                    ids = new int[val];
-                    for (int i = 0; i < val; i++)
-                    {
-                        ids[i] = decode(message, size);
-                    }
-                    val = decode(message, size);
-                    roles = new int[val];
-                    dictJoueur = new Dictionary<int, int>();
-                    for (int i = 0; i < val; i++)
-                    {
-                        roles[i] = decode(message, size);
-                        dictJoueur[ids[i]] = roles[i];
-                    }
-                    players = new WPlayer[ws.players_waiting.Count];
-                    for (int i = 0; i < val; i++)
-                    {
-                        ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
-                    }
-
-                    ws.players_waiting.CopyTo(players);
-                    inGame = true;
-                    LoadScene("game_scene");
-
-                    break;
-                case 10:
-                    val = decode(message, size);
-                    role = decode(message, size);
-                    foreach (Player p in gm.listPlayer)
-                    {
-                        if (p.GetId() == val)
+                        if (p.GetId() == gm.p.GetId())
                         {
                             if (p.GetId() == gm.p.GetId())
                             {
@@ -511,535 +524,578 @@ public class NetworkManager : MonoBehaviour
                             p.SetIsAlive(false);
                             gm.RemoveRoleRestant(role);
                         }
+                        p.SetRole(role);
+                        p.SetIsAlive(false);
+                        gm.RemoveRoleRestant(role);
+                        gm.UpdateRoles();
+                    }
 
-                        Debug.Log(p.GetIsAlive());
-                    }
-                    gm.updateImage(val, role);
-                    if(!gm.p.GetIsMaire()){
-                        gm.LITTERALLYDIE();
-                    }
-                    gm.MiseAJourAffichage();
-                    break;
-                case 11:
-                    GameManager.turn = decode(message, size);
-                    break;
-                case 12:
+                    Debug.Log(p.GetIsAlive());
+                }
+                gm.updateImage(val, role);
+                if (!gm.p.GetIsMaire())
+                {
+                    gm.LITTERALLYDIE();
+                }
+                gm.MiseAJourAffichage();
+                break;
+            case 11:
+                GameManager.turn = decode(message, size);
+                break;
+            case 12:
 
-                    time = decode(message, size);
-                    break;
-                case 15:
-                    idPlayers = new int[decode(message, size)];
-                    for (int i = 0; i < idPlayers.Length; i++)
-                    {
-                        idPlayers[i] = decode(message, size);
-                    }
-                    int[] score = new int[decode(message, size)];
-                    for (int i = 0; i < score.Length; i++)
-                    {
-                        score[i] = decode(message, size);
-                    }
-                    //afficher le score
-                    break;
-                case 16:
-                    size[0] = 2;
-                    usernameP = decodeString(message, size);
-                    gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
-                    if (usernameP == username)
-                        gm.sestPresente = true;
-                    break;
-                case 17://
-                    size[0]=1;
-                    tableSize=decode(message,size);
-                    ids=new int[tableSize];
-                    for (int i = 0; i < tableSize; i++)
-                    {
-                        ids[i]=decode(message,size);
-                    }
-                    if(gm.p.GetIsMaire()){
+                time = decode(message, size);
+                break;
+            case 15:
+                idPlayers = new int[decode(message, size)];
+                for (int i = 0; i < idPlayers.Length; i++)
+                {
+                    idPlayers[i] = decode(message, size);
+                }
+                int[] score = new int[decode(message, size)];
+                for (int i = 0; i < score.Length; i++)
+                {
+                    score[i] = decode(message, size);
+                }
+                //afficher le score
+                break;
+            case 16:
+                size[0] = 2;
+                usernameP = decodeString(message, size);
+                gm.SendMessageToChat("" + usernameP + " stands for Mayor elections !", Message.MsgType.system);
+                if (usernameP == username)
+                    gm.sestPresente = true;
+                break;
+            case 17://
+                size[0] = 1;
+                tableSize = decode(message, size);
+                ids = new int[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    ids[i] = decode(message, size);
+                }
+                if (gm.p.GetIsMaire())
+                {
                     gm.affiche_egalite(ids);
-                    }
+                }
                 break;
-                case 18:
-                    size[0]=1;
-                    idp=decode(message,size);
-                    if(idp==id){
-                        gm.p.SetIsMaire(true);
-                    }else{
-                        gm.p.SetIsMaire(false);
-                        
+            case 18:
+                size[0] = 1;
+                idp = decode(message, size);
+                if (idp == id)
+                {
+                    gm.p.SetIsMaire(true);
+                }
+                else
+                {
+                    gm.p.SetIsMaire(false);
+
+                }
+                if (!gm.p.GetIsAlive())
+                {
+                    gm.GO_dead_bg.SetActive(true);
+                }
+                foreach (Player j in gm.listPlayer)
+                {
+                    if (j.GetId() == idp)
+                    {
+                        j.SetIsMaire(true);
                     }
-                    if(!gm.p.GetIsAlive()){
-                        gm.GO_dead_bg.SetActive(true);
+                    else
+                    {
+                        j.SetIsMaire(false);
                     }
-                    foreach(Player j in gm.listPlayer){
-                        if(j.GetId()==idp){
-                            j.SetIsMaire(true);
-                        }else{
-                            j.SetIsMaire(false);
-                        }
-                    }
-                    gm.MiseAJourAffichage();
+                }
+                gm.MiseAJourAffichage();
                 break;
-                case 19:
-                    int item=decode(message,size);
-                    if(item==0){
-                        //UTILISER POTION DE VIE
-                        gm.UseHealthPotion();
-                    }else if(item==1){
-                        //UTILISER POTION DE MORT
-                        gm.UseDeathPotion();
-                    }
-                    break;
-                case 20:
-                    //MESSAGES LOUP
-                    gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
-                    break;
-                case 100:
-                    id = -1;
-                    username = "";
-                    GameManagerApp.listFriend.Clear();
-                    GameManagerApp.listAdd.Clear();
-                    GameManagerApp.listRequest.Clear();
-                    GameManagerApp.listWait.Clear();
-                    LoadScene("Jeu");
-                    break;
-                case 101:
-                    sp.SetActive(false);
-                    wso.SetActive(true);
-                    nbRole = new List<int>();
-                    rolews = new List<int>();
-                    nbplayeres = decode(message, size);
-                    int nbLoup = decode(message, size);
-                    bool sorciere = decodeBool(message, size);
-                    bool voyante = decodeBool(message, size);
-                    bool cupidon = decodeBool(message, size);
-                    bool chasseur = decodeBool(message, size);
-                    bool garde = decodeBool(message, size);
-                    bool dictateur = decodeBool(message, size);
-                    int nbVillagers = nbplayeres;
-                    
-                    if (nbLoup != 0)
-                    {
-                        rolews.Add(4);
-                        nbRole.Add(nbLoup);
-                        nbVillagers -= nbLoup;
-                    }
-                    if (sorciere)
-                    {
-                        rolews.Add(5);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (voyante)
-                    {
-                        rolews.Add(3);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (cupidon)
-                    {
-                        rolews.Add(2);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (chasseur)
-                    {
-                        rolews.Add(6);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (garde)
-                    {
-                        rolews.Add(7);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (dictateur)
-                    {
-                        rolews.Add(8);
-                        nbRole.Add(1);
-                        nbVillagers--;
-                    }
-                    if (nbVillagers >0)
-                    {
-                        rolews.Add(1);
-                        nbRole.Add(nbVillagers);
-                    }
-                    name = decodeString(message, size);
-                    tableSize = decode(message, size);
-                    idPlayers = new int[tableSize];
-                    playerNames = new string[tableSize];
-                    for (int i = 0; i < tableSize; i++)
-                    {
-                        idPlayers[i] = decode(message, size);
-                    }
-                    for (int i = 0; i < tableSize; i++)
-                    {
-                        playerNames[i] = decodeString(message, size);
+            case 19:
+                int item = decode(message, size);
+                if (item == 0)
+                {
+                    //UTILISER POTION DE VIE
+                    gm.UseHealthPotion();
+                }
+                else if (item == 1)
+                {
+                    //UTILISER POTION DE MORT
+                    gm.UseDeathPotion();
+                }
+                break;
+            case 20:
+                //MESSAGES LOUP
+                gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
+                break;
+            case 100:
+                id = -1;
+                connected = false;
+                username = "";
+                GameManagerApp.listFriend.Clear();
+                GameManagerApp.listAdd.Clear();
+                GameManagerApp.listRequest.Clear();
+                GameManagerApp.listWait.Clear();
+                LoadScene("Jeu");
+                break;
+            case 101:
+                sp.SetActive(false);
+                wso.SetActive(true);
+                nbRole = new List<int>();
+                rolews = new List<int>();
+                nbplayeres = decode(message, size);
+                int nbLoup = decode(message, size);
+                bool sorciere = decodeBool(message, size);
+                bool voyante = decodeBool(message, size);
+                bool cupidon = decodeBool(message, size);
+                bool chasseur = decodeBool(message, size);
+                bool garde = decodeBool(message, size);
+                bool dictateur = decodeBool(message, size);
+                int nbVillagers = nbplayeres;
 
-                    }
-                    setGameInfo(name, idPlayers, playerNames);
-                    ws.add_role(rolews.ToArray(), nbRole.ToArray());
-                    ws.newGame = true;
-                    break;
-                case 102:
-                    idP = decode(message, size);
-                    usernameP = decodeString(message, size);
-                    addGameInfo(idP, usernameP);
-                    break;
-                case 103:
-                    tableSize = decode(message, size);
-                    nbPlayers = new int[tableSize];
-                    for (int i = 0; i < tableSize; i++)
+                if (nbLoup != 0)
+                {
+                    rolews.Add(4);
+                    nbRole.Add(nbLoup);
+                    nbVillagers -= nbLoup;
+                }
+                if (sorciere)
+                {
+                    rolews.Add(5);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (voyante)
+                {
+                    rolews.Add(3);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (cupidon)
+                {
+                    rolews.Add(2);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (chasseur)
+                {
+                    rolews.Add(6);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (garde)
+                {
+                    rolews.Add(7);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (dictateur)
+                {
+                    rolews.Add(8);
+                    nbRole.Add(1);
+                    nbVillagers--;
+                }
+                if (nbVillagers > 0)
+                {
+                    rolews.Add(1);
+                    nbRole.Add(nbVillagers);
+                }
+                name = decodeString(message, size);
+                tableSize = decode(message, size);
+                idPlayers = new int[tableSize];
+                playerNames = new string[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    idPlayers[i] = decode(message, size);
+                }
+                for (int i = 0; i < tableSize; i++)
+                {
+                    playerNames[i] = decodeString(message, size);
+
+                }
+                setGameInfo(name, idPlayers, playerNames);
+                ws.add_role(rolews.ToArray(), nbRole.ToArray());
+                ws.newGame = true;
+                break;
+            case 102:
+                idP = decode(message, size);
+                usernameP = decodeString(message, size);
+                addGameInfo(idP, usernameP);
+                break;
+            case 103:
+                tableSize = decode(message, size);
+                nbPlayers = new int[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    nbPlayers[i] = decode(message, size);
+                }
+                tableSize = decode(message, size);
+                gameId = new int[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    gameId[i] = decode(message, size);
+                }
+                gameName = new string[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    gameName[i] = decodeString(message, size);
+                }
+                lo.SetActive(true);
+                SetCurrentGame(nbPlayers, gameId, gameName);
+                break;
+            case 104:
+                if (decodeBool(message, size) == false)
+                {
+                    gma.AfficheError("Inscription went wrong");
+                }
+                else
+                {
+                    gma.loginPage.SetActive(true);
+                    gma.registrationPage.SetActive(false);
+                }
+                break;
+
+
+            case 105:
+                Debug.Log("hey");
+                if (decodeBool(message, size))
+                {
+                    connected = true;
+                    id = decode(message, size);
+                    username = decodeString(message, size);
+                    int friendsSize = decode(message, size);
+                    int[] friends = new int[friendsSize];
+                    string[] names = new string[friendsSize];
+                    int[] status = new int[friendsSize];
+                    for (int i = 0; i < friendsSize; i++)
                     {
-                        nbPlayers[i] = decode(message, size);
+                        friends[i] = decode(message, size);
                     }
-                    tableSize = decode(message, size);
-                    gameId = new int[tableSize];
-                    for (int i = 0; i < tableSize; i++)
+                    for (int i = 0; i < friendsSize; i++)
                     {
-                        gameId[i] = decode(message, size);
+                        names[i] = decodeString(message, size);
                     }
-                    gameName = new string[tableSize];
-                    for (int i = 0; i < tableSize; i++)
+                    for (int i = 0; i < friendsSize; i++)
                     {
-                        gameName[i] = decodeString(message, size);
+                        status[i] = decode(message, size);
                     }
-                    lo.SetActive(true);
-                    SetCurrentGame(nbPlayers, gameId, gameName);
-                    break;
-                case 104:
-                    if (decodeBool(message, size) == false)
+                    cpo.SetActive(false);
+                    ho.SetActive(true);
+                    int j = 0;
+                    for (; j < friends.Length; j++)
                     {
-                        gma.AfficheError("Inscription went wrong");
+                        if (friends[j] == -1)
+                        {
+                            break;
+                        }
+                        Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
+                        gma.addFriend(names[j], friends[j], status[j]);
+                    }
+                    j++;
+                    for (; j < friends.Length; j++)
+                    {
+                        if (friends[j] == -1)
+                        {
+                            break;
+                        }
+                        gma.addFriendWait(names[j], friends[j]);
+                    }
+                    j++;
+                    for (; j < friends.Length; j++)
+                    {
+                        if (friends[j] == -1)
+                        {
+                            break;
+                        }
+                        gma.addFriendRequest(names[j], friends[j]);
+                    }
+                    gma.AfficheNoObject();
+                }
+                else
+                {
+                    prog = false;
+                    gma.AfficheError("Error: Email/Pseudo or password is invalide");
+                }
+                break;
+            case 106:
+                int idQuitter = decode(message, size);
+                if (idQuitter != id)
+                {
+                    ws.quitplayer(idQuitter);
+                    Debug.Log("le joueur quitte");
+
+                }
+                else
+                {
+                    wso.SetActive(false);
+                    ho.SetActive(true);
+                }
+
+                break;
+            case 107:
+                idPlayer = decode(message, size);
+                int idStatus = decode(message, size);
+
+                //CHANGER LE STATUS DU JOUEUR
+                gma.UpdateStatusFriend(idPlayer, idStatus);
+                break;
+            case 108:
+                idPlayer = decode(message, size);
+                ready = decodeBool(message, size);
+                ws.ChangeReady(idPlayer);
+
+                //METTRE LE JOUEUR A PRET 
+                break;
+            case 110:
+                win = decode(message, size);
+                dataSize = decode(message, size);
+                idPlayers = new int[dataSize];
+                for (int i = 0; i < dataSize; i++)
+                {
+                    idPlayers[i] = decode(message, size);
+                }
+                dataSize = decode(message, size);
+                roles = new int[dataSize];
+                for (int i = 0; i < dataSize; i++)
+                {
+                    roles[i] = decode(message, size);
+                }
+
+                for (int i = 0; i < idPlayers.Length; i++)
+                {
+                    Debug.Log(idPlayers[i]);
+                    if (gm.listPlayer[i].GetId() == idPlayers[i])
+                    {
+                        gm.listPlayer[i].SetRole(roles[i]);
                     }
                     else
                     {
-                        gma.loginPage.SetActive(true);
-                        gma.registrationPage.SetActive(false);
-                    }
-                    break;
-
-
-                case 105:
-                    Debug.Log("hey");
-                    if (decodeBool(message, size))
-                    {
-                        id = decode(message, size);
-                        username = decodeString(message, size);
-                        int friendsSize = decode(message, size);
-                        int[] friends = new int[friendsSize];
-                        string[] names = new string[friendsSize];
-                        int[] status = new int[friendsSize];
-                        for (int i = 0; i < friendsSize; i++)
-                        {
-                            friends[i] = decode(message, size);
-                        }
-                        for (int i = 0; i < friendsSize; i++)
-                        {
-                            names[i] = decodeString(message, size);
-                        }
-                        for (int i = 0; i < friendsSize; i++)
-                        {
-                            status[i] = decode(message, size);
-                        }
-                        cpo.SetActive(false);
-                        ho.SetActive(true);
-                        int j = 0;
-                        for (; j < friends.Length; j++)
-                        {
-                            if (friends[j] == -1)
-                            {
-                                break;
-                            }
-                            Debug.Log("id = " + j+" real id = " + friends[j]+" name = " + names[j]+" status = " + status[j]);
-                            gma.addFriend(names[j],friends[j],status[j]);
-                        }
-                        j++;
-                        for (; j < friends.Length; j++)
-                        {
-                            if (friends[j] == -1)
-                            {
-                                break;
-                            }
-                            gma.addFriendWait(names[j], friends[j]);
-                        }
-                        j++;
-                        for (; j < friends.Length; j++)
-                        {
-                            if (friends[j] == -1)
-                            {
-                                break;
-                            }
-                            gma.addFriendRequest(names[j], friends[j]);
-                        }
-                        gma.AfficheNoObject();
-                    }
-                    else
-                    {
-                        prog = false;
-                        gma.AfficheError("Error: Email/Pseudo or password is invalide");
-                    }
-                    break;
-                case 106:
-                    int idQuitter = decode(message, size);
-                    if (idQuitter != id)
-                    {
-                        ws.quitplayer(idQuitter);
-                        Debug.Log("le joueur quitte");
-
-                    }
-                    else
-                    {
-                        wso.SetActive(false);
-                        ho.SetActive(true);
-                    }
-
-                    break;
-                case 107:
-                    idPlayer = decode(message, size);
-                    int idStatus = decode(message, size);
-
-                    //CHANGER LE STATUS DU JOUEUR
-                    gma.UpdateStatusFriend(idPlayer, idStatus);
-                    break;
-                case 108:
-                    idPlayer = decode(message, size);
-                    ready = decodeBool(message, size);
-                    ws.ChangeReady(idPlayer);
-
-                    //METTRE LE JOUEUR A PRET 
-                    break;
-                case 110:
-                    win = decode(message, size);
-                    dataSize = decode(message, size);
-                    idPlayers = new int[dataSize];
-                    for (int i = 0; i < dataSize; i++)
-                    {
-                        idPlayers[i] = decode(message, size);
-                    }
-                    dataSize = decode(message, size);
-                    roles = new int[dataSize];
-                    for (int i = 0; i < dataSize; i++)
-                    {
-                        roles[i] = decode(message, size);
-                    }
-                    
-                    for (int i = 0; i < idPlayers.Length;i++)
-                    {
-                        Debug.Log(idPlayers[i]);
-                        if (gm.listPlayer[i].GetId() == idPlayers[i])
-                        {
-                            gm.listPlayer[i].SetRole(roles[i]);
-                        }
-                        else
-                        {
-                            Debug.Log("pas cool");
+                        Debug.Log("pas cool");
                         Player p = gm.listPlayer.Find(j => j.GetId() == idPlayers[i]);
                         p.SetRole(roles[i]);
 
-                        }
+                    }
 
-                    }
-                    gm.isVillageWin = win;
-                    gm.gameover = true;
+                }
+                gm.isVillageWin = win;
+                gm.gameover = true;
 
-                    break;
-                case 153:
+                break;
+            case 153:
 
-                    bool answer = decodeBool(message, size);
-                    size[0] = 1;
-                    answer = decodeBool(message, size);
-                    int idSender = decode(message, size);
-                    string pseudo = decodeString(message, size);
-                    int idFriend = decode(message, size);
-                    string pseudoFriend = decodeString(message, size);
-                    if (id == idSender)
-                    {
-                        Debug.Log("je suis celui qui envoie" + idSender + " " + idFriend);
-                        gma.addFriendWait(pseudoFriend, idFriend);
+                bool answer = decodeBool(message, size);
+                size[0] = 1;
+                answer = decodeBool(message, size);
+                int idSender = decode(message, size);
+                string pseudo = decodeString(message, size);
+                int idFriend = decode(message, size);
+                string pseudoFriend = decodeString(message, size);
+                if (id == idSender)
+                {
+                    Debug.Log("je suis celui qui envoie" + idSender + " " + idFriend);
+                    gma.addFriendWait(pseudoFriend, idFriend);
 
-                    }
-                    else if (id == idFriend)
-                    {
-                        Debug.Log("je suis celui qui recoit"+idFriend+" "+idSender);
-                        gma.addFriendRequest(pseudo, idSender);
-                    }
-                    else
-                    {
-                        Debug.Log("je ne suis pas sens� recevoir �a ");
-                    }
-                    //NOUVELLE DEMANDE D'AMIS
-                    break;
-                case 154:
-                    answer = decodeBool(message, size);
-                    idSender = decode(message, size);
-                    idFriend = decode(message, size);
-                    if (idSender == id)
-                    {
-                        //supprimer idFriend
-                        gma.SupprimerAmi(idFriend);
-                    }else
-                        if (idFriend == id)
-                    {
-                        //supprimer idSender
-                        gma.SupprimerAmi(idSender);
-                    }
-                    else
-                    {
-
-                    }
-                    //SUPPRESSION D'UN AMIS
-                    break;
-                case 155:
-                    answer = decodeBool(message, size);
-                    idSender = decode(message, size);
-                    idFriend = decode(message, size);
-                    if (idSender == id)
-                    {
-                        //Je susi celui qui a répondu
-                        gma.ReponseAmi(idFriend, answer);
-                    }else
+                }
+                else if (id == idFriend)
+                {
+                    Debug.Log("je suis celui qui recoit" + idFriend + " " + idSender);
+                    gma.addFriendRequest(pseudo, idSender);
+                }
+                else
+                {
+                    Debug.Log("je ne suis pas sens� recevoir �a ");
+                }
+                //NOUVELLE DEMANDE D'AMIS
+                break;
+            case 154:
+                answer = decodeBool(message, size);
+                idSender = decode(message, size);
+                idFriend = decode(message, size);
+                if (idSender == id)
+                {
+                    //supprimer idFriend
+                    gma.SupprimerAmi(idFriend);
+                }
+                else
                     if (idFriend == id)
-                    {
-                        //Je suis ceuli a qui on a répondu
-                        gma.ReponseAmi(idSender, answer);
-                    }
-                    else
-                    {
-                        Debug.Log("je ne suis pas sense recevoir ca " + id);
-                    }
-                    //REPONSE DEMANDE D'AMIS
-                    break;
-                case 156:
-                    if (!decodeBool(message, size))
-                    {
-                        gma.AfficheError("Il y a eu une erreur veuiller reesayer");
-                    }
-                    break;
-                case 157:
-                    if (decodeBool(message, size) == false)
-                    {
-                        gma.AfficheError("Il y a eu une erreur veuiller reesayer ((((((((((((((((((((()))))))))))))))))))))");
-                    }
-                    break;
-                case 158:
-                    int idSize = decode(message, size);
-                    idPlayers = new int[idSize];
-                    for (int i = 0; i < idSize; i++)
-                    {
-                        idPlayers[i] = decode(message, size);
-                    }
-                    idSize = decode(message, size);
-                    playerNames = new string[idSize];
-                    for (int i = 0; i < idSize; i++)
-                    {
-                        playerNames[i] = decodeString(message, size);
-                    }
-                    if (idPlayers.Length == playerNames.Length)
-                    {
-                        for (int i = 0; i < idPlayers.Length; i++)
-                        {
-                            gma.addFriendAdd(playerNames[i], idPlayers[i]);
+                {
+                    //supprimer idSender
+                    gma.SupprimerAmi(idSender);
+                }
+                else
+                {
 
-                        }
-                        gma.AfficheNoObject();
-                    }
-                    else
+                }
+                //SUPPRESSION D'UN AMIS
+                break;
+            case 155:
+                answer = decodeBool(message, size);
+                idSender = decode(message, size);
+                idFriend = decode(message, size);
+                if (idSender == id)
+                {
+                    //Je susi celui qui a répondu
+                    gma.ReponseAmi(idFriend, answer);
+                }
+                else
+                if (idFriend == id)
+                {
+                    //Je suis ceuli a qui on a répondu
+                    gma.ReponseAmi(idSender, answer);
+                }
+                else
+                {
+                    Debug.Log("je ne suis pas sense recevoir ca " + id);
+                }
+                //REPONSE DEMANDE D'AMIS
+                break;
+            case 156:
+                if (!decodeBool(message, size))
+                {
+                    gma.AfficheError("Il y a eu une erreur veuiller reesayer");
+                }
+                break;
+            case 157:
+                if (decodeBool(message, size) == false)
+                {
+                    gma.AfficheError("Il y a eu une erreur veuiller reesayer ((((((((((((((((((((()))))))))))))))))))))");
+                }
+                else
+                {
+                    if (!connected)
                     {
-                        Debug.Log("shouldn't happen");
+                        Debug.Log("on a réinitialiser avec succes");
+                        chpw.SetActive(false);
+                        cpo.SetActive(true);
+                        Debug.Log("on a réinitialiser avec succes 2");
                     }
-                    break;
-                case 160:
-                    //montre l'historique de quelqu'un
-                    tableSize=decode(message,size);
-                    ids=new int[tableSize];
-                    for(int i=0;i<tableSize;i++){
-                        ids[i]=decode(message,size);
-                        Debug.Log(ids[i]);
-                    }
-                    tableSize=decode(message,size);
-                    string[] namesPartie = new string[tableSize];
-                    for(int i=0;i<namesPartie.Length;i++){
-                        namesPartie[i]=decodeString(message,size);
-                        Debug.Log(namesPartie[i]);
-                    }
-                    tableSize=decode(message,size);
-                    DateTime[] dates = new DateTime[tableSize];
-                    for(int i=0;i<dates.Length;i++){
-                        dates[i]=decodeDate(message,size);
-                    }
-                    tableSize=decode(message,size);
-                    score=new int[tableSize];
-                    for(int i=0;i<score.Length;i++){
-                        score[i]=decode(message,size);
-                    }
-                    sg.actualize(namesPartie,ids,dates,score);
-                    break;
-                case 161:
+                }
+                break;
+            case 158:
+                int idSize = decode(message, size);
+                idPlayers = new int[idSize];
+                for (int i = 0; i < idSize; i++)
+                {
+                    idPlayers[i] = decode(message, size);
+                }
+                idSize = decode(message, size);
+                playerNames = new string[idSize];
+                for (int i = 0; i < idSize; i++)
+                {
+                    playerNames[i] = decodeString(message, size);
+                }
+                if (idPlayers.Length == playerNames.Length)
+                {
+                    for (int i = 0; i < idPlayers.Length; i++)
+                    {
+                        gma.addFriendAdd(playerNames[i], idPlayers[i]);
 
-                    string action=decodeString(message,size);
-                    Debug.Log(action);
-                    sg.refresh_string(action);
-                    sg.show_history();
-                    break;
-                case 162:
-                    tableSize=decode(message,size);
-                    score=new int[tableSize];
-                    for(int i=0;i<score.Length;i++){
-                        score[i]=decode(message,size);
                     }
-                    tableSize=decode(message,size);
-                    playerNames=new string[tableSize];
-                    for(int i=0;i<playerNames.Length;i++){
-                        playerNames[i]=decodeString(message,size);
-                        Debug.Log("nom = " + playerNames[i]);
-                    }
-                    r.refresh_fields(playerNames,score);
+                    gma.AfficheNoObject();
+                }
+                else
+                {
+                    Debug.Log("shouldn't happen");
+                }
+                break;
+            case 160:
+                //montre l'historique de quelqu'un
+                tableSize = decode(message, size);
+                ids = new int[tableSize];
+                for (int i = 0; i < tableSize; i++)
+                {
+                    ids[i] = decode(message, size);
+                    Debug.Log(ids[i]);
+                }
+                tableSize = decode(message, size);
+                string[] namesPartie = new string[tableSize];
+                for (int i = 0; i < namesPartie.Length; i++)
+                {
+                    namesPartie[i] = decodeString(message, size);
+                    Debug.Log(namesPartie[i]);
+                }
+                tableSize = decode(message, size);
+                DateTime[] dates = new DateTime[tableSize];
+                for (int i = 0; i < dates.Length; i++)
+                {
+                    dates[i] = decodeDate(message, size);
+                }
+                tableSize = decode(message, size);
+                score = new int[tableSize];
+                for (int i = 0; i < score.Length; i++)
+                {
+                    score[i] = decode(message, size);
+                }
+                sg.actualize(namesPartie, ids, dates, score);
+                break;
+            case 161:
 
-                    break;
-                case 163:
-                    tableSize=decode(message,size);
-                    playerNames=new string[tableSize];
-                    for(int i=0;i<playerNames.Length;i++){
-                        playerNames[i]=decodeString(message,size);
-                    }
-                    tableSize=decode(message,size);
-                    ids=new int[tableSize];
-                    for(int i=0;i<ids.Length;i++){
-                        ids[i]=decode(message,size);
-                    }
-                    tableSize=decode(message,size);
-                    score=new int[tableSize];
-                    for(int i=0;i<score.Length;i++){
-                        score[i]=decode(message,size);
-                    }
-                    tableSize=decode(message,size);
-                    nbPartie=new int[tableSize];
-                    for(int i=0;i<nbPartie.Length;i++){
-                        nbPartie[i]=decode(message,size);
-                    }
-                    tableSize=decode(message,size);
-                    winrates=new double[tableSize];
-                    for(int i=0;i<winrates.Length;i++){
-                        winrates[i]=decodeDouble(message,size);
-                        Debug.Log(winrates[i]);
-                    }
-                    s.refresh_fields_stat(playerNames,nbPartie,score,winrates);
-                    break;
-                case 255:
-                    //faire les cas d'erreurs
-                    size[0]++;
-                    break;
-                default:
-                    Debug.Log("problem message");
-                    break;
+                string action = decodeString(message, size);
+                Debug.Log(action);
+                sg.refresh_string(action);
+                sg.show_history();
+                break;
+            case 162:
+                tableSize = decode(message, size);
+                score = new int[tableSize];
+                for (int i = 0; i < score.Length; i++)
+                {
+                    score[i] = decode(message, size);
+                }
+                tableSize = decode(message, size);
+                playerNames = new string[tableSize];
+                for (int i = 0; i < playerNames.Length; i++)
+                {
+                    playerNames[i] = decodeString(message, size);
+                    Debug.Log("nom = " + playerNames[i]);
+                }
+                r.refresh_fields(playerNames, score);
+
+                break;
+            case 163:
+                tableSize = decode(message, size);
+                playerNames = new string[tableSize];
+                for (int i = 0; i < playerNames.Length; i++)
+                {
+                    playerNames[i] = decodeString(message, size);
+                }
+                tableSize = decode(message, size);
+                ids = new int[tableSize];
+                for (int i = 0; i < ids.Length; i++)
+                {
+                    ids[i] = decode(message, size);
+                }
+                tableSize = decode(message, size);
+                score = new int[tableSize];
+                for (int i = 0; i < score.Length; i++)
+                {
+                    score[i] = decode(message, size);
+                }
+                tableSize = decode(message, size);
+                nbPartie = new int[tableSize];
+                for (int i = 0; i < nbPartie.Length; i++)
+                {
+                    nbPartie[i] = decode(message, size);
+                }
+                tableSize = decode(message, size);
+                winrates = new double[tableSize];
+                for (int i = 0; i < winrates.Length; i++)
+                {
+                    winrates[i] = decodeDouble(message, size);
+                    Debug.Log(winrates[i]);
+                }
+                s.refresh_fields_stat(playerNames, nbPartie, score, winrates);
+                break;
+            case 255:
+                //faire les cas d'erreurs
+                size[0]++;
+                break;
+            default:
+                Debug.Log("problem message");
+                break;
 
 
 
-            }
+        }
 
-        
+
 
     }
     public static int SendMessageToServer(Socket server, byte[] message)
@@ -1077,7 +1133,8 @@ public class NetworkManager : MonoBehaviour
     }
     public static int Vote(int idUser, int idVote)
     {
-        if(idVote==0){
+        if (idVote == 0)
+        {
             Debug.Log("IL A DIT NON");
         }
         byte[] message = new byte[1 + 2 * sizeof(int)];
@@ -1088,23 +1145,26 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-    public static void sendRankRequest(){
-        byte[] message = new byte[1 +  sizeof(int)];
+    public static void sendRankRequest()
+    {
+        byte[] message = new byte[1 + sizeof(int)];
         message[0] = 162;
         int[] size = new int[1] { 1 };
         encode(message, id, size);
-        SendMessageToServer(client,message);
+        SendMessageToServer(client, message);
     }
-    public static void sendStatRequest(int trier){
-        byte[] message = new byte[1 +  sizeof(int)*2];
+    public static void sendStatRequest(int trier)
+    {
+        byte[] message = new byte[1 + sizeof(int) * 2];
         message[0] = 163;
         int[] size = new int[1] { 1 };
         encode(message, id, size);
         encode(message, trier, size);
-        SendMessageToServer(client,message);
+        SendMessageToServer(client, message);
     }
-    public static void sendHistoryRequest(){
-        byte[] message = new byte[1 + 2*sizeof(int)];
+    public static void sendHistoryRequest()
+    {
+        byte[] message = new byte[1 + 2 * sizeof(int)];
         message[0] = 160;
         int[] size = new int[1] { 1 };
         Debug.Log(id);
@@ -1113,8 +1173,9 @@ public class NetworkManager : MonoBehaviour
 
         SendMessageToServer(client, message);
     }
-    public static void sendMatchRequest(int idMatch){
-        byte[] message = new byte[1 + 2*sizeof(int)];
+    public static void sendMatchRequest(int idMatch)
+    {
+        byte[] message = new byte[1 + 2 * sizeof(int)];
         message[0] = 161;
         int[] size = new int[1] { 1 };
         encode(message, id, size);
@@ -1169,7 +1230,7 @@ public class NetworkManager : MonoBehaviour
     }
     public static void sendMayorPresentation()
     {
-        byte[] message = new byte[1 + 1+sizeof(int)];
+        byte[] message = new byte[1 + 1 + sizeof(int)];
         int[] size = new int[1] { 2 };
         message[0] = 16;
         message[1] = 0;

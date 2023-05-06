@@ -126,9 +126,9 @@ namespace Server
             {
                 return;
             }*/
-            int port = 10004;
+            int port = 10000;
             bool reading = true, a = true;
-            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10005) ;
+            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10001) ;
  
             byte[] message = new byte[1024];
             // try
@@ -255,7 +255,7 @@ namespace Server
         }
         public static Socket setupSocketGame()
         {
-            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 2001);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 2000);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             server.Bind(iep);
             server.Listen(100);
