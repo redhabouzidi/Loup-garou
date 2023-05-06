@@ -17,37 +17,22 @@ public class CreateScreen : MonoBehaviour
     void Start()
     {
         buttonCreate.onClick.AddListener(OnButtonClickCreate);
+        inputPlayers.onValueChanged.AddListener(delegate {ValueChangeCheck(); });
+        inputLG.onValueChanged.AddListener(delegate {ValueChangeCheck(); });
+
         AddToggleInList();
         foreach(Toggle t in listToggle){
             t.onValueChanged.AddListener(delegate {OnToggleValueChanged(t);});
+            t.onValueChanged.AddListener(delegate {ValueChangeCheck();});
         }
 
+        int nbVillager = GetNbPlayerRest();
+        textVillager.text = "" + nbVillager;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // mise a jour des roles
-        int nbLG = int.Parse(inputLG.text);
-        int nbPlayer = int.Parse(inputPlayers.text);
-
-        // impossible d'avoir plus de la moitie des joueurs loups
-        if(nbLG > 1 && nbLG > nbPlayer/2){
-            nbLG = (int) nbPlayer/2;
-            inputLG.text = "" + nbLG;
-        }
-        // mise a jour du nombre de loup si le nombre de roles restant == 0
-        else if(nbLG > 1 && nbLG > (nbPlayer-CountToggleOn())){
-            nbLG = nbPlayer-CountToggleOn();
-            inputLG.text = "" + nbLG;
-        }
-        // mise jour des toggle on s'il y a trop de roles par rapport au nb de joueur
-        for(int i = listToggle.Count-1; i >= 0 && nbPlayer < (nbLG + CountToggleOn()); i--){
-            listToggle[i].isOn = false;
-        }
-
-        int nbVillager = GetNbPlayerRest();
-        textVillager.text = "" + nbVillager;
 
     }
 
@@ -106,5 +91,29 @@ public class CreateScreen : MonoBehaviour
                 change.isOn = false;
             }
         }
+    }
+
+    private void ValueChangeCheck(){
+        // mise a jour des roles
+        int nbLG = int.Parse(inputLG.text);
+        int nbPlayer = int.Parse(inputPlayers.text);
+
+        // impossible d'avoir plus de la moitie des joueurs loups
+        if(nbLG > 1 && nbLG > nbPlayer/2){
+            nbLG = (int) nbPlayer/2;
+            inputLG.text = "" + nbLG;
+        }
+        // mise a jour du nombre de loup si le nombre de roles restant == 0
+        else if(nbLG > 1 && nbLG > (nbPlayer-CountToggleOn())){
+            nbLG = nbPlayer-CountToggleOn();
+            inputLG.text = "" + nbLG;
+        }
+        // mise jour des toggle on s'il y a trop de roles par rapport au nb de joueur
+        for(int i = listToggle.Count-1; i >= 0 && nbPlayer < (nbLG + CountToggleOn()); i--){
+            listToggle[i].isOn = false;
+        }
+
+        int nbVillager = GetNbPlayerRest();
+        textVillager.text = "" + nbVillager;
     }
 }
