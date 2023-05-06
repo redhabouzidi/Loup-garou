@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
+    public static List<Roles> roleRestant;
     public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false;
     public bool soundNight,sceneNight;
@@ -1232,38 +1233,39 @@ public class GameManager : MonoBehaviour
         la fonction permet de compter combien il y a de joueurs a chaque role 
     **/
     public void listerRoles() {
-        List<string> roleList = new List<string>();
-        List<int> nb = new List<int>();
-        List<string> nbRoleList = new List<string>();
-        int count = 0;
-
-        for(int i = 0; i<nbPlayer; i++) {
-            if(!roleList.Contains(listPlayer[i].GetRole()) && listPlayer[i].GetIsAlive()) {
-                roleList.Add(listPlayer[i].GetRole());
-                for(int j = 0; j<nbPlayer; j++) {
-                    if(listPlayer[j].GetRole() == listPlayer[i].GetRole()) count ++;
-                }
-                nb.Add(count);
-                count = 0;
+        string txt = "";
+        SendMessageToChat("Liste des roles:", Message.MsgType.system);
+        for(int i = 0; i<roleRestant.Count; i++) {
+            if(roleRestant[i].get_role_count() > 0){
+                SendMessageToChat("" + roleRestant[i].get_role_count() + " " + roleRestant[i].get_role(), Message.MsgType.system);
+                txt += roleRestant[i].get_role() + ": " + roleRestant[i].get_role_count() + "\n";
             }
         }
-
-
-        //SendMessageToChat("Il y a :", Message.MsgType.system);
-        for(int i = 0; i<roleList.Count; i++) {
-            SendMessageToChat("" + nb[i] + " " + roleList[i], Message.MsgType.system);
-            nbRoleList.Add("" + nb[i] + " " + roleList[i]);
-        }
-        string txt = "";
-        for(int i = 0; i<nbRoleList.Count; i++) {
-            txt += nbRoleList[i];
-            txt += "\n";
-        }
-
-        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent <TextMeshProUGUI>();
+        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent<TextMeshProUGUI>();
         Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
         
         textRolesRestant.text = txt;
+    }
+
+    public void UpdateRoles(){
+        string txt = "";
+        for(int i = 0; i<roleRestant.Count; i++) {
+            if(roleRestant[i].get_role_count() > 0){
+                txt += roleRestant[i].get_role() + ": " + roleRestant[i].get_role_count() + "\n";
+            }
+        }
+        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent<TextMeshProUGUI>();
+        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
+        
+        textRolesRestant.text = txt;
+    }
+
+    public void RemoveRoleRestant(int idrole){
+        for(int i=0; i<roleRestant.Count; i++){
+            if(roleRestant[i].get_idrole() == idrole){
+                roleRestant[i].set_role_count(roleRestant[i].get_role_count()-1);
+            }
+        }
     }
 
     /**
@@ -1546,3 +1548,4 @@ public class Player
         }
     }
 }
+

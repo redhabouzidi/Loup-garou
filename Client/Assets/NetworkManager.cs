@@ -209,6 +209,7 @@ public class NetworkManager : MonoBehaviour
 
     public static void setGameInfo(string name, int[] idPlayers, string[] playerNames)
     {
+        ws.name = name;
         players = new WPlayer[idPlayers.Length];
         for (int i = 0; i < idPlayers.Length; i++)
         {
@@ -486,7 +487,6 @@ public class NetworkManager : MonoBehaviour
                     players = new WPlayer[ws.players_waiting.Count];
                     for (int i = 0; i < val; i++)
                     {
-
                         ws.players_waiting[i].SetRole(dictJoueur[ws.players_waiting[i].GetId()]);
                     }
 
@@ -509,6 +509,8 @@ public class NetworkManager : MonoBehaviour
                             }
                             p.SetRole(role);
                             p.SetIsAlive(false);
+                            gm.RemoveRoleRestant(role);
+                            gm.UpdateRoles();
                         }
 
                         Debug.Log(p.GetIsAlive());
