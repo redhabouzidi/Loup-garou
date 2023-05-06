@@ -34,9 +34,9 @@ public class GameManagerApp : MonoBehaviour
     public static Socket client = null;
     // Start is called before the first frame update
 
-    //Waiting screen
-    public Color colorGreen, colorWhite;
-    public Image readyCheck;
+    // Sprite roles
+    public Sprite sLoup, sVill, sVoyante, sSorciere, sChasseur, sCupidon, sDictateur, sGarde;
+    public GameObject ImageComponent;
 
     void Start()
     {
@@ -312,6 +312,15 @@ public class GameManagerApp : MonoBehaviour
 
         //ajout dans le toggle groupe
         newGame.GetComponent<Toggle>().group = toggleGroupGame.GetComponent<ToggleGroup>();
+
+        // images des roles
+        GameObject ScrollView = newGame.transform.Find("ListRole").gameObject;
+        GameObject Viewport = ScrollView.transform.Find("Viewport").gameObject;
+        GameObject container = Viewport.transform.Find("Content").gameObject;
+        for (int i=0; i<roles.Length; i++){
+            GameObject img = Instantiate(ImageComponent, container.transform);
+            img.GetComponent<Image>().sprite = GetSpriteToIdrole(roles[i]);
+        }
 
         listGame.Add(g);
     }
@@ -781,6 +790,41 @@ public class GameManagerApp : MonoBehaviour
         list.Clear();
     }
 
+    public Sprite GetSpriteToIdrole (int role){
+        
+        Sprite image = sVill;
+        switch(role) {
+            case 1:
+                image = sVill;
+                break;
+            case 2:
+                image = sCupidon;
+                break;
+            case 3:
+                image = sVoyante;
+                break;
+            case 4:
+                image = sLoup;
+                break;
+            case 5:
+                image = sSorciere;
+                break;
+            case 6:
+                image = sChasseur;
+                break;
+            case 7:
+                image = sDictateur;
+                break;
+            case 8:
+                image = sGarde;
+                break;
+            default:
+                image = sVill;
+                break;
+        }
+        return image;
+    }
+    
     public struct player
     {
         public int id;
