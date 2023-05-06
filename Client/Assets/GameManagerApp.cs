@@ -520,7 +520,7 @@ public class GameManagerApp : MonoBehaviour
         f.obj = newFriend;
     }
     public void addFriend(string name,int id,int status){
-        //SupprNoObject(listFriend);
+        SupprNoObject(listFriend);
         if (!NetworkManager.inGame)
         {
         GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
@@ -762,6 +762,7 @@ public class Game
     public string name;
     public int nbPlayer;
     public int nbPlayer_rest;
+    public List<Roles> rolesPresents;
     public GameObject game;
 
     public Game(int id, string name, int nbPlayer, GameObject game)

@@ -510,7 +510,6 @@ public class NetworkManager : MonoBehaviour
                             p.SetRole(role);
                             p.SetIsAlive(false);
                             gm.RemoveRoleRestant(role);
-                            gm.UpdateRoles();
                         }
 
                         Debug.Log(p.GetIsAlive());

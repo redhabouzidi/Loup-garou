@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
     public static List<Roles> roleRestant;
-    public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
+    public GameObject cardContainer, cardComponent, containerRole, roleComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
     public static bool isNight = true,action=false;
     public bool soundNight,sceneNight;
     public static int tour = 0,turn; 
@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
+        buttonLeaveGame.onClick.AddListener(OnButtonClickLeaveGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
         soundNight=true;
@@ -191,11 +192,10 @@ public class GameManager : MonoBehaviour
         
         AfficherJour();
         AfficheCard();
-        listerRoles();
         MiseAJourAffichage();
         InitPotion();
         EndVote();
-
+        listerRoles();
     }
 
     // Update is called once per frame
@@ -1231,39 +1231,45 @@ public class GameManager : MonoBehaviour
 
     /**
         la fonction permet de compter combien il y a de joueurs a chaque role 
+        et initialiser les roles restants
     **/
     public void listerRoles() {
-        string txt = "";
         SendMessageToChat("Liste des roles:", Message.MsgType.system);
         for(int i = 0; i<roleRestant.Count; i++) {
             if(roleRestant[i].get_role_count() > 0){
                 SendMessageToChat("" + roleRestant[i].get_role_count() + " " + roleRestant[i].get_role(), Message.MsgType.system);
-                txt += roleRestant[i].get_role() + ": " + roleRestant[i].get_role_count() + "\n";
-            }
-        }
-        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent<TextMeshProUGUI>();
-        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
-        
-        textRolesRestant.text = txt;
-    }
 
-    public void UpdateRoles(){
-        string txt = "";
-        for(int i = 0; i<roleRestant.Count; i++) {
-            if(roleRestant[i].get_role_count() > 0){
-                txt += roleRestant[i].get_role() + ": " + roleRestant[i].get_role_count() + "\n";
+                //créer les objets pour l'affichage des roles
+                GameObject newRole = Instantiate(roleComponent, containerRole.transform);
+                newRole.name = "role" + i;
+                Image imageRole = newRole.transform.Find("ImageRole").GetComponent<Image>();
+                GameObject rond = newRole.transform.Find("RondNombre").gameObject;
+                TextMeshProUGUI textNombre = rond.transform.Find("TextNombre").GetComponent<TextMeshProUGUI>();
+                GameObject info = newRole.transform.Find("InfoRole").gameObject;
+                TextMeshProUGUI textInfo = info.transform.Find("Text").GetComponent<TextMeshProUGUI>();
+
+                Debug.Log("role name : "+ roleRestant[i].get_role());
+
+                imageRole.sprite = roleRestant[i].get_image();
+                textNombre.text = roleRestant[i].get_role_count().ToString();
+                textInfo.text = roleRestant[i].get_description();
             }
         }
-        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent<TextMeshProUGUI>();
-        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
-        
-        textRolesRestant.text = txt;
     }
 
     public void RemoveRoleRestant(int idrole){
         for(int i=0; i<roleRestant.Count; i++){
             if(roleRestant[i].get_idrole() == idrole){
                 roleRestant[i].set_role_count(roleRestant[i].get_role_count()-1);
+                
+                GameObject role_GO = containerRole.transform.Find("role" + i).gameObject;
+                GameObject rond = role_GO.transform.Find("RondNombre").gameObject;
+                TextMeshProUGUI textNombre = rond.transform.Find("TextNombre").GetComponent<TextMeshProUGUI>();
+                textNombre.text = roleRestant[i].get_role_count().ToString();
+                if(roleRestant[i].get_role_count() <= 0){
+                    Image imageRole = role_GO.transform.Find("ImageRole").GetComponent<Image>();
+                    imageRole.color = new Color(0.25f, 0.25f, 0.25f, 1f);
+                }
             }
         }
     }
