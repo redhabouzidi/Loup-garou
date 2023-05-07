@@ -539,9 +539,9 @@ public class bdd
     {
         int[] size = new int[1] { 1 };
         int queueId = decodeInt(message, size);
-        string email = decodeString(message, size);
+        string pseudo = decodeString(message, size);
         size[0] = 1;
-        bool answer = dataBase.Resetmdp.ResetPassword(conn, email);
+        bool answer = dataBase.Resetmdp.ResetPassword(conn, pseudo);
         EmailSent(bdd, queueId, answer);
     }
     public static int EmailSent(Socket bdd, int queueId, bool answer)

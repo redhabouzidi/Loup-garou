@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpw;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -964,6 +964,10 @@ public class NetworkManager : MonoBehaviour
                 {
                     gma.AfficheError("Il y a eu une erreur veuiller reesayer");
                 }
+                else
+                {
+
+                }
                 break;
             case 157:
                 if (decodeBool(message, size) == false)
@@ -975,7 +979,7 @@ public class NetworkManager : MonoBehaviour
                     if (!connected)
                     {
                         Debug.Log("on a réinitialiser avec succes");
-                        chpw.SetActive(false);
+                        chpwe.SetActive(false);
                         cpo.SetActive(true);
                         Debug.Log("on a réinitialiser avec succes 2");
                     }
@@ -1341,12 +1345,12 @@ public class NetworkManager : MonoBehaviour
         encode(message, email, index);
         return SendMessageToServer(client, message);
     }
-    public static int ResetPassw(string email, string oldPassw, string newPassw)
+    public static int ResetPassw(string pseudo, string oldPassw, string newPassw)
     {
-        byte[] message = new byte[1 + 3 * sizeof(int) + email.Length + newPassw.Length + oldPassw.Length];
+        byte[] message = new byte[1 + 3 * sizeof(int) + pseudo.Length + newPassw.Length + oldPassw.Length];
         message[0] = 157;
         int[] index = new int[1] { 1 };
-        encode(message, email, index);
+        encode(message, pseudo, index);
         encode(message, oldPassw, index);
         encode(message, newPassw, index);
         return SendMessageToServer(client, message);

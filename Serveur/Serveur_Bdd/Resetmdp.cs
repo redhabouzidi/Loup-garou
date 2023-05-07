@@ -11,36 +11,47 @@ namespace dataBase
 {
     class Resetmdp
     {
-        public static bool ResetPassword(MySqlConnection conn, string email)
+        public static bool ResetPassword(MySqlConnection conn, string pseudo)
         {
-            // Recherche du compte utilisateur
-            int user_count = 0;
-            string query = "SELECT count(*) FROM Utilisateurs WHERE email=@EM";
-            user_count = conn.Execute(query, new { EM = email });
-            if (user_count == 0) return false;
-            // Génération d'un nouveau mot de passe aléatoire
-            string newPassword = GenerateRandomPassword(12);
-
-            // Stockage du nouveau mot de passe haché dans la base de données
-
-            string hashed_mdp = Resetmdp.Hash_Mdp(newPassword);
-            using (MySqlCommand command = new MySqlCommand())
+            try
             {
-                command.Connection = conn;
-                //la requete pour mettre à jour le nombre de partie joué
-                command.CommandText = "UPDATE Utilisateurs SET motdepasse=@MDP WHERE email=@EM";
-                command.Parameters.AddWithValue("@MDP", hashed_mdp);
-                command.Parameters.AddWithValue("@EM", email);
-                int rowcount = command.ExecuteNonQuery();
-                //si aucune ligne est modifiée
-                if (rowcount == 0) Console.WriteLine("An error occured while updating table");
-                //si succes
-                else Console.WriteLine("Success");
-            }
-            // Envoi du nouveau mot de passe par e-mail (optionnel)
-            SendPasswordResetEmail(email, newPassword);
 
-            return true;
+
+                // Recherche du compte utilisateur
+                int user_count = 0;
+                string query = "SELECT count(*) FROM Utilisateurs WHERE Pseudo=@EM";
+                user_count = conn.Execute(query, new { EM = pseudo });
+                if (user_count == 0) return false;
+                // Génération d'un nouveau mot de passe aléatoire
+                string newPassword = GenerateRandomPassword(12);
+
+                // Stockage du nouveau mot de passe haché dans la base de données
+
+                string hashed_mdp = Resetmdp.Hash_Mdp(newPassword);
+                using (MySqlCommand command = new MySqlCommand())
+                {
+                    command.Connection = conn;
+                    //la requete pour mettre à jour le nombre de partie joué
+                    command.CommandText = "UPDATE Utilisateurs SET motdepasse=@MDP WHERE Pseudo=@EM";
+                    command.Parameters.AddWithValue("@MDP", hashed_mdp);
+                    command.Parameters.AddWithValue("@EM", pseudo);
+                    int rowcount = command.ExecuteNonQuery();
+                    //si aucune ligne est modifiée
+                    if (rowcount == 0) Console.WriteLine("An error occured while updating table");
+                    //si succes
+                    else Console.WriteLine("Success");
+                }
+                query = "SELECT email FROM Utilisateurs WHERE Pseudo=@EM";
+                string email = conn.QueryFirstOrDefault<string>(query, new { EM = pseudo });
+                // Envoi du nouveau mot de passe par e-mail (optionnel)
+                SendPasswordResetEmail(email, newPassword);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         public static string GenerateRandomPassword(int length)
         {
@@ -103,10 +114,10 @@ namespace dataBase
                 else return 0;
             }
         }
-        public static int changement_mdp(MySqlConnection conn, string mail, string oldmdp, string new_mdp)
+        public static int changement_mdp(MySqlConnection conn, string pseudo, string oldmdp, string new_mdp)
         {
-            string query = "SELECT motdepasse FROM Utilisateurs WHERE email=@EM";
-            string mdp_joueur = conn.QueryFirstOrDefault<string>(query, new { EM = mail });
+            string query = "SELECT motdepasse FROM Utilisateurs WHERE Pseudo=@EM";
+            string mdp_joueur = conn.QueryFirstOrDefault<string>(query, new { EM = pseudo });
             if (mdp_joueur == null || mdp_joueur.Length == 0) return -1;
             bool mdptrue = Resetmdp.Verifier_Mdp(oldmdp, mdp_joueur);
             if (mdptrue == false) return 1;
@@ -120,9 +131,9 @@ namespace dataBase
             {
                 command.Connection = conn;
                 //la requete pour mettre à jour le nombre de partie joué
-                command.CommandText = "UPDATE Utilisateurs SET motdepasse=@MDP WHERE email=@EM";
+                command.CommandText = "UPDATE Utilisateurs SET motdepasse=@MDP WHERE Pseudo=@EM";
                 command.Parameters.AddWithValue("@MDP", res);
-                command.Parameters.AddWithValue("@EM", mail);
+                command.Parameters.AddWithValue("@EM", pseudo);
                 int rowcount = command.ExecuteNonQuery();
                 //si aucune ligne est modifiée
                 if (rowcount == 0) return 3;

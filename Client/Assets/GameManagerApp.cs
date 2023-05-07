@@ -13,15 +13,15 @@ public class GameManagerApp : MonoBehaviour
     public TextMeshProUGUI profileUsername;
     public Button buttonQuit, buttonQuit2, buttonLogin, buttonRegistration, buttonPublic,
     buttonJoin, buttonSendForgotPass, buttonChangeForgotPass, buttonQuitLobby, buttonLogout, buttonReady, buttonSaveGames,
-    buttonRank, buttonRank2;
+    buttonRank, buttonRank2, buttonChangePasswd;
     public GameObject box_error, loginPage, registrationPage, waitPage;
     public static List<player> players;
     public TMP_InputField inputFConnEmail, inputFConnPassword;
     public TMP_InputField inputFRegEmail, inputFRegPseudo, inputFRegPassword, inputFRegConfirmPassword;
-    public TMP_InputField inputEmailForgotPass, inputCodeForgotPass, inputPassForgotPass, inputPassForgotPass2;
+    public TMP_InputField inputEmailForgotPass, inputCodeForgotPass, inputPassForgotPass, inputPassForgotPass2, inputOldPass, inputNewPass, inputConfirmPasswd;
     public static List<Game> listGame = new List<Game>();
     public GameObject containerGame, componentGame, toggleGroupGame;
-    public static string email;
+    public static string pseudo;
 
     // friend
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
@@ -65,7 +65,7 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.r = NetworkManager.ro.GetComponent<rank>();
         NetworkManager.so = NetworkManager.canvas.transform.Find("Statistiques").gameObject;
         NetworkManager.s = NetworkManager.so.GetComponent<Statistiques>();
-        NetworkManager.chpw = NetworkManager.canvas.transform.Find("ChangePasswordEmail").gameObject;
+        NetworkManager.chpwe = NetworkManager.canvas.transform.Find("ChangePasswordEmail").gameObject;
 
 
 
@@ -95,6 +95,7 @@ public class GameManagerApp : MonoBehaviour
         buttonSaveGames.onClick.AddListener(onButtonClickSaveGames);
         buttonRank.onClick.AddListener(onButtonClickRank);
         buttonRank2.onClick.AddListener(onButtonClickRank);
+        buttonChangePasswd.onClick.AddListener(onButtonClickChangePasswd);
 
         refreshAll();
         NetworkManager.inGame = false;
@@ -218,6 +219,21 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.recvMessage(NetworkManager.client);
     }
 
+    private void onButtonClickChangePasswd()
+    {
+        string oldPass= inputOldPass.text;
+        string newPass=inputNewPass.text;
+        string confirmPasswd= inputConfirmPasswd.text;
+        if(newPass==confirmPasswd)
+        {
+            NetworkManager.ResetPassw(NetworkManager.username,oldPass,newPass);
+        }
+        else
+        {
+            AfficheError("Error: the password is not the same");
+        }
+    }
+
     /**
         Action executé lorsque le bouton des games est appuyé
         demande au serveur les parties crées
@@ -260,8 +276,8 @@ public class GameManagerApp : MonoBehaviour
     **/
     private void onButtonClickSendForgotPass()
     {
-        email = inputEmailForgotPass.text;
-        NetworkManager.reseau(email);
+        pseudo = inputEmailForgotPass.text;
+        NetworkManager.reseau(pseudo);
 
         byte[] message = new byte[1 + sizeof(bool)];
         NetworkManager.recvMessage(NetworkManager.client);
@@ -279,7 +295,7 @@ public class GameManagerApp : MonoBehaviour
 
         if (pass == pass2)
         {
-            NetworkManager.ResetPassw(email, code, pass);
+            NetworkManager.ResetPassw(pseudo, code, pass);
         }
         else
         {
