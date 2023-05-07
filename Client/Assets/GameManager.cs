@@ -81,8 +81,7 @@ public class GameManager : MonoBehaviour
         soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        dead_bg.enabled = false;
+        
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
         Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
         Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
@@ -1209,14 +1208,7 @@ public class GameManager : MonoBehaviour
     /**
         la fonction indique au maire mourant de choisir son succeseur
     **/
-    public void prochainMaire() {
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        dead_bg.enabled = false;
-        panel_text_screen.SetActive(true);
-        Change_text_screen("Chose who will be the next mayor...");
-
-        // Lancer le vote
-    }
+    
 
     /**
         La fonction permet d'obtenir le nom d'un role avec son numero
@@ -1260,8 +1252,7 @@ public class GameManager : MonoBehaviour
         modifie l'affichage du jeu si le joueur est mort
     **/
     public void LITTERALLYDIE() {
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        if(p.GetIsAlive() == false) dead_bg.enabled = true;
+        GO_dead_bg.SetActive(true);
     }
 
     /**
