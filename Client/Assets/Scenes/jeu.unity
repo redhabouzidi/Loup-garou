@@ -5694,6 +5694,8 @@ MonoBehaviour:
   toggleGuardian: {fileID: 870353610}
   toggleDictator: {fileID: 2033755072}
   buttonCreate: {fileID: 65383866}
+  colorOn: {r: 1, g: 1, b: 1, a: 1}
+  colorOff: {r: 0.35, g: 0.35, b: 0.35, a: 1}
 --- !u!1 &272676017
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,6 +11,7 @@ public class CreateScreen : MonoBehaviour
     public Toggle toggleSeer, toggleWitch, toggleCupidon, toggleHunter, toggleGuardian, toggleDictator;
     private List<Toggle> listToggle = new List<Toggle>();
     public Button buttonCreate;
+    public Color colorOn, colorOff;
 
 
     // Start is called before the first frame update
@@ -24,6 +25,17 @@ public class CreateScreen : MonoBehaviour
         foreach(Toggle t in listToggle){
             t.onValueChanged.AddListener(delegate {OnToggleValueChanged(t);});
             t.onValueChanged.AddListener(delegate {ValueChangeCheck();});
+
+            // mettre a jour l'affichage
+            GameObject toggle_GO = t.gameObject;
+            GameObject imageBack = toggle_GO.transform.Find("Image-back").gameObject;
+            Image imageRole = imageBack.transform.Find("Image-role").GetComponent<Image>();
+            if(t.isOn){
+                imageRole.color = colorOn;
+            }
+            else{
+                imageRole.color = colorOff;
+            }
         }
 
         int nbVillager = GetNbPlayerRest();
@@ -90,6 +102,15 @@ public class CreateScreen : MonoBehaviour
             if (nbPlayerRest < 0){
                 change.isOn = false;
             }
+        }
+        GameObject toggle_GO = change.gameObject;
+        GameObject imageBack = toggle_GO.transform.Find("Image-back").gameObject;
+        Image imageRole = imageBack.transform.Find("Image-role").GetComponent<Image>();
+        if(change.isOn){
+            imageRole.color = colorOn;
+        }
+        else{
+            imageRole.color = colorOff;
         }
     }
 
