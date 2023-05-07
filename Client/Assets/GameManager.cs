@@ -81,10 +81,10 @@ public class GameManager : MonoBehaviour
         soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
+        
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
-        GameObject tmp1 = choixAction.transform.Find("Image").gameObject;
-        Button buttonOui = tmp1.transform.Find("Button-Oui").GetComponent<Button>();
-        Button buttonNon = tmp1.transform.Find("Button-Non").GetComponent<Button>();
+        Button buttonOui = choixAction.transform.Find("Button-Oui").GetComponent<Button>();
+        Button buttonNon = choixAction.transform.Find("Button-Non").GetComponent<Button>();
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
         sendChatLG.onClick.AddListener(OnButtonClickSendMsgLG);
         buttonNon.onClick.AddListener(OnButtonClickNon);
@@ -852,6 +852,9 @@ public class GameManager : MonoBehaviour
     public void AfficheCard()
     {
         Debug.Log("nbp="+nbPlayer);
+        if (nbPlayer > 10){
+            cardContainer.transform.localPosition = new Vector3(0, -93f, 0);
+        }
         for (int i = 0; i < nbPlayer; i++)
         {
             AjoutCarte(i);
@@ -1205,16 +1208,7 @@ public class GameManager : MonoBehaviour
     /**
         la fonction indique au maire mourant de choisir son succeseur
     **/
-    /*
-    public void prochainMaire() {
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        dead_bg.enabled = false;
-        panel_text_screen.SetActive(true);
-        Change_text_screen("Chose who will be the next mayor...");
-
-        // Lancer le vote
-    }
-    */
+    
 
     /**
         La fonction permet d'obtenir le nom d'un role avec son numero

@@ -19,9 +19,11 @@ public class ButtonClick : MonoBehaviour
     public void OnButtonClickSeeHideChat()
     {
         if (!isHide){
+            imageSeeHide.rectTransform.anchoredPosition = new Vector2(255, 250);
             imageSeeHide.transform.localScale = new Vector3(-1,1,1);
         }
         else {
+            imageSeeHide.rectTransform.anchoredPosition = new Vector2(-206, 250);
             chatNotification.SetActive(false);
             imageSeeHide.transform.localScale = new Vector3(1,1,1);
         }
