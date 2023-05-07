@@ -10,6 +10,7 @@ public class Sorciere : Role
     private int idJoueurVise;
     private new const int IdRole = 5;
     private string recit;
+    private string recit_ang;
 
     public Sorciere()
     {
@@ -19,9 +20,9 @@ public class Sorciere : Role
         potionKill = 1;
     }
 
-    public override string Action(List<Joueur> listJoueurs,Game game)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la sorciere
-        string retour;
+        string retour,retour_ang;
         Console.WriteLine("Appel à la sorcière !");
         Joueur? joueurSorciere = null;
 
@@ -50,13 +51,16 @@ public class Sorciere : Role
         if (potionHealUse || potionKillUse)
         {
             retour = recit;
+            retour_ang = recit_ang;
             recit = "";
+            recit_ang = "";
         }
         else
         {
             retour = joueurSorciere.GetPseudo() + ", une sorcière qui passait dans le village reste spectatrice sans intervenir… ";
+            retour_ang = joueurSorciere.GetPseudo() + ", a witch who was passing through the village remains a spectator without intervening...";
         }
-        return retour;
+        return (retour,retour_ang);
     }
 
     public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere,Game game)
@@ -123,6 +127,7 @@ public class Sorciere : Role
                 server.sendUseItem(joueurSorciere.GetSocket(),0);
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de sauver la victime en lui administrant un puissant remède. ";
+                recit_ang = joueurSorciere.GetPseudo() + ", a witch who saw the scene decides to save the victim using a powerful remedy.";
             }
         }
 
@@ -205,6 +210,7 @@ public class Sorciere : Role
                 potionKill -= 1;
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de se venger en empoisonnant l’eau de la maison de " + cible.GetPseudo() + ". ";
+                recit_ang = joueurSorciere.GetPseudo() + ", a witch who saw the scene decides to take revenge by poisoning the water in "+ cible.GetPseudo() +"'s house";
             }
         }
 

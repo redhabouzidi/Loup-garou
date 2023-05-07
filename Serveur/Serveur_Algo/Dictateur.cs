@@ -13,9 +13,10 @@ public class Dictateur : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs,Game game)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // �crire l'action du loup
-        string retour = ""; 
+        string retour = "";
+        string retour_ang = ""; 
         if (coupEtatRestant)
         {
             Joueur? joueurDictateur = null;
@@ -115,8 +116,8 @@ public class Dictateur : Role
 
                 if (victime != null)
                 {
-                    retour = "Enfin, juste avant l�aube, " + joueurDictateur.GetPseudo() + " d�cide de prendre les armes et de faire un coup d��tat organis�. Apr�s r�flexion et pour montrer sa bonne foi il d�cide d��gorger " + victime.GetPseudo() + ". ";
-                    victime.SetDoitMourir(true);
+                    retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " decide de prendre les armes et de faire un coup d etat organise. Apres reflexion et pour montrer sa bonne foi il decide degorger " + victime.GetPseudo() + ". ";
+                    retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" decides to take up arms and to make a rebellion. After thinking about it and to show his good faith, he decides to slit "+ victime.GetPseudo() +"'s throat.";                    victime.SetDoitMourir(true);
                     if (victime.GetRole() is Loup)
                     { 
                         foreach (var j in listJoueurs)
@@ -127,29 +128,33 @@ public class Dictateur : Role
                             }
                         }
                         joueurDictateur.SetEstMaire(true);
-                        retour = retour + "Quel sauveur ! C��tait un loup ! La foule acclama son nouveau dirigeant� ";
+                        retour = retour + "Quel sauveur ! C��tait un loup ! La foule acclama son nouveau dirigeant! ";
+                        retour_ang = retour_ang + "What a savior! He was a wolf! The crowd cheered their new leader!";
                     }
                     else
                     {
                         joueurDictateur.SetDoitMourir(true);
                         aTueInnocent = true;
                         retour = retour +
-                                 "Quel assassin ! Tuer un innocent de sang-froid, quelle honte ! La foule poignarda ce dictateur� ";
+                                 "Quel assassin ! Tuer un innocent de sang-froid, quelle honte ! La foule poignarda ce dictateur! ";
+                        retour_ang = retour_ang + "What a murderer! To kill an innocent in cold blood, what a shame! The crowd stabbed this dictator!";
                     }
                 }
                 else
                 {
-                    retour = "Enfin, juste avant l�aube, " + joueurDictateur.GetPseudo() + " qui �tait pourtant d�cid� � prendre les armes pour renverser le pouvoir loupa son r�veil et se rendormi... ";
+                    retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " qui etait pourtant decide a prendre les armes pour renverser le pouvoir loupa son reveil et se rendormi... ";
+                    retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" who decided to take up arms to overthrow the power missed his alarm clock and went back to sleep."; 
                 }
                 
             }
             else
             {
-                retour = "Enfin, juste avant l�aube, " + joueurDictateur.GetPseudo() + " h�site � prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer � l�action il d�cide de procrastiner � un autre jour� ";
+                retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " hesite a prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer a l action il decide de procrastiner a un autre jour! ";
+                retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" hesitates to take up arms to try to overthrow the power but just before taking action he decides to procrastinate to another day.";
             }
         }
 
-        return retour;
+        return (retour,retour_ang);
     }
 
     public override int GetIdRole()

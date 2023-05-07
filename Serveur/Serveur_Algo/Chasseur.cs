@@ -12,9 +12,9 @@ public class Chasseur : Role
         description = "blabla";
     }
     
-    public override string Action(List<Joueur> listJoueurs,Game game)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // crire l'action de la Voyante
-        string retour;
+        string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
@@ -60,15 +60,17 @@ public class Chasseur : Role
 
         if (player != null)
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" tait charg  ct de son corps dans son dernier souffle de vie il dcide de tirer  bout portant sur " + player.GetPseudo() + ". ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" etait charge à cote de son corps dans son dernier souffle de vie il decide de tirer a bout portant sur " + player.GetPseudo() + ". ";
+            retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in his last breath of life he shoots " + player.GetPseudo()+ " closely.";
             victime = player;
         }
         else
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " tait charg  ct de son corps dans un lan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " etait charge a cote de son corps dans un elan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
+            retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in a fit of kindness he removed the charger from his gun so that no one would get hurt with it !";
         }
 
-        return retour;
+        return (retour,retour_ang);
     }
 
     public override int GetIdRole() 

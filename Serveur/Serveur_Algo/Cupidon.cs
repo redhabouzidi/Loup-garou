@@ -12,9 +12,9 @@ public class Cupidon : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs,Game game)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     {
-        string retour;
+        string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         // écrire l'action du Cupidon
         // choix des amoureux
@@ -91,14 +91,16 @@ public class Cupidon : Role
                      " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il décide de tirer les flèches sur " +
                      amoureux.GetPseudo() + " et " + amoureux2.GetPseudo() +
                      " qui tombèrent fou amoureux l’un de l’autre. ";
+            retour_ang = JoueurCupidon.GetPseudo() + " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he decided to shoot the arrows at "+amoureux.GetPseudo()+" and "+amoureux2.GetPseudo()+" who fell madly in love with each other.";
        	    server.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
        	}
         else
         {
             retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il tente de tirer mais ses flèches tombent toutes les deux dans la rivière du village… ";
+            retour_ang = JoueurCupidon.GetPseudo()+ " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he tried to shoot but his arrows both fell into the village river";
         }
 
-        return retour;
+        return (retour,retour_ang);
     }
 
     public override int GetIdRole()

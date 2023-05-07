@@ -11,7 +11,7 @@ public class Game
     private int _nbrJoueursManquants,gameId;
     private bool _start;
     public int _nbrJoueurs,currentTime;
-    public string name, recit;
+    public string name, recit, recit_ang;
     private int _nbLoups;
     private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
     public static Socket listener = Server.server.setupSocketGame();
@@ -254,6 +254,7 @@ public class Game
 
     public void LanceAction(Type typeATester)
     {
+        string retour,retour_ang;
         Console.WriteLine(CountSockets());
         if (CountSockets() == 0)
         {
@@ -275,7 +276,8 @@ public class Game
             {
                 _joueurs[i].GetRole().gameListener = reveille;
 
-                ConcatRecit(_joueurs[i].FaireAction(_joueurs,this));
+                (retour,retour_ang) = _joueurs[i].FaireAction(_joueurs,this);
+                ConcatRecit(retour,retour_ang);
                 break;
             }
         }
@@ -323,7 +325,7 @@ public class Game
             }
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
-            ConcatRecit("Le soleil se couche sur le village de " + name + ". ");
+            ConcatRecit("Le soleil se couche sur le village de " + name + ". ","The sun sets on the village of "+name+". ");
             day = !day;
             // appeller Voyante si il y en a un
             Console.WriteLine("on passe ?");
@@ -341,7 +343,7 @@ public class Game
             }
             // broadcast du serveur : c'est la journ e
             sendGameState(day);
-            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ");
+            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
@@ -374,7 +376,7 @@ public class Game
                         maire = j;
                     }
                 }
-                ConcatRecit("Apr s un long d bat rempli de rebondissements le village d cide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ");
+                ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
             }
             
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
@@ -387,7 +389,7 @@ public class Game
                 break;
             }
             
-            ConcatRecit("\n\n");
+            ConcatRecit("\n\n","\n\n");
             
             
         }
@@ -456,7 +458,7 @@ public class Game
                         _joueurs[i].TuerJoueur(listJoueurs);
                     }
                     
-                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ");
+                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
                 }
             }
         }
@@ -503,7 +505,7 @@ public class Game
             player.SetEstMaire(true);
             sendMaire(listJoueurs,idSuccesseur);
 
-            ConcatRecit("Alors quil sapprtait  mourir, le maire demanda au village dcouter ses dernires paroles. Il dcide de nommer " + player.GetPseudo() + " comme son successeur  la tte du village ");
+            ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
         }
@@ -747,11 +749,11 @@ public class Game
             if (playerVictime != null)
             {
                 playerVictime.SetDoitMourir(true);
-                ConcatRecit("Les habitants du village d b tent et d cide de pointer " + playerVictime.GetPseudo() + " comme responsable des catastrophes du village... Ils d cident de le tuer sur la place publique. ");
+                ConcatRecit("Les habitants du village debatent et decide de pointer " + playerVictime.GetPseudo() +" comme responsable des catastrophes du village... Ils decident de le tuer sur la place publique.","The inhabitants of the village discuss and decide to point out "+ playerVictime.GetPseudo() +" as responsible for the disasters of the village. They decide to kill him in the public square.");
             }
             else
             {
-                ConcatRecit("Les habitants du village d b tent mais n arrivent pas   trouver de solution au probl me... Ils d cident de rentrer calmement chez eux. ");
+                ConcatRecit("Les habitants du village debatent mais narrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
             }
         }
     }
@@ -1193,8 +1195,9 @@ public class Game
         gameId = id;
     }
 
-    public void ConcatRecit(string s)
+    public void ConcatRecit(string s,String s2)
     {
         recit = recit + s;
+        recit_ang = recit_ang + s2;
     }
 }
