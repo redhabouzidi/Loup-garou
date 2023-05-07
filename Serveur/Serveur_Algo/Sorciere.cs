@@ -99,6 +99,9 @@ public class Sorciere : Role
                 {
                     // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
                     (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+                    if(v==-2 && c== -2){
+                        return false;
+                    }
                     if (v == joueurSorciere.GetId())
                     {
                         switch (c)
@@ -160,6 +163,9 @@ public class Sorciere : Role
         {
             // on définit que (v, c) si c == 1 alors le joueur décide de sauver, sinon 0
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return false;
+            }
             if (v == joueurSorciere.GetId())
             {
                 switch (c)
@@ -192,6 +198,9 @@ public class Sorciere : Role
             while (boucleKill)
             {
                 (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+                if(v==-2 && c== -2){
+                    return false;
+                }
                 if (v == joueurSorciere.GetId() && c != -1)
                 {
                     cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);

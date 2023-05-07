@@ -53,6 +53,9 @@ public class Garde : Role
         Console.WriteLine("Le Garde executera on rôle");
         while(boucle) {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return "";
+            }
             if(v == JoueurGarde.GetId()) {
                 if(player != null) {
                     player.SetAEteSave(false);

@@ -46,6 +46,9 @@ public class Voyante : Role
         while (boucle)
         {
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return "";
+            }
             if (v == JoueurVoyante.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);

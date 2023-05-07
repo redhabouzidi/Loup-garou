@@ -47,6 +47,9 @@ public class Chasseur : Role
         while(boucle) 
         {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return "";
+            }
             if(v == JoueurChasseur.GetId()) 
             {
                 player = listJoueurs.Find(j => j.GetId() == c);

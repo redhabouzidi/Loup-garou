@@ -57,6 +57,9 @@ public class Cupidon : Role
         while (boucle)
         {
             (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
+            if(v==-2&&c1==-2&&c2==-2){
+                return "";
+            }
             if (v == JoueurCupidon.GetId())
             {
                 boolAmoureux = false;
@@ -128,6 +131,9 @@ public class Cupidon : Role
                     role.Add(j.GetSocket());
                 }
             }
+        }
+        if(role.Count==0){
+            return (-2,-2,-2);
         }
         Console.WriteLine("ici c'est 2");
         

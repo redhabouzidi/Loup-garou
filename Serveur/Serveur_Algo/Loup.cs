@@ -83,6 +83,9 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     while (boucle)
     {
         (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+        if(v==-2 && c== -2){
+            return "";
+        }
         Console.WriteLine(v + " et " + c);
         if (v != -1)
         {

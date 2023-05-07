@@ -376,7 +376,10 @@ public class Game
                         maire = j;
                     }
                 }
-                ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
+                if(maire!=null){
+                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
+
+                }
             }
             
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
@@ -574,12 +577,13 @@ public class Game
             {
                 id[i] = j.GetId();
                 idr[i] = j.GetRole().GetIdRole();
-                if (j.GetSocket().Connected)
+                if (j.GetSocket()!=null&&j.GetSocket().Connected)
                 {
                     sockets.Add(j.GetSocket());
                 }
                 i++;
             }
+            
             server.sendEndState(sockets, retour, id, idr);
         }
         return retour;
@@ -816,6 +820,9 @@ public class Game
             Console.WriteLine("6");
             
             (v, c) = r.gameVote(listJoueurs, idRole, reveille);
+            if(v==-2&&c==-2){
+                return null;
+            }
             Console.WriteLine("7");
             if (v != -1)
             {
@@ -1022,6 +1029,10 @@ public class Game
         while (boucle)
         {
             (v, c) = r.gameVote(_joueurs, role, reveille);
+            if(v==-2&&c==-2){
+                
+            }
+            
                 Console.WriteLine("Le joueur avec l'id " + v + " a voté pour " + c+" et le maire = "+maire.GetId());
             if (v == maire.GetId())
             {

@@ -59,10 +59,14 @@ public abstract class Role
                 }
             }
         }
+        
         Console.WriteLine("ici c'est 2");
         Console.WriteLine(sockets.Count);
         while (true)
         {
+            if(role.Count==0){
+            return (-2,-2);
+            }
             foreach (Socket socket in sockets)
             {
                 read.Add(socket);
