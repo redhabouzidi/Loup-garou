@@ -29,6 +29,12 @@ public class bdd
         size[0] += sizeof(int);
         return result;
     }
+    public static double decodeDouble(byte[] message, int[] size)
+    {
+        double result = BitConverter.ToDouble(message, size[0]);
+        size[0] += sizeof(double);
+        return result;
+    }
     public static bool decodeBool(byte[] message, int[] size)
     {
         bool result = BitConverter.ToBoolean(message, size[0]);
@@ -43,10 +49,22 @@ public class bdd
 
         return name;
     }
+    public static DateTime decodeDate(byte[] message, int[] size)
+    {
+        DateTime date = DateTime.FromBinary(BitConverter.ToInt64(message, size[0]));
+        size[0] += sizeof(long);
+        return date;
+    }
+
     public static void encode(byte[] message, int val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
         size[0] += sizeof(int);
+    }
+    public static void encode(byte[] message, double val, int[] size)
+    {
+        Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(double));
+        size[0] += sizeof(double);
     }
     public static void encode(byte[] message, bool val, int[] size)
     {
@@ -60,6 +78,11 @@ public class bdd
         Array.Copy(Encoding.ASCII.GetBytes(val), 0, message, size[0], val.Length);
         size[0] += val.Length;
 
+    }
+    public static void encode(byte[] message, DateTime val, int[] size)
+    {
+        Array.Copy(BitConverter.GetBytes(val.Ticks), 0, message, size[0], sizeof(long));
+        size[0] += sizeof(long);
     }
     public static void encodeString(byte[] message, string val, int[] size)
     {
@@ -86,7 +109,7 @@ public class bdd
             if (bdd.Available != 0)
             {
                 int val = bdd.Receive(message);
-
+                try{
                 switch (message[0])
                 {
                     case 105:
@@ -108,23 +131,29 @@ public class bdd
                         ResetPasswdReq(bdd, message);
                         break;
                     case 157:
-                        //ResetPassw(bdd, message);
+                        ResetPassw(bdd, message);
                         break;
                     case 158:
                         searchForPlayer(bdd, message);
                         break;
                     case 159:
-                        //SAUVEGUARDER LA GAME 
+                        saveGame(message);
                         break;
                     case 160:
-                        //ENVOYER HISTORIQUE DE PARTIE
+                        sendHistory(bdd, message);
                         break;
                     case 161:
-                        //ENVOYER DONNE DE LA PARTIE DEMANDE
+                        sendAction(bdd, message);
                         break;
                     case 162:
-                        //ENVOYER STATISTIQUE
+                        sendRank(bdd, message);
                         break;
+                    case 163:
+                        sendStats(bdd, message);
+                        break;
+                }
+                }catch(Exception e){
+                        Console.WriteLine(e.ToString());
                 }
             }
             else
@@ -155,7 +184,7 @@ public class bdd
         string email = decodeString(message, size);
         Console.WriteLine("username=" + username + " password=" + password + " email=" + email);
         int val = Inscription.inscription_user(conn, username, email, password);
-        if (val==0)
+        if (val == 0)
         {
             inscriptionAnswer(bdd, queueId, true);
         }
@@ -163,6 +192,90 @@ public class bdd
         {
             inscriptionAnswer(bdd, queueId, false);
         }
+
+    }
+    public static void sendAction(Socket bdd, byte[] message)
+    {
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        int idPartie = decodeInt(message, size);
+        string action = Partie.get_action(conn, id, idPartie);
+        byte[] newMessage;
+        if (action == null)
+        {
+            newMessage = new byte[2] { 255, 161 };
+            return;
+        }
+        newMessage = new byte[1 + sizeof(int) + sizeof(int) + action.Length];
+        newMessage[0] = 161;
+        size[0] = 1;
+        encode(newMessage, queueId, size);
+        encode(newMessage, action, size);
+        sendMessage(bdd, newMessage);
+    }
+    public static void sendStats(Socket bdd, byte[] message)
+    {
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        int trier = decodeInt(message, size);
+        (string[] pseudo, int[] ids, int[] score, int[] nbPartie, double[] winrate) = Statistique.Get_all(conn, id, trier);
+        int pname = getStringLength(pseudo);
+        byte[] newMessage = new byte[1 + sizeof(int) + sizeof(int) + sizeof(int) * pseudo.Length + pname + sizeof(int) + sizeof(int) * ids.Length + sizeof(int) + sizeof(int) * score.Length + sizeof(int) + sizeof(int) * nbPartie.Length + sizeof(int) + sizeof(double) * winrate.Length];
+        size[0] = 1;
+        newMessage[0] = 163;
+        encode(newMessage, queueId, size);
+        encode(newMessage, pseudo.Length, size);
+        for (int i = 0; i < pseudo.Length; i++)
+        {
+            encode(newMessage, pseudo[i], size);
+        }
+        encode(newMessage, ids.Length, size);
+        for (int i = 0; i < ids.Length; i++)
+        {
+            encode(newMessage, ids[i], size);
+        }
+        encode(newMessage, score.Length, size);
+        for (int i = 0; i < score.Length; i++)
+        {
+            encode(newMessage, score[i], size);
+        }
+        encode(newMessage, nbPartie.Length, size);
+        for (int i = 0; i < nbPartie.Length; i++)
+        {
+            encode(newMessage, nbPartie[i], size);
+        }
+        encode(newMessage, winrate.Length, size);
+        for (int i = 0; i < winrate.Length; i++)
+        {
+            encode(newMessage, winrate[i], size);
+        }
+        sendMessage(bdd, newMessage);
+    }
+    public static void sendRank(Socket bdd, byte[] message)
+    {
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        (int[] score, string[] names) = Statistique.Trierpar_score(conn);
+        int pname = getStringLength(names);
+        byte[] newMessage = new byte[1 + sizeof(int) * 2 + sizeof(int) * score.Length + sizeof(int) + sizeof(int) * names.Length + pname];
+        newMessage[0] = 162;
+        size[0] = 1;
+        encode(newMessage, queueId, size);
+        encode(newMessage, score.Length, size);
+        for (int i = 0; i < score.Length; i++)
+        {
+            encode(newMessage, score[i], size);
+        }
+        encode(newMessage, names.Length, size);
+        for (int i = 0; i < score.Length; i++)
+        {
+            encode(newMessage, names[i], size);
+        }
+        sendMessage(bdd, newMessage);
+
 
     }
     public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
@@ -218,13 +331,13 @@ public class bdd
         {
             int id = Login.get_id(conn, username);
             //recuperer les amis
-            int[] ids,idAmis,idAttente;string[] names,nameAmis,nameAttente;DateTime[] date,dateAmis,dateAttente;
-            (idAmis,nameAmis,dateAmis) = Amis.get_liste_amis(conn, id);
-            (idAttente,nameAttente,dateAttente) = Amis.get_liste_amis_enattente(conn, id);
+            int[] ids, idAmis, idAttente; string[] names, nameAmis, nameAttente; DateTime[] date, dateAmis, dateAttente;
+            (idAmis, nameAmis, dateAmis) = Amis.get_liste_amis(conn, id);
+            (idAttente, nameAttente, dateAttente) = Amis.get_liste_amis_enattente(conn, id);
             ids = new int[idAmis.Length + idAttente.Length + 1];
             names = new string[nameAmis.Length + nameAttente.Length + 1];
             int i = 0;
-            for (;i< idAmis.Length;i++)
+            for (; i < idAmis.Length; i++)
             {
                 ids[i] = idAmis[i];
                 names[i] = nameAmis[i];
@@ -232,25 +345,99 @@ public class bdd
             ids[i] = -1;
             names[i] = "";
             i++;
-            int j=0;
+            int j = 0;
             for (; j < idAttente.Length; j++)
             {
-                ids[i+j] = idAttente[j];
-                names[i+j] = nameAttente[j];
+                ids[i + j] = idAttente[j];
+                names[i + j] = nameAttente[j];
             }
             connexionAnswer(bdd, queueId, true, id, username, ids, names);
         }
         else
             connexionAnswer(bdd, queueId, false, 0, username, new int[0], new string[0]);
     }
+    public static void saveGame(byte[] message)
+    {
 
+        int[] size = new int[1] { 1 };
+        string name = decodeString(message, size);
+        string action = decodeString(message, size);
+
+        int tableSize = decodeInt(message, size);
+        int[] ids = new int[tableSize];
+        for (int i = 0; i < ids.Length; i++)
+        {
+            ids[i] = decodeInt(message, size);
+        }
+        tableSize = decodeInt(message, size);
+        int[] score = new int[tableSize];
+        for (int i = 0; i < score.Length; i++)
+        {
+            score[i] = decodeInt(message, size);
+        }
+        tableSize = decodeInt(message, size);
+        bool[] win = new bool[tableSize];
+        for (int i = 0; i < score.Length; i++)
+        {
+            win[i] = decodeBool(message, size);
+        }
+        int idPartie = Partie.create_partie(conn, name);
+        Partie.write_action(conn, action, idPartie);
+        for (int i = 0; i < ids.Length; i++)
+        {
+
+            Partie.init_sauvegardepartie(conn, idPartie, ids[i], score[i]);
+        }
+        Statistique.nouveau_jeu(conn, ids);
+        Statistique.score_gain(conn, ids, score);
+        Statistique.jeu_gagne(conn, ids, win);
+
+    }
+    public static void sendHistory(Socket bdd, byte[] message)
+    {
+        int[] size = new int[1] { 1 };
+        int queueId = decodeInt(message, size);
+        int id = decodeInt(message, size);
+        int idUser = decodeInt(message, size);
+        int[] ids;
+        string[] names;
+        DateTime[] dates;
+        int[] score;
+        (ids, names, dates, score) = Partie.get_partie(conn, idUser);
+        int pname = getStringLength(names);
+        byte[] newMessage = new byte[1 + sizeof(int) * 2 + sizeof(int) * ids.Length + sizeof(int) + sizeof(int) * names.Length + pname + sizeof(int) + sizeof(long) * dates.Length + sizeof(int) + sizeof(int) * score.Length];
+        newMessage[0] = 160;
+        size[0] = 1;
+        encode(newMessage, queueId, size);
+        encode(newMessage, ids.Length, size);
+        for (int i = 0; i < ids.Length; i++)
+        {
+            encode(newMessage, ids[i], size);
+        }
+        encode(newMessage, names.Length, size);
+        for (int i = 0; i < names.Length; i++)
+        {
+            encode(newMessage, names[i], size);
+        }
+        encode(newMessage, dates.Length, size);
+        for (int i = 0; i < dates.Length; i++)
+        {
+            encode(newMessage, dates[i], size);
+        }
+        encode(newMessage, score.Length, size);
+        for (int i = 0; i < score.Length; i++)
+        {
+            encode(newMessage, score[i], size);
+        }
+        sendMessage(bdd, newMessage);
+    }
     public static int ajoutAmi(Socket bdd, byte[] message)
     {
         int[] size = new int[1] { 1 };
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         int idFriend = decodeInt(message, size);
-        Amis.send_friend_request(conn, id, idFriend);
+        Console.WriteLine("return = " + Amis.send_friend_request(conn, id, idFriend));
         string pseudoJoueur = Amis.get_pseudo(conn, id);
         string username = Amis.get_pseudo(conn, idFriend);
         Console.WriteLine($"l'utilisateur {id} rajoute la personne avec le nom {username}");
@@ -368,7 +555,7 @@ public class bdd
         return bdd.Send(msg);
 
     }
-/*
+
     public static void ResetPassw(Socket bdd, byte[] message)
     {
         int[] size = new int[1] { 1 };
@@ -390,7 +577,7 @@ public class bdd
         }
         bdd.Send(msg);
     }
-*/
+
     public static void searchForPlayer(Socket bdd, byte[] message)
     {
         int[] size = new int[1] { 1 };
@@ -398,24 +585,24 @@ public class bdd
         int id = decodeInt(message, size);
         string username = decodeString(message, size);
         int[] ids; string[] usernames;
-        (ids, usernames) = Amis.search_for_player(conn,username);
+        (ids, usernames) = Amis.search_for_player(conn, id, username);
         sendSearchPlayer(bdd, queueId, ids, usernames);
 
     }
-    public static void sendSearchPlayer(Socket bdd,int queueId,int[] id,string[] username)
+    public static void sendSearchPlayer(Socket bdd, int queueId, int[] id, string[] username)
     {
         int pname = getStringLength(username);
-        byte[] message = new byte[1 + sizeof(int) * 3 + sizeof(int) * id.Length + sizeof(int)*username.Length + pname];
+        byte[] message = new byte[1 + sizeof(int) * 3 + sizeof(int) * id.Length + sizeof(int) * username.Length + pname];
         int[] size = new int[1] { 1 };
         message[0] = 158;
         encode(message, queueId, size);
         encode(message, id.Length, size);
-        foreach(int i in id)
+        foreach (int i in id)
         {
             encode(message, i, size);
         }
         encode(message, username.Length, size);
-        foreach(string name in username)
+        foreach (string name in username)
         {
             encode(message, name, size);
         }

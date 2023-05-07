@@ -11,16 +11,16 @@ public class Voyante : Role
         description = "blabla";
     }
 
-    public override string Action(List<Joueur> listJoueurs)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la Voyante
-        string retour;
+        string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme(),game);
         Task.Run(() =>
         {
             Thread.Sleep(GetDelaiAlarme() * 1000); // 20 secondes
@@ -46,6 +46,9 @@ public class Voyante : Role
         while (boucle)
         {
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return "";
+            }
             if (v == JoueurVoyante.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
@@ -66,14 +69,16 @@ public class Voyante : Role
         if (player != null)
         {
             retour = JoueurVoyante.GetPseudo() + " se met à regarder dans sa boule de cristal… elle voit… " + player.GetPseudo() + " qui s’avère être " + player.GetRole() + ". ";
+            retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees... "+ player.GetPseudo() +" who turns out to be "+ player.GetRole() +".";
         }
         else
         {
             retour = JoueurVoyante.GetPseudo() +
                      " se met à regarder dans sa boule de cristal… elle ne voit rien de spécial ce soir-là… ";
+            retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees nothing special that night...";
         }
 
-        return retour;
+        return (retour,retour_ang);
     }
 
     public override int GetIdRole()

@@ -11,9 +11,9 @@ public Loup()
     description = "blabla";
 }
 
-public override string Action(List<Joueur> listJoueurs)
+public override (string,string) Action(List<Joueur> listJoueurs,Game game)
 { // écrire l'action du loup
-    string retour;
+    string retour,retour_ang;
     sendTurn(listJoueurs,GetIdRole());
     bool boucle = true;
 
@@ -29,11 +29,13 @@ public override string Action(List<Joueur> listJoueurs)
     }
 
     retour = "Alors que les habitants du village dorment sur leurs deux oreilles, un hurlement venait de retentir. ";
+    retour_ang = "While the inhabitants of the village were sleeping deeply, a howl had just sounded. ";
     Joueur? l = null;
     if (votant.Count == 1)
     {
         l = listJoueurs.Find(j => j.GetId() == votant[0]);
         retour = retour + l.GetPseudo() + " un loup vient d’entrer dans le village... ";
+        retour_ang = retour_ang + " a wolf has just entered the village... ";
     }
     else
     {
@@ -43,13 +45,16 @@ public override string Action(List<Joueur> listJoueurs)
             if (i == votant.Count - 1)
             {
                 retour = retour + l.GetPseudo();
+                retour_ang = retour_ang + l.GetPseudo();
             }
             else
             {
                 retour = retour + l.GetPseudo() + ", ";
+                retour_ang = retour_ang + l.GetPseudo() + ", ";
             }
         }
         retour = retour + " des loups venaient d’entrer dans le village... ";
+        retour_ang = retour_ang + " wolves have just entered the village... ";
     }
     
     
@@ -60,7 +65,7 @@ public override string Action(List<Joueur> listJoueurs)
     Socket vide;
     vide = Game.listener.Accept();
     bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme(),game);
     Task.Run(() =>
     {
         Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
@@ -78,6 +83,9 @@ public override string Action(List<Joueur> listJoueurs)
     while (boucle)
     {
         (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
+        if(v==-2 && c== -2){
+            return "";
+        }
         Console.WriteLine(v + " et " + c);
         if (v != -1)
         {
@@ -102,7 +110,7 @@ public override string Action(List<Joueur> listJoueurs)
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                            sendTime(listJoueurs, GetDelaiAlarme() / 4);
+                            sendTime(listJoueurs, GetDelaiAlarme() / 4,game);
                         Task.Run(() =>
                         {
 			    	
@@ -176,13 +184,15 @@ public override string Action(List<Joueur> listJoueurs)
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
         playerVictime.SetDoitMourir(true);
         retour = retour + "Il semblerait qu’une victime ait été déchiqueté au centre du village, il s’agit bien de " + playerVictime.GetPseudo() + ".  ";
+        retour_ang = retour_ang + "It seems that a victim was torn to pieces in the center of the village, it is "+ playerVictime.GetPseudo() +". ";
     }
     else
     {
         retour = retour + "Cependant, il semblerait que personne n’ait été blessé cette nuit, quelle chance ! ";
+        retour_ang = retour_ang + "However, it seems that no one was hurt tonight, what a luck! ";
     }
 
-    return retour;
+    return (retour,retour_ang);
 }
 
 public override int GetIdRole()

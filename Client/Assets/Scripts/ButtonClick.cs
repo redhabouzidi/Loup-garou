@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ButtonClick : MonoBehaviour
 {
-    public static bool isHide = true;
+    public static bool isHide = false;
     public GameObject chat, chatNotification;
     public Image imageSeeHide;
     public Button buttonSeeHide;
@@ -20,7 +20,6 @@ public class ButtonClick : MonoBehaviour
     {
         if (!isHide){
             imageSeeHide.transform.localScale = new Vector3(-1,1,1);
-            
         }
         else {
             chatNotification.SetActive(false);

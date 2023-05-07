@@ -20,9 +20,11 @@ public class GameManager : MonoBehaviour
     public List<Player> listPlayer = new List<Player>();
     public List<GameObject> listCard = new List<GameObject>();
     private List<Toggle> toggleOn = new List<Toggle>();
-    public GameObject cardContainer, cardComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
-    public static bool isNight = true,action=false;
-    public static int tour = 0,turn; 
+    public static List<Roles> roleRestant;
+    public GameObject cardContainer, cardComponent, containerRole, roleComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
+    public static bool isNight = true,action=false,useHeal=false,useKill=false;
+    public bool soundNight,sceneNight;
+    public static int tour = 0,turn,maire=-1; 
     public TextMeshProUGUI timer;
     public static float value_timer;
     public bool sestPresente = false, electionMaire = false;
@@ -56,46 +58,51 @@ public class GameManager : MonoBehaviour
     public int lover2_id=-1;
 
     // variable pour le chat
-    private int maxMsg = 100;
     List<Message> msgList = new List<Message>();
-    public GameObject chatPanel, textComponent, chatNotification;
-    public TMP_InputField inputChat;
-    public Button sendChat;
-    public Color playerC, systemC;
+    List<Message> msgListLG = new List<Message>();
+    public GameObject chat, chatLG, chatPanel, chatPanelLG, textComponent, chatNotification;
+    public TMP_InputField inputChat, inputChatLG;
+    public Button sendChat, sendChatLG;
+    public Color playerC, systemC, loupC;
 
     // choix pendant l'action
     public GameObject choixAction;
 
     // options page
+    public GameObject settingPage;
     public Button buttonLeaveGame;
 
-    
+    public AudioSource soundManager_day,soundManager_night;
 
     // Start is called before the first frame update
     void Start()
     {
+		soundManager_day = GameObject.Find("SoundManager_day").GetComponent<AudioSource>();
+        soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        dead_bg.enabled = false;
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
-        GameObject buttonChoixAction = choixAction.transform.Find("Image").gameObject;
-        Button buttonOui = buttonChoixAction.transform.Find("Button-Oui").GetComponent<Button>();
-        Button buttonNon = buttonChoixAction.transform.Find("Button-Non").GetComponent<Button>();
+        GameObject tmp1 = choixAction.transform.Find("Image").gameObject;
+        Button buttonOui = tmp1.transform.Find("Button-Oui").GetComponent<Button>();
+        Button buttonNon = tmp1.transform.Find("Button-Non").GetComponent<Button>();
         sendChat.onClick.AddListener(OnButtonClickSendMsg);
+        sendChatLG.onClick.AddListener(OnButtonClickSendMsgLG);
         buttonNon.onClick.AddListener(OnButtonClickNon);
         buttonOui.onClick.AddListener(OnButtonClickOui);
         buttonRole.onClick.AddListener(OnButtonClickRole);
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
+        buttonLeaveGame.onClick.AddListener(OnButtonClickLeaveGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
-
+        soundNight=true;
+        play_sound_night();
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         isNight = true;
         tour = 0;
-
+        sceneNight=false;
+        
         // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -180,40 +187,77 @@ public class GameManager : MonoBehaviour
                     }
                     break;
             }
+            
         }
-        
+        if(maire!=-1){
+            Debug.Log("mairefzfefeqfezfezf");
+            if (maire == p.GetId())
+                {
+                    p.SetIsMaire(true);
+                }
+                else
+                {
+                    p.SetIsMaire(false);
+
+                }
+                if (!p.GetIsAlive())
+                {
+                    GO_dead_bg.SetActive(true);
+                }
+                foreach (Player j in listPlayer)
+                {
+                    if (j.GetId() == maire)
+                    {
+                        j.SetIsMaire(true);
+                    }
+                    else
+                    {
+                        j.SetIsMaire(false);
+                    }
+                }
+                maire=-1;
+        }
+
         AfficherJour();
         AfficheCard();
-        listerRoles();
         MiseAJourAffichage();
         InitPotion();
         EndVote();
-        
+        listerRoles();
     }
 
     // Update is called once per frame
     void Update()
     {
         NetworkManager.listener();
-
+        if(isNight!=soundNight){
+            if(isNight){
+                play_sound_night();
+            }else{
+                play_sound_day();
+            }
+            soundNight=isNight;
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            LoadScene("jeu");
+            settingPage.SetActive(!settingPage.activeSelf);
         }
-        if (inputChat.text != "")
+        // envoyer un message dans le chat
+        if (inputChat.text != "" && Input.GetKeyDown(KeyCode.Return))
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                
-                if (inputChat.text != "")
-                {
-                    string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
-                    NetworkManager.sendchatMessage( msg);
-                    inputChat.text = "";
-                    inputChat.ActivateInputField();
-                }
-            }
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            NetworkManager.sendchatMessage(msg);
+            inputChat.text = "";
+            inputChat.ActivateInputField();
         }
+        if(inputChatLG.text != "" && Input.GetKeyDown(KeyCode.Return))
+        {
+            string msg = p.GetPseudo() + ": " + inputChatLG.text.ToString();
+            NetworkManager.sendchatLGMessage(msg);
+            inputChatLG.text = "";
+            inputChatLG.ActivateInputField();
+        }
+
         if (gameover)
         {
             gamePage.transform.gameObject.SetActive(false);
@@ -221,13 +265,32 @@ public class GameManager : MonoBehaviour
             AfficheWinScreen();
             gameover = false;
         }
-        
+        if(useHeal){
+            useHeal=false;
+            UseHealthPotion();
+        }
+        if(useKill){
+            useKill=false;
+            UseDeathPotion();
+        }
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
         changeTurn();
-        
 
+
+    }
+
+    //Fonctions pour les sons ->
+    //Son à jouer pendant la nuit
+    public void play_sound_night(){
+            soundManager_day.Stop();
+            soundManager_night.Play();
+    }
+    //Son à jouer pendant la journée
+    public void play_sound_day(){
+        soundManager_night.Stop();
+        soundManager_day.Play();
     }
 
     /**
@@ -271,6 +334,21 @@ public class GameManager : MonoBehaviour
         {
             string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
             NetworkManager.sendchatMessage( msg);
+            inputChat.text = "";
+            inputChat.ActivateInputField();
+        }
+    }
+
+    /**
+        Action effectué lorsqu'on appuie sur le bouton associer à la fonction
+        Permet d'envoyer un message dans le chat des loups
+    **/
+    private void OnButtonClickSendMsgLG()
+    {
+        if (inputChat.text != "")
+        {
+            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            NetworkManager.sendchatLGMessage(msg);
             inputChat.text = "";
             inputChat.ActivateInputField();
         }
@@ -350,7 +428,6 @@ public class GameManager : MonoBehaviour
                     affiche_tour_role("Mayor must select his new successor ...", turn);
                     if(p.GetIsMaire()){
                         GO_dead_bg.SetActive(false);
-                        prochainMaire();
                     }
                     break;
             }
@@ -481,24 +558,27 @@ public class GameManager : MonoBehaviour
             else sePresenter.gameObject.SetActive(false);
         }
 
-        else if (isNight == false)
+        else if (isNight != sceneNight)
         {
-            banderoleMaire.enabled = false;
-            text_day.text = "Day " + tour;
-            text_day.color = colorWhite;
-            player_role.color = colorWhite;
-            player_role.text = p.GetRole();
-            sePresenter.gameObject.SetActive(false);
+            sceneNight=isNight;
+            if(sceneNight==false){
+                ChangeChat();
+                banderoleMaire.enabled = false;
+                text_day.text = "Day " + tour;
+                text_day.color = colorWhite;
+                player_role.color = colorWhite;
+                player_role.text = p.GetRole();
+                sePresenter.gameObject.SetActive(false);
+            }else{
+                ChangeChat();
+                banderoleMaire.enabled = false;
+                text_day.text = "Night " + tour;
+                text_day.color = colorRed;
+                player_role.color = colorRed;
+                player_role.text = p.GetRole();
+                sePresenter.gameObject.SetActive(false);
+            }
             
-        }
-        else
-        {
-            banderoleMaire.enabled = false;
-            text_day.text = "Night " + tour;
-            text_day.color = colorRed;
-            player_role.color = colorRed;
-            player_role.text = p.GetRole();
-            sePresenter.gameObject.SetActive(false);
         }
     }
 
@@ -619,11 +699,6 @@ public class GameManager : MonoBehaviour
     **/
     public void SendMessageToChat(string text, Message.MsgType type)
     {
-        if (msgList.Count > maxMsg)
-        {
-            Destroy(msgList[0].textComponent.gameObject);
-            msgList.Remove(msgList[0]);
-        }
         GameObject newText = Instantiate(textComponent, chatPanel.transform);
         Message newMsg = new Message();
 
@@ -645,6 +720,33 @@ public class GameManager : MonoBehaviour
     }
 
     /**
+        Affiche dans le chat des loup-garou un message
+        Args:   - text, le message à afficher dans le chat
+                - type, le type du message
+    **/
+    public void SendMessageToChatLG(string text, Message.MsgType type)
+    {
+        GameObject newText = Instantiate(textComponent, chatPanelLG.transform);
+        Message newMsg = new Message();
+        Debug.Log(text);
+        newMsg.msg = text;
+        newMsg.textComponent = newText.GetComponent<TextMeshProUGUI>();
+        newMsg.textComponent.text = newMsg.msg;
+        newMsg.textComponent.color = MessageColor(type);
+
+        msgList.Add(newMsg);
+
+        // affiche si necessaire l'icone de notification de nouveaux messages
+        if(ButtonClick.isHide && type == Message.MsgType.loup){
+            chatNotification.SetActive(true);
+        }
+        else{
+            chatNotification.SetActive(false);
+        }
+
+    }
+
+    /**
         Renvoie une couleur en fonction du type de message
         Arg: type, le type du message
     **/
@@ -656,11 +758,27 @@ public class GameManager : MonoBehaviour
             case Message.MsgType.player:
                 color = playerC;
                 break;
+            case Message.MsgType.loup:
+                color = loupC;
+                break;
             default:
                 color = systemC;
                 break;
         }
         return color;
+    }
+
+    /**
+        la fonction permet de changer de chat (géneral/loup)
+        si l'utilisateur est loup-garou
+    **/
+    public void ChangeChat(){
+        if(p.GetRoleId() == 4){
+            chat.SetActive(!chat.activeSelf);
+            chatLG.SetActive(!chat.activeSelf);
+        }
+        inputChat.text = "";
+        inputChatLG.text = "";
     }
 
     /**
@@ -921,6 +1039,9 @@ public class GameManager : MonoBehaviour
 
         if(listPlayer[indice].GetIsMaire()) {
             maire.enabled = true;
+        }else{
+            maire.enabled = false;
+
         }
 
         if (!listPlayer[indice].GetIsAlive())
@@ -1084,6 +1205,7 @@ public class GameManager : MonoBehaviour
     /**
         la fonction indique au maire mourant de choisir son succeseur
     **/
+    /*
     public void prochainMaire() {
         Image dead_bg = GO_dead_bg.GetComponent<Image>();
         dead_bg.enabled = false;
@@ -1092,6 +1214,7 @@ public class GameManager : MonoBehaviour
 
         // Lancer le vote
     }
+    */
 
     /**
         La fonction permet d'obtenir le nom d'un role avec son numero
@@ -1135,46 +1258,52 @@ public class GameManager : MonoBehaviour
         modifie l'affichage du jeu si le joueur est mort
     **/
     public void LITTERALLYDIE() {
-        Image dead_bg = GO_dead_bg.GetComponent<Image>();
-        if(p.GetIsAlive() == false) dead_bg.enabled = true;
+        GO_dead_bg.SetActive(true);
     }
 
     /**
         la fonction permet de compter combien il y a de joueurs a chaque role 
+        et initialiser les roles restants
     **/
     public void listerRoles() {
-        List<string> roleList = new List<string>();
-        List<int> nb = new List<int>();
-        List<string> nbRoleList = new List<string>();
-        int count = 0;
+        SendMessageToChat("Liste des roles:", Message.MsgType.system);
+        for(int i = 0; i<roleRestant.Count; i++) {
+            if(roleRestant[i].get_role_count() > 0){
+                SendMessageToChat("" + roleRestant[i].get_role_count() + " " + roleRestant[i].get_role(), Message.MsgType.system);
 
-        for(int i = 0; i<nbPlayer; i++) {
-            if(!roleList.Contains(listPlayer[i].GetRole()) && listPlayer[i].GetIsAlive()) {
-                roleList.Add(listPlayer[i].GetRole());
-                for(int j = 0; j<nbPlayer; j++) {
-                    if(listPlayer[j].GetRole() == listPlayer[i].GetRole()) count ++;
-                }
-                nb.Add(count);
-                count = 0;
+                //créer les objets pour l'affichage des roles
+                GameObject newRole = Instantiate(roleComponent, containerRole.transform);
+                newRole.name = "role" + i;
+                Image imageRole = newRole.transform.Find("ImageRole").GetComponent<Image>();
+                GameObject rond = newRole.transform.Find("RondNombre").gameObject;
+                TextMeshProUGUI textNombre = rond.transform.Find("TextNombre").GetComponent<TextMeshProUGUI>();
+                GameObject info = newRole.transform.Find("InfoRole").gameObject;
+                TextMeshProUGUI textInfo = info.transform.Find("Text").GetComponent<TextMeshProUGUI>();
+
+                Debug.Log("role name : "+ roleRestant[i].get_role());
+
+                imageRole.sprite = roleRestant[i].get_image();
+                textNombre.text = roleRestant[i].get_role_count().ToString();
+                textInfo.text = roleRestant[i].get_description();
             }
         }
+    }
 
-
-        //SendMessageToChat("Il y a :", Message.MsgType.system);
-        for(int i = 0; i<roleList.Count; i++) {
-            SendMessageToChat("" + nb[i] + " " + roleList[i], Message.MsgType.system);
-            nbRoleList.Add("" + nb[i] + " " + roleList[i]);
+    public void RemoveRoleRestant(int idrole){
+        for(int i=0; i<roleRestant.Count; i++){
+            if(roleRestant[i].get_idrole() == idrole){
+                roleRestant[i].set_role_count(roleRestant[i].get_role_count()-1);
+                
+                GameObject role_GO = containerRole.transform.Find("role" + i).gameObject;
+                GameObject rond = role_GO.transform.Find("RondNombre").gameObject;
+                TextMeshProUGUI textNombre = rond.transform.Find("TextNombre").GetComponent<TextMeshProUGUI>();
+                textNombre.text = roleRestant[i].get_role_count().ToString();
+                if(roleRestant[i].get_role_count() <= 0){
+                    Image imageRole = role_GO.transform.Find("ImageRole").GetComponent<Image>();
+                    imageRole.color = new Color(0.25f, 0.25f, 0.25f, 1f);
+                }
+            }
         }
-        string txt = "";
-        for(int i = 0; i<nbRoleList.Count; i++) {
-            txt += nbRoleList[i];
-            txt += "\n";
-        }
-
-        TextMeshProUGUI textRolesRestant =  GO_rolesRestant.transform.Find("TexteRole").GetComponent <TextMeshProUGUI>();
-        Debug.Log("text role restant = "+GO_rolesRestant.GetComponent<TextMeshProUGUI>());
-        
-        textRolesRestant.text = txt;
     }
 
     /**
@@ -1198,6 +1327,10 @@ public class GameManager : MonoBehaviour
     public void UseHealthPotion(){
         Image potionVie = GO_potion.transform.Find("Potion_vie").GetComponent<Image>();
         Image potionVideV = GO_potion.transform.Find("Potion_videV").GetComponent<Image>();
+        GameObject help = GO_potion.transform.Find("Text-PotionVie").gameObject;
+        TextMeshProUGUI textPotion = help.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+
+        textPotion.text = "Empty health potion";
         potionVie.enabled = false;
         potionVideV.enabled = true;
         SendMessageToChat("You used your life potion!", Message.MsgType.system);
@@ -1209,6 +1342,10 @@ public class GameManager : MonoBehaviour
     public void UseDeathPotion(){
         Image potionMort = GO_potion.transform.Find("Potion_mort").GetComponent<Image>();
         Image potionVideM = GO_potion.transform.Find("Potion_videM").GetComponent<Image>();
+        GameObject help = GO_potion.transform.Find("Text-PotionMort").gameObject;
+        TextMeshProUGUI textPotion = help.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
+
+        textPotion.text = "Empty death potion";
         potionMort.enabled = false;
         potionVideM.enabled = true;
         SendMessageToChat("You used your death potion!", Message.MsgType.system);
@@ -1335,7 +1472,8 @@ public class Message
     public enum MsgType
     {
         player,
-        system
+        system,
+        loup
     }
 
 }
@@ -1448,3 +1586,4 @@ public class Player
         }
     }
 }
+

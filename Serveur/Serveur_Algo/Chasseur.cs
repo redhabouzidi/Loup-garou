@@ -12,28 +12,22 @@ public class Chasseur : Role
         description = "blabla";
     }
     
-    public override string Action(List<Joueur> listJoueurs)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // crire l'action de la Voyante
-        string retour;
+        string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         reveille.Connect(Game.listener.LocalEndPoint);
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
-        sendTime(listJoueurs, GetDelaiAlarme());
+        sendTime(listJoueurs, GetDelaiAlarme()/2,game);
 
-        bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
         Task.Run(() =>
         {
-            Thread.Sleep(GetDelaiAlarme() * 750); // 15 secondes
-            reduceTimer = true;
-            if (reduceTimer && !LaunchThread2)
-            {
-                Thread.Sleep(GetDelaiAlarme() * 250); // 5 secondes
-                boucle = false;
-                vide.Send(new byte[1] { 0 });
-            }
+            Thread.Sleep(GetDelaiAlarme() * 500); // 10 secondes
+            boucle = false;
+            vide.Send(new byte[1] { 0 });
         });
 
         Joueur? JoueurChasseur = null;
@@ -53,42 +47,33 @@ public class Chasseur : Role
         while(boucle) 
         {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
+            if(v==-2 && c== -2){
+                return "";
+            }
             if(v == JoueurChasseur.GetId()) 
-            {     
-                if(player != null) {
-                    player.SetDoitMourir(false);
-                }
+            {
                 player = listJoueurs.Find(j => j.GetId() == c);
                 if(player != null && player.GetEnVie() && player.GetRole() is not Chasseur) 
                 {
                     player.SetDoitMourir(true);
-                    if (!reduceTimer && firstTime)
-                    {
-                        firstTime = false;
-                        LaunchThread2 = true;
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(GetDelaiAlarme() * 250);
-                            Console.WriteLine("le Chasseur a vot, a passe  5sec d'attente");
-                            boucle = false;
-                            vide.Send(new byte[1] { 0 });
-                        });
-                    }
+                    boucle = false;
                 }     
             }
         }
 
         if (player != null)
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" tait charg  ct de son corps dans son dernier souffle de vie il dcide de tirer  bout portant sur " + player.GetPseudo() + ". ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" etait charge à cote de son corps dans son dernier souffle de vie il decide de tirer a bout portant sur " + player.GetPseudo() + ". ";
+            retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in his last breath of life he shoots " + player.GetPseudo()+ " closely.";
             victime = player;
         }
         else
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " tait charg  ct de son corps dans un lan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " etait charge a cote de son corps dans un elan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
+            retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in a fit of kindness he removed the charger from his gun so that no one would get hurt with it !";
         }
 
-        return retour;
+        return (retour,retour_ang);
     }
 
     public override int GetIdRole() 

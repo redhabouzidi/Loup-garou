@@ -15,7 +15,7 @@ public abstract class Role
         return name;
     }
 
-    public abstract string Action(List<Joueur> listJoueurs);
+    public abstract (string,string) Action(List<Joueur> listJoueurs, Game game);
 
 
     public (int, int) gameVote(List<Joueur> listJoueurs, int idRole, Socket reveille)
@@ -27,43 +27,61 @@ public abstract class Role
         sockets.Add(reveille);
         Console.WriteLine("ici c'est 1");
         sockets.Add(this.gameListener);
-	    
+
         foreach (Joueur j in listJoueurs)
         {
-            
-        if (j.GetSocket()!=null&&j.GetSocket().Connected == true)
-        {
-            sockets.Add(j.GetSocket());
-            if (idRole == 1 || idRole==255 && j.GetEnVie())
+
+            if (j.GetSocket() != null && j.GetSocket().Connected == true)
             {
-                dictJoueur[j.GetSocket()] = j;
-                role.Add(j.GetSocket());
-            }
-            else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
-            {
-                dictJoueur[j.GetSocket()] = j;
-                role.Add(j.GetSocket());
+                sockets.Add(j.GetSocket());
+                if (idRole == 253 || idRole == 254)
+                {
+                    if (j.GetEstMaire())
+                    {
+                        dictJoueur[j.GetSocket()] = j;
+                        role.Add(j.GetSocket());
+                    }
+                }
+                else if (((idRole == 1 || idRole == 255) && j.GetEnVie()))
+                {
+                    // sockets.Add(j.GetSocket());
+                    // if (idRole == 1 || idRole == 255 && j.GetEnVie())
+                    // {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                    // }
+
+                }
+                else if (j.GetRole().GetIdRole() == idRole && j.GetEnVie())
+                {
+                    dictJoueur[j.GetSocket()] = j;
+                    role.Add(j.GetSocket());
+                }
             }
         }
-        }
-	Console.WriteLine("ici c'est 2");
+        
+        Console.WriteLine("ici c'est 2");
         Console.WriteLine(sockets.Count);
         while (true)
         {
+            if(role.Count==0){
+            return (-2,-2);
+            }
             foreach (Socket socket in sockets)
             {
                 read.Add(socket);
             }
-	        Console.WriteLine("bah on attends alors");
+            Console.WriteLine("bah on attends alors");
             Socket.Select(read, null, null, -1);
-	        Console.WriteLine("ici c'est 3");
+            Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
                 Console.WriteLine("on va sortir");
                 reveille.Receive(new byte[1]);
-		        
+
                 return (-1, -1);
-            }else if (read.Contains(this.gameListener))
+            }
+            else if (read.Contains(this.gameListener))
             {
                 Console.WriteLine("joueur se reconnecte");
                 this.gameListener.Receive(new byte[1]);
@@ -76,30 +94,32 @@ public abstract class Role
                 {
                     if (sock.Available == 0)
                     {
-                        
+
                         sockets.Remove(sock);
-                        foreach(Joueur j in listJoueurs)
+                        foreach (Joueur joueur in listJoueurs)
                         {
-                            if (j.GetSocket() == sock)
+                            if (joueur.GetSocket() == sock)
                             {
-                                server.userData[j.GetId()].SetStatus(j.GetId(),-1);
-                                server.userData.Remove(j.GetId());
-                                j.SetSocket(null);
+                                server.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
+                                server.userData.Remove(joueur.GetId());
+                                joueur.SetSocket(null);
                                 sock.Close();
                                 return (-1, -1);
                             }
                         }
                     }
                     int[] size = new int[1] { 1 };
-                    byte[] message = new byte[4096];
-			        int recvSize=sock.Receive(message);
-                    
+                    byte[] encryptedMessage = new byte[4096];
+                    int recvSize = sock.Receive(encryptedMessage);
+                    byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
+                    recvSize = message.Length;
+                    Console.WriteLine("dans game vote message[0]== {0}", message[0]);
                     if (role.Contains(sock))
                     {
-            
-			            if (message[0] == 1)
+
+                        if (message[0] == 1)
                         {
-				            Console.WriteLine("ici c'est 5");
+                            Console.WriteLine("ici c'est 5");
                             int idVoter = server.decodeInt(message, size);
                             int idVoted = server.decodeInt(message, size);
                             Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
@@ -111,34 +131,43 @@ public abstract class Role
                         }
                         else
                         {
-				            server.recvMessageGame(sockets,message,recvSize);
+                            if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4)||(idRole == 255 && message[0]==16))
+                            {
+                                server.recvMessageGame(role, message, recvSize);
+                            }
                         }
-                        
+
                     }
                     else
                     {
-			
-                        server.recvMessageGame(sockets,message,recvSize);
-			Console.WriteLine("apres recv2");
+                        if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
+                        {
+                            server.recvMessageGame(role, message, recvSize);
+                        }
+                        Console.WriteLine("apres recv2");
                     }
                 }
-		
+
             }
-	    read.Clear();
+            read.Clear();
         }
-	Console.WriteLine("ici c'est la fin de game vote");
+        Console.WriteLine("ici c'est la fin de game vote");
+        return (-1, -1);
+
         return (-1, -1);
     }
-    public void SendVote(List<Joueur> listJoueur,int vote,int voted,int idRole)
+
+    public void SendVote(List<Joueur> listJoueur, int vote, int voted, int idRole)
     {
-        foreach(Joueur j in listJoueur)
+        foreach (Joueur j in listJoueur)
         {
             //6 pour le dictateur ???
-            if(j.GetSocket() != null && j.GetSocket().Connected){
-            if (idRole == 1 || idRole == 6 || j.GetRole().GetIdRole() == idRole)
+            if (j.GetSocket() != null && j.GetSocket().Connected)
             {
-                server.sendVote(j.GetSocket(), vote, voted);
-            }
+                if (idRole == 1 || idRole == 6 || j.GetRole().GetIdRole() == idRole)
+                {
+                    server.sendVote(j.GetSocket(), vote, voted);
+                }
 
             }
         }
@@ -149,7 +178,7 @@ public abstract class Role
     {
         return delaiAlarme;
     }
-    public void sendTurn(List<Joueur> listJoueurs,int idRole)
+    public void sendTurn(List<Joueur> listJoueurs, int idRole)
     {
         foreach (Joueur j in listJoueurs)
         {
@@ -157,15 +186,15 @@ public abstract class Role
                 server.sendTurn(j.GetSocket(), idRole);
         }
     }
-    public void sendTime(List<Joueur> listJoueurs,int time)
+    public void sendTime(List<Joueur> listJoueurs, int time, Game game)
     {
-        Console.WriteLine("in");
+        game.currentTime = time;
+        game.t = DateTime.Now;
         foreach (Joueur j in listJoueurs)
         {
-            if(j.GetSocket() != null && j.GetSocket().Connected)
-                server.sendTime(j.GetSocket(),time);
+            if (j.GetSocket() != null && j.GetSocket().Connected)
+                server.sendTime(j.GetSocket(), time);
         }
-        Console.WriteLine("out");
     }
 
-    }
+}

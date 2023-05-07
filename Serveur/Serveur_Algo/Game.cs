@@ -7,14 +7,16 @@ public class Game
 {
     private List<Joueur> _joueurs;
     private List<Role> _roles;
+    private int[] rolesJoueurs;
     private int _nbrJoueursManquants,gameId;
     private bool _start;
-    public int _nbrJoueurs;
-    public string name, recit;
+    public int _nbrJoueurs,currentTime;
+    public string name, recit, recit_ang;
     private int _nbLoups;
     private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
     public static Socket listener = Server.server.setupSocketGame();
     public Socket vide,reveille;
+    public DateTime t;
     public Game()
     {
         _start = false;
@@ -34,28 +36,50 @@ public class Game
         testNombre();
         // la partie est cr   maintenant j'attends les input du frontend et j'envoie mon client   waiting screen
         // on va admettre que joueurs max = 6
+        rolesJoueurs = new int[_nbrJoueurs];
         Role[] startingRoles = new Role[_nbrJoueurs];
         int i;
-        for (i = 0; i < _nbLoups; i++)
+        for( i=0;i<_nbLoups;i++)
         {
+            rolesJoueurs[i]=4;
             startingRoles[i] = new Loup();
         }
         if (sorciere)
         {
+            rolesJoueurs[i]=5;
             startingRoles[i++] = new Sorciere();
         }
         if (voyante)
         {
+            rolesJoueurs[i]=3;
             startingRoles[i++] = new Voyante();
         }
         if (cupidon)
         {
+            rolesJoueurs[i]=2;
             startingRoles[i++] = new Cupidon();
+        }
+        if (chasseur)
+        {
+            rolesJoueurs[i]=6;
+            startingRoles[i++] = new Chasseur();
+        }
+        if (guardien)
+        {
+            rolesJoueurs[i]=8;
+            startingRoles[i++] = new Garde();
+        }
+        if (dictateur)
+        {
+            rolesJoueurs[i]=7;
+            startingRoles[i++] = new Dictateur();
         }
         for (; i < _nbrJoueurs; i++)
         {
+            rolesJoueurs[i]=1;
             startingRoles[i] = new Villageois();
         }
+
         foreach (Role role in startingRoles)
         {
             _roles.Add(role);
@@ -99,6 +123,7 @@ public class Game
         this.name = name;
         // cr ation de la liste de joueurs et de r les
         _roles = new List<Role>();
+        rolesJoueurs = new int[nbPlayers];
         Role[] startingRoles = new Role[nbPlayers];
         //affectation des parametres
         this.sorciere = sorciere;
@@ -116,34 +141,42 @@ public class Game
         //initialisation des roles
         for( i=0;i<nbLoups;i++)
         {
+            rolesJoueurs[i]=4;
             startingRoles[i] = new Loup();
         }
         if (sorciere)
         {
+            rolesJoueurs[i]=5;
             startingRoles[i++] = new Sorciere();
         }
         if (voyante)
         {
+            rolesJoueurs[i]=3;
             startingRoles[i++] = new Voyante();
         }
         if (cupidon)
         {
+            rolesJoueurs[i]=2;
             startingRoles[i++] = new Cupidon();
         }
         if (chasseur)
         {
+            rolesJoueurs[i]=6;
             startingRoles[i++] = new Chasseur();
         }
         if (guardien)
         {
+            rolesJoueurs[i]=8;
             startingRoles[i++] = new Garde();
         }
         if (dictateur)
         {
+            rolesJoueurs[i]=7;
             startingRoles[i++] = new Dictateur();
         }
         for (; i < nbPlayers; i++)
         {
+            rolesJoueurs[i]=1;
             startingRoles[i] = new Villageois();
         }
 
@@ -212,6 +245,7 @@ public class Game
             {
                 Console.WriteLine(p.GetSocket() + " id " + j.GetId() + " pseudo " + j.GetPseudo());
                 server.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
+                
             }
 
         }
@@ -220,6 +254,7 @@ public class Game
 
     public void LanceAction(Type typeATester)
     {
+        string retour,retour_ang;
         Console.WriteLine(CountSockets());
         if (CountSockets() == 0)
         {
@@ -241,7 +276,8 @@ public class Game
             {
                 _joueurs[i].GetRole().gameListener = reveille;
 
-                ConcatRecit(_joueurs[i].FaireAction(_joueurs));
+                (retour,retour_ang) = _joueurs[i].FaireAction(_joueurs,this);
+                ConcatRecit(retour,retour_ang);
                 break;
             }
         }
@@ -289,7 +325,7 @@ public class Game
             }
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
-            ConcatRecit("Le soleil se couche sur le village de " + name + ". ");
+            ConcatRecit("Le soleil se couche sur le village de " + name + ". ","The sun sets on the village of "+name+". ");
             day = !day;
             // appeller Voyante si il y en a un
             Console.WriteLine("on passe ?");
@@ -307,10 +343,12 @@ public class Game
             }
             // broadcast du serveur : c'est la journ e
             sendGameState(day);
-            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ");
+            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
+            // enl ve   tout le monde l'immunit  accord  par le Garde
+            RemoveSaveStatus();
             for (int i = 0; i < _joueurs.Count; i++)
             {
                 Console.WriteLine(_joueurs[i].GetPseudo() + " a comme r le : " + _joueurs[i].GetRole() +
@@ -338,7 +376,10 @@ public class Game
                         maire = j;
                     }
                 }
-                ConcatRecit("Apr s un long d bat rempli de rebondissements le village d cide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ");
+                if(maire!=null){
+                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
+
+                }
             }
             
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
@@ -351,18 +392,20 @@ public class Game
                 break;
             }
             
-            ConcatRecit("\n\n");
+            ConcatRecit("\n\n","\n\n");
             
-            // enl ve   tout le monde l'immunit  accord  par le Garde
-            RemoveSaveStatus();
+            
         }
-	    PointShare(checkWin);
-        saveGame(recit);
+	    PointShare(checkWin,recit);
         EndGameInitializer();
 
     }
-    public void saveGame(string recit){
-        server.sendMatch(server.bdd,recit);
+    public void saveGame(string recit,int [] score,bool[] victoire){
+        int[] ids=new int[_joueurs.Count];
+        for(int i=0;i<_joueurs.Count;i++){
+            ids[i]=_joueurs[i].GetId();
+        }
+        server.sendMatch(server.bdd,name,recit,ids,score,victoire);
     }
     private void RemoveSaveStatus()
     {
@@ -418,7 +461,7 @@ public class Game
                         _joueurs[i].TuerJoueur(listJoueurs);
                     }
                     
-                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ");
+                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
                 }
             }
         }
@@ -465,7 +508,7 @@ public class Game
             player.SetEstMaire(true);
             sendMaire(listJoueurs,idSuccesseur);
 
-            ConcatRecit("Alors quil sapprtait  mourir, le maire demanda au village dcouter ses dernires paroles. Il dcide de nommer " + player.GetPseudo() + " comme son successeur  la tte du village ");
+            ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
         }
@@ -534,12 +577,13 @@ public class Game
             {
                 id[i] = j.GetId();
                 idr[i] = j.GetRole().GetIdRole();
-                if (j.GetSocket().Connected)
+                if (j.GetSocket()!=null&&j.GetSocket().Connected)
                 {
                     sockets.Add(j.GetSocket());
                 }
                 i++;
             }
+            
             server.sendEndState(sockets, retour, id, idr);
         }
         return retour;
@@ -634,9 +678,10 @@ public class Game
     public void SendEgalite(List<Joueur> client, List<int> victime)
     {
         int [] ids=victime.ToArray();
-        foreach (var joueur in client)
+        foreach (Joueur j in client)
         {
-            server.SendVictime(joueur.GetSocket(),ids);
+            if(j.GetSocket()!=null && j.GetSocket().Connected)
+                server.SendVictime(j.GetSocket(),ids);
         }
     }
 
@@ -708,17 +753,19 @@ public class Game
             if (playerVictime != null)
             {
                 playerVictime.SetDoitMourir(true);
-                ConcatRecit("Les habitants du village d b tent et d cide de pointer " + playerVictime.GetPseudo() + " comme responsable des catastrophes du village... Ils d cident de le tuer sur la place publique. ");
+                ConcatRecit("Les habitants du village debatent et decide de pointer " + playerVictime.GetPseudo() +" comme responsable des catastrophes du village... Ils decident de le tuer sur la place publique.","The inhabitants of the village discuss and decide to point out "+ playerVictime.GetPseudo() +" as responsible for the disasters of the village. They decide to kill him in the public square.");
             }
             else
             {
-                ConcatRecit("Les habitants du village d b tent mais n arrivent pas   trouver de solution au probl me... Ils d cident de rentrer calmement chez eux. ");
+                ConcatRecit("Les habitants du village debatent mais narrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
             }
         }
     }
 
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
+        try{
+
         if (CountSockets() == 0)
         {
             server.games.Remove(GetGameId());
@@ -752,7 +799,7 @@ public class Game
         vide = Game.listener.Accept();
         Console.WriteLine("4");
         bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
-        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3);
+        r.sendTime(listJoueurs, Role.GetDelaiAlarme()*3,this);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 2500); // 45 secondes
@@ -760,8 +807,8 @@ public class Game
             if (reduceTimer && !LaunchThread2)
             {
                 Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10 secondes
-                vide.Send(new byte[1] { 0 });
                 boucle = false;
+                vide.Send(new byte[1] { 0 });
             }
         });
         Console.WriteLine("5");
@@ -773,6 +820,9 @@ public class Game
             Console.WriteLine("6");
             
             (v, c) = r.gameVote(listJoueurs, idRole, reveille);
+            if(v==-2&&c==-2){
+                return null;
+            }
             Console.WriteLine("7");
             if (v != -1)
             {
@@ -784,7 +834,9 @@ public class Game
                 }
                 if (condition)
                 {
+                    Console.WriteLine("8");
                     index = votant.IndexOf(v);
+                    Console.WriteLine("index="+v);
                     cible[index] = c;
 
                     bool allVote = true;
@@ -800,19 +852,27 @@ public class Game
                     {
                         firstTime = false;
                         LaunchThread2 = true;
-                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2);
+                            r.sendTime(listJoueurs, Role.GetDelaiAlarme()/2,this);
                         Task.Run(() =>
                         {
                             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10
                             Console.WriteLine("tout le monde a vot ,  a passe   10sec d'attente");
-                            vide.Send(new byte[1] { 0 });
                             boucle = false;
+                            vide.Send(new byte[1] { 0 });
                         });
                     }
                 }
             }
         }
+         for(int i=0;i<cible.Count;i++)
+        {
+            Console.WriteLine("Le joueur avec l'id " + votant[i] + " a voté pour " + cible[i]);
+        }
         return cible;
+        }catch(Exception e ){
+            Console.WriteLine(e.Message);
+            return null;
+        }
     }
 
     private void InitiateGame()
@@ -855,12 +915,17 @@ public class Game
     {
         int[] id = new int[_joueurs.Count];
         string[] name = new string[_joueurs.Count];
+        bool[] ready = new bool[_joueurs.Count];
+        
         for (int i = 0; i < _joueurs.Count; i++)
         {
             id[i] = _joueurs[i].GetId();
             name[i] = _joueurs[i].GetPseudo();
+            ready[i] = _joueurs[i].GetReady();
         }
-        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name);
+        
+        
+        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name,ready);
     }
     public void sendGameState(bool day)
     {
@@ -916,7 +981,9 @@ public class Game
             {
                 Console.WriteLine("debut de suppression ");
                 server.connected.Add(j.GetSocket(), j.GetId());
+                server.userData[j.GetId()].SetStatus(j.GetId(), 1);
             }
+            
             server.players.Remove(j.GetId());
         }
         server.games.Remove(gameId);
@@ -944,7 +1011,7 @@ public class Game
         vide = Game.listener.Accept();
         
         bool boucle = true;
-        r.sendTime(_joueurs, Role.GetDelaiAlarme()/2);
+        r.sendTime(_joueurs, Role.GetDelaiAlarme()/2,this);
         Task.Run(() =>
         {
             Thread.Sleep(Role.GetDelaiAlarme() * 500); // 10 secondes
@@ -961,7 +1028,12 @@ public class Game
         this.vide = listener.Accept();
         while (boucle)
         {
-            (v, c) = r.gameVote(_joueurs, 255, reveille);
+            (v, c) = r.gameVote(_joueurs, role, reveille);
+            if(v==-2&&c==-2){
+                
+            }
+            
+                Console.WriteLine("Le joueur avec l'id " + v + " a voté pour " + c+" et le maire = "+maire.GetId());
             if (v == maire.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
@@ -1014,30 +1086,49 @@ public class Game
             Console.WriteLine("on lance la game");
             Task.Run(() =>
             {
+                try{
+
                 Start();
+                }catch(Exception e){
+                    Console.WriteLine("message = "+e.ToString());
+                    List<Socket> sockets = new List<Socket>();
+                    foreach(Joueur j in _joueurs){
+                        sockets.Add(j.GetSocket());
+                    }
+                        server.sendEndState(sockets, 0, new int[0], new int[0]);
+                    
+                    EndGameInitializer();
+                }
             });
         }
 
         }
     }
-
-    public void PointShare(int check) {
+    public int[] GetRolesJoueurs(){
+        return rolesJoueurs;
+    }
+    public void PointShare(int check,string recit) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
+        bool [] victoire = new bool[_nbrJoueurs]; 
         foreach(var joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
+            victoire[i]=false;
+            score[i]=0;
             if(check == 1) 
 	    {
                 if(joueur.GetRole() is not Loup) 
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -1048,10 +1139,12 @@ public class Game
 		{
                     if(joueur.GetEnVie()) 
 		    {
+                        victoire[i]=true;
                         score[i] = 10;
                     }
                     else 
 		    {
+                        victoire[i]=true;
                         score[i] = 5;
                     }
                 }
@@ -1059,7 +1152,8 @@ public class Game
             else if(check == 3) 
 	    {
                 if(joueur.GetEnVie()) 
-		{
+		        {
+                    victoire[i]=true;
                     score[i] = 10;
                 }
             }
@@ -1067,15 +1161,18 @@ public class Game
 	    {
                 if(joueur.GetEnVie()) 
 		{
+                    victoire[i]=true;
                     score[i] = 5;
                 }
                 else 
 		{
+                    victoire[i]=true;
                     score[i] = 2;
                 }
             }
             i++;
         }
+        saveGame(recit,score,victoire);
         SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)
@@ -1109,8 +1206,9 @@ public class Game
         gameId = id;
     }
 
-    public void ConcatRecit(string s)
+    public void ConcatRecit(string s,String s2)
     {
         recit = recit + s;
+        recit_ang = recit_ang + s2;
     }
 }

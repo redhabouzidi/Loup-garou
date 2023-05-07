@@ -38,9 +38,12 @@ class Amis
 
 
 
-    public static void send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
+    public static int send_friend_request(MySqlConnection conn,int sender,int receiver){//envoyer une demande
         try{
             using(MySqlCommand command=new MySqlCommand()){
+                string query="SELECT count(*) FROM Amis WHERE (idUsers1=@ids AND idUsers2=@idu) OR (idUsers2=@ids AND idUsers1=@idu)";
+                int rowcount=conn.QueryFirstOrDefault<int>(query,new{ids=sender,idu=receiver});
+                if(rowcount>0)return 0;
                 //Attribuer la connection à la commande
                 command.Connection=conn;
                 //Inserer dans la BDD, Creation d'un lien amitié
@@ -51,14 +54,21 @@ class Amis
                 command.Parameters.AddWithValue("@STA",false);
                 command.Parameters.AddWithValue("@DA",DateTime.Now);
                 //Execution
-                int rowcount=command.ExecuteNonQuery();
+                rowcount=command.ExecuteNonQuery();
                 //si rowcount (ligne inseré) = 0
-                if(rowcount==0)Console.WriteLine("Failed while inserting");
-                else Console.WriteLine("Success");
+                if(rowcount==0){
+                    Console.WriteLine("Failed while inserting");
+                    return 2;
+                }
+                else {
+                    return 1;
+                    Console.WriteLine("Success");
+                }
             }
         }
         catch(Exception e){
             Console.WriteLine(e.Message);
+            return 3;
         }
     }
 
@@ -161,14 +171,13 @@ class Amis
         //retour
         return (identifiants,pseudos,dates);
     }
-    public static (int[],string[]) search_for_player(MySqlConnection conn,string name_player){
-        string query="SELECT idUsers,pseudo FROM Utilisateurs WHERE pseudo LIKE @NP";
-        List<(int id, string username)> data = conn.Query<(int, string)>(query, new { NP = "%" + name_player + "%" }).ToList();
+    public static (int[],string[]) search_for_player(MySqlConnection conn,int idUsers,string name_player){
+        string query="SELECT U.idUsers,U.pseudo FROM Utilisateurs U WHERE U.pseudo LIKE @NP AND U.idUsers NOT IN (SELECT A.idUsers2 FROM Amis A WHERE A.idUsers1 = @id) AND U.idUsers NOT IN (SELECT A.idUsers1 FROM Amis A WHERE A.idUsers2 = @id) AND U.idUsers != @id";
+        List<(int id, string username)> data = conn.Query<(int, string)>(query, new { NP = "%" + name_player + "%" ,id=idUsers}).ToList();
         string[] username = data.Select(r=> r.username).ToArray();
         int[] id = data.Select(r => r.id).ToArray();
         return (id,username);
     }
-
     public static int get_friend_count(MySqlConnection conn,int id_player){
         int friend_count=0;
         //Recuperer le nombre d'amis d'un joueur

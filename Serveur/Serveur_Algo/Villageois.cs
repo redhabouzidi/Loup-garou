@@ -8,7 +8,7 @@ public class Villageois : Role
         name = "Villageois";
         description = "blabla";
     }
-    public override string Action(List<Joueur> listJoueurs)
+    public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action du villageois --> rien ?
         throw new NotImplementedException();
     }
