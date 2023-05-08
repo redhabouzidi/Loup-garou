@@ -51,7 +51,7 @@ public class Dictateur : Role
                 // on d�finit que (v, c) si c == 1 alors le joueur d�cide de sauver, sinon 0
                 (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
                 if(v==-2 && c== -2){
-                    return "";
+                    return ("","");
                 }
                 if (v == joueurDictateur.GetId())
                 {

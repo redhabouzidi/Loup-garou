@@ -362,6 +362,7 @@ public class bdd
         int[] size = new int[1] { 1 };
         string name = decodeString(message, size);
         string action = decodeString(message, size);
+        string actionAng = decodeString(message,size);
 
         int tableSize = decodeInt(message, size);
         int[] ids = new int[tableSize];

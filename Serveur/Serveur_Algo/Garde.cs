@@ -54,7 +54,7 @@ public class Garde : Role
         while(boucle) {
             (v,c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v==-2 && c== -2){
-                return "";
+                return ("","");
             }
             if(v == JoueurGarde.GetId()) {
                 if(player != null) {

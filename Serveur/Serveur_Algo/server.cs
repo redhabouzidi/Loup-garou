@@ -635,8 +635,8 @@ namespace Server
                 sendMessage(socket, message);
             }
         }
-        public static void sendMatch(Socket bdd,string nom,string recit,int[] ids,int[] score,bool[] victoire){
-            byte [] message = new byte[1+sizeof(int)+nom.Length+sizeof(int)+recit.Length+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length+sizeof(int)+sizeof(bool)*victoire.Length];
+        public static void sendMatch(Socket bdd,string nom,string recit,string recit_ang,int[] ids,int[] score,bool[] victoire){
+            byte [] message = new byte[1+sizeof(int)+nom.Length+sizeof(int)+recit.Length+sizeof(int)+recit_ang.Length+sizeof(int)+sizeof(int)*ids.Length+sizeof(int)+sizeof(int)*score.Length+sizeof(int)+sizeof(bool)*victoire.Length];
             int [] size = new int[1]{1};
             message[0]=159;
             Console.WriteLine("name ="+nom);
@@ -644,6 +644,7 @@ namespace Server
             
             encode(message,nom,size);
             encode(message,recit,size);
+            encode(message,recit_ang,size);
             encode(message,ids.Length,size);
             foreach(int id in ids){
                 encode(message,id,size);

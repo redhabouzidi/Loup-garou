@@ -58,7 +58,7 @@ public class Cupidon : Role
         {
             (v, c1, c2) = gameVoteCupidon(listJoueurs, GetIdRole(), reveille);
             if(v==-2&&c1==-2&&c2==-2){
-                return "";
+                return ("","");
             }
             if (v == JoueurCupidon.GetId())
             {

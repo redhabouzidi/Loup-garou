@@ -396,16 +396,16 @@ public class Game
             
             
         }
-	    PointShare(checkWin,recit);
+	    PointShare(checkWin);
         EndGameInitializer();
 
     }
-    public void saveGame(string recit,int [] score,bool[] victoire){
+    public void saveGame(string recit,string recit_ang,int [] score,bool[] victoire){
         int[] ids=new int[_joueurs.Count];
         for(int i=0;i<_joueurs.Count;i++){
             ids[i]=_joueurs[i].GetId();
         }
-        server.sendMatch(server.bdd,name,recit,ids,score,victoire);
+        server.sendMatch(server.bdd,name,recit,recit_ang,ids,score,victoire);
     }
     private void RemoveSaveStatus()
     {
@@ -1107,7 +1107,7 @@ public class Game
     public int[] GetRolesJoueurs(){
         return rolesJoueurs;
     }
-    public void PointShare(int check,string recit) {
+    public void PointShare(int check) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
         int i = 0;
@@ -1172,7 +1172,7 @@ public class Game
             }
             i++;
         }
-        saveGame(recit,score,victoire);
+        saveGame(recit,recit_ang,score,victoire);
         SendPoints(_joueurs, id, score);
     }
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)

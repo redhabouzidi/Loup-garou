@@ -220,7 +220,7 @@ public class Sorciere : Role
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de se venger en empoisonnant l’eau de la maison de " + cible.GetPseudo() + ". ";
                 recit_ang = joueurSorciere.GetPseudo() + ", a witch who saw the scene decides to take revenge by poisoning the water in "+ cible.GetPseudo() +"'s house";
-            }
+                }
         }
 
         return retour;

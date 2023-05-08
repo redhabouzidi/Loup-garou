@@ -47,7 +47,7 @@ public class Voyante : Role
         {
             (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
             if(v==-2 && c== -2){
-                return "";
+                return ("","");
             }
             if (v == JoueurVoyante.GetId())
             {
