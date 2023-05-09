@@ -5,7 +5,7 @@ namespace LGproject;
 public class Joueur
 {
     private int id;
-    private Socket socket;
+    private Socket? socket;
     private string pseudo;
     private Role role;
     private Joueur? amoureux;
@@ -38,7 +38,7 @@ public class Joueur
 	doitMourir = false;
         foreach (Joueur p in ListJoueurs)
         {
-            server.annonceMort(p.GetSocket(), GetId(), GetRole().GetIdRole());
+            Messages.annonceMort(p.GetSocket(), GetId(), GetRole().GetIdRole());
         }
     }
 

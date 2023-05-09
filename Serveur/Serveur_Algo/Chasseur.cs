@@ -17,7 +17,9 @@ public class Chasseur : Role
         string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
@@ -50,7 +52,7 @@ public class Chasseur : Role
             if(v==-2 && c== -2){
                 return ("","");
             }
-            if(v == JoueurChasseur.GetId()) 
+            if(JoueurChasseur!=null && v == JoueurChasseur.GetId()) 
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
                 if(player != null && player.GetEnVie() && player.GetRole() is not Chasseur) 
@@ -61,16 +63,19 @@ public class Chasseur : Role
             }
         }
 
-        if (player != null)
+        if (JoueurChasseur!=null && player != null)
         {
             retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" etait charge à cote de son corps dans son dernier souffle de vie il decide de tirer a bout portant sur " + player.GetPseudo() + ". ";
             retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in his last breath of life he shoots " + player.GetPseudo()+ " closely.";
             victime = player;
         }
-        else
+        else if(JoueurChasseur!=null )
         {
             retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " etait charge a cote de son corps dans un elan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
             retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in a fit of kindness he removed the charger from his gun so that no one would get hurt with it !";
+        }else{
+            retour ="";
+            retour_ang = "";
         }
 
         return (retour,retour_ang);

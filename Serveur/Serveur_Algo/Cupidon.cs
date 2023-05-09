@@ -20,7 +20,9 @@ public class Cupidon : Role
         // choix des amoureux
         bool boucle = true;
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         vide = Game.listener.Accept();
         sendTime(listJoueurs, GetDelaiAlarme(),game);
@@ -60,7 +62,7 @@ public class Cupidon : Role
             if(v==-2&&c1==-2&&c2==-2){
                 return ("","");
             }
-            if (v == JoueurCupidon.GetId())
+            if (JoueurCupidon!=null && v == JoueurCupidon.GetId())
             {
                 boolAmoureux = false;
                 amoureux = listJoueurs.Find(j => j.GetId() == c1);
@@ -85,7 +87,7 @@ public class Cupidon : Role
             }
         }
         Console.WriteLine("on sort de la boucle");
-        if (boolAmoureux)
+        if (amoureux!=null && amoureux2!=null && JoueurCupidon!=null && boolAmoureux)
         {
             amoureux.SetAmoureux(amoureux2);
             amoureux2.SetAmoureux(amoureux);
@@ -95,12 +97,15 @@ public class Cupidon : Role
                      amoureux.GetPseudo() + " et " + amoureux2.GetPseudo() +
                      " qui tombèrent fou amoureux l’un de l’autre. ";
             retour_ang = JoueurCupidon.GetPseudo() + " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he decided to shoot the arrows at "+amoureux.GetPseudo()+" and "+amoureux2.GetPseudo()+" who fell madly in love with each other.";
-       	    server.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
+       	    Messages.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
        	}
-        else
+        else if (JoueurCupidon!=null)
         {
             retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il tente de tirer mais ses flèches tombent toutes les deux dans la rivière du village… ";
             retour_ang = JoueurCupidon.GetPseudo()+ " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he tried to shoot but his arrows both fell into the village river";
+        }else{
+            retour = "";
+            retour_ang="";
         }
 
         return (retour,retour_ang);
@@ -172,8 +177,8 @@ public class Cupidon : Role
                         {
                             if (j.GetSocket() == sock)
                             {
-                                server.userData[j.GetId()].SetStatus(j.GetId(), -1);
-                                server.userData.Remove(j.GetId());
+                                Messages.userData[j.GetId()].SetStatus(j.GetId(), -1);
+                                Messages.userData.Remove(j.GetId());
                                 j.SetSocket(null);
                                 sock.Close();
                                 return (-1, -1,-1);
@@ -183,7 +188,7 @@ public class Cupidon : Role
                     int[] size = new int[1] { 1 };
                     byte[] encryptedMessage = new byte[4096];
                     int recvSize = sock.Receive(encryptedMessage);
-                    byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
+                    byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
                     recvSize=message.Length;
 
                     if (role.Contains(sock))
@@ -191,9 +196,9 @@ public class Cupidon : Role
                             if (message[0] == 6)
                             {
 
-                                int idVoter = server.decodeInt(message, size);
-                                int idVoted = server.decodeInt(message, size);
-                                int idVoted2 = server.decodeInt(message, size);
+                                int idVoter = Messages.decodeInt(message, size);
+                                int idVoted = Messages.decodeInt(message, size);
+                                int idVoted2 = Messages.decodeInt(message, size);
                                 if (idVoter == dictJoueur[sock].GetId())
                                 {
                                     return (idVoter, idVoted, idVoted2);
@@ -204,7 +209,7 @@ public class Cupidon : Role
                         else
                         {
                             if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
-				            server.recvMessageGame(sockets,message,recvSize);
+				            Messages.recvMessageGame(sockets,message,recvSize);
                             }
                         }
 
@@ -213,14 +218,12 @@ public class Cupidon : Role
                     {
 
                         if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
-				            server.recvMessageGame(sockets,message,recvSize);
+				            Messages.recvMessageGame(sockets,message,recvSize);
                         }
                     }
                 }
             }
             read.Clear();
         }
-        Console.WriteLine("ici c'est la fin de game vote");
-        return (-1, -1,-1);
     }
 }

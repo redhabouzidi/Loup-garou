@@ -13,67 +13,89 @@ using System.Threading.Tasks;
 
 namespace Server
 {
+    //contient toutes les fonctions concernant la gestion des amis 
     public class Amis
     {
+        //Socket du client
         private Socket sock;
+        //Status du client
         private int status;
-        private string username;
+        //Nom du client
+        private string username="";
+        //Amis du client
         private List<int> friendList = new List<int>();
+
         public Amis(Socket sock, int status)
         {
             this.sock = sock;
             this.status = status;
         }
+        //Permet d'ajouter un amis au client
         public void AddFriend(int id)
         {
             friendList.Add(id);
         }
+        //Permet de supprimer un amis au client
         public void RemoveFriend(int id)
         {
             friendList.Remove(id);
         }
+
         public Socket GetSocket()
         {
             return sock;
         }
+
         public void SetSock(Socket sock)
         {
             this.sock = sock;
         }
+
         public int GetStatus()
         {
             return status;
         }
+        //La fonction change le status du client , et envoie a tout ses amis connecté le changement de status
         public void SetStatus(int key, int status)
         {
             this.status = status;
             foreach (int i in friendList)
             {
-                if (server.userData.ContainsKey(i))
+                //Test si l'amis est connecté
+                if (Messages.userData.ContainsKey(i))
                 {
-                    if (server.userData[i].GetSocket() != null && server.userData[i].GetSocket().Connected)
-                        server.sendStatus(server.userData[i].GetSocket(), key, status);
+                    //Test pour eviter l'envoie de données a un client non connecté
+                    if (Messages.userData[i].GetSocket() != null && Messages.userData[i].GetSocket().Connected)
+
+                        Messages.sendStatus(Messages.userData[i].GetSocket(), key, status);
                 }
             }
         }
+
         public void SetUsername(string username)
         {
             this.username = username;
         }
+
         public string GetUsername()
         {
             return username;
         }
     }
+    //La classes contient la queue faite pour ne pas attendre la réponse de la base de donnée
     public class Queue
     {
+        //La liste des Socket en attente
         public Dictionary<int, Socket> queue;
+        //Le compteur de message en attente
         public int count;
+
         public Queue()
         {
             queue = new Dictionary<int, Socket>();
             count = 0;
         }
+        //ajout un client dans la queue et incremente le compteur
         public int addVal(Socket client)
         {
             queue.Add(count, client);
@@ -81,53 +103,29 @@ namespace Server
         }
 
     }
-    public class answer
+    //La classe principale du serveur , Contient toutes les fonctions d'envoie et d'écoute du serveur
+    public class Messages
     {
-        bool error;
-        int errType;
-        int code;
-        byte[] message;
-        public answer()
-        {
-            this.error = false;
-            this.errType = 0;
-            this.code = 0;
-            this.message = null;
-        }
-        public answer(bool error, int errType, int code, byte[] message)
-        {
-            this.error = error;
-            this.errType = errType;
-            this.code = code;
-            this.message = message;
-
-        }
-    }
-
-    public class server
-    {
+        //Sauvegarde la presence d'un joueur dans un lobby ou une game
         public static Dictionary<int, Game> players = new Dictionary<int, Game>();
+        //Sauvegarde le status de connexion d'un joueur a un compte
         public static Dictionary<Socket, int> connected = new Dictionary<Socket, int>();
+        //Sauvegarde la presence de parties en cours
         public static Dictionary<int, Game> games = new Dictionary<int, Game>();
+        //Sauvegarde les données et la liste d'amis d'un joueur
         public static Dictionary<int, Amis> userData = new Dictionary<int, Amis>();
+        //Sauvegarde les clefs d'un joueur
         public static Dictionary<Socket, Aes> client_keys = new Dictionary<Socket, Aes>();
-        public static Socket wakeUpMain,bdd;
+        //Declaration de la socket bdd et d'une socket utilisé pour reveiller le main
+        public static  Socket? wakeUpMain,bdd;
+        //Sauvegarde les utilisateurs dont on attends la clef
         public static List<Socket> waitingKeys = new List<Socket>();
         
+        //écoute principale du serveur , ne marche que aprés la connexion de la base de données
         public static void Main(string[] args)
         {
-            /*if (args.Length != 1)
-            {
-                return;
-            }
-            int port;
-            bool answer = Int32.TryParse(args[0], out port);
-            if (answer == false)
-            {
-                return;
-            }*/
             int port = 10000;
-            bool reading = true, a = true;
+            bool  a = true;
             Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10001) ;
  
             byte[] message = new byte[1024];
@@ -139,7 +137,12 @@ namespace Server
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
             wakeUpMain = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            if(server.LocalEndPoint!=null){
+
             wakeUpMain.Connect(server.LocalEndPoint);
+            }else{
+                return;
+            }
             list.Add(server.Accept());
             Queue queue = new Queue();
             int i = 0;
@@ -182,12 +185,14 @@ namespace Server
                 {
                     acceptConnexions(list, server, crypto);
                     fds.Remove(server);
-                    Console.WriteLine("got a new client ! it's " + list.Last().RemoteEndPoint.ToString());
                 }
                 if (fds.Contains(bdd))
                 {
                     recvBddMessage(bdd, queue, list, connected);
                     fds.Remove(bdd);
+                }
+                if(fds.Contains(wakeUpMain)){
+                    fds.Remove(wakeUpMain);
                 }
                 foreach (Socket fd in fds)
                 {
@@ -203,7 +208,7 @@ namespace Server
                     }
                     else if (waitingKeys.Contains(fd))
                     {
-                        client_keys.TryAdd(fd, crypto.RecvAes(fd));
+                        client_keys.Add(fd, crypto.RecvAes(fd));
                         waitingKeys.Remove(fd);
                     }
                     else
@@ -438,7 +443,9 @@ namespace Server
                         int timeToSend = g.currentTime- (int)timeSpent.TotalSeconds;
                         sendTime(client,timeToSend);
                         connected.Remove(client);
+                        if(g.vide!=null){
                         g.vide.Send(new byte[1] { 0 });
+                        }
 
                     }else{
                         sendMessage(client, new byte[] { 255,4 });
@@ -915,8 +922,7 @@ namespace Server
         public static void recvMessageGame(List<Socket> list, byte[] message, int receivedBytes)
         {
             int[] size = new int[1];
-            string chat;
-            int idPlayer, vote, idUser;
+            int idPlayer, vote;
             switch (message[0])
             {
                 case 0://chat message
@@ -967,7 +973,7 @@ namespace Server
         public static void recvMessage(Socket client, Socket bdd, List<Socket> list, Dictionary<Socket, int> connected, Queue queue, Dictionary<int, Game> players)
         {
             int[] size = new int[1];
-            int dataSize, tableSize, id;
+            int   id;
             byte[] message;
             if (!client_keys.ContainsKey(client))
             {
@@ -982,8 +988,8 @@ namespace Server
                 message = Crypto.DecryptMessage(encryptedMessage, client_keys[client], receivedBytes);
                 receivedBytes = message.Length;
             }
-            string username, password, chat;
-            int idPlayer, vote,idj;
+            string username;
+            int  idj;
             switch (message[0])
             {
                 case 2:
@@ -1574,7 +1580,9 @@ namespace Server
         }
         public static void WakeUpMain()
         {
-            wakeUpMain.Send(new byte[1] { 255 });
+            if(wakeUpMain!=null){
+                wakeUpMain.Send(new byte[1] { 255 });
+            }
         }
         public static void sendScore(Socket client, int[] id, int[] score)
         {

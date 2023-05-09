@@ -34,23 +34,28 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     if (votant.Count == 1)
     {
         l = listJoueurs.Find(j => j.GetId() == votant[0]);
+        if(l!=null){
         retour = retour + l.GetPseudo() + " un loup vient d’entrer dans le village... ";
         retour_ang = retour_ang + " a wolf has just entered the village... ";
+        }
     }
     else
     {
         for (int i = 0; i < votant.Count; i++)
         {
             l = listJoueurs.Find(j => j.GetId() == votant[i]);
-            if (i == votant.Count - 1)
+            if (l!=null && i == votant.Count - 1)
             {
                 retour = retour + l.GetPseudo();
                 retour_ang = retour_ang + l.GetPseudo();
             }
-            else
+            else if(l!=null)
             {
                 retour = retour + l.GetPseudo() + ", ";
                 retour_ang = retour_ang + l.GetPseudo() + ", ";
+            }else{
+                retour = "";
+                retour_ang = "";
             }
         }
         retour = retour + " des loups venaient d’entrer dans le village... ";
@@ -61,7 +66,9 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
 
     // on définit une "alarme" qui modifie la valeur du boolean
     Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    reveille.Connect(Game.listener.LocalEndPoint);
+    if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
     Socket vide;
     vide = Game.listener.Accept();
     bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
@@ -182,9 +189,11 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
         }
 
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
-        playerVictime.SetDoitMourir(true);
-        retour = retour + "Il semblerait qu’une victime ait été déchiqueté au centre du village, il s’agit bien de " + playerVictime.GetPseudo() + ".  ";
-        retour_ang = retour_ang + "It seems that a victim was torn to pieces in the center of the village, it is "+ playerVictime.GetPseudo() +". ";
+        if(playerVictime!=null){
+            playerVictime.SetDoitMourir(true);
+            retour = retour + "Il semblerait qu’une victime ait été déchiqueté au centre du village, il s’agit bien de " + playerVictime.GetPseudo() + ".  ";
+            retour_ang = retour_ang + "It seems that a victim was torn to pieces in the center of the village, it is "+ playerVictime.GetPseudo() +". ";
+        }
     }
     else
     {

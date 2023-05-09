@@ -4,7 +4,7 @@ namespace LGproject;
 
 public abstract class Role
 {
-    protected string? name;
+    protected string name="";
     protected string? description;
     protected int IdRole;
     // on définit de manière arbitraire 20 secondes pour jouer à chaque rôle
@@ -100,8 +100,8 @@ public abstract class Role
                         {
                             if (joueur.GetSocket() == sock)
                             {
-                                server.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
-                                server.userData.Remove(joueur.GetId());
+                                Messages.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
+                                Messages.userData.Remove(joueur.GetId());
                                 joueur.SetSocket(null);
                                 sock.Close();
                                 return (-1, -1);
@@ -111,7 +111,7 @@ public abstract class Role
                     int[] size = new int[1] { 1 };
                     byte[] encryptedMessage = new byte[4096];
                     int recvSize = sock.Receive(encryptedMessage);
-                    byte[] message = Crypto.DecryptMessage(encryptedMessage, server.client_keys[sock], recvSize);
+                    byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
                     recvSize = message.Length;
                     Console.WriteLine("dans game vote message[0]== {0}", message[0]);
                     if (role.Contains(sock))
@@ -120,8 +120,8 @@ public abstract class Role
                         if (message[0] == 1)
                         {
                             Console.WriteLine("ici c'est 5");
-                            int idVoter = server.decodeInt(message, size);
-                            int idVoted = server.decodeInt(message, size);
+                            int idVoter = Messages.decodeInt(message, size);
+                            int idVoted = Messages.decodeInt(message, size);
                             Console.WriteLine("idVoter : " + idVoter + " dictJoueur[sock].GetId() : " + dictJoueur[sock].GetId() + "joueur name" + dictJoueur[sock].GetPseudo());
                             if (idVoter == dictJoueur[sock].GetId())
                             {
@@ -133,7 +133,7 @@ public abstract class Role
                         {
                             if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4)||(idRole == 255 && message[0]==16))
                             {
-                                server.recvMessageGame(role, message, recvSize);
+                                Messages.recvMessageGame(role, message, recvSize);
                             }
                         }
 
@@ -142,7 +142,7 @@ public abstract class Role
                     {
                         if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
                         {
-                            server.recvMessageGame(role, message, recvSize);
+                            Messages.recvMessageGame(role, message, recvSize);
                         }
                         Console.WriteLine("apres recv2");
                     }
@@ -151,10 +151,6 @@ public abstract class Role
             }
             read.Clear();
         }
-        Console.WriteLine("ici c'est la fin de game vote");
-        return (-1, -1);
-
-        return (-1, -1);
     }
 
     public void SendVote(List<Joueur> listJoueur, int vote, int voted, int idRole)
@@ -166,7 +162,7 @@ public abstract class Role
             {
                 if (idRole == 1 || idRole == 6 || j.GetRole().GetIdRole() == idRole)
                 {
-                    server.sendVote(j.GetSocket(), vote, voted);
+                    Messages.sendVote(j.GetSocket(), vote, voted);
                 }
 
             }
@@ -183,7 +179,7 @@ public abstract class Role
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetSocket() != null && j.GetSocket().Connected)
-                server.sendTurn(j.GetSocket(), idRole);
+                Messages.sendTurn(j.GetSocket(), idRole);
         }
     }
     public void sendTime(List<Joueur> listJoueurs, int time, Game game)
@@ -193,7 +189,7 @@ public abstract class Role
         foreach (Joueur j in listJoueurs)
         {
             if (j.GetSocket() != null && j.GetSocket().Connected)
-                server.sendTime(j.GetSocket(), time);
+                Messages.sendTime(j.GetSocket(), time);
         }
     }
 

@@ -16,7 +16,9 @@ public class Voyante : Role
         string retour,retour_ang;
         sendTurn(listJoueurs, GetIdRole());
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         bool boucle = true;
         vide = Game.listener.Accept();
@@ -28,7 +30,7 @@ public class Voyante : Role
             boucle = false;
         });
 
-        Joueur JoueurVoyante = null;
+        Joueur? JoueurVoyante = null;
         Role? JoueuraVoircarte = null;
 
         foreach (Joueur j in listJoueurs)
@@ -49,16 +51,16 @@ public class Voyante : Role
             if(v==-2 && c== -2){
                 return ("","");
             }
-            if (v == JoueurVoyante.GetId())
+            if (JoueurVoyante!=null && v == JoueurVoyante.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
                 if (player != null)
                 {
-                    if (player.GetRole() is not Voyante && player.GetEnVie())
+                    if (JoueurVoyante!=null && player.GetRole() is not Voyante && player.GetEnVie())
                     {
                         JoueuraVoircarte = player.GetRole();
                         // envoyer l'information JoueuraVoircarte sur la Socket de la voyante
-                        server.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
+                        Messages.revelerRole(JoueurVoyante.GetSocket(), player.GetId(), player.GetRole().GetIdRole());
 
                         boucle = false;
                     }
@@ -66,16 +68,19 @@ public class Voyante : Role
             }
         }
 
-        if (player != null)
+        if (JoueurVoyante!=null && player != null)
         {
             retour = JoueurVoyante.GetPseudo() + " se met à regarder dans sa boule de cristal… elle voit… " + player.GetPseudo() + " qui s’avère être " + player.GetRole() + ". ";
             retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees... "+ player.GetPseudo() +" who turns out to be "+ player.GetRole() +".";
         }
-        else
+        else if (JoueurVoyante!=null)
         {
             retour = JoueurVoyante.GetPseudo() +
                      " se met à regarder dans sa boule de cristal… elle ne voit rien de spécial ce soir-là… ";
             retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees nothing special that night...";
+        }else{
+            retour = "";
+            retour_ang= "";
         }
 
         return (retour,retour_ang);

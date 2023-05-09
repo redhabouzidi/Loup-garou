@@ -22,7 +22,7 @@ public class Dictateur : Role
             Joueur? joueurDictateur = null;
             foreach (Joueur j in listJoueurs)
             {
-                server.sendTurn(j.GetSocket(), GetIdRole());
+                Messages.sendTurn(j.GetSocket(), GetIdRole());
                 if (j.GetRole() is Dictateur)
                 {
                     joueurDictateur = j;
@@ -32,7 +32,9 @@ public class Dictateur : Role
             
             // on d�finit une "alarme" qui modifie la valeur du boolean
             Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            reveille.Connect(Game.listener.LocalEndPoint);
+            if(Game.listener.LocalEndPoint!=null){
+                reveille.Connect(Game.listener.LocalEndPoint);
+            }
             Socket vide;
             vide = Game.listener.Accept();
             // bool reduceTimer = false, LaunchThread2 = false, firstTime = true;
@@ -53,7 +55,7 @@ public class Dictateur : Role
                 if(v==-2 && c== -2){
                     return ("","");
                 }
-                if (v == joueurDictateur.GetId())
+                if (joueurDictateur!=null&&v == joueurDictateur.GetId())
                 {
                     switch (c)
                     {
@@ -92,7 +94,7 @@ public class Dictateur : Role
                 {
                     (v, c) = gameVote(listJoueurs, GetIdRole(), reveille);
                     Console.WriteLine(v + " et " + c);
-                    if (v == joueurDictateur.GetId())
+                    if (joueurDictateur!=null && v == joueurDictateur.GetId())
                     {
                         player = listJoueurs.Find(j => j.GetId() == c);
                         if (player != null && player.GetRole() is not Dictateur && player.GetEnVie())
@@ -117,7 +119,7 @@ public class Dictateur : Role
                 }
                 
 
-                if (victime != null)
+                if (joueurDictateur!=null && victime != null)
                 {
                     retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " decide de prendre les armes et de faire un coup d etat organise. Apres reflexion et pour montrer sa bonne foi il decide degorger " + victime.GetPseudo() + ". ";
                     retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" decides to take up arms and to make a rebellion. After thinking about it and to show his good faith, he decides to slit "+ victime.GetPseudo() +"'s throat.";                    victime.SetDoitMourir(true);
@@ -143,17 +145,23 @@ public class Dictateur : Role
                         retour_ang = retour_ang + "What a murderer! To kill an innocent in cold blood, what a shame! The crowd stabbed this dictator!";
                     }
                 }
-                else
+                else if(joueurDictateur!=null)
                 {
                     retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " qui etait pourtant decide a prendre les armes pour renverser le pouvoir loupa son reveil et se rendormi... ";
                     retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" who decided to take up arms to overthrow the power missed his alarm clock and went back to sleep."; 
+                }else{
+                    retour = "";
+                    retour_ang="";
                 }
                 
             }
-            else
+            else if(joueurDictateur!=null)
             {
                 retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " hesite a prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer a l action il decide de procrastiner a un autre jour! ";
                 retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" hesitates to take up arms to try to overthrow the power but just before taking action he decides to procrastinate to another day.";
+            }else{
+                retour = "";
+                retour_ang = "";
             }
         }
 

@@ -39,7 +39,7 @@ namespace Server
             byte[] data = encryptor.TransformFinalBlock(message, 0, message.Length);
             byte[] toSend = new byte[data.Length + sizeof(int)];
             int[] size = new int[1] { 0 };
-            server.encode(toSend, data.Length, size);
+            Messages.encode(toSend, data.Length, size);
             Array.Copy(data, 0, toSend, size[0], data.Length);
             return toSend;
         }

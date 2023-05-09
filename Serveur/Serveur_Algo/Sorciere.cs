@@ -9,8 +9,8 @@ public class Sorciere : Role
     private int potionKill;
     private int idJoueurVise;
     private new const int IdRole = 5;
-    private string recit;
-    private string recit_ang;
+    private string recit="";
+    private string recit_ang="";
 
     public Sorciere()
     {
@@ -55,10 +55,13 @@ public class Sorciere : Role
             recit = "";
             recit_ang = "";
         }
-        else
+        else if(joueurSorciere!=null)
         {
             retour = joueurSorciere.GetPseudo() + ", une sorcière qui passait dans le village reste spectatrice sans intervenir… ";
             retour_ang = joueurSorciere.GetPseudo() + ", a witch who was passing through the village remains a spectator without intervening...";
+        }else{
+            retour = "";
+            retour_ang="";
         }
         return (retour,retour_ang);
     }
@@ -69,12 +72,10 @@ public class Sorciere : Role
         int v, c;
         for (int i = 0; i < listJoueurs.Count; i++)
         {
-            if (listJoueurs[i].GetDoitMourir())
+            if (joueurSorciere!=null && listJoueurs[i].GetDoitMourir())
             {
 		        Console.WriteLine("Le joueur suivant doit mourir : " + listJoueurs[i].GetPseudo());
                 idJoueurVise = listJoueurs[i].GetId();
-                // envoieInformation(x,y)
-                // fonction "boîte noire" qui envoie l'information que le joueur x a été tué sur la socket y
                 sendTurn(listJoueurs,GetIdRole());
                 EnvoieInformation(joueurSorciere.GetSocket(), idJoueurVise);
                 
@@ -83,7 +84,9 @@ public class Sorciere : Role
                 // on définit une "alarme" qui modifie la valeur du boolean
                 // valeur arbitraire => 10 secondes
                 Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                reveille.Connect(Game.listener.LocalEndPoint);
+                if(Game.listener.LocalEndPoint!=null){
+                    reveille.Connect(Game.listener.LocalEndPoint);
+                }
                 Socket vide;
                 vide = Game.listener.Accept();
                 sendTime(listJoueurs, GetDelaiAlarme()*375/1000,game);
@@ -124,10 +127,10 @@ public class Sorciere : Role
         if (idJoueurVise != -1)
         {
             Joueur? cible = listJoueurs.FirstOrDefault(player => player.GetId() == idJoueurVise);
-            if (cible != null && !cible.GetDoitMourir())
+            if (joueurSorciere!=null && cible != null && !cible.GetDoitMourir())
             {
                 potionSoin--;
-                server.sendUseItem(joueurSorciere.GetSocket(),0);
+                Messages.sendUseItem(joueurSorciere.GetSocket(),0);
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de sauver la victime en lui administrant un puissant remède. ";
                 recit_ang = joueurSorciere.GetPseudo() + ", a witch who saw the scene decides to save the victim using a powerful remedy.";
@@ -146,7 +149,9 @@ public class Sorciere : Role
         // on définit une "alarme" qui modifie la valeur du boolean
         // valeur arbitraire => 10 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         vide = Game.listener.Accept();
         sendTime(listJoueurs, GetDelaiAlarme()*375/1000,game);
@@ -166,7 +171,7 @@ public class Sorciere : Role
             if(v==-2 && c== -2){
                 return false;
             }
-            if (v == joueurSorciere.GetId())
+            if (joueurSorciere!=null&&v == joueurSorciere.GetId())
             {
                 switch (c)
                 {
@@ -201,7 +206,7 @@ public class Sorciere : Role
                 if(v==-2 && c== -2){
                     return false;
                 }
-                if (v == joueurSorciere.GetId() && c != -1)
+                if (joueurSorciere!=null&&v == joueurSorciere.GetId() && c != -1)
                 {
                     cible = listJoueurs.FirstOrDefault(player => player.GetId() == c);
                     if (cible != null && cible.GetRole() is not Sorciere &&
@@ -213,9 +218,9 @@ public class Sorciere : Role
                 }
             }
 
-            if (cible != null && cible.GetDoitMourir())
+            if (joueurSorciere!=null&&cible != null && cible.GetDoitMourir())
             {   
-                server.sendUseItem(joueurSorciere.GetSocket(),1);
+                Messages.sendUseItem(joueurSorciere.GetSocket(),1);
                 potionKill -= 1;
                 retour = true;
                 recit = joueurSorciere.GetPseudo() + ", une sorcière qui vue la scène décide de se venger en empoisonnant l’eau de la maison de " + cible.GetPseudo() + ". ";
@@ -238,6 +243,6 @@ public class Sorciere : Role
     }
     public void EnvoieInformation(Socket socket,int cible)
     {
-        server.EnvoieInformation(socket, cible);
+        Messages.EnvoieInformation(socket, cible);
     }
 }

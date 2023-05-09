@@ -5,17 +5,17 @@ namespace LGproject;
 
 public class Game
 {
-    private List<Joueur> _joueurs;
+    private List<Joueur> _joueurs=new List<Joueur>();
     private List<Role> _roles;
     private int[] rolesJoueurs;
     private int _nbrJoueursManquants,gameId;
     private bool _start;
     public int _nbrJoueurs,currentTime;
-    public string name, recit, recit_ang;
+    public string name, recit="", recit_ang="";
     private int _nbLoups;
     private bool sorciere, voyante, cupidon, chasseur, guardien, dictateur;
-    public static Socket listener = Server.server.setupSocketGame();
-    public Socket vide,reveille;
+    public static Socket listener = Messages.setupSocketGame();
+    public Socket? vide,reveille;
     public DateTime t;
     public Game()
     {
@@ -90,7 +90,6 @@ public class Game
             Console.WriteLine("Tu n'as pas respect  les conditions de r les pour lancer ta partie !");
         }
         
-        _joueurs = new List<Joueur>();
     }
     public bool testNombre()
     {
@@ -190,12 +189,11 @@ public class Game
             Console.WriteLine("Tu n'as pas respect  les conditions de r les pour lancer ta partie !");
         }
         gameId = c.GetId();
-        _joueurs = new List<Joueur>();
         Join(c);
     }
     public void RemovePlayer(Socket sock)
     {
-        Joueur temp=null;
+        Joueur? temp=null;
         
         foreach (Joueur j in _joueurs)
         {
@@ -219,7 +217,7 @@ public class Game
         foreach(Joueur j in listJoueur)
         {
             if(j.GetSocket()!=null && j.GetSocket().Connected)
-                server.sendQuitMessage(j.GetSocket(), id);
+                Messages.sendQuitMessage(j.GetSocket(), id);
         }
     }
     public void Waiting_screen()
@@ -244,7 +242,7 @@ public class Game
             else
             {
                 Console.WriteLine(p.GetSocket() + " id " + j.GetId() + " pseudo " + j.GetPseudo());
-                server.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
+                Messages.SendAccountInfo(p.GetSocket(), j.GetId(), j.GetPseudo());
                 
             }
 
@@ -259,10 +257,10 @@ public class Game
         if (CountSockets() == 0)
         {
 
-            server.games.Remove(GetGameId());
+            Messages.games.Remove(GetGameId());
             foreach(Joueur j in _joueurs)
             {
-                server.players.Remove(j.GetId());
+                Messages.players.Remove(j.GetId());
                 
             }
             _joueurs.Clear();
@@ -274,7 +272,9 @@ public class Game
         {
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie() && _joueurs[i].GetSocket()!=null && _joueurs[i].GetSocket().Connected)
             {
-                _joueurs[i].GetRole().gameListener = reveille;
+                if(reveille!=null){
+                    _joueurs[i].GetRole().gameListener = reveille;
+                }
 
                 (retour,retour_ang) = _joueurs[i].FaireAction(_joueurs,this);
                 ConcatRecit(retour,retour_ang);
@@ -302,7 +302,9 @@ public class Game
         // m lange des r les et r partition pour les joueurs
         InitiateGame();
         reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         vide = listener.Accept();
         int checkWin;
         
@@ -405,7 +407,9 @@ public class Game
         for(int i=0;i<_joueurs.Count;i++){
             ids[i]=_joueurs[i].GetId();
         }
-        server.sendMatch(server.bdd,name,recit,recit_ang,ids,score,victoire);
+        if(Messages.bdd!=null){
+            Messages.sendMatch(Messages.bdd,name,recit,recit_ang,ids,score,victoire);
+        }
     }
     private void RemoveSaveStatus()
     {
@@ -443,7 +447,7 @@ public class Game
                     {
                         maireMort = _joueurs[i];
                     }
-                    if (_joueurs[i].GetAmoureux() != null)
+                    if (_joueurs[i]!=null && _joueurs[i].GetAmoureux() != null)
                     {
                         _joueurs[i].GetAmoureux().SetDoitMourir(true);
                         _joueurs[i].GetAmoureux().SetAEteSave(false);
@@ -505,10 +509,13 @@ public class Game
                 idSuccesseur = joueursEnVie[random.Next(joueursEnVie.Count)];
             }
             Joueur? player = listJoueurs.Find(j => j.GetId() == idSuccesseur);
-            player.SetEstMaire(true);
+            if(player!=null){
+                player.SetEstMaire(true);
+            }
             sendMaire(listJoueurs,idSuccesseur);
-
-            ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
+            if(player!=null){
+                ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
+            }
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
         }
@@ -584,7 +591,7 @@ public class Game
                 i++;
             }
             
-            server.sendEndState(sockets, retour, id, idr);
+            Messages.sendEndState(sockets, retour, id, idr);
         }
         return retour;
     }
@@ -665,12 +672,14 @@ public class Game
         }
 
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
-        playerVictime.SetEstMaire(true);
-        sendMaire(listJoueurs,playerVictime.GetId());
+        if(playerVictime!=null){
+            playerVictime.SetEstMaire(true);
+            sendMaire(listJoueurs,playerVictime.GetId());
+        }
     }
     public void sendMaire(List<Joueur> list,int maire){
         foreach(Joueur j in list){
-            server.sendMaire(j.GetSocket(),maire);
+            Messages.sendMaire(j.GetSocket(),maire);
         }
 
     }
@@ -681,7 +690,7 @@ public class Game
         foreach (Joueur j in client)
         {
             if(j.GetSocket()!=null && j.GetSocket().Connected)
-                server.SendVictime(j.GetSocket(),ids);
+                Messages.SendVictime(j.GetSocket(),ids);
         }
     }
 
@@ -743,7 +752,10 @@ public class Game
                 List<Joueur> tiedVictimsJoueur = new List<Joueur>();
                 for (int i = 0; i < tiedVictims.Count ; i++)
                 {
-                    tiedVictimsJoueur.Add(listJoueurs.Find(j => j.GetId() == tiedVictims[i]));
+                    Joueur? j=listJoueurs.Find(j => j.GetId() == tiedVictims[i]);
+                    if(j!=null){
+                        tiedVictimsJoueur.Add(j);
+                    }
                 }
                 SendEgalite(listJoueurs,tiedVictims);
                 victime = DecisionDuMaire(tiedVictimsJoueur,254);
@@ -768,13 +780,13 @@ public class Game
 
         if (CountSockets() == 0)
         {
-            server.games.Remove(GetGameId());
+            Messages.games.Remove(GetGameId());
             foreach (Joueur j in _joueurs)
             {
-                server.players.Remove(j.GetId());
+                Messages.players.Remove(j.GetId());
                 _joueurs.Remove(j);
             }
-            return null;
+            return new List<int>();
         }
         Role r = new Villageois();
         r.sendTurn(listJoueurs,idRole);
@@ -793,7 +805,9 @@ public class Game
         bool boucle = true;
         // on definit une "alarme" sur 60 secondes
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         Console.WriteLine("3");
         vide = Game.listener.Accept();
@@ -821,7 +835,7 @@ public class Game
             
             (v, c) = r.gameVote(listJoueurs, idRole, reveille);
             if(v==-2&&c==-2){
-                return null;
+                return new List<int>();
             }
             Console.WriteLine("7");
             if (v != -1)
@@ -871,7 +885,7 @@ public class Game
         return cible;
         }catch(Exception e ){
             Console.WriteLine(e.Message);
-            return null;
+            return new List<int>();
         }
     }
 
@@ -908,7 +922,7 @@ public class Game
                     rolesToSend[i] = 0;
                 }
             }
-            server.sendRoles(j.GetSocket(), id, rolesToSend);
+            Messages.sendRoles(j.GetSocket(), id, rolesToSend);
         
     }
     public void sendGameInfo(Socket sock)
@@ -925,14 +939,14 @@ public class Game
         }
         
         
-        server.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name,ready);
+        Messages.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name,ready);
     }
     public void sendGameState(bool day)
     {
         foreach (Joueur j in _joueurs)
         {
             if (j.GetSocket()!=null && j.GetSocket().Connected )
-            server.etatGame(j.GetSocket(), day);
+            Messages.etatGame(j.GetSocket(), day);
         }
     }
     public int GetJoueurManquant()
@@ -980,14 +994,14 @@ public class Game
             if(j.GetSocket()!=null && j.GetSocket().Connected)
             {
                 Console.WriteLine("debut de suppression ");
-                server.connected.Add(j.GetSocket(), j.GetId());
-                server.userData[j.GetId()].SetStatus(j.GetId(), 1);
+                Messages.connected.Add(j.GetSocket(), j.GetId());
+                Messages.userData[j.GetId()].SetStatus(j.GetId(), 1);
             }
             
-            server.players.Remove(j.GetId());
+            Messages.players.Remove(j.GetId());
         }
-        server.games.Remove(gameId);
-        server.WakeUpMain();
+        Messages.games.Remove(gameId);
+        Messages.WakeUpMain();
     }
     // La fonction renvoie celui qui est choisi par le maire (la victime en cas d' galit  ou son successeur si le maire est mort) 
     public int DecisionDuMaire(List<Joueur> listJoueurs,int role)
@@ -1006,7 +1020,9 @@ public class Game
         r.sendTurn(_joueurs, role);
 
         Socket reveille = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        reveille.Connect(Game.listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            reveille.Connect(Game.listener.LocalEndPoint);
+        }
         Socket vide;
         vide = Game.listener.Accept();
         
@@ -1024,7 +1040,9 @@ public class Game
         Console.WriteLine("Le maire doit prendre sa d cision");
         
         r.gameListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        r.gameListener.Connect(listener.LocalEndPoint);
+        if(Game.listener.LocalEndPoint!=null){
+            r.gameListener.Connect(Game.listener.LocalEndPoint);
+        }
         this.vide = listener.Accept();
         while (boucle)
         {
@@ -1032,9 +1050,8 @@ public class Game
             if(v==-2&&c==-2){
                 
             }
-            
-                Console.WriteLine("Le joueur avec l'id " + v + " a voté pour " + c+" et le maire = "+maire.GetId());
-            if (v == maire.GetId())
+                
+            if (maire!=null && v == maire.GetId())
             {
                 player = listJoueurs.Find(j => j.GetId() == c);
                 if (player != null && player != maire && player.GetEnVie())
@@ -1073,15 +1090,15 @@ public class Game
             {
                 sum++;
             }
-            server.sendReady(j.GetSocket(), id, ready);
+            Messages.sendReady(j.GetSocket(), id, ready);
         }
         
         if (sum == _nbrJoueurs)
         {
             foreach (Joueur j in _joueurs)
             {
-                server.connected.Remove(j.GetSocket());
-                server.userData[j.GetId()].SetStatus(j.GetId(), 3);
+                Messages.connected.Remove(j.GetSocket());
+                Messages.userData[j.GetId()].SetStatus(j.GetId(), 3);
             }
             Console.WriteLine("on lance la game");
             Task.Run(() =>
@@ -1095,7 +1112,7 @@ public class Game
                     foreach(Joueur j in _joueurs){
                         sockets.Add(j.GetSocket());
                     }
-                        server.sendEndState(sockets, 0, new int[0], new int[0]);
+                        Messages.sendEndState(sockets, 0, new int[0], new int[0]);
                     
                     EndGameInitializer();
                 }
@@ -1112,7 +1129,7 @@ public class Game
         int []score = new int[_nbrJoueurs];
         int i = 0;
         bool [] victoire = new bool[_nbrJoueurs]; 
-        foreach(var joueur in _joueurs) 
+        foreach(Joueur joueur in _joueurs) 
         {
             id[i] = joueur.GetId();
             victoire[i]=false;
@@ -1179,7 +1196,7 @@ public class Game
     {
         foreach(Joueur j in listJoueur)
         {
-            server.sendScore(j.GetSocket(), id, score);
+            Messages.sendScore(j.GetSocket(), id, score);
         }
     }
 
