@@ -1,0 +1,16 @@
+Key,English,French
+RegistrationPage.Text-Registration,Registration,Inscription
+RegistrationPage.InputField Pseudo.Text Area,Username,Pseudo
+RegistrationPage.InputField Email.Text Area,Email adress,Adresse mail
+RegistrationPage.InputField Password.Text Area,Password,Mot de Passe
+RegistrationPage.InputField ConfirmPassword.Text Area,Confirm password,Confirmer Mot de Passe
+RegistrationPage.Button-registration,Register,S'inscrire
+RegistrationPage.Panel-info,"The password need to contain:
+        - 8 characters minimum
+        - Upper and lower case letters
+        - Numbers
+        - A special character","Le mot de passe doit contenir
+        - 8 caractères minimum
+        - Lettres majuscules et minuscules
+        - des chiffres
+        - Un caractère spécial"

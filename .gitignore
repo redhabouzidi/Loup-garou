@@ -7,7 +7,10 @@
 # MonoDevelop generated
 /*.pidb
 /*.userprefs
-
+.vs
+DataBase
+lp
+server
 # Build generated
 /[Bb]uild/
 
@@ -25,3 +28,23 @@
 *.user
 *.unitypackage
 *.DS_Store
+
+
+Client/Documents/
+Client/Library/
+Client/Logs/
+Client/Packages/
+Client/ProjectSettings/
+Client/Temp/
+Client/UserSettings/
+Serveur/Serveur_Algo/bin/
+Serveur/Serveur_Algo/obj/
+Serveur/Serveur_Bdd/bin/
+Serveur/Serveur_Bdd/obj/
+/Client/obj
+Client/Assets/Client.cs
+Client/Assets/Client.cs.meta
+bin
+obj
+*.csproj
+*.pem
