@@ -12,6 +12,12 @@ public class Cupidon : Role
         description = "blabla";
     }
 
+    /**
+        Cette méthode définit l'action du rôle Cupidon dans le jeu. 
+        Le but de Cupidon est de faire tomber deux joueurs amoureux l'un de l'autre. 
+        Si Cupidon a réussi à faire tomber deux joueurs amoureux, les joueurs sont mis en couple. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     {
         string retour,retour_ang;

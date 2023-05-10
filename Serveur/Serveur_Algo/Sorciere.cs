@@ -20,6 +20,11 @@ public class Sorciere : Role
         potionKill = 1;
     }
 
+    /**
+        Cette méthode représente l'action du rôle Sorcière pendant une partie de jeu. 
+        Elle lui permet d'utiliser soit la potion de vie (s'il lui en reste une) soit la potion de mort (si elle n'a pas utilisé la potion de vie, qu'il lui en reste une et qu'elle souhaite le faire) sur un joueur cible. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la sorciere
         string retour,retour_ang;
@@ -66,6 +71,12 @@ public class Sorciere : Role
         return (retour,retour_ang);
     }
 
+    /**
+        Cette méthode permet de gérer l'utilisation de la potion de vie par la sorcière. 
+        Elle parcourt la liste de joueurs pour trouver le joueur qui doit mourir lors de ce tour de jeu, puis elle envoie une notification à la sorcière pour qu'elle puisse prendre sa décision. 
+        Si elle décide de sauver la victime, la méthode met à jour les informations du joueur. 
+        Enfin, la méthode retourne un booléen qui indique si la potion de vie a été utilisée ou non.
+    */
     public bool PotionVie(List<Joueur> listJoueurs, Joueur? joueurSorciere,Game game)
     {
         bool retour = false;
@@ -140,6 +151,13 @@ public class Sorciere : Role
         return retour;
     }
 
+    /**
+        Cette méthode de la classe Sorcière permet de gérer l'utilisation de la potion de mort par la sorcière. 
+        Si la sorcière décide d'utiliser sa potion de mort, la méthode commence une deuxième boucle pour permettre à la sorcière de choisir une cible pour sa potion. 
+        Cette boucle s'arrête une fois que la sorcière a choisi une cible ou que le temps imparti est écoulé. 
+        Enfin, si la sorcière a réussi à choisir une cible, la méthode applique l'effet de la potion en marquant la cible comme étant morte pour le tour suivant. 
+        La méthode renvoie true si la potion a été utilisée avec succès, et false sinon.
+    */
     public bool PotionMort(List<Joueur> listJoueurs, Joueur? joueurSorciere,Game game)
     {
         bool retour = false;

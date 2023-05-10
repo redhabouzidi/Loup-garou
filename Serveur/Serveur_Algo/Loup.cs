@@ -11,6 +11,14 @@ public Loup()
     description = "blabla";
 }
 
+
+/**
+    Cette méthode représente l'action que les loups effectuent chaque nuit dans le jeu. 
+    Les loups ont pour mission de tuer un joueur, et leur action commence par une annonce de leur arrivée dans le village. 
+    Ensuite, un vote a lieu entre les loups pour décider de la victime. 
+    La méthode prend en compte les votes de chaque loup et choisit une victime. 
+    Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+*/
 public override (string,string) Action(List<Joueur> listJoueurs,Game game)
 { // écrire l'action du loup
     string retour,retour_ang;

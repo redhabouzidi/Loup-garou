@@ -13,6 +13,11 @@ public class Garde : Role
         description = "blabla";
     }
     
+    /**
+        Cette méthode représente l'action du Garde dans le jeu. 
+        Celle-ci permet au joueur qui a le rôle de Garde de choisir un autre joueur à protéger pendant la nuit, ce qui le rendra immortel à l'attaque des Loups pour cette nuit seulement. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la Voyante
         string retour,retour_ang;

@@ -13,6 +13,14 @@ public class Dictateur : Role
         description = "blabla";
     }
 
+    /**
+        Cette méthode définit l'action du rôle Dictateur dans le jeu. 
+        Si le Dictateur a encore le coup d'État disponible, il peut décider de l'utiliser pour éliminer un joueur de son choix. 
+        Dans ce cas, le Dictateur doit voter pour la victime. 
+        Si la victime est un Loup, le Dictateur devient alors le nouveau maire de la ville. 
+        Si la victime est un innocent, le Dictateur sera lui-même éliminé par la foule. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // �crire l'action du loup
         string retour = "";

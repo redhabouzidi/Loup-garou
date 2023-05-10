@@ -12,6 +12,11 @@ public class Chasseur : Role
         description = "blabla";
     }
     
+    /**
+        Cette méthode représente l'action du rôle Chasseur pendant une partie de jeu. 
+        Plus précisément, elle permet au joueur de sélectionner un autre joueur à éliminer en utilisant son fusil. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // crire l'action de la Voyante
         string retour,retour_ang;
