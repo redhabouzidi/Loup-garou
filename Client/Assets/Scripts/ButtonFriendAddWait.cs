@@ -28,6 +28,9 @@ public class ButtonFriendAddWait : MonoBehaviour
         
     }
 
+    /**
+        change l'affichage du component apres avoir appuyé sur le bouton ajouter en ami
+    **/
     private void onButtonClickAdd(){
         // modifier le status dans la bdd
 
@@ -35,6 +38,10 @@ public class ButtonFriendAddWait : MonoBehaviour
         GO_buttonCancel.SetActive(true); 
     }
 
+    /**
+        change l'affichage du component apres avoir appuyé 
+        sur le bouton annuler la demande d'ami
+    **/
     private void onButtonClickCancel(){
         // modifier le status dans la bdd
 

@@ -22,6 +22,9 @@ public class ButtonSeeHidePassword : MonoBehaviour
         button_hide.onClick.AddListener(OnButtonClickHide);
     }
 
+    /**
+        affiche le mot de passe lorsque le bouton est appuyé
+    **/
     private void OnButtonClickSee()
     {
         see.SetActive(false);
@@ -31,6 +34,9 @@ public class ButtonSeeHidePassword : MonoBehaviour
         text_password.DeactivateInputField();
     }
 
+    /**
+        masque le mot de passe lorsque le bouton est appuyé
+    **/
     private void OnButtonClickHide()
     {
         hide.SetActive(false);

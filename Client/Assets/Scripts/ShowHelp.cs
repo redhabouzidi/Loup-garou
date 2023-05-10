@@ -21,12 +21,17 @@ public class ShowHelp : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         
     }
 
+    /**
+        affiche l'info bulle quand le pointeur de la souris entre dans l'element
+    **/
     public void OnPointerEnter(PointerEventData eventData)
     {
         info.SetActive(true);
     }
 
-    // Méthode appelée lorsque la souris sort de la zone du Panel
+    /**
+        masque l'info bulle quand le pointeur de la souris sort de l'element
+    **/
     public void OnPointerExit(PointerEventData eventData)
     {
        info.SetActive(false);

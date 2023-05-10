@@ -285,7 +285,9 @@ public class GameManagerApp : MonoBehaviour
     }
 
     /**
-        
+        Action executé lorsque le bouton changer pour changer le mot de passe
+        lorsqu'il a été oublié
+        envoie au serveur les informations
     **/
     private void onButtonClickChangeForgotPass()
     {
@@ -303,10 +305,19 @@ public class GameManagerApp : MonoBehaviour
         }
         NetworkManager.recvMessage(NetworkManager.client);
     }
+
+    /**
+        Permet de récupérer les données à afficher le classement via le serveur
+    **/
     private void onButtonClickRank()
     {
         NetworkManager.sendRankRequest();
     }
+
+    /**
+        Affiche la pop-up d'erreur avec le message donné
+        Arg: msg, le message à afficher
+    **/
     public void AfficheError(string msg)
     {
         box_error.SetActive(true);
@@ -314,6 +325,15 @@ public class GameManagerApp : MonoBehaviour
         text_error.text = msg;
     }
 
+    /**
+        La fonction permet d'afficher une partie dans le lobby
+        avec les informations de la partie
+        Args :  id, l'identifiant associé à la partie
+                name, le nom du village/partie
+                nbPlayer, le nombre de joueurs de la partie
+                actuelPlayers, le nombre de joueurs présents dans l'écran d'attente
+                roles, la liste des roles présents dans la partie via leur identifiant
+    **/
     public void AddGame(int id, string name, int nbPlayer,int actualPlayers,int[] roles){
         
         GameObject newGame = Instantiate(componentGame, containerGame.transform);
@@ -341,17 +361,10 @@ public class GameManagerApp : MonoBehaviour
         listGame.Add(g);
     }
 
-    public void UpdateGame(int id)
-    {
-        int indice = findIndiceGameId(id);
-        if (indice != -1)
-        {
-            GameObject GO_Player = listGame[indice].game.transform.Find("numberPlayers").gameObject;
-            TextMeshProUGUI textPlayer = GO_Player.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
-            textPlayer.text = "" + (listGame[indice].nbPlayer - listGame[indice].nbPlayer_rest) + "/" + listGame[indice].nbPlayer;
-        }
-    }
-
+    /**
+        La fonction permet d'obtenir l'identifiant de la partie selectionnée parmi la 
+        liste des parties dans le lobby
+    **/
     public int GetIdToggleGameOn()
     {
         for (int i = 0; i < listGame.Count; i++)
@@ -364,21 +377,22 @@ public class GameManagerApp : MonoBehaviour
         return -1;
     }
 
-    public int findIndiceGameId(int id)
-    {
-        for (int i = 0; i < listGame.Count; i++)
-        {
-            if (listGame[i].id == id)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
+    /**
+        la fonction permet de récuperer les données lorsque le button 
+        pour accéder la page des parties sauvegardées est appuyé
+    **/
     private void onButtonClickSaveGames()
     {
         NetworkManager.sendHistoryRequest();
     }
+
+    /**
+        addFriendAdd permet d'ajouter dans le jeu l'élément 
+        permettant d'afficher un joueur correspondant à la recherche
+        effectué pour ajouter un ami + stocke l'utilisateur dans une liste
+        Args: name, le nom de l'utilisateur
+              id, l'identifiant de l'utilisateur
+    **/
     public void addFriendAdd(string name, int id)
     {
         SupprNoObject(listAdd);
@@ -406,9 +420,16 @@ public class GameManagerApp : MonoBehaviour
         listAdd.Add(f);
     }
 
+    /**
+        addFriendWait permet d'ajouter dans le jeu l'élément 
+        permettant d'afficher la demande d'ami effectué à un joueur
+        dans la liste des demandes en attente + stocke l'utilisateur dans une liste
+        Args: name, le nom de l'utilisateur
+              id, l'identifiant de l'utilisateur
+    **/
     public void addFriendWait(string name, int id)
     {
-
+        SupprNoObject(listWait);
         if (!NetworkManager.inGame)
         {
             GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
@@ -443,6 +464,11 @@ public class GameManagerApp : MonoBehaviour
 
 
     }
+
+    /**
+        met a jour les listes associées aux amis
+        (les amis, les demandes)
+    **/
     public void refreshAll()
     {
         if (listFriend != null && listFriend.Count != 0)
@@ -469,6 +495,11 @@ public class GameManagerApp : MonoBehaviour
             }
         }
     }
+
+    /**
+        met a jour un ami
+        Arg: f, l'ami a mettre à jour
+    **/
     public void refreshFriend(Friend f)
     {
         GameObject newFriend = Instantiate(componentFriend, containerFriend.transform);
@@ -520,6 +551,11 @@ public class GameManagerApp : MonoBehaviour
         }
         f.obj = newFriend;
     }
+
+    /**
+        met a jour une demande d'ami recue
+        Arg: f, la demande a mettre à jour
+    **/
     public void refreshFriendR(Friend f)
     {
         GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
@@ -538,6 +574,11 @@ public class GameManagerApp : MonoBehaviour
         });
         f.obj = newFriend;
     }
+
+    /**
+        met a jour une demande d'ami envoye / en attente
+        Arg: f, la demande a mettre à jour
+    **/
     public void refreshFriendW(Friend f)
     {
         GameObject newFriend = Instantiate(componentAddWait, containerWait.transform);
@@ -561,6 +602,15 @@ public class GameManagerApp : MonoBehaviour
         });
         f.obj = newFriend;
     }
+
+    /**
+        addFriend permet d'ajouter dans le jeu l'élément 
+        permettant d'afficher un ami dans la liste d'amis
+        + stocke l'utilisateur dans une liste
+        Args: name, le nom de l'utilisateur
+              id, l'identifiant de l'utilisateur
+              status, le status de l'ami (en ligne, hors ligne, en jeu)
+    **/
     public void addFriend(string name,int id,int status){
         SupprNoObject(listFriend);
         if (!NetworkManager.inGame)
@@ -622,16 +672,17 @@ public class GameManagerApp : MonoBehaviour
             listFriend.Add(f);
         }
     }
-    // status:
-    // 3 = in game
-    // 2 = in lobby/waitscreen
-    // 1 = connecté
-    // 0 = invitation en attente amis
-    // -1 = hors ligne
 
+    /**
+        addFriendRequest permet d'ajouter dans le jeu l'élément 
+        permettant d'afficher une demadne d'ami reçue dans la liste des demandes
+        + stocke la demande de l'utilisateur dans une liste
+        Args: name, le nom de l'utilisateur
+              id, l'identifiant de l'utilisateur
+    **/
     public void addFriendRequest(string name, int id)
     {
-
+        SupprNoObject(listRequest);
         GameObject newFriend = Instantiate(componentRequest, containerRequest.transform);
 
         TextMeshProUGUI textName = newFriend.transform.Find("Text-pseudo").GetComponent<TextMeshProUGUI>();
@@ -650,6 +701,14 @@ public class GameManagerApp : MonoBehaviour
         listRequest.Add(f);
     }
 
+    /**
+        addFriendRequest permet d'ajouter dans le jeu l'élément 
+        permettant d'afficher qu'une liste est vide
+        + stocke l'element dans la liste donnée
+        Args: msg, le message à afficher dans l'element
+              container, l'emplacement dans le jeu où l'ajouter
+              list, la liste vide où ajouté l'élément
+    **/
     public void addNoFriend(string msg, GameObject container, List<Friend> list)
     {
         GameObject newObject = Instantiate(componentNo, container.transform);
@@ -660,6 +719,12 @@ public class GameManagerApp : MonoBehaviour
         list.Add(new Friend(-1, newObject));
     }
 
+    /**
+        La fonction met a jour le status d'un ami
+        (en ligne, hors ligne, en jeu)
+        Args: id, l'identifiant de l'ami
+              status, le nouveau status de l'ami
+    **/
     public void UpdateStatusFriend(int id, int status)
     {
         int indice = GetIndiceFriendId(id, listFriend);
@@ -708,6 +773,10 @@ public class GameManagerApp : MonoBehaviour
 
     }
 
+    /**
+        La fonction permet de supprimer un ami de l'affiche de la liste des amis
+        stocke de l'utilisateur
+    **/
     public void SupprimerAmi(int id)
     {
         int indice = GetIndiceFriendId(id, listFriend);
@@ -774,6 +843,10 @@ public class GameManagerApp : MonoBehaviour
         }
     }
 
+    /**
+        supprime l'element indiquant que la liste est vide
+        Arg: list, la liste où faire la suppression
+    **/
     public void SupprNoObject(List<Friend> list)
     {
         if (list.Count == 1 && list[0].id == -1)
@@ -783,6 +856,11 @@ public class GameManagerApp : MonoBehaviour
         }
     }
 
+    /**
+        Obtenir l'indice dans la liste de l'ami avec l'identifiant donné
+        Args: id, l'identifiant de l'ami
+            list, la liste où recupere l'indice 
+    **/
     public int GetIndiceFriendId(int id, List<Friend> list)
     {
         int indice = -1;
@@ -797,6 +875,11 @@ public class GameManagerApp : MonoBehaviour
         return indice;
     }
 
+    /**
+        Supprimer tous les objects dans le jeu de la liste
+        et supprimer les elements de la liste list
+        Arg: list, la liste a vidé
+    **/
     public void ClearListGameObject(List<Friend> list)
     {
         foreach (Friend obj in list)
@@ -806,6 +889,10 @@ public class GameManagerApp : MonoBehaviour
         list.Clear();
     }
 
+    /**
+        Obtenir le sprite/image associé à un role
+        role, l'identifiant du role
+    **/
     public Sprite GetSpriteToIdrole (int role){
         
         Sprite image = sVill;
