@@ -16,6 +16,9 @@ public class ButtonClick : MonoBehaviour
         buttonSeeHide.onClick.AddListener(OnButtonClickSeeHideChat);
     }
 
+    /**
+        masquer/afficher le chat du jeu
+    **/
     public void OnButtonClickSeeHideChat()
     {
         if (!isHide){

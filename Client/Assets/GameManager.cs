@@ -1204,10 +1204,6 @@ public class GameManager : MonoBehaviour
 
         //Vote(); // Confirmation de vote
     }
-
-    /**
-        la fonction indique au maire mourant de choisir son succeseur
-    **/
     
 
     /**
@@ -1283,6 +1279,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /**
+        La fonction permet de décrémenter de 1 le nombre de joueurs en vie jouant ce role
+        et met à jour l'affichage
+        Arg: idrole, le nombre associé au role
+    **/
     public void RemoveRoleRestant(int idrole){
         for(int i=0; i<roleRestant.Count; i++){
             if(roleRestant[i].get_idrole() == idrole){

@@ -11,6 +11,11 @@ public class Voyante : Role
         description = "blabla";
     }
 
+    /**
+        Cette méthode représente l'action du rôle Voyante pendant une partie de jeu. 
+        Elle permet à la voyante de regarder la carte d'un joueur en vie de son choix et d'envoyer l'information au client de la voyante via une socket. 
+        Le résultat final est décrit en récit sous forme de paire de chaînes de caractères (français,anglais).
+    */
     public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     { // écrire l'action de la Voyante
         string retour,retour_ang;

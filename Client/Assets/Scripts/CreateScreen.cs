@@ -26,7 +26,7 @@ public class CreateScreen : MonoBehaviour
             t.onValueChanged.AddListener(delegate {OnToggleValueChanged(t);});
             t.onValueChanged.AddListener(delegate {ValueChangeCheck();});
 
-            // mettre a jour l'affichage
+            // met a jour l'affichage
             GameObject toggle_GO = t.gameObject;
             GameObject imageBack = toggle_GO.transform.Find("Image-back").gameObject;
             Image imageRole = imageBack.transform.Find("Image-role").GetComponent<Image>();
@@ -48,6 +48,9 @@ public class CreateScreen : MonoBehaviour
 
     }
 
+    /**
+        compte le nombre de toggles on
+    **/
     public int CountToggleOn(){
         int count = 0;
         foreach (Toggle t in listToggle){
@@ -58,10 +61,16 @@ public class CreateScreen : MonoBehaviour
         return count;
     }
 
+    /**
+        obtenir le nombre de villageois, les roles restants
+    **/
     public int GetNbPlayerRest(){
         return int.Parse(inputPlayers.text) - (int.Parse(inputLG.text) + CountToggleOn());
     }
 
+    /**
+        ajouter les toggles dans une liste
+    **/
     private void AddToggleInList(){
         listToggle.Add(toggleWitch);
         listToggle.Add(toggleSeer);
@@ -71,6 +80,10 @@ public class CreateScreen : MonoBehaviour
         listToggle.Add(toggleGuardian);
     }
 
+    /**
+        recuperer les donnees de la partie pour les envoyer 
+        au serveur lorsque le bouton pour créer la partie est appuyé
+    **/
     private void OnButtonClickCreate(){
         string name;
         int nbLG, nbPlayer;
@@ -96,6 +109,10 @@ public class CreateScreen : MonoBehaviour
         Debug.Log("envoyé");
     }
 
+    /**
+        met a jour l'affichage du toggle si sa valeur change
+        Arg: le toggle qui a changé de valeur
+    **/
     public void OnToggleValueChanged(Toggle change){
         int nbPlayerRest = GetNbPlayerRest();
         if(change.isOn){
@@ -114,6 +131,10 @@ public class CreateScreen : MonoBehaviour
         }
     }
 
+    /**
+        verifier et met a jour les roles pour avoir le meme nombre de joueurs 
+        que de roles et un nombre acceptable de loups
+    **/
     private void ValueChangeCheck(){
         // mise a jour des roles
         int nbLG = int.Parse(inputLG.text);

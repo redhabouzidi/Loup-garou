@@ -32,6 +32,10 @@ public class Joueur
         return role.Action(ListJoueurs,game);
     }
 
+    /**
+        Cette méthode permet de tuer un joueur en le marquant comme mort (enVie = false et doitMourir = false). 
+        Elle informe également tous les joueurs de la mort du joueur en appelant la méthode "annonceMort".
+    */
     public void TuerJoueur(List<Joueur> ListJoueurs)
     {
         enVie = false;

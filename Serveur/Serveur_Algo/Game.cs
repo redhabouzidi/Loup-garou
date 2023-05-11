@@ -113,6 +113,13 @@ public class Game
         }
         return true;
     }
+
+    /**
+        Le constructeur de cette classe "Game" prend en paramètre plusieurs informations sur la partie de jeu à créer, 
+        telles que le nombre de joueurs, le nombre de loups, les rôles disponibles, etc. 
+        Il initialise ensuite les différentes variables de la classe et crée une liste de rôles pour les joueurs. 
+        Enfin, il vérifie si les conditions sont remplies pour lancer la partie et rejoint le client spécifié à la partie en cours
+    */
     public Game(Client c,string name,int nbPlayers,int nbLoups,bool sorciere,bool voyante, bool cupidon,bool chasseur,bool guardien, bool dictateur)
     {
         //Initialisation du nombre de joueurs
@@ -191,6 +198,12 @@ public class Game
         gameId = c.GetId();
         Join(c);
     }
+
+
+    /**
+        Permet de retirer un joueur de la partie en cours. 
+        Elle prend en paramètre un objet Socket correspondant au joueur à retirer.
+    */
     public void RemovePlayer(Socket sock)
     {
         Joueur? temp=null;
@@ -212,6 +225,11 @@ public class Game
         }
         
     }
+
+    /**
+        La méthode "sendQuitMessage" permet d'envoyer un message indiquant que le joueur
+        possédant l'id donné en paramètre s'est déconnecté à tous les autres joueurs.
+    */
     public void sendQuitMessage(List<Joueur> listJoueur, int id)
     {
         foreach(Joueur j in listJoueur)
@@ -220,6 +238,12 @@ public class Game
                 Messages.sendQuitMessage(j.GetSocket(), id);
         }
     }
+
+    /**
+        La méthode "Waiting_screen" est appelée lorsque tous les joueurs ne sont pas encore présents dans la partie. 
+        Elle décrémente le nombre de joueurs manquants et affiche un message pour indiquer le nombre de joueurs manquants restants pour lancer la partie. 
+        Si le bon nombre est atteint, la partie peut être lancée.
+    */
     public void Waiting_screen()
     {
         _nbrJoueursManquants--;
@@ -228,6 +252,9 @@ public class Game
             Console.WriteLine("il manque encore des joueurs " + _nbrJoueursManquants);
     }
 
+    /**
+        La méthode "Join" permet à un joueur de rejoindre la partie.
+    */
     public void Join(Client c)
     {
         Joueur j = new Joueur(c.GetId(), c.GetSocket(), c.GetPseudo());
@@ -250,6 +277,13 @@ public class Game
         Waiting_screen();
     }
 
+
+    /**
+        Cette méthode LanceAction est appelée pour lancer l'action du joueur dont le rôle est passé en paramètre (typeATester). 
+        Elle parcourt la liste des joueurs pour trouver celui dont le rôle correspond et qui est toujours en vie. 
+        Si un joueur est trouvé, l'action du joueur est effectuée et le récit de l'action est ajouté au journal de la partie en cours. 
+        Si aucun joueur ne correspond aux critères de recherche, la méthode ne fait rien.
+    */
     public void LanceAction(Type typeATester)
     {
         string retour,retour_ang;
@@ -282,6 +316,10 @@ public class Game
             }
         }
     }
+
+    /**
+        Cette méthode CountSockets() compte le nombre de joueurs connectés
+    */
     public int CountSockets()
     {
         int sum = 0;
@@ -295,6 +333,13 @@ public class Game
 
         return sum;
     }
+
+    /**
+        Cette méthode est appelée lorsque le jeu commence et contient une boucle infinie qui continue jusqu'à ce que le jeu se termine. 
+        Pendant cette boucle, le serveur envoie des messages pour informer les joueurs si c'est la nuit ou le jour, 
+        appelle les actions des différents rôles (comme la voyante, le garde, le loup, la sorcière, etc.), 
+        gère les morts et les votes, et vérifie si une équipe a gagné le jeu.
+    */
     public void Start()
     {
         _start = true;
@@ -402,6 +447,10 @@ public class Game
         EndGameInitializer();
 
     }
+
+    /**
+        La méthode saveGame permet de sauvegarder une partie en cours.
+    */
     public void saveGame(string recit,string recit_ang,int [] score,bool[] victoire){
         int[] ids=new int[_joueurs.Count];
         for(int i=0;i<_joueurs.Count;i++){
@@ -411,6 +460,10 @@ public class Game
             Messages.sendMatch(Messages.bdd,name,recit,recit_ang,ids,score,victoire);
         }
     }
+
+    /**
+        Cette méthode permet de réinitialiser le statut save de chaque joueur de la partie.
+    */
     private void RemoveSaveStatus()
     {
         foreach (var j in _joueurs)
@@ -422,6 +475,10 @@ public class Game
         }
     }
 
+    /**
+        La méthode GestionMorts gère la mort des joueurs en fonction de leur rôle et de leurs statuts pendant la partie. 
+        La méthode met à jour les propriétés des joueurs en conséquence et enregistre les informations dans le récit de la partie.
+    */
     private void GestionMorts(List<Joueur> listJoueurs)
     {
         Joueur? chasseurMort = null;
@@ -522,7 +579,14 @@ public class Game
 
     }
 
-    // retourne 0 si personne n'a encore win, 1 en cas de victoire du village, 2 en cas de victoire des loups, 3 en cas de victoire du couple et 4 en cas d'egalite
+    /**
+        La méthode Check_win de la classe Game permet de déterminer qui a gagné la partie en analysant l'état des joueurs en vie. 
+        Elle retourne un entier qui indique si personne n'a encore gagné (0), 
+        si le village a gagné (1), 
+        si les loups ont gagné (2), 
+        si le couple a gagné (3) 
+        s'il y a égalité (4).
+    */
     int Check_win(List<Joueur> listJoueurs)
     {
         int compVillage = 0, compLoups = 0;
@@ -596,6 +660,11 @@ public class Game
         return retour;
     }
 
+    /**
+        Cette méthode permet d'élire un maire parmi les joueurs encore en vie. 
+        Elle prends en paramètre, sous forme d'un tableau, 
+        le résultat du vote du village établi par la fonction VoteToutLeMonde.
+    */
     private void ElectionMaire(List<int> cible, List<Joueur> listJoueurs)
     {
         // ici on a le r sultat final du vote
@@ -677,6 +746,10 @@ public class Game
             sendMaire(listJoueurs,playerVictime.GetId());
         }
     }
+
+    /**
+        Cette méthode envoie un message à tous les joueur pour informer que le joueur avec l'identifiant "maire" est élu maire.
+    */
     public void sendMaire(List<Joueur> list,int maire){
         foreach(Joueur j in list){
             Messages.sendMaire(j.GetSocket(),maire);
@@ -684,6 +757,9 @@ public class Game
 
     }
     
+    /**
+
+    */
     public void SendEgalite(List<Joueur> client, List<int> victime)
     {
         int [] ids=victime.ToArray();
@@ -694,6 +770,10 @@ public class Game
         }
     }
 
+    /**
+        La méthode implémente la phase de vote pendant le jour et décide qui doit être tué en fonction des votes des joueurs. 
+        La méthode affecte le statut "doitMourir" au joueur victime et affiche un message en conséquence dans le récit de la partie.
+    */
     public void SentenceJournee(List<int> cible, List<Joueur> listJoueurs)
     {
         // ici on a le r sultat final du vote
@@ -774,6 +854,10 @@ public class Game
         }
     }
 
+    /**
+        La méthode permet de collecter les votes de tous les joueurs vivants. 
+        La méthode retourne une liste des cibles votées pour chaque joueur, ou une liste vide si il y a eu une erreur.
+    */
     private List<int> VoteToutLeMonde(List<Joueur> listJoueurs, int idRole)
     {
         try{
@@ -889,6 +973,11 @@ public class Game
         }
     }
 
+    /**
+        La méthode initialise le jeu en mélangeant aléatoirement les rôles et en les assignant aux joueurs. 
+        Elle envoie également à chaque joueur son propre rôle en appelant la méthode "sendRoles". 
+        Si un joueur Cupidon est présent dans la partie, cette méthode l'appelle également.
+    */
     private void InitiateGame()
     {
         Random random = new Random();
@@ -905,6 +994,10 @@ public class Game
         }
         // appeller Cupidon si il y en a un
     }
+
+    /**
+        Cette méthode envoie les rôles de tous les joueurs à un joueur spécifique.
+    */
     public void sendRoles(Joueur j)
     {
         int[] id = new int[_joueurs.Count];
@@ -925,6 +1018,11 @@ public class Game
             Messages.sendRoles(j.GetSocket(), id, rolesToSend);
         
     }
+
+    /**
+        Cette méthode sendGameInfo permet d'envoyer les informations générales du jeu à un socket spécifique. 
+        Les informations envoyées incluent le nombre total de joueurs, le nombre de loups-garous dans le jeu, et les rôles des joueurs.
+    */
     public void sendGameInfo(Socket sock)
     {
         int[] id = new int[_joueurs.Count];
@@ -941,6 +1039,10 @@ public class Game
         
         Messages.sendGameInfo(sock,_nbrJoueurs,_nbLoups,sorciere,voyante,cupidon,chasseur,guardien,dictateur, this.name, id, name,ready);
     }
+
+    /**
+        Cette méthode envoie l'état de la journée / nuit actuel du jeu à tous les joueurs connectés.
+    */
     public void sendGameState(bool day)
     {
         foreach (Joueur j in _joueurs)
@@ -949,11 +1051,20 @@ public class Game
             Messages.etatGame(j.GetSocket(), day);
         }
     }
+
     public int GetJoueurManquant()
     {
         return _nbrJoueursManquants;
     }
     
+    /**
+        La méthode vérifie si les rôles dans la partie sont valides pour la lancer. 
+        Elle compte le nombre de loups et le nombre de villageois
+        Elle vérifie si le nombre de loups est supérieur à la moitié du nombre total de joueurs ou 
+        si le nombre de loups est égal à zéro. 
+        Si l'une de ces conditions n'est pas remplie ou si le nombre de joueurs manquants n'est pas compris entre 3 et 13 inclus, la méthode retourne false. 
+        Sinon, elle retourne true.
+    */
     public bool checkRoles()
     {
         int nb_villageois = 0, nb_loups = 0, nb_total;
@@ -1003,7 +1114,10 @@ public class Game
         Messages.games.Remove(gameId);
         Messages.WakeUpMain();
     }
-    // La fonction renvoie celui qui est choisi par le maire (la victime en cas d' galit  ou son successeur si le maire est mort) 
+    /**
+        La méthode permet de gérer la décision du maire lors de différentes phases de vote du jeu 
+        pour éliminer un joueur en cas d'égalité, pour désigner son sucesseur, ...
+    */
     public int DecisionDuMaire(List<Joueur> listJoueurs,int role)
     {
         int retour = -1;
@@ -1068,6 +1182,13 @@ public class Game
 
         return retour;
     }
+
+    /**
+        La méthode ToggleReady permet de changer l'état "prêt" d'un joueur donné en fonction de son ID et le nouveau statut est envoyé à tous les autres joueurs. 
+        Ensuite, la méthode vérifie si tous les joueurs sont prêts. 
+        Si tel est le cas, la méthode Start() est appelée pour lancer la partie. 
+        Sinon, rien ne se passe.
+    */
     public void ToggleReady(int id)
     {
         bool ready = false, found = false; ;
@@ -1121,9 +1242,15 @@ public class Game
 
         }
     }
+
     public int[] GetRolesJoueurs(){
         return rolesJoueurs;
     }
+
+    /**
+        La methode calcule les scores des joueurs à la fin d'une partie et envoie ces scores aux joueurs. 
+        Le paramètre check indique quel type de score doit être calculé, en fonction de qui a gagné ou perdu.
+    */
     public void PointShare(int check) {
         int []id = new int[_nbrJoueurs];
         int []score = new int[_nbrJoueurs];
@@ -1192,6 +1319,11 @@ public class Game
         saveGame(recit,recit_ang,score,victoire);
         SendPoints(_joueurs, id, score);
     }
+
+    /**
+        Cette méthode de la classe Game envoie les scores calculés aux joueurs dans la liste spécifiée 
+        pour permettre aux joueurs de voir les résultats de la partie et de leur contribution au jeu.
+    */
     public void SendPoints(List<Joueur> listJoueur, int[] id, int[] score)
     {
         foreach(Joueur j in listJoueur)
@@ -1223,6 +1355,10 @@ public class Game
         gameId = id;
     }
 
+    /**
+        Cette méthode permet de concaténer deux chaînes de caractères s et s2 à deux variables de classe recit et recit_ang, respectivement. 
+        Ces variables sont utilisées pour stocker le récit du déroulement de la partie, en français (recit) et en anglais (recit_ang).
+    */
     public void ConcatRecit(string s,String s2)
     {
         recit = recit + s;

@@ -20,6 +20,9 @@ public class ValueSlider : MonoBehaviour
         
     }
 
+    /**
+        affiche la valeur du slider dans le jeu à coté d'un slider
+    **/
     public void ChangeValueSlider(){
         textValue.text = slider.value.ToString();
     }
