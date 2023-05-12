@@ -390,7 +390,7 @@ public class Game
             }
             // broadcast du serveur : c'est la journ e
             sendGameState(day);
-            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
+            ConcatRecit("\n\nLe soleil se leve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
             day = !day;
             ///////////////////////////////////
             GestionMorts(_joueurs);
@@ -424,7 +424,7 @@ public class Game
                     }
                 }
                 if(maire!=null){
-                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
+                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour retablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
 
                 }
             }
@@ -522,7 +522,7 @@ public class Game
                         _joueurs[i].TuerJoueur(listJoueurs);
                     }
                     
-                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
+                    ConcatRecit("Une victime est allongee au centre du village. Il s'agit de " + _joueurs[i].GetPseudo() + " qui saverait etre " + _joueurs[i].GetRole() + " a ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
                 }
             }
         }
@@ -571,7 +571,7 @@ public class Game
             }
             sendMaire(listJoueurs,idSuccesseur);
             if(player!=null){
-                ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
+                ConcatRecit("Alors qu'il s'appretait a mourir, le maire demanda au village d'ecouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur a la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
             }
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
@@ -618,21 +618,25 @@ public class Game
         {
             if (compLoups == 0)
             {
+                ConcatRecit("\n\nMalheureusement, le conflit entre les villageois et les loups-garous a atteint un point critique ou il n'y avait plus personne pour revendiquer la victoire. Les rues etaient desormais silencieuses, temoins de la perte tragique de vies des deux cotes. Dans cette situation d'egalite tragique, il n'y avait pas de vainqueur, mais seulement des pertes et des souvenirs amers de ce qui aurait pu etre evite.", "\n\n");
                 retour = 4;
             }
             else
             {
+                ConcatRecit("\n\nLes loups-garous, ruses et impitoyables, ont reussi a semer la terreur parmi les villageois et a eliminer leurs adversaires un par un, jusqu'a ce qu'il ne reste plus personne pour s'opposer a leur regne de terreur, proclamant ainsi leur victoire ecrasante sur le village.", "\n\n");
                 retour = 2;
             }
         }
         else if (compLoups == 0)
         {
+            ConcatRecit("\n\nLes villageois, unis dans leur quete de survie, ont finalement triomphe des loups-garous en dejouant leurs plans et en exposant leur veritable identite au grand jour, marquant ainsi une victoire eclatante pour le village.", "\n\n");
             retour = 1;
         }
         else if (sum_vill_loups == 2)
         {
             if (coupleEnVie)
             {
+                ConcatRecit("\n\nLe couple d'amoureux, lie par une puissante passion offerte par Cupidon, ont reussi a surmonter le destin et vaincre l'ensemble du village. Leur cooperation a ete la cle de leur victoire conjointe, celebrant ainsi un triomphe historique pour leur amour.", "\n\n");
                 retour = 3;
             }
         }
@@ -849,7 +853,7 @@ public class Game
             }
             else
             {
-                ConcatRecit("Les habitants du village debatent mais narrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
+                ConcatRecit("Les habitants du village debatent mais n'arrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
             }
         }
     }

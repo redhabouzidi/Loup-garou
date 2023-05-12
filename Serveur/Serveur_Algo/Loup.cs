@@ -43,7 +43,7 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
     {
         l = listJoueurs.Find(j => j.GetId() == votant[0]);
         if(l!=null){
-        retour = retour + l.GetPseudo() + " un loup vient d’entrer dans le village... ";
+        retour = retour + l.GetPseudo() + " un loup vient d'entrer dans le village... ";
         retour_ang = retour_ang + " a wolf has just entered the village... ";
         }
     }
@@ -66,7 +66,7 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
                 retour_ang = "";
             }
         }
-        retour = retour + " des loups venaient d’entrer dans le village... ";
+        retour = retour + " des loups venaient d'entrer dans le village... ";
         retour_ang = retour_ang + " wolves have just entered the village... ";
     }
     
@@ -199,13 +199,13 @@ public override (string,string) Action(List<Joueur> listJoueurs,Game game)
         Joueur? playerVictime = listJoueurs.Find(j => j.GetId() == victime);
         if(playerVictime!=null){
             playerVictime.SetDoitMourir(true);
-            retour = retour + "Il semblerait qu’une victime ait été déchiqueté au centre du village, il s’agit bien de " + playerVictime.GetPseudo() + ".  ";
+            retour = retour + "Il semblerait qu'une victime ait ete dechiquete au centre du village, il s'agit bien de " + playerVictime.GetPseudo() + ".  ";
             retour_ang = retour_ang + "It seems that a victim was torn to pieces in the center of the village, it is "+ playerVictime.GetPseudo() +". ";
         }
     }
     else
     {
-        retour = retour + "Cependant, il semblerait que personne n’ait été blessé cette nuit, quelle chance ! ";
+        retour = retour + "Cependant, il semblerait que personne n'ait ete blesse cette nuit, quelle chance ! ";
         retour_ang = retour_ang + "However, it seems that no one was hurt tonight, what a luck! ";
     }
 
