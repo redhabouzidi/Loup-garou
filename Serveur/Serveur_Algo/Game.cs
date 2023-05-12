@@ -618,25 +618,25 @@ public class Game
         {
             if (compLoups == 0)
             {
-                ConcatRecit("\n\nMalheureusement, le conflit entre les villageois et les loups-garous a atteint un point critique ou il n'y avait plus personne pour revendiquer la victoire. Les rues etaient desormais silencieuses, temoins de la perte tragique de vies des deux cotes. Dans cette situation d'egalite tragique, il n'y avait pas de vainqueur, mais seulement des pertes et des souvenirs amers de ce qui aurait pu etre evite.", "\n\n");
+                ConcatRecit("\n\nMalheureusement, le conflit entre les villageois et les loups-garous a atteint un point critique ou il n'y avait plus personne pour revendiquer la victoire. Les rues etaient desormais silencieuses, temoins de la perte tragique de vies des deux cotes. Dans cette situation d'egalite tragique, il n'y avait pas de vainqueur, mais seulement des pertes et des souvenirs amers de ce qui aurait pu etre evite.", "\n\nUnfortunately, the conflict between the villagers and the werewolves reached a critical point where no one was left to claim victory. The streets were now silent, witnessing the tragic loss on both sides. In this situation of tragic equality, there was no winner, only loss and bitter memories of what could have been avoided. ");
                 retour = 4;
             }
             else
             {
-                ConcatRecit("\n\nLes loups-garous, ruses et impitoyables, ont reussi a semer la terreur parmi les villageois et a eliminer leurs adversaires un par un, jusqu'a ce qu'il ne reste plus personne pour s'opposer a leur regne de terreur, proclamant ainsi leur victoire ecrasante sur le village.", "\n\n");
+                ConcatRecit("\n\nLes loups-garous, ruses et impitoyables, ont reussi a semer la terreur parmi les villageois et a eliminer leurs adversaires un par un, jusqu'a ce qu'il ne reste plus personne pour s'opposer a leur regne de terreur, proclamant ainsi leur victoire ecrasante sur le village.", "\n\nThe cunning and ruthless werewolves succeeded in spreading terror among the villagers and eliminating their opponents one by one, until there was no one left to oppose their reign of terror, thus declaring their overwhelming victory over the village. ");
                 retour = 2;
             }
         }
         else if (compLoups == 0)
         {
-            ConcatRecit("\n\nLes villageois, unis dans leur quete de survie, ont finalement triomphe des loups-garous en dejouant leurs plans et en exposant leur veritable identite au grand jour, marquant ainsi une victoire eclatante pour le village.", "\n\n");
+            ConcatRecit("\n\nLes villageois, unis dans leur quete de survie, ont finalement triomphe des loups-garous en dejouant leurs plans et en exposant leur veritable identite au grand jour, marquant ainsi une victoire eclatante pour le village.", "\n\nThe villagers, united in their quest for survival, finally triumphed over the werewolves by throwing off their plans and exposing their true identities, marking a stunning victory for the village. ");
             retour = 1;
         }
         else if (sum_vill_loups == 2)
         {
             if (coupleEnVie)
             {
-                ConcatRecit("\n\nLe couple d'amoureux, lie par une puissante passion offerte par Cupidon, ont reussi a surmonter le destin et vaincre l'ensemble du village. Leur cooperation a ete la cle de leur victoire conjointe, celebrant ainsi un triomphe historique pour leur amour.", "\n\n");
+                ConcatRecit("\n\nLe couple d'amoureux, lie par une puissante passion offerte par Cupidon, ont reussi a surmonter le destin et vaincre l'ensemble du village. Leur cooperation a ete la cle de leur victoire conjointe, celebrant ainsi un triomphe historique pour leur amour.", "\n\nThe loving couple, bound by a powerful passion offered by Cupid, managed to overcome fate and defeat the entire village. Their cooperation was the key to their joint victory, celebrating a historic triumph for their love. ");
                 retour = 3;
             }
         }
