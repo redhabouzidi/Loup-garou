@@ -410,16 +410,12 @@ public class NetworkManager : MonoBehaviour
                 //status du jeu
             case 5:
                 GameManager.turn = 1;
-                bool ra = decodeBool(message, size);
-                GameManager.isNight = !ra;
-
-                if (!ra)
+                bool day = decodeBool(message, size);
+                GameManager.isNight = !day;
+                if (!day)
                 {
                     GameManager.tour++;
 
-                }
-                else
-                {
                 }
                 break;
                 //definit les amoureux
@@ -502,27 +498,10 @@ public class NetworkManager : MonoBehaviour
             case 10:
                  val = decode(message, size);
                     role = decode(message, size);
-                    foreach (Player p in gm.listPlayer)
-                    {
-                        if (p.GetId() == val)
-                        {
-                            if (p.GetId() == gm.p.GetId())
-                            {
-                                Debug.Log("mort");
-                                gm.p.SetIsAlive(false);
-                            }
-                            p.SetRole(role);
-                            p.SetIsAlive(false);
-                            gm.RemoveRoleRestant(role);
-                        }
-
-                        Debug.Log(p.GetIsAlive());
+                    if(GameManager.newDead==null){
+                        GameManager.newDead= new List<(int,int)>();
                     }
-                    gm.updateImage(val, role);
-                    if(!gm.p.GetIsMaire()){
-                        gm.LITTERALLYDIE();
-                    }
-                    gm.MiseAJourAffichage();
+                        GameManager.newDead.Add((val,role));
                     break;
                     //fonction definissant le tour du joueur
             case 11:
@@ -843,11 +822,6 @@ public class NetworkManager : MonoBehaviour
                         gma.addFriendRequest(names[j], friends[j]);
                     }
                     gma.AfficheNoObject();
-                }
-                else
-                {
-                    prog = false;
-                    gma.AfficheError("Error: Email/Pseudo or password is invalide");
                 }
                 break;
                 //quand un joueur quitte le lobby on le supprime
@@ -1172,7 +1146,15 @@ public class NetworkManager : MonoBehaviour
                     }
                     break;
                     case 105:
-                        gma.AfficheError("Email invalide");
+                    switch(message[2]){
+                        case 0:
+                            gma.AfficheError("vous êtes déjà connecté a un compte");
+                        break;
+                        case 1:
+                            gma.AfficheError("le compte au quel vous essayez d'acceder est en ligne");
+
+                        break;
+                    }
                     break;
                 }
                 break;
@@ -1271,11 +1253,12 @@ public class NetworkManager : MonoBehaviour
     //envoie une demande d'affichage de partie
     public static void sendMatchRequest(int idMatch)
     {
-        byte[] message = new byte[1 + 2 * sizeof(int)];
+        byte[] message = new byte[1 + 2 * sizeof(int)+sizeof(bool)];
         message[0] = 161;
         int[] size = new int[1] { 1 };
         encode(message, id, size);
         encode(message, idMatch, size);
+        encode(message,Traduction.fr,size);
         SendMessageToServer(client, message);
     }
     //envoie une demande de kick

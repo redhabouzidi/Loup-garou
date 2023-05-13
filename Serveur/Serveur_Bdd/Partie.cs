@@ -16,23 +16,30 @@ class Partie{
 
         conn.Execute(query,new{IDP=id_partie,IDU=id_user,SCO=score});//Execution de la requete parametree
     }
-    public static void write_action(MySqlConnection conn,string action,int id_partie){
-        string query = "INSERT INTO Actions (idPartie,actions) VALUES(@ID,@ACT)";
+    public static void write_action(MySqlConnection conn,string action,string actionAng,int id_partie){
+        string query = "INSERT INTO Actions (idPartie,actions,actionsEn) VALUES(@ID,@ACT,@ACTEN)";
 
-        conn.Execute(query,new{ID=id_partie,ACT=action});//Execution de la requete parametree
+        conn.Execute(query,new{ID=id_partie,ACT=action,ACTEN=actionAng});//Execution de la requete parametree
     }
     public (string,DateTime) get_village_name(MySqlConnection conn,int id_partie){
         string query="SELECT nomPartie,Datesauvegarde FROM Partie WHERE idPartie=@id";
         (string village_name,DateTime datesauv) = conn.QueryFirstOrDefault<(string,DateTime)>(query,new{id=id_partie});
         return (village_name,datesauv);
     }
-    public static string get_action(MySqlConnection conn,int id,int id_partie){
+    public static string get_action(MySqlConnection conn,int id,int id_partie,bool fr){
         string query="SELECT count(*) FROM SauvegardePartie WHERE idUsers=@idU AND idPartie=@idP";
         int rowcount=conn.QueryFirstOrDefault<int>(query,new{idU=id,idP=id_partie});
         if(rowcount>0){
-        query="SELECT actions FROM Actions WHERE idPartie=@id";
-        string act_all=conn.QueryFirstOrDefault<string>(query,new{id=id_partie});   
-        return act_all;
+            if(fr){
+                query="SELECT actions FROM Actions WHERE idPartie=@id";
+                string act_all=conn.QueryFirstOrDefault<string>(query,new{id=id_partie});   
+                return act_all;
+
+            }else{
+                    query="SELECT actionsEn FROM Actions WHERE idPartie=@id";
+                    string act_all=conn.QueryFirstOrDefault<string>(query,new{id=id_partie});   
+                    return act_all;
+            }
         }
         return null;
     }

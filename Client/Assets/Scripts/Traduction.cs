@@ -2,12 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.SimpleLocalization;
-
+	
 	/// <summary>
 	/// Asset usage example.
 	/// </summary>
 	public class Traduction : MonoBehaviour
 	{
+		public static bool fr;
         public Button FrenchB,EnglishB;
 		private Image FrenchI, EnglishI;
 		/// <summary>
@@ -24,11 +25,13 @@ using Assets.SimpleLocalization;
 		}
         void SetLocalizationFr()
 		{
+			fr=true;
 			LocalizationManager.Language = "French";
 			FrenchI.fillCenter = true;
 			EnglishI.fillCenter = false;
 		}
         void SetLocalizationEn(){
+			fr=false;
             LocalizationManager.Language = "English";
 			FrenchI.fillCenter = false;
 			EnglishI.fillCenter = true;

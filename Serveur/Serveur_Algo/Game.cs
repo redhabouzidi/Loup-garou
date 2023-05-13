@@ -17,6 +17,8 @@ public class Game
     public static Socket listener = Messages.setupSocketGame();
     public Socket? vide,reveille;
     public DateTime t;
+    public bool day = false;
+    public int tour;
 
     public bool testNombre()
     {
@@ -234,9 +236,9 @@ public class Game
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie() && _joueurs[i].GetSocket()!=null && _joueurs[i].GetSocket().Connected)
             {
                 if(reveille!=null){
-                    _joueurs[i].GetRole().gameListener = reveille;
+                    _joueurs[i].GetRole().gameListener = this.reveille;
                 }
-
+                tour=_joueurs[i].GetRole().GetIdRole();
                 (retour,retour_ang) = _joueurs[i].FaireAction(_joueurs,this);
                 ConcatRecit(retour,retour_ang);
                 break;
@@ -277,10 +279,10 @@ public class Game
         if(Game.listener.LocalEndPoint!=null){
             reveille.Connect(Game.listener.LocalEndPoint);
         }
-        vide = listener.Accept();
+        vide = Game.listener.Accept();
         int checkWin;
         
-        bool day = false;
+        day=false;
         bool firstDay = true;
         LanceAction(typeof(Cupidon));
 
@@ -300,7 +302,7 @@ public class Game
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
             ConcatRecit("Le soleil se couche sur le village de " + name + ". ","The sun sets on the village of "+name+". ");
-            day = !day;
+            
             // appeller Voyante si il y en a un
             Console.WriteLine("on passe ?");
             LanceAction(typeof(Voyante));
@@ -316,9 +318,10 @@ public class Game
                 LanceAction(typeof(Dictateur));
             }
             // broadcast du serveur : c'est la journ e
+            day = !day;
             sendGameState(day);
             ConcatRecit("\n\nLe soleil se leve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
-            day = !day;
+            
             ///////////////////////////////////
             GestionMorts(_joueurs);
             // enl ve   tout le monde l'immunit  accord  par le Garde
@@ -341,6 +344,7 @@ public class Game
             if (firstDay){
                 firstDay = false;
                 // election du maire
+                tour=255;
                 ElectionMaire(VoteToutLeMonde(_joueurs, 255), _joueurs);
                 Joueur? maire = null;
                 foreach (var j in _joueurs)
@@ -355,7 +359,7 @@ public class Game
 
                 }
             }
-            
+            tour=1;
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
 
             GestionMorts(_joueurs);
@@ -365,7 +369,7 @@ public class Game
             {
                 break;
             }
-            
+            day = !day;
             ConcatRecit("\n\n","\n\n");
             
             
@@ -485,6 +489,7 @@ public class Game
                 // La liste est vide donc tout le monde est mort
                 return;
             }
+            tour=253;
             int idSuccesseur = DecisionDuMaire(_joueurs,253);
             if (idSuccesseur == -1)
             {
@@ -769,6 +774,7 @@ public class Game
                     }
                 }
                 SendEgalite(listJoueurs,tiedVictims);
+                tour=254;
                 victime = DecisionDuMaire(tiedVictimsJoueur,254);
             }
 
@@ -843,7 +849,7 @@ public class Game
         Console.WriteLine("5");
         int index, v, c;
             
-        r.gameListener = reveille;
+        r.gameListener = this.reveille;
         while (boucle)
         {
             Console.WriteLine("6");

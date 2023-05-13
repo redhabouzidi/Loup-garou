@@ -28,7 +28,8 @@ public class GameManagerApp : MonoBehaviour
     public GameObject componentAddWait, componentRequest, componentFriend, componentNo;
     public static List<Friend> listFriend, listAdd, listRequest, listWait;
     public static int scene;
-
+    public static float volumeMusic,volumeEffect;
+    public Slider music,effet;
     // profile
     //NetworkManager
     public static Socket client = null;
@@ -50,6 +51,8 @@ public class GameManagerApp : MonoBehaviour
             NetworkManager.rep = new List<byte[]>();
 
         }
+        music.value=volumeMusic;
+        effet.value=volumeEffect;
         NetworkManager.canvas = GameObject.Find("Canvas");
         NetworkManager.ho = NetworkManager.canvas.transform.Find("Home").gameObject;
         NetworkManager.cpo = NetworkManager.canvas.transform.Find("ConnectionPage").gameObject;
@@ -184,7 +187,6 @@ public class GameManagerApp : MonoBehaviour
         {
             NetworkManager.reseau(email, password);
         });
-        Debug.Log(NetworkManager.client);
 
     }
 
@@ -314,9 +316,10 @@ public class GameManagerApp : MonoBehaviour
     **/
     public void AfficheError(string msg)
     {
-        box_error.SetActive(true);
         TextMeshProUGUI text_error = box_error.transform.Find("Text_error").GetComponent<TextMeshProUGUI>();
         text_error.text = msg;
+        box_error.SetActive(true);
+        
     }
 
     /**

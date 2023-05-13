@@ -444,6 +444,7 @@ namespace Server
                                     }
                                 }
                                 //envoyer les information déjà connue
+                                break;
                             }
                         }
                         //envoie du status des autres joueurs
@@ -457,14 +458,21 @@ namespace Server
                                 sendMaire(client,j.GetId());
                             }
                         }
+                        
                         //envoie du temps restant
                         TimeSpan timeSpent = DateTime.Now - g.t;
                         int timeToSend = g.currentTime- (int)timeSpent.TotalSeconds;
+                        
                         sendTime(client,timeToSend);
+                        etatGame(client,g.day);
+                        sendTurn(client,g.tour);
+                        Console.WriteLine(g.day+"= day");
                         connected.Remove(client);
                         //reveille du jeu pour qu'il écoute le joueur
                         if(g.vide!=null){
                         g.vide.Send(new byte[1] { 0 });
+                        }else{
+                            Console.WriteLine("wtf ??");
                         }
 
                     }else{
@@ -869,7 +877,7 @@ namespace Server
             encode(message, id, size);
             sendMessage(client, message);
         }
-        envoie le nouveau status d'un joueur
+        //envoie le nouveau status d'un joueur
         public static void sendStatus(Socket client, int id, int status)
         {
             int[] size = new int[1] { 1 };
@@ -1055,9 +1063,9 @@ namespace Server
                     bool guardien = decodeBool(message, size);
                     bool dictateur = decodeBool(message, size);
                     //si le joueur est connecté
-                    if(nbPlayers <4){
-                        sendMessage(client,new byte[]{255,3,0});
-                    }else
+                    // if(nbPlayers <4){
+                    //     sendMessage(client,new byte[]{255,3,0});
+                    // }else
                     if (connected.ContainsKey(client))
                     {
                         
@@ -1150,7 +1158,7 @@ namespace Server
                     if (!connected.ContainsKey(client))
                         redirect(bdd, queue.addVal(client), message);
                     else
-                        sendMessage(client, new byte[] { 255,105 });
+                        sendMessage(client, new byte[] { 255,105,0 });
 
                     //check avec la base de donnees
 
@@ -1445,16 +1453,13 @@ namespace Server
 
                         }else{
                             //si le joueur est déjà connecté on envoie un message d'erreur
-                            sendMessage(client,new byte[] {255,105});
+                            sendMessage(client,new byte[] {255,105,1});
                         }
                         
                     }
                     else
                     {
-                        size[0]=1;
-                        message[0]=105;
-                        encode(message,false,size);
-                        sendMessage(client,message,1+sizeof(bool));
+                        sendMessage(client,new byte[]{255,105,2});
                     }
                     queue.queue.Remove(queueId);
                     

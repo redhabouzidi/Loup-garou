@@ -176,24 +176,13 @@ public class Cupidon : Role
                 Console.WriteLine("vote marche");
                 foreach (Socket sock in read)
                 {
-                    if (sock.Available == 0)
-                    {
-                        sockets.Remove(sock);
-                        foreach (Joueur j in listJoueurs)
-                        {
-                            if (j.GetSocket() == sock)
-                            {
-                                Messages.userData[j.GetId()].SetStatus(j.GetId(), -1);
-                                Messages.userData.Remove(j.GetId());
-                                j.SetSocket(null);
-                                sock.Close();
-                                return (-1, -1,-1);
-                            }
-                        }
-                    }
+                    try{
                     int[] size = new int[1] { 1 };
                     byte[] encryptedMessage = new byte[4096];
                     int recvSize = sock.Receive(encryptedMessage);
+                    if(recvSize<=0){
+                        throw new SocketException();
+                    }
                     byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
                     recvSize=message.Length;
 
@@ -225,6 +214,20 @@ public class Cupidon : Role
 
                         if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
 				            Messages.recvMessageGame(sockets,message,recvSize);
+                        }
+                    }
+                    }catch(SocketException e){
+                        sockets.Remove(sock);
+                        foreach (Joueur j in listJoueurs)
+                        {
+                            if (j.GetSocket() == sock)
+                            {
+                                Messages.userData[j.GetId()].SetStatus(j.GetId(), -1);
+                                Messages.userData.Remove(j.GetId());
+                                j.SetSocket(null);
+                                sock.Close();
+                                return (-1, -1,-1);
+                            }
                         }
                     }
                 }

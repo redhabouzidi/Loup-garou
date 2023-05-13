@@ -200,7 +200,9 @@ public class bdd
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         int idPartie = decodeInt(message, size);
-        string action = Partie.get_action(conn, id, idPartie);
+        bool fr=decodeBool(message,size);
+        string action = Partie.get_action(conn, id, idPartie,fr);
+
         byte[] newMessage;
         if (action == null)
         {
@@ -384,12 +386,13 @@ public class bdd
             win[i] = decodeBool(message, size);
         }
         int idPartie = Partie.create_partie(conn, name);
-        Partie.write_action(conn, action, idPartie);
+        Partie.write_action(conn, action,actionAng, idPartie);
         for (int i = 0; i < ids.Length; i++)
         {
 
             Partie.init_sauvegardepartie(conn, idPartie, ids[i], score[i]);
         }
+        Console.WriteLine(actionAng);
         Statistique.nouveau_jeu(conn, ids);
         Statistique.score_gain(conn, ids, score);
         Statistique.jeu_gagne(conn, ids, win);

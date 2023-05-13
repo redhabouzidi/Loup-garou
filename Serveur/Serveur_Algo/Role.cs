@@ -26,7 +26,7 @@ public abstract class Role
         Console.WriteLine("vote");
         sockets.Add(reveille);
         Console.WriteLine("ici c'est 1");
-        sockets.Add(this.gameListener);
+        sockets.Add(gameListener);
 
         foreach (Joueur j in listJoueurs)
         {
@@ -73,6 +73,7 @@ public abstract class Role
             }
             Console.WriteLine("bah on attends alors");
             Socket.Select(read, null, null, -1);
+            
             Console.WriteLine("ici c'est 3");
             if (read.Contains(reveille))
             {
@@ -81,10 +82,10 @@ public abstract class Role
 
                 return (-1, -1);
             }
-            else if (read.Contains(this.gameListener))
+            else if (read.Contains(gameListener))
             {
                 Console.WriteLine("joueur se reconnecte");
-                this.gameListener.Receive(new byte[1]);
+                gameListener.Receive(new byte[1]);
                 return (-1, -1);
             }
             else
@@ -92,25 +93,14 @@ public abstract class Role
                 Console.WriteLine("vote marche");
                 foreach (Socket sock in read)
                 {
-                    if (sock.Available == 0)
-                    {
-
-                        sockets.Remove(sock);
-                        foreach (Joueur joueur in listJoueurs)
-                        {
-                            if (joueur.GetSocket() == sock)
-                            {
-                                Messages.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
-                                Messages.userData.Remove(joueur.GetId());
-                                joueur.SetSocket(null);
-                                sock.Close();
-                                return (-1, -1);
-                            }
-                        }
-                    }
                     int[] size = new int[1] { 1 };
                     byte[] encryptedMessage = new byte[4096];
+                    try{
                     int recvSize = sock.Receive(encryptedMessage);
+                    if(recvSize<=0){
+                        throw new SocketException();
+                    }
+                    
                     byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
                     recvSize = message.Length;
                     Console.WriteLine("dans game vote message[0]== {0}", message[0]);
@@ -146,7 +136,22 @@ public abstract class Role
                         }
                         Console.WriteLine("apres recv2");
                     }
+                    }catch(SocketException e){
+                        sockets.Remove(sock);
+                        foreach (Joueur joueur in listJoueurs)
+                        {
+                            if (joueur.GetSocket() == sock)
+                            {
+                                Messages.userData[joueur.GetId()].SetStatus(joueur.GetId(), -1);
+                                Messages.userData.Remove(joueur.GetId());
+                                joueur.SetSocket(null);
+                                sock.Close();
+                                return (-1, -1);
+                            }
+                        }
+                    }
                 }
+                
 
             }
             read.Clear();
