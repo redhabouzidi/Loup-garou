@@ -114,7 +114,6 @@ public class GameManagerApp : MonoBehaviour
             Transform temp = GameObject.Find("Canvas").transform;
             temp.Find("Home").gameObject.SetActive(true);
             Debug.Log("scene 2");
-
         }
         if (NetworkManager.username != "") profileUsername.text = NetworkManager.username;
     }
@@ -128,22 +127,18 @@ public class GameManagerApp : MonoBehaviour
             // Quit the game
         }
         NetworkManager.listener();
-        if (waitPage.activeSelf)
-        {
-
-        }
     }
 
     public static void exitGame()
     {
         NetworkManager.prog = false;
-#if UNITY_EDITOR
-                                // Stop play mode in the editor
-                                UnityEditor.EditorApplication.isPlaying = false;
-#else
-        // Quit the game
-        Application.Quit();
-#endif
+        #if UNITY_EDITOR
+            // Stop play mode in the editor
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // Quit the game
+            Application.Quit();
+        #endif
 
     }
 
@@ -216,7 +211,7 @@ public class GameManagerApp : MonoBehaviour
         {
             AfficheError("Error: the password is not the same");
         }
-        NetworkManager.recvMessage(NetworkManager.client);
+        
     }
 
     private void onButtonClickChangePasswd()
@@ -279,8 +274,6 @@ public class GameManagerApp : MonoBehaviour
         pseudo = inputEmailForgotPass.text;
         NetworkManager.reseau(pseudo);
 
-        byte[] message = new byte[1 + sizeof(bool)];
-        NetworkManager.recvMessage(NetworkManager.client);
 
     }
 
@@ -298,12 +291,13 @@ public class GameManagerApp : MonoBehaviour
         if (pass == pass2)
         {
             NetworkManager.ResetPassw(pseudo, code, pass);
+            NetworkManager.recvMessage(NetworkManager.client);
         }
         else
         {
             AfficheError("Your password is not the same.");
         }
-        NetworkManager.recvMessage(NetworkManager.client);
+        
     }
 
     /**

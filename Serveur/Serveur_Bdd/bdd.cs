@@ -186,11 +186,11 @@ public class bdd
         int val = Inscription.inscription_user(conn, username, email, password);
         if (val == 0)
         {
-            inscriptionAnswer(bdd, queueId, true);
+            inscriptionAnswer(bdd, queueId, true,val);
         }
         else
         {
-            inscriptionAnswer(bdd, queueId, false);
+            inscriptionAnswer(bdd, queueId, false,val);
         }
 
     }
@@ -278,14 +278,15 @@ public class bdd
 
 
     }
-    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
+    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer,int val)
     {
-        int msgSize = 1 + sizeof(int) + sizeof(bool);
+        int msgSize = 1 + sizeof(int) + sizeof(bool)+sizeof(int);
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
         message[0] = 104;
         encode(message, queueId, size);
         encode(message, answer, size);
+        encode(message,val,size);
         bdd.Send(message);
         return 0;
     }

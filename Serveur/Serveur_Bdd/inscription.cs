@@ -38,6 +38,7 @@ namespace dataBase
                 if (e.Message.Contains("PRIMARY")) return 2;//Erreur clé primaire dupliqué
                 if (e.Message.Contains("email")) return 3;//Erreur email dupliqué
                 if (e.Message.Contains("pseudo")) return 4;//Erreur pseudo dupliqué
+                if  (e.Message.Contains("CK_PSEUDO"))return 5;//Erreur pseudo invalide
                 return -1;
             }
         }
