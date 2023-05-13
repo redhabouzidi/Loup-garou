@@ -1382,6 +1382,13 @@ namespace Server
                         }
                         
                     }
+                    else
+                    {
+                        size[0]=1;
+                        message[0]=105;
+                        encode(message,false,size);
+                        sendMessage(client,message,1+sizeof(bool));
+                    }
                     queue.queue.Remove(queueId);
                     
                     break;
