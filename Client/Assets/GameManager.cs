@@ -1421,66 +1421,8 @@ public class GameManager : MonoBehaviour
         la fonction affiche le nombre de points gagnés par chaque joueur
         a la fin de la partie sur le win-screen
     **/
-    public void calculPoints() {
-        if(isVillageWin == 1) {
-            if(p.GetRole() != "Loup-Garou") {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 50 Points";
-                }
-
-                else {
-                    nbPoints.text = "+ 25 Points";
-                }
-            }
-
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        if(isVillageWin == 2) {
-            if(p.GetRole() == "Loup-Garou") {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 50 Points";
-                }
-
-                else {
-                    nbPoints.text = "+ 25 Points";
-                }
-            }
-
-            else if(p.GetIsAlive()) nbPoints.text = "+ 25 Points";
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        if(isVillageWin == 3) {
-            if(p.GetIsMarried()) {
-                nbPoints.text = "+ 50 Points";
-            }
-
-            else {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 25 Points";
-                }
-                else nbPoints.text = "+ 0 Point";
-            }
-        }
-
-        if(isVillageWin == 4) {
-            if(p.GetIsAlive()) {
-                nbPoints.text = "+ 25 Points";
-            }
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        switch(nbPoints.text) {
-            case "+ 50 Points" : nbPoints.color = colorGreen;
-                break;
-            case "+ 25 Points" : nbPoints.color = colorYellow;
-                break;
-            case "+ 0 Point" : nbPoints.color = colorRed;
-                break;
-            default : nbPoints.color = colorWhite;
-                break;
-        }
+    public void afficheScore(int score) {
+        nbPoints.text = "+ " + score + " Points"; 
     }
 
 }
