@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ButtonClick : MonoBehaviour
 {
-    public static bool isHide = false;
+    public static bool isHide = true;
     public GameObject chat, chatNotification;
     public Image imageSeeHide;
     public Button buttonSeeHide;
