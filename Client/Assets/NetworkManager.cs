@@ -524,6 +524,11 @@ public class NetworkManager : MonoBehaviour
                 {
                     score[i] = decode(message, size);
                 }
+
+                for(int i = 0; i<score.Length; i++) {
+                    if(gm.p.GetId() == idPlayers[i])
+                        gm.afficheScore(score[i]);
+                }
                 //afficher le score
                 break;
                 //fonction permetant d'afficher le message systeme
