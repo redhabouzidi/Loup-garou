@@ -75,13 +75,13 @@ public class Voyante : Role
 
         if (JoueurVoyante!=null && player != null)
         {
-            retour = JoueurVoyante.GetPseudo() + " se met à regarder dans sa boule de cristal… elle voit… " + player.GetPseudo() + " qui s’avère être " + player.GetRole() + ". ";
+            retour = JoueurVoyante.GetPseudo() + " se met a regarder dans sa boule de cristal... elle voit... " + player.GetPseudo() + " qui s'avere etre " + player.GetRole() + ". ";
             retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees... "+ player.GetPseudo() +" who turns out to be "+ player.GetRole() +".";
         }
         else if (JoueurVoyante!=null)
         {
             retour = JoueurVoyante.GetPseudo() +
-                     " se met à regarder dans sa boule de cristal… elle ne voit rien de spécial ce soir-là… ";
+                     " se met a regarder dans sa boule de cristal... elle ne voit rien de special ce soir-la... ";
             retour_ang = JoueurVoyante.GetPseudo() + " starts looking into her crystal ball... she sees nothing special that night...";
         }else{
             retour = "";

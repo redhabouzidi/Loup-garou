@@ -88,13 +88,13 @@ public class Garde : Role
         }
         if(JoueurGarde!=null&&player != null) {
             Idsave = player.GetId();
-            retour = "Pendant ce temps-là, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, décide de rester défendre la maison de " + player.GetPseudo() + " cette nuit. ";
+            retour = "Pendant ce temps-la, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, decide de rester defendre la maison de " + player.GetPseudo() + " cette nuit. ";
             retour_ang = "Meanwhile, "+ JoueurGarde.GetPseudo() +" the knight of the village, decides to defend "+ player.GetPseudo() +"'s house that night.";
         } 
         else if(JoueurGarde!=null)
         {
             Idsave = -1;
-            retour = "Pendant ce temps-là, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, décide de passer la nuit tranquillement et ne défendra personne cette nuit… ";
+            retour = "Pendant ce temps-la, " + JoueurGarde.GetPseudo() + " le chevalier de la garde du village, decide de passer la nuit tranquillement et ne defendra personne cette nuit... ";
             retour_ang = "Meanwhile, "+ JoueurGarde.GetPseudo() +" the knight of the village, decides to spend the night quietly and will not defend anyone this night... ";
         }else{
             Idsave=-1;

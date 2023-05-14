@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,14 +22,14 @@ public class GameManager : MonoBehaviour
     private List<Toggle> toggleOn = new List<Toggle>();
     public static List<Roles> roleRestant;
     public GameObject cardContainer, cardComponent, containerRole, roleComponent, GO_dead_bg, GO_rolesRestant, GO_tourRoles;
-    public static bool isNight = true,action=false,useHeal=false,useKill=false;
-    public bool soundNight,sceneNight;
+    public static bool isNight,action=false,useHeal=false,useKill=false;
+    public bool soundNight,sceneNight=true;
     public static int tour = 0,turn,maire=-1; 
     public TextMeshProUGUI timer;
     public static float value_timer;
     public bool sestPresente = false, electionMaire = false;
     public Image banderoleMaire;
-
+    public static List<(int,int)> newDead;
 
     // timer pour le texte qui s'affiche a l'ecran
     private float timer_text_screen = 2f;
@@ -64,7 +64,6 @@ public class GameManager : MonoBehaviour
     public TMP_InputField inputChat, inputChatLG;
     public Button sendChat, sendChatLG;
     public Color playerC, systemC, loupC;
-
     // choix pendant l'action
     public GameObject choixAction;
 
@@ -99,10 +98,11 @@ public class GameManager : MonoBehaviour
         soundNight=true;
         play_sound_night();
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        isNight = true;
         tour = 0;
-        sceneNight=false;
-        
+        sceneNight = true;
+        if(newDead==null){
+            newDead=new List<(int,int)>();
+        }
         // remplir les informations des joueurs 
         foreach (WPlayer p in NetworkManager.players)
         {
@@ -129,7 +129,7 @@ public class GameManager : MonoBehaviour
                     if (NetworkManager.id == p.GetId())
                     {
                         this.p=new Player(p.GetUsername(), "Cupidon", p.GetRole(), p.GetId(), true);
-                        player_role.text = "Cupido";
+                        player_role.text = "Cupidon";
                     }
                     break;
                 case 3:
@@ -190,7 +190,6 @@ public class GameManager : MonoBehaviour
             
         }
         if(maire!=-1){
-            Debug.Log("mairefzfefeqfezfezf");
             if (maire == p.GetId())
                 {
                     p.SetIsMaire(true);
@@ -224,11 +223,13 @@ public class GameManager : MonoBehaviour
         InitPotion();
         EndVote();
         listerRoles();
+        Debug.Log("turn ="+turn);
     }
 
     // Update is called once per frame
     void Update()
     {
+
         NetworkManager.listener();
         if(isNight!=soundNight){
             if(isNight){
@@ -273,11 +274,12 @@ public class GameManager : MonoBehaviour
             useKill=false;
             UseDeathPotion();
         }
+        setDead();
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
         changeTurn();
-
+        
 
     }
 
@@ -301,7 +303,34 @@ public class GameManager : MonoBehaviour
     {
         NetworkManager.sendMayorPresentation();
     }
+    private void setDead(){
+    if(newDead.Count!=0){
+        Debug.Log("hey hes ded");
+        (int val,int role)=newDead[0];
+        newDead.RemoveAt(0);
+        foreach (Player p in listPlayer)
+        {
+            if (p.GetId() == val)
+            {
+                if (p.GetId() == this.p.GetId())
+                {
+                    p.SetIsAlive(false);
+                    if(!p.GetIsMaire()){
+                        LITTERALLYDIE();
+                    }
+                }
+                p.SetRole(role);
+                p.SetIsAlive(false);
+                RemoveRoleRestant(role);
+            }
 
+            Debug.Log(p.GetIsAlive());
+        }
+        updateImage(val, role);
+        
+        MiseAJourAffichage();
+    }
+    }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet de quitter la partie de loup garou
@@ -547,6 +576,7 @@ public class GameManager : MonoBehaviour
     **/
     public void AfficherJour()
     {
+        
         if (electionMaire)
         {
             banderoleMaire.enabled = true;
@@ -562,7 +592,8 @@ public class GameManager : MonoBehaviour
         {
             sceneNight=isNight;
             if(sceneNight==false){
-                ChangeChat();
+                ChangeChat(sceneNight);
+                Debug.Log("it's day");
                 banderoleMaire.enabled = false;
                 text_day.text = "Day " + tour;
                 text_day.color = colorWhite;
@@ -570,7 +601,7 @@ public class GameManager : MonoBehaviour
                 player_role.text = p.GetRole();
                 sePresenter.gameObject.SetActive(false);
             }else{
-                ChangeChat();
+                ChangeChat(sceneNight);
                 banderoleMaire.enabled = false;
                 text_day.text = "Night " + tour;
                 text_day.color = colorRed;
@@ -772,10 +803,10 @@ public class GameManager : MonoBehaviour
         la fonction permet de changer de chat (géneral/loup)
         si l'utilisateur est loup-garou
     **/
-    public void ChangeChat(){
+    public void ChangeChat(bool night){
         if(p.GetRoleId() == 4){
-            chat.SetActive(!chat.activeSelf);
-            chatLG.SetActive(!chat.activeSelf);
+            chat.SetActive(!night);
+            chatLG.SetActive(night);
         }
         inputChat.text = "";
         inputChatLG.text = "";

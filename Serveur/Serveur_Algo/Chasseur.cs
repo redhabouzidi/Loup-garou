@@ -70,13 +70,13 @@ public class Chasseur : Role
 
         if (JoueurChasseur!=null && player != null)
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" etait charge à cote de son corps dans son dernier souffle de vie il decide de tirer a bout portant sur " + player.GetPseudo() + ". ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() +" etait charge a cote de son corps et dans son dernier souffle de vie il decide de tirer a bout portant sur " + player.GetPseudo() + ". ";
             retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in his last breath of life he shoots " + player.GetPseudo()+ " closely.";
             victime = player;
         }
         else if(JoueurChasseur!=null )
         {
-            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " etait charge a cote de son corps dans un elan de bont il enleva le chargeur de son arme pour que personne ne se blesse avec ";
+            retour = "Le fusil de " + JoueurChasseur.GetPseudo() + " etait charge a cote de son corps, dans un elan de bonte il enleva le chargeur de son arme pour que personne ne puisse se blesser avec... ";
             retour_ang = JoueurChasseur.GetPseudo() + "'s rifle was loaded next to his body, in a fit of kindness he removed the charger from his gun so that no one would get hurt with it !";
         }else{
             retour ="";

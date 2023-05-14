@@ -99,16 +99,16 @@ public class Cupidon : Role
             amoureux2.SetAmoureux(amoureux);
             Console.WriteLine(amoureux.GetId()+" amoureux "+amoureux2.GetId());
             retour = JoueurCupidon.GetPseudo() +
-                     " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il décide de tirer les flèches sur " +
+                     " senti des ailes pousser a son dos, un arc et deux fleches l'attendaient sur la table de son salon. Par curiosite, il decide de tirer les fleches sur " +
                      amoureux.GetPseudo() + " et " + amoureux2.GetPseudo() +
-                     " qui tombèrent fou amoureux l’un de l’autre. ";
+                     " qui tomberent fou amoureux l'un de l'autre. ";
             retour_ang = JoueurCupidon.GetPseudo() + " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he decided to shoot the arrows at "+amoureux.GetPseudo()+" and "+amoureux2.GetPseudo()+" who fell madly in love with each other.";
        	    Messages.setLovers(amoureux.GetSocket(),amoureux2.GetSocket(),amoureux.GetId(),amoureux2.GetId(),amoureux.GetRole().GetIdRole(),amoureux2.GetRole().GetIdRole());
        	}
         else if (JoueurCupidon!=null)
         {
-            retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser à son dos, un arc et deux flèches l’attendaient sur la table de son salon. Par curiosité, il tente de tirer mais ses flèches tombent toutes les deux dans la rivière du village… ";
-            retour_ang = JoueurCupidon.GetPseudo()+ " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he tried to shoot but his arrows both fell into the village river";
+            retour = JoueurCupidon.GetPseudo() + " senti des ailes pousser a son dos, un arc et deux fleches l'attendaient sur la table de son salon. Par curiosite, il tente de tirer mais ses fleches tombent toutes les deux dans la riviere du village... ";
+            retour_ang = JoueurCupidon.GetPseudo()+ " felt wings growing on his back, a bow and two arrows were waiting for him on his living room table. Out of curiosity, he tried to shoot but his arrows both fell into the village river... ";
         }else{
             retour = "";
             retour_ang="";
@@ -176,24 +176,13 @@ public class Cupidon : Role
                 Console.WriteLine("vote marche");
                 foreach (Socket sock in read)
                 {
-                    if (sock.Available == 0)
-                    {
-                        sockets.Remove(sock);
-                        foreach (Joueur j in listJoueurs)
-                        {
-                            if (j.GetSocket() == sock)
-                            {
-                                Messages.userData[j.GetId()].SetStatus(j.GetId(), -1);
-                                Messages.userData.Remove(j.GetId());
-                                j.SetSocket(null);
-                                sock.Close();
-                                return (-1, -1,-1);
-                            }
-                        }
-                    }
+                    try{
                     int[] size = new int[1] { 1 };
                     byte[] encryptedMessage = new byte[4096];
                     int recvSize = sock.Receive(encryptedMessage);
+                    if(recvSize<=0){
+                        throw new SocketException();
+                    }
                     byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
                     recvSize=message.Length;
 
@@ -225,6 +214,20 @@ public class Cupidon : Role
 
                         if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
 				            Messages.recvMessageGame(sockets,message,recvSize);
+                        }
+                    }
+                    }catch(SocketException e){
+                        sockets.Remove(sock);
+                        foreach (Joueur j in listJoueurs)
+                        {
+                            if (j.GetSocket() == sock)
+                            {
+                                Messages.userData[j.GetId()].SetStatus(j.GetId(), -1);
+                                Messages.userData.Remove(j.GetId());
+                                j.SetSocket(null);
+                                sock.Close();
+                                return (-1, -1,-1);
+                            }
                         }
                     }
                 }

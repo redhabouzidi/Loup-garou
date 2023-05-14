@@ -186,11 +186,11 @@ public class bdd
         int val = Inscription.inscription_user(conn, username, email, password);
         if (val == 0)
         {
-            inscriptionAnswer(bdd, queueId, true);
+            inscriptionAnswer(bdd, queueId, true,val);
         }
         else
         {
-            inscriptionAnswer(bdd, queueId, false);
+            inscriptionAnswer(bdd, queueId, false,val);
         }
 
     }
@@ -200,7 +200,9 @@ public class bdd
         int queueId = decodeInt(message, size);
         int id = decodeInt(message, size);
         int idPartie = decodeInt(message, size);
-        string action = Partie.get_action(conn, id, idPartie);
+        bool fr=decodeBool(message,size);
+        string action = Partie.get_action(conn, id, idPartie,fr);
+
         byte[] newMessage;
         if (action == null)
         {
@@ -278,14 +280,15 @@ public class bdd
 
 
     }
-    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer)
+    public static int inscriptionAnswer(Socket bdd, int queueId, bool answer,int val)
     {
-        int msgSize = 1 + sizeof(int) + sizeof(bool);
+        int msgSize = 1 + sizeof(int) + sizeof(bool)+sizeof(int);
         byte[] message = new byte[msgSize];
         int[] size = new int[1] { 1 };
         message[0] = 104;
         encode(message, queueId, size);
         encode(message, answer, size);
+        encode(message,val,size);
         bdd.Send(message);
         return 0;
     }
@@ -383,12 +386,13 @@ public class bdd
             win[i] = decodeBool(message, size);
         }
         int idPartie = Partie.create_partie(conn, name);
-        Partie.write_action(conn, action, idPartie);
+        Partie.write_action(conn, action,actionAng, idPartie);
         for (int i = 0; i < ids.Length; i++)
         {
 
             Partie.init_sauvegardepartie(conn, idPartie, ids[i], score[i]);
         }
+        Console.WriteLine(actionAng);
         Statistique.nouveau_jeu(conn, ids);
         Statistique.score_gain(conn, ids, score);
         Statistique.jeu_gagne(conn, ids, win);

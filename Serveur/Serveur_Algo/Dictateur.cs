@@ -129,7 +129,7 @@ public class Dictateur : Role
 
                 if (joueurDictateur!=null && victime != null)
                 {
-                    retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " decide de prendre les armes et de faire un coup d etat organise. Apres reflexion et pour montrer sa bonne foi il decide degorger " + victime.GetPseudo() + ". ";
+                    retour = "Enfin, juste avant l'aube, " + joueurDictateur.GetPseudo() + " decide de prendre les armes et de faire un coup d'etat organise. Apres reflexion et pour montrer sa bonne foi il decide degorger " + victime.GetPseudo() + ". ";
                     retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" decides to take up arms and to make a rebellion. After thinking about it and to show his good faith, he decides to slit "+ victime.GetPseudo() +"'s throat.";                    victime.SetDoitMourir(true);
                     if (victime.GetRole() is Loup)
                     { 
@@ -141,7 +141,7 @@ public class Dictateur : Role
                             }
                         }
                         joueurDictateur.SetEstMaire(true);
-                        retour = retour + "Quel sauveur ! C��tait un loup ! La foule acclama son nouveau dirigeant! ";
+                        retour = retour + "Quel sauveur ! C'etait un loup ! La foule acclama son nouveau dirigeant! ";
                         retour_ang = retour_ang + "What a savior! He was a wolf! The crowd cheered their new leader!";
                     }
                     else
@@ -155,7 +155,7 @@ public class Dictateur : Role
                 }
                 else if(joueurDictateur!=null)
                 {
-                    retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " qui etait pourtant decide a prendre les armes pour renverser le pouvoir loupa son reveil et se rendormi... ";
+                    retour = "Enfin, juste avant l'aube, " + joueurDictateur.GetPseudo() + " qui etait pourtant decide a prendre les armes pour renverser le pouvoir loupa son reveil et se rendormi... ";
                     retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" who decided to take up arms to overthrow the power missed his alarm clock and went back to sleep."; 
                 }else{
                     retour = "";
@@ -165,7 +165,7 @@ public class Dictateur : Role
             }
             else if(joueurDictateur!=null)
             {
-                retour = "Enfin, juste avant l aube, " + joueurDictateur.GetPseudo() + " hesite a prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer a l action il decide de procrastiner a un autre jour! ";
+                retour = "Enfin, juste avant l'aube, " + joueurDictateur.GetPseudo() + " hesite a prendre les armes pour tenter de renverser le pouvoir mais juste avant de passer a l'action il decide de procrastiner a un autre jour! ";
                 retour_ang = "Finally, just before dawn, "+ joueurDictateur.GetPseudo() +" hesitates to take up arms to try to overthrow the power but just before taking action he decides to procrastinate to another day.";
             }else{
                 retour = "";

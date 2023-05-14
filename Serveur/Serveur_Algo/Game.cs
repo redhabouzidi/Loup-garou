@@ -17,80 +17,9 @@ public class Game
     public static Socket listener = Messages.setupSocketGame();
     public Socket? vide,reveille;
     public DateTime t;
-    public Game()
-    {
-        _start = false;
-        name = "village";
-         // A ENLEVER PLUS TARD "=6"
-        _nbrJoueurs = 3;
-        _nbrJoueursManquants = _nbrJoueurs;
-        // cr ation de la liste de joueurs et de r les
-        _roles = new List<Role>();
-        _nbLoups = 1;
-        sorciere = true;
-        voyante = true;
-        cupidon = false;
-        chasseur = false;
-        guardien = false;
-        dictateur = false;
-        testNombre();
-        // la partie est cr   maintenant j'attends les input du frontend et j'envoie mon client   waiting screen
-        // on va admettre que joueurs max = 6
-        rolesJoueurs = new int[_nbrJoueurs];
-        Role[] startingRoles = new Role[_nbrJoueurs];
-        int i;
-        for( i=0;i<_nbLoups;i++)
-        {
-            rolesJoueurs[i]=4;
-            startingRoles[i] = new Loup();
-        }
-        if (sorciere)
-        {
-            rolesJoueurs[i]=5;
-            startingRoles[i++] = new Sorciere();
-        }
-        if (voyante)
-        {
-            rolesJoueurs[i]=3;
-            startingRoles[i++] = new Voyante();
-        }
-        if (cupidon)
-        {
-            rolesJoueurs[i]=2;
-            startingRoles[i++] = new Cupidon();
-        }
-        if (chasseur)
-        {
-            rolesJoueurs[i]=6;
-            startingRoles[i++] = new Chasseur();
-        }
-        if (guardien)
-        {
-            rolesJoueurs[i]=8;
-            startingRoles[i++] = new Garde();
-        }
-        if (dictateur)
-        {
-            rolesJoueurs[i]=7;
-            startingRoles[i++] = new Dictateur();
-        }
-        for (; i < _nbrJoueurs; i++)
-        {
-            rolesJoueurs[i]=1;
-            startingRoles[i] = new Villageois();
-        }
+    public bool day = false;
+    public int tour;
 
-        foreach (Role role in startingRoles)
-        {
-            _roles.Add(role);
-        }
-
-        if (!checkRoles())
-        {
-            Console.WriteLine("Tu n'as pas respect  les conditions de r les pour lancer ta partie !");
-        }
-        
-    }
     public bool testNombre()
     {
         int sum=0;
@@ -307,9 +236,9 @@ public class Game
             if (typeATester.IsInstanceOfType(_joueurs[i].GetRole()) && _joueurs[i].GetEnVie() && _joueurs[i].GetSocket()!=null && _joueurs[i].GetSocket().Connected)
             {
                 if(reveille!=null){
-                    _joueurs[i].GetRole().gameListener = reveille;
+                    _joueurs[i].GetRole().gameListener = this.reveille;
                 }
-
+                tour=_joueurs[i].GetRole().GetIdRole();
                 (retour,retour_ang) = _joueurs[i].FaireAction(_joueurs,this);
                 ConcatRecit(retour,retour_ang);
                 break;
@@ -350,10 +279,10 @@ public class Game
         if(Game.listener.LocalEndPoint!=null){
             reveille.Connect(Game.listener.LocalEndPoint);
         }
-        vide = listener.Accept();
+        vide = Game.listener.Accept();
         int checkWin;
         
-        bool day = false;
+        day=false;
         bool firstDay = true;
         LanceAction(typeof(Cupidon));
 
@@ -373,7 +302,7 @@ public class Game
             // broadcast du serveur : c'est la nuit
             sendGameState(day);
             ConcatRecit("Le soleil se couche sur le village de " + name + ". ","The sun sets on the village of "+name+". ");
-            day = !day;
+            
             // appeller Voyante si il y en a un
             Console.WriteLine("on passe ?");
             LanceAction(typeof(Voyante));
@@ -389,9 +318,10 @@ public class Game
                 LanceAction(typeof(Dictateur));
             }
             // broadcast du serveur : c'est la journ e
-            sendGameState(day);
-            ConcatRecit("\n\nLe soleil se l ve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
             day = !day;
+            sendGameState(day);
+            ConcatRecit("\n\nLe soleil se leve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
+            
             ///////////////////////////////////
             GestionMorts(_joueurs);
             // enl ve   tout le monde l'immunit  accord  par le Garde
@@ -414,6 +344,7 @@ public class Game
             if (firstDay){
                 firstDay = false;
                 // election du maire
+                tour=255;
                 ElectionMaire(VoteToutLeMonde(_joueurs, 255), _joueurs);
                 Joueur? maire = null;
                 foreach (var j in _joueurs)
@@ -424,11 +355,11 @@ public class Game
                     }
                 }
                 if(maire!=null){
-                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour r tablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
+                    ConcatRecit("Apres un long debat rempli de rebondissements le village decide de nommer " + maire.GetPseudo() + " maire pour retablir la paix dans " + name + ". ","After a long debate filled with twists and turns the village decides to appoint "+maire.GetPseudo()+" as mayor to restore peace in "+name+".");
 
                 }
             }
-            
+            tour=1;
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
 
             GestionMorts(_joueurs);
@@ -438,7 +369,7 @@ public class Game
             {
                 break;
             }
-            
+            day = !day;
             ConcatRecit("\n\n","\n\n");
             
             
@@ -522,7 +453,7 @@ public class Game
                         _joueurs[i].TuerJoueur(listJoueurs);
                     }
                     
-                    ConcatRecit("Une victime est allonge au centre du village. Il sagit de " + _joueurs[i].GetPseudo() + " qui savrait tre " + _joueurs[i].GetRole() + "  ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
+                    ConcatRecit("Une victime est allongee au centre du village. Il s'agit de " + _joueurs[i].GetPseudo() + " qui saverait etre " + _joueurs[i].GetRole() + " a ses temps perdus. ","A victim is lying in the center of the village. It is "+ _joueurs[i].GetPseudo() +" who turned out to be "+_joueurs[i].GetRole()+".");
                 }
             }
         }
@@ -558,6 +489,7 @@ public class Game
                 // La liste est vide donc tout le monde est mort
                 return;
             }
+            tour=253;
             int idSuccesseur = DecisionDuMaire(_joueurs,253);
             if (idSuccesseur == -1)
             {
@@ -571,7 +503,7 @@ public class Game
             }
             sendMaire(listJoueurs,idSuccesseur);
             if(player!=null){
-                ConcatRecit("Alors quil sappretait  mourir, le maire demanda au village decouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
+                ConcatRecit("Alors qu'il s'appretait a mourir, le maire demanda au village d'ecouter ses dernieres paroles. Il decide de nommer " + player.GetPseudo() + " comme son successeur a la tete du village.","As he was about to die, the mayor asked the village to listen to his last words. He decides to appoint "+ player.GetPseudo() +" as his successor at the head of the village.");
             }
             // on enlve le statut de maire  l'ancien maire
             maireMort.SetEstMaire(false);
@@ -618,21 +550,25 @@ public class Game
         {
             if (compLoups == 0)
             {
+                ConcatRecit("\n\nMalheureusement, le conflit entre les villageois et les loups-garous a atteint un point critique ou il n'y avait plus personne pour revendiquer la victoire. Les rues etaient desormais silencieuses, temoins de la perte tragique de vies des deux cotes. Dans cette situation d'egalite tragique, il n'y avait pas de vainqueur, mais seulement des pertes et des souvenirs amers de ce qui aurait pu etre evite.", "\n\nUnfortunately, the conflict between the villagers and the werewolves reached a critical point where no one was left to claim victory. The streets were now silent, witnessing the tragic loss on both sides. In this situation of tragic equality, there was no winner, only loss and bitter memories of what could have been avoided. ");
                 retour = 4;
             }
             else
             {
+                ConcatRecit("\n\nLes loups-garous, ruses et impitoyables, ont reussi a semer la terreur parmi les villageois et a eliminer leurs adversaires un par un, jusqu'a ce qu'il ne reste plus personne pour s'opposer a leur regne de terreur, proclamant ainsi leur victoire ecrasante sur le village.", "\n\nThe cunning and ruthless werewolves succeeded in spreading terror among the villagers and eliminating their opponents one by one, until there was no one left to oppose their reign of terror, thus declaring their overwhelming victory over the village. ");
                 retour = 2;
             }
         }
         else if (compLoups == 0)
         {
+            ConcatRecit("\n\nLes villageois, unis dans leur quete de survie, ont finalement triomphe des loups-garous en dejouant leurs plans et en exposant leur veritable identite au grand jour, marquant ainsi une victoire eclatante pour le village.", "\n\nThe villagers, united in their quest for survival, finally triumphed over the werewolves by throwing off their plans and exposing their true identities, marking a stunning victory for the village. ");
             retour = 1;
         }
         else if (sum_vill_loups == 2)
         {
             if (coupleEnVie)
             {
+                ConcatRecit("\n\nLe couple d'amoureux, lie par une puissante passion offerte par Cupidon, ont reussi a surmonter le destin et vaincre l'ensemble du village. Leur cooperation a ete la cle de leur victoire conjointe, celebrant ainsi un triomphe historique pour leur amour.", "\n\nThe loving couple, bound by a powerful passion offered by Cupid, managed to overcome fate and defeat the entire village. Their cooperation was the key to their joint victory, celebrating a historic triumph for their love. ");
                 retour = 3;
             }
         }
@@ -838,6 +774,7 @@ public class Game
                     }
                 }
                 SendEgalite(listJoueurs,tiedVictims);
+                tour=254;
                 victime = DecisionDuMaire(tiedVictimsJoueur,254);
             }
 
@@ -849,7 +786,7 @@ public class Game
             }
             else
             {
-                ConcatRecit("Les habitants du village debatent mais narrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
+                ConcatRecit("Les habitants du village debatent mais n'arrivent pas a trouver de solution au probleme... Ils decident de rentrer calmement chez eux. ","The inhabitants of the village discuss but can't find a solution to the problem. They decide to go home quietly.");
             }
         }
     }
@@ -912,7 +849,7 @@ public class Game
         Console.WriteLine("5");
         int index, v, c;
             
-        r.gameListener = reveille;
+        r.gameListener = this.reveille;
         while (boucle)
         {
             Console.WriteLine("6");
