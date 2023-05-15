@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
-        buttonLeaveGame.onClick.AddListener(OnButtonClickLeaveGame);
+        buttonLeaveGame.onClick.AddListener(OnButtonClickQuitGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
         to_english.onClick.AddListener(translateanglais);
@@ -425,7 +425,21 @@ public class GameManager : MonoBehaviour
         GameManagerApp.scene = 1;
         LoadScene("Jeu");
     }
+    private void OnButtonClickQuitGame(){
+        exitGame();
+    }
+    public static void exitGame()
+    {
+        NetworkManager.prog = false;
+        #if UNITY_EDITOR
+            // Stop play mode in the editor
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // Quit the game
+            Application.Quit();
+        #endif
 
+    }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet de rejouer au loup-garou, conduit dans la page home
