@@ -259,13 +259,7 @@ public class GameManager : MonoBehaviour
             inputChatLG.ActivateInputField();
         }
 
-        if (gameover)
-        {
-            gamePage.transform.gameObject.SetActive(false);
-            winScreenPage.transform.gameObject.SetActive(true);
-            AfficheWinScreen();
-            gameover = false;
-        }
+        
         if(useHeal){
             useHeal=false;
             UseHealthPotion();
@@ -275,6 +269,7 @@ public class GameManager : MonoBehaviour
             UseDeathPotion();
         }
         setDead();
+        isFinished();
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
@@ -304,7 +299,7 @@ public class GameManager : MonoBehaviour
         NetworkManager.sendMayorPresentation();
     }
     private void setDead(){
-    if(newDead.Count!=0){
+    while(newDead.Count!=0){
         Debug.Log("hey hes ded");
         (int val,int role)=newDead[0];
         newDead.RemoveAt(0);
@@ -330,6 +325,15 @@ public class GameManager : MonoBehaviour
         
         MiseAJourAffichage();
     }
+    }
+    private void isFinished(){
+        if (gameover)
+        {
+            gamePage.transform.gameObject.SetActive(false);
+            winScreenPage.transform.gameObject.SetActive(true);
+            AfficheWinScreen();
+            gameover = false;
+        }
     }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
