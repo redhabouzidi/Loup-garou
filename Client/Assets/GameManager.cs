@@ -403,6 +403,7 @@ public class GameManager : MonoBehaviour
     {
         if (turn!=0)
         {
+            choixAction.SetActive(false);
             action = false;
             if(electionMaire){
                 electionMaire = false;
@@ -1131,9 +1132,12 @@ public class GameManager : MonoBehaviour
         Arg: msg, le texte a afficher pour le choix a faire
     **/
     public void affiche_choix_action(string msg){
-        choixAction.SetActive(true);
+        
         TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
+        
         text_action.text = msg;
+        Debug.Log(text_action.text);
+        choixAction.SetActive(true);
     }
 
     /**
