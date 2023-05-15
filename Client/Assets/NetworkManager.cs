@@ -411,12 +411,14 @@ public class NetworkManager : MonoBehaviour
             case 5:
                 GameManager.turn = 1;
                 bool day = decodeBool(message, size);
-                GameManager.isNight = !day;
-                if (!day)
+                if (day)
                 {
                     GameManager.tour++;
+                    Debug.Log(GameManager.tour);
 
                 }
+                GameManager.isNight = !day;
+                
                 break;
                 //definit les amoureux
             case 6:

@@ -123,12 +123,6 @@ public class GameManagerApp : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            // Stop play mode in the editor
-            exitGame();
-            // Quit the game
-        }
         NetworkManager.listener();
     }
 

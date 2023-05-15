@@ -318,8 +318,7 @@ public class Game
                 LanceAction(typeof(Dictateur));
             }
             // broadcast du serveur : c'est la journ e
-            day = !day;
-            sendGameState(day);
+            
             ConcatRecit("\n\nLe soleil se leve enfin sur le village de " + name + ". ","\n\nThe sun rises on the village of " + name + ".");
             
             ///////////////////////////////////
@@ -360,6 +359,8 @@ public class Game
                 }
             }
             tour=1;
+            day = !day;
+            sendGameState(day);
             SentenceJournee(VoteToutLeMonde(_joueurs, 1), _joueurs);
 
             GestionMorts(_joueurs);

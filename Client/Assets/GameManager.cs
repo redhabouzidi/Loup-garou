@@ -404,7 +404,10 @@ public class GameManager : MonoBehaviour
         if (turn!=0)
         {
             action = false;
-            electionMaire = false;
+            if(electionMaire){
+                electionMaire = false;
+                banderoleMaire.enabled = false;
+            }
             if(p.GetRoleId() == 7){
                 Debug.Log("c'est le 7 mec");
             }
@@ -599,6 +602,7 @@ public class GameManager : MonoBehaviour
                 ChangeChat(sceneNight);
                 Debug.Log("it's day");
                 banderoleMaire.enabled = false;
+                Debug.Log(tour);
                 text_day.text = "Day " + tour;
                 text_day.color = colorWhite;
                 player_role.color = colorWhite;
