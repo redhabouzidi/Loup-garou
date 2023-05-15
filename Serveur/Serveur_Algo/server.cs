@@ -198,6 +198,8 @@ namespace Server
                 //on écoute toutes les sockets restant comme des joueurs
                 foreach (Socket fd in fds)
                 {
+                    try
+                        {
                     //Si la socket n'est pas conneccté on deconnecte le joueur
                     if (!fd.Connected)
                     {
@@ -213,8 +215,7 @@ namespace Server
                     else
                     {
                         //Sinon on écoute le joueur
-                        try
-                        {
+                        
                             if (connected.ContainsKey(fd))
                             {
                                 Console.WriteLine("le client {0} a envoyé un message", userData[connected[fd]].GetUsername());
@@ -226,13 +227,14 @@ namespace Server
                             }
 
                             recvMessage(fd, bdd, list, connected, queue, players);
-                        }
-                        catch (SocketException e)
-                        {
-                            disconnectPlayer(list, fd);
-                            Console.WriteLine(e.ToString());
+                        
 
-                        }
+                    }
+                    }
+                    catch (SocketException e)
+                    {
+                        disconnectPlayer(list, fd);
+                        Console.WriteLine(e.ToString());
 
                     }
                 }
@@ -971,6 +973,7 @@ namespace Server
                         games.Remove(connected[client]);
                     }
                     players.Remove(connected[client]);
+
                 }
             }
         }
@@ -1215,8 +1218,10 @@ namespace Server
                     break;
                 //le joueur quitte le lobby
                 case 106:
-                    if (connected.ContainsKey(client))
+                    if (connected.ContainsKey(client)){
                         disconnectFromLobby(client);
+                        userData[connected[client]].SetStatus(connected[client],1);
+                    }
                     else
                         Console.WriteLine("nope pas co");
                     break;

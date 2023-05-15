@@ -203,6 +203,7 @@ public class NetworkManager : MonoBehaviour
     //fonction qui remplis le tableau de parties
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name,int[] actualPlayers,List<int[]> roles)
     {
+        int id=gma.GetIdToggleGameOn();
         foreach (Transform child in gma.containerGame.transform)
         {
             GameObject.Destroy(child.gameObject);
@@ -211,7 +212,8 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i],actualPlayers[i],roles[i]);
-        }   
+        }
+        gma.setRightToggleSelector(id);
     }
     //dans les fonction encode et decode le size[] represente un tableau d'une seule valeur qui represente l'index dans le tableau de byte a partir de lequel il faut mettre la valeur il sera ensuite incrementé poue ne pas se perdre par la suite
         //fonction qui met des bytes en entier

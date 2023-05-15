@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour
         play_sound_night();
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         tour = 0;
-        sceneNight = true;
+        sceneNight = false;
         if(newDead==null){
             newDead=new List<(int,int)>();
         }

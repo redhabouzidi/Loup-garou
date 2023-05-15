@@ -418,6 +418,7 @@ public class WaitingScreen : MonoBehaviour
         for (int i=no_players; i<max_player; i++){
             listCard[i].transform.Find("image-card").GetComponent<Image>().color = colorNone;
             listCard[i].transform.Find("card").GetComponent<Image>().enabled = false;
+            listCard[i].transform.Find("image-card").GetComponent<Image>().enabled=false;
             listCard[i].transform.Find("text-pseudo").GetComponent<TextMeshProUGUI>().text = "";
         }
 
