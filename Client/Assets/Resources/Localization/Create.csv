@@ -4,3 +4,11 @@ Create.Cadre.Village,Village name,Nom du village
 Create.Cadre.Players.Text_players,Amount of players,Nombre de joueurs
 Create.Cadre.Players.Text_role,Roles,Rôles
 Create.Cadre.Button_create,Create,Créer
+InfoBull,Werewolf,Loup
+InfoBull1,Villager,Villageois
+InfoBull2,Witch,Sorcière
+InfoBull3,Seer,Voyante
+InfoBull4,Cupidon,Cupidon
+InfoBull5,Hunter,Chasseur
+InfoBull6,Dictator,Dictateur
+InfoBull7,Guard,Garde

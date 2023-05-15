@@ -14,3 +14,10 @@ RegistrationPage.Panel-info,"The password need to contain:
         - Lettres majuscules et minuscules
         - des chiffres
         - Un caractère spécial"
+RegistrationPage.Panel-info.username,"The username contain:
+        - 3 characters minimum
+        - Upper and lower case letters
+        - Numbers","Le nom d'utilisateur doit contenir :
+        - 3 caractères minimum
+        - Lettres majuscules et minuscules
+        - Nombres"
