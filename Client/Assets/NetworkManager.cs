@@ -192,7 +192,11 @@ public class NetworkManager : MonoBehaviour
         players = new WPlayer[idPlayers.Length];
         for (int i = 0; i < idPlayers.Length; i++)
         {
-            players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
+            if(idPlayers[i]==id){
+                players[i] = new WPlayer(playerNames[i], idPlayers[i],false);
+            }else{
+                players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
+            }
         }
     }
     //fonction qui ajoute un joueur au waiting screen
@@ -212,6 +216,9 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i],actualPlayers[i],roles[i]);
+        }
+        if(nbPlayers.Length == 0){
+            gma.setRightToggleSelector(-1);
         }
         gma.setRightToggleSelector(id);
     }
@@ -836,13 +843,8 @@ public class NetworkManager : MonoBehaviour
                 //quand un joueur quitte le lobby on le supprime
             case 106:
                 int idQuitter = decode(message, size);
-                if (idQuitter != id)
-                {
-                    ws.quitplayer(idQuitter);
-                    Debug.Log("le joueur quitte");
-
-                }
-                else
+                ws.quitplayer(idQuitter);
+                if (idQuitter == id)
                 {
                     wso.SetActive(false);
                     ho.SetActive(true);

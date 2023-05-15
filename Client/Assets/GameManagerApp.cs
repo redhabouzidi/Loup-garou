@@ -352,7 +352,7 @@ public class GameManagerApp : MonoBehaviour
         
     }
     public void setRightToggleSelector(int selectedGame){
-        if(GetIdToggleGameOn()!=selectedGame){
+        if(GetIdToggleGameOn()!=selectedGame || selectedGame != -1){
             for (int i = 0; i < listGame.Count; i++)
             {
                 if (listGame[i].id==selectedGame)

@@ -103,6 +103,7 @@ public class GameManager : MonoBehaviour
         
         soundNight=true;
         play_sound_night();
+        banderoleMaire.enabled = false;
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         tour = 0;
         sceneNight = false;
