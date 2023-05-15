@@ -71,7 +71,7 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.chpwe = NetworkManager.canvas.transform.Find("ChangePasswordEmail").gameObject;
         NetworkManager.chpass = NetworkManager.canvas.transform.Find("ChangePassword").gameObject;
         NetworkManager.profile = NetworkManager.canvas.transform.Find("Profile").gameObject;
-
+        listGame.Clear();
         GameManagerApp.players = new List<player>();
         if (listFriend == null)
             listFriend = new List<Friend>();
