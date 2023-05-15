@@ -33745,6 +33745,7 @@ MonoBehaviour:
   prefab_saved: {fileID: 2700135143355035350, guid: 2b0d02b81907e96448b80555270472c3, type: 3}
   saved_games: {fileID: 1479905894}
   saved_games_view: {fileID: 249280679}
+  content: {fileID: 365990186}
   texto: {fileID: 756491148}
   name_partie_texto: 0
   return_button: {fileID: 614505908}
