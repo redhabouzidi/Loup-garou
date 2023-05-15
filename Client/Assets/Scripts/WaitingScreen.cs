@@ -56,6 +56,7 @@ public class WaitingScreen : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        isfr=Traduction.fr;
         if(isfr)refresh_to_fr();
         else refresh_to_en();
         left_button.onClick.AddListener(left_previous);
