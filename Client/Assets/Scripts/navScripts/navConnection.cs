@@ -18,7 +18,7 @@ public class navConnection : MonoBehaviour
             if(selected < 0) selected = 6;
         }
 
-        else if(Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.DownArrow) || (Input.GetKey(KeyCode.Return))) {
+        else if(Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.DownArrow)) {
             selected++;
             if(selected > 6) selected = 0;
         }
