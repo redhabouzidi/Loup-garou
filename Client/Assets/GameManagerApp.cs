@@ -69,8 +69,8 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.so = NetworkManager.canvas.transform.Find("Statistiques").gameObject;
         NetworkManager.s = NetworkManager.so.GetComponent<Statistiques>();
         NetworkManager.chpwe = NetworkManager.canvas.transform.Find("ChangePasswordEmail").gameObject;
-
-
+        NetworkManager.chpass = NetworkManager.canvas.transform.Find("ChangePassword").gameObject;
+        NetworkManager.profile = NetworkManager.canvas.transform.Find("Profile").gameObject;
 
         GameManagerApp.players = new List<player>();
         if (listFriend == null)

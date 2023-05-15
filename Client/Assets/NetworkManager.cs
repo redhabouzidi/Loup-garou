@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -995,6 +995,11 @@ public class NetworkManager : MonoBehaviour
                         chpwe.SetActive(false);
                         cpo.SetActive(true);
                         Debug.Log("on a réinitialiser avec succes 2");
+                    }
+                    else
+                    {
+                        chpass.SetActive(false);
+                        profile.SetActive(true);
                     }
                 }
                 break;
