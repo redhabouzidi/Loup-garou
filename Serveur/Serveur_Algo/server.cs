@@ -167,6 +167,7 @@ namespace Server
                 }
                 //On attends de recevoir des messages
                 Socket.Select(fds, null, null, -1);
+                try{
 
                 //Si on recoit un message du serveur
                 if (fds.Contains(server))
@@ -179,21 +180,18 @@ namespace Server
                 if (fds.Contains(bdd))
                 {
                     //On intercepte le message
-                    try
-                    {
 
                         recvBddMessage(bdd, queue, list, connected);
-                    }
-                    catch (SocketException e)
-                    {
-                        Environment.Exit(0);
-                    }
                     fds.Remove(bdd);
                 }
                 //Si c'est le Wakeupmain qui parle on ne fait rien
                 if (fds.Contains(wakeUpMain))
                 {
                     fds.Remove(wakeUpMain);
+                }
+                }
+                catch(SocketException e){
+                    
                 }
                 //on écoute toutes les sockets restant comme des joueurs
                 foreach (Socket fd in fds)

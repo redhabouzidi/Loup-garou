@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile,fpo;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
