@@ -535,6 +535,8 @@ public class GameManager : MonoBehaviour
                     affiche_tour_role("It is Guard's turn...", turn);
                     break;
                 case 255:
+                    isNight=false;
+                    AfficherJour();
                     affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
                     break;
