@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -411,12 +411,14 @@ public class NetworkManager : MonoBehaviour
             case 5:
                 GameManager.turn = 1;
                 bool day = decodeBool(message, size);
-                GameManager.isNight = !day;
-                if (!day)
+                if (day)
                 {
                     GameManager.tour++;
+                    Debug.Log(GameManager.tour);
 
                 }
+                GameManager.isNight = !day;
+                
                 break;
                 //definit les amoureux
             case 6:
@@ -523,6 +525,11 @@ public class NetworkManager : MonoBehaviour
                 for (int i = 0; i < score.Length; i++)
                 {
                     score[i] = decode(message, size);
+                }
+
+                for(int i = 0; i<score.Length; i++) {
+                    if(gm.p.GetId() == idPlayers[i])
+                        gm.afficheScore(score[i]);
                 }
                 //afficher le score
                 break;
@@ -988,6 +995,11 @@ public class NetworkManager : MonoBehaviour
                         chpwe.SetActive(false);
                         cpo.SetActive(true);
                         Debug.Log("on a réinitialiser avec succes 2");
+                    }
+                    else
+                    {
+                        chpass.SetActive(false);
+                        profile.SetActive(true);
                     }
                 }
                 break;

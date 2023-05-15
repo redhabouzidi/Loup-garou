@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour
         soundManager_night = GameObject.Find("SoundManager_night").GetComponent<AudioSource>();
         NetworkManager.inGame = true;
         nbPlayer = NetworkManager.nbplayeres;
+        
         Button buttonAfficheCarte = GO_buttonAfficheCarte.GetComponent<Button>();
         GameObject tmp1 = choixAction.transform.Find("Image").gameObject;
         Button buttonOui = tmp1.transform.Find("Button-Oui").GetComponent<Button>();
@@ -259,13 +260,7 @@ public class GameManager : MonoBehaviour
             inputChatLG.ActivateInputField();
         }
 
-        if (gameover)
-        {
-            gamePage.transform.gameObject.SetActive(false);
-            winScreenPage.transform.gameObject.SetActive(true);
-            AfficheWinScreen();
-            gameover = false;
-        }
+        
         if(useHeal){
             useHeal=false;
             UseHealthPotion();
@@ -275,6 +270,7 @@ public class GameManager : MonoBehaviour
             UseDeathPotion();
         }
         setDead();
+        isFinished();
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
@@ -304,7 +300,7 @@ public class GameManager : MonoBehaviour
         NetworkManager.sendMayorPresentation();
     }
     private void setDead(){
-    if(newDead.Count!=0){
+    while(newDead.Count!=0){
         Debug.Log("hey hes ded");
         (int val,int role)=newDead[0];
         newDead.RemoveAt(0);
@@ -330,6 +326,15 @@ public class GameManager : MonoBehaviour
         
         MiseAJourAffichage();
     }
+    }
+    private void isFinished(){
+        if (gameover)
+        {
+            gamePage.transform.gameObject.SetActive(false);
+            winScreenPage.transform.gameObject.SetActive(true);
+            AfficheWinScreen();
+            gameover = false;
+        }
     }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
@@ -399,8 +404,12 @@ public class GameManager : MonoBehaviour
     {
         if (turn!=0)
         {
+            choixAction.SetActive(false);
             action = false;
-            electionMaire = false;
+            if(electionMaire){
+                electionMaire = false;
+                banderoleMaire.enabled = false;
+            }
             if(p.GetRoleId() == 7){
                 Debug.Log("c'est le 7 mec");
             }
@@ -595,6 +604,7 @@ public class GameManager : MonoBehaviour
                 ChangeChat(sceneNight);
                 Debug.Log("it's day");
                 banderoleMaire.enabled = false;
+                Debug.Log(tour);
                 text_day.text = "Day " + tour;
                 text_day.color = colorWhite;
                 player_role.color = colorWhite;
@@ -1120,9 +1130,12 @@ public class GameManager : MonoBehaviour
         Arg: msg, le texte a afficher pour le choix a faire
     **/
     public void affiche_choix_action(string msg){
-        choixAction.SetActive(true);
+        
         TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
+        
         text_action.text = msg;
+        Debug.Log(text_action.text);
+        choixAction.SetActive(true);
     }
 
     /**
@@ -1418,66 +1431,8 @@ public class GameManager : MonoBehaviour
         la fonction affiche le nombre de points gagnés par chaque joueur
         a la fin de la partie sur le win-screen
     **/
-    public void calculPoints() {
-        if(isVillageWin == 1) {
-            if(p.GetRole() != "Loup-Garou") {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 50 Points";
-                }
-
-                else {
-                    nbPoints.text = "+ 25 Points";
-                }
-            }
-
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        if(isVillageWin == 2) {
-            if(p.GetRole() == "Loup-Garou") {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 50 Points";
-                }
-
-                else {
-                    nbPoints.text = "+ 25 Points";
-                }
-            }
-
-            else if(p.GetIsAlive()) nbPoints.text = "+ 25 Points";
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        if(isVillageWin == 3) {
-            if(p.GetIsMarried()) {
-                nbPoints.text = "+ 50 Points";
-            }
-
-            else {
-                if(p.GetIsAlive()) {
-                    nbPoints.text = "+ 25 Points";
-                }
-                else nbPoints.text = "+ 0 Point";
-            }
-        }
-
-        if(isVillageWin == 4) {
-            if(p.GetIsAlive()) {
-                nbPoints.text = "+ 25 Points";
-            }
-            else nbPoints.text = "+ 0 Point";
-        }
-
-        switch(nbPoints.text) {
-            case "+ 50 Points" : nbPoints.color = colorGreen;
-                break;
-            case "+ 25 Points" : nbPoints.color = colorYellow;
-                break;
-            case "+ 0 Point" : nbPoints.color = colorRed;
-                break;
-            default : nbPoints.color = colorWhite;
-                break;
-        }
+    public void afficheScore(int score) {
+        nbPoints.text = "+ " + score + " Points"; 
     }
 
 }
