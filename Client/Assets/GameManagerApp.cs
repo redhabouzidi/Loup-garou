@@ -27,7 +27,7 @@ public class GameManagerApp : MonoBehaviour
     public GameObject GO_add_research, containerFriend, containerAdd, containerRequest, containerWait;
     public GameObject componentAddWait, componentRequest, componentFriend, componentNo;
     public static List<Friend> listFriend, listAdd, listRequest, listWait;
-    public static int scene;
+    public static int scene,selectedGame;
     public static float volumeMusic,volumeEffect;
     public Slider music,effet;
     // profile
@@ -69,9 +69,9 @@ public class GameManagerApp : MonoBehaviour
         NetworkManager.so = NetworkManager.canvas.transform.Find("Statistiques").gameObject;
         NetworkManager.s = NetworkManager.so.GetComponent<Statistiques>();
         NetworkManager.chpwe = NetworkManager.canvas.transform.Find("ChangePasswordEmail").gameObject;
-
-
-
+        NetworkManager.chpass = NetworkManager.canvas.transform.Find("ChangePassword").gameObject;
+        NetworkManager.profile = NetworkManager.canvas.transform.Find("Profile").gameObject;
+        listGame.Clear();
         GameManagerApp.players = new List<player>();
         if (listFriend == null)
             listFriend = new List<Friend>();
@@ -123,12 +123,6 @@ public class GameManagerApp : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            // Stop play mode in the editor
-            exitGame();
-            // Quit the game
-        }
         NetworkManager.listener();
     }
 
@@ -354,10 +348,20 @@ public class GameManagerApp : MonoBehaviour
             GameObject img = Instantiate(ImageComponent, container.transform);
             img.GetComponent<Image>().sprite = GetSpriteToIdrole(roles[i]);
         }
-
         listGame.Add(g);
+        
     }
-
+    public void setRightToggleSelector(int selectedGame){
+        if(GetIdToggleGameOn()!=selectedGame || selectedGame != -1){
+            for (int i = 0; i < listGame.Count; i++)
+            {
+                if (listGame[i].id==selectedGame)
+                {
+                    listGame[i].game.GetComponent<Toggle>().isOn=true;
+                }
+            }
+        }
+    }
     /**
         La fonction permet d'obtenir l'identifiant de la partie selectionnée parmi la 
         liste des parties dans le lobby

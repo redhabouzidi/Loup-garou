@@ -1,4 +1,4 @@
-    using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -73,6 +73,9 @@ public class GameManager : MonoBehaviour
 
     public AudioSource soundManager_day,soundManager_night;
 
+    private bool isfr;
+    public Button to_french,to_english;
+    public GameObject winscreencontainer;
     // Start is called before the first frame update
     void Start()
     {
@@ -92,14 +95,18 @@ public class GameManager : MonoBehaviour
         buttonValiderVote.onClick.AddListener(OnButtonClickVote);
         buttonAfficheCarte.onClick.AddListener(OnButtonClickAffiche);
         buttonLeave.onClick.AddListener(OnButtonClickLeaveGame);
-        buttonLeaveGame.onClick.AddListener(OnButtonClickLeaveGame);
+        buttonLeaveGame.onClick.AddListener(OnButtonClickQuitGame);
         buttonPlayAgain.onClick.AddListener(OnButtonClickPlayAgain);
         sePresenter.onClick.AddListener(OnButtonClickSePresenter);
+        to_english.onClick.AddListener(translateanglais);
+        to_french.onClick.AddListener(translatefrench);
+        
         soundNight=true;
         play_sound_night();
+        banderoleMaire.enabled = false;
         NetworkManager.gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         tour = 0;
-        sceneNight = true;
+        sceneNight = false;
         if(newDead==null){
             newDead=new List<(int,int)>();
         }
@@ -259,13 +266,7 @@ public class GameManager : MonoBehaviour
             inputChatLG.ActivateInputField();
         }
 
-        if (gameover)
-        {
-            gamePage.transform.gameObject.SetActive(false);
-            winScreenPage.transform.gameObject.SetActive(true);
-            AfficheWinScreen();
-            gameover = false;
-        }
+        
         if(useHeal){
             useHeal=false;
             UseHealthPotion();
@@ -275,6 +276,7 @@ public class GameManager : MonoBehaviour
             UseDeathPotion();
         }
         setDead();
+        isFinished();
         AfficheTimer();
         AfficherJour();
         Timer_text_screen();
@@ -283,6 +285,79 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void translatefrench(){
+        isfr=true;
+        switch(isVillageWin) {
+            case 2 : // Loup-garou
+                groupWin.text = "Les loups-garous ont gagné";
+                groupWin.color = colorRed;
+                break;
+            
+            case 1 : // villageois
+                groupWin.text = "Les villageois ont gagné";
+                groupWin.color = colorWhite;
+                break;
+            
+            case 4 : // draw
+                groupWin.text = "Match nul";
+                groupWin.color = colorWhite;
+                break;
+
+            case 3 : // amoureux
+                groupWin.text = "Les amoureux ont gagné";
+                groupWin.color = colorPink;
+                break;
+        }
+        TextMeshProUGUI[] textFields = winscreencontainer.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach(TextMeshProUGUI textf in textFields){
+            Debug.Log("sdkjaskdjasdkasjdksa"+textf.text);
+            textf.text=textf.text.Replace("Werewolf","Loup-garou");
+            textf.text=textf.text.Replace("Seer","Voyante");
+            textf.text=textf.text.Replace("Dictator","Dictateur");
+            textf.text=textf.text.Replace("Cupid","Cupidon");
+            textf.text=textf.text.Replace("Villager","Villageois");
+            textf.text=textf.text.Replace("Witch","Sorciere");
+            textf.text=textf.text.Replace("Hunter","Chasseur");
+            textf.text=textf.text.Replace("Guard","Garde");
+        }
+    }
+    public void translateanglais(){
+        isfr=false;
+        switch(isVillageWin) {
+            case 2 : // Loup-garou
+                groupWin.text = "Werewolves won";
+                groupWin.color = colorRed;
+                break;
+            
+            case 1 : // villageois
+                groupWin.text = "Villagers won";
+                groupWin.color = colorWhite;
+                break;
+            
+            case 4 : // draw
+                groupWin.text = "Draw";
+                groupWin.color = colorWhite;
+                break;
+
+            case 3 : // amoureux
+                groupWin.text = "Lovers won";
+                groupWin.color = colorPink;
+                break;
+        }
+        TextMeshProUGUI[] textFields = winscreencontainer.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach(TextMeshProUGUI textf in textFields){
+            textf.text=textf.text.Replace("Loup-garou","Werewolf");
+            textf.text=textf.text.Replace("Voyante","Seer");
+            textf.text=textf.text.Replace("Dictateur","Dictator");
+            textf.text=textf.text.Replace("Cupidon","Cupid");
+            textf.text=textf.text.Replace("Villageois","Villager");
+            textf.text=textf.text.Replace("Sorciere","Witch");
+            textf.text=textf.text.Replace("Chasseur","Hunter");
+            textf.text=textf.text.Replace("Garde","Guard");
+        }
+
+
+    }
     //Fonctions pour les sons ->
     //Son à jouer pendant la nuit
     public void play_sound_night(){
@@ -304,7 +379,7 @@ public class GameManager : MonoBehaviour
         NetworkManager.sendMayorPresentation();
     }
     private void setDead(){
-    if(newDead.Count!=0){
+    while(newDead.Count!=0){
         Debug.Log("hey hes ded");
         (int val,int role)=newDead[0];
         newDead.RemoveAt(0);
@@ -331,6 +406,15 @@ public class GameManager : MonoBehaviour
         MiseAJourAffichage();
     }
     }
+    private void isFinished(){
+        if (gameover)
+        {
+            gamePage.transform.gameObject.SetActive(false);
+            winScreenPage.transform.gameObject.SetActive(true);
+            AfficheWinScreen();
+            gameover = false;
+        }
+    }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet de quitter la partie de loup garou
@@ -341,7 +425,21 @@ public class GameManager : MonoBehaviour
         GameManagerApp.scene = 1;
         LoadScene("Jeu");
     }
+    private void OnButtonClickQuitGame(){
+        exitGame();
+    }
+    public static void exitGame()
+    {
+        NetworkManager.prog = false;
+        #if UNITY_EDITOR
+            // Stop play mode in the editor
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // Quit the game
+            Application.Quit();
+        #endif
 
+    }
     /**
         Action effectué lorsqu'on appuie sur le bouton associer à la fonction
         Permet de rejouer au loup-garou, conduit dans la page home
@@ -399,8 +497,12 @@ public class GameManager : MonoBehaviour
     {
         if (turn!=0)
         {
+            choixAction.SetActive(false);
             action = false;
-            electionMaire = false;
+            if(electionMaire){
+                electionMaire = false;
+                banderoleMaire.enabled = false;
+            }
             if(p.GetRoleId() == 7){
                 Debug.Log("c'est le 7 mec");
             }
@@ -447,6 +549,8 @@ public class GameManager : MonoBehaviour
                     affiche_tour_role("It is Guard's turn...", turn);
                     break;
                 case 255:
+                    isNight=false;
+                    AfficherJour();
                     affiche_tour_role("It is Mayor's turn...", turn);
                     electionMaire = true;
                     break;
@@ -595,6 +699,7 @@ public class GameManager : MonoBehaviour
                 ChangeChat(sceneNight);
                 Debug.Log("it's day");
                 banderoleMaire.enabled = false;
+                Debug.Log(tour);
                 text_day.text = "Day " + tour;
                 text_day.color = colorWhite;
                 player_role.color = colorWhite;
@@ -646,7 +751,83 @@ public class GameManager : MonoBehaviour
         TextMeshProUGUI newText;
         GameObject newPlayer = Instantiate(textWinPlayer, panel.transform);
         newText = newPlayer.GetComponent<TextMeshProUGUI>();
-        newText.text = listPlayer[num].GetPseudo() + ": " + listPlayer[num].GetRole();
+        string nomrole_translated="";
+        switch(listPlayer[num].GetRole()){
+            case "Loup-garou":
+                    if(isfr){
+                        nomrole_translated="Loup-garou";
+                    }
+                    else{
+                        nomrole_translated="Werewolf";
+                    }
+                    Debug.Log("Loup ");
+                    break;
+                case "Villageois":
+                    if(isfr){
+                        nomrole_translated="Villageois";
+                    }
+                    else{
+                        nomrole_translated="Villager";
+                    }
+                    break;
+                case "Cupidon":
+                    if(isfr){
+                        nomrole_translated="Cupidon";
+                    }
+                    else{
+                        nomrole_translated="Cupid";
+                    }
+                    break;
+                case "Sorciere":
+                    if(isfr){
+                        nomrole_translated="Sorciere";
+                    }
+                    else{
+                        nomrole_translated="Witch";
+                    }
+                    Debug.Log("Sorc ");
+                    break;
+                case "Voyante":
+                    if(isfr){
+                        nomrole_translated="Voyante";
+                    }
+                    else{
+                        nomrole_translated="Seer";
+                    }
+                    Debug.Log("Voyan ");
+                    break;
+                case "Chasseur":
+                    if(isfr){
+                        nomrole_translated="Chasseur";
+                    }
+                    else{
+                        nomrole_translated="Hunter";
+                    }
+                    Debug.Log("Chasseur ");
+                    break;
+                case "Dictateur":
+                    if(isfr){
+                        nomrole_translated="Dictateur";
+                    }
+                    else{
+                        nomrole_translated="Dictator";
+                    }
+                    Debug.Log("Dictateur ");
+                    break;
+                case "Garde":
+                    if(isfr){
+                        nomrole_translated="Garde";
+                    }
+                    else{
+                        nomrole_translated="Guard";
+                    }
+                    Debug.Log("Garde ");
+                    break;
+            Debug.Log(listPlayer[num].GetRole());
+        }
+
+
+        newText.text = listPlayer[num].GetPseudo() + ": " + nomrole_translated;
         Debug.Log(listPlayer[num].GetRole());
         if (listPlayer[num].GetRoleId() == 4)
         {
@@ -676,22 +857,42 @@ public class GameManager : MonoBehaviour
 
         switch(isVillageWin) {
             case 2 : // Loup-garou
-                groupWin.text = "Werewolves won";
+                if(isfr){
+                    groupWin.text = "Les loups-garous ont gagné";
+                }
+                else{
+                    groupWin.text = "Werewolves won";
+                }
                 groupWin.color = colorRed;
                 break;
             
             case 1 : // villageois
-                groupWin.text = "Villagers won";
+                if(isfr){
+                    groupWin.text = "Les villageois ont gagné";
+                }
+                else{
+                    groupWin.text = "Villagers won";
+                }
                 groupWin.color = colorWhite;
                 break;
             
             case 4 : // draw
-                groupWin.text = "Draw";
+                if(isfr){
+                    groupWin.text = "Draw";
+                }
+                else{
+                    groupWin.text = "Match nul";
+                }
                 groupWin.color = colorWhite;
                 break;
 
             case 3 : // amoureux
-                groupWin.text = "Lovers won";
+                if(isfr){
+                    groupWin.text = "Les amoureux ont gagné";
+                }
+                else{
+                    groupWin.text = "Lovers won";
+                }
                 groupWin.color = colorPink;
                 break;
         }
@@ -1123,9 +1324,12 @@ public class GameManager : MonoBehaviour
         Arg: msg, le texte a afficher pour le choix a faire
     **/
     public void affiche_choix_action(string msg){
-        choixAction.SetActive(true);
+        
         TextMeshProUGUI text_action =  choixAction.transform.Find("Text-action").GetComponent<TextMeshProUGUI>();
+        
         text_action.text = msg;
+        Debug.Log(text_action.text);
+        choixAction.SetActive(true);
     }
 
     /**

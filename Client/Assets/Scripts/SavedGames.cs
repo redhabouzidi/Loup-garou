@@ -12,6 +12,7 @@ public class SavedGames : MonoBehaviour
     public GameObject prefab_saved;
     public GameObject saved_games;
     public  GameObject saved_games_view;
+    public GameObject content;
     public TextMeshProUGUI texto;
     public DateTime date_partie_texto;
     public int name_partie_texto;
@@ -33,6 +34,7 @@ public class SavedGames : MonoBehaviour
     }
     public void refresh_string(string historique){
         texto.text=historique;
+        content.GetComponent<ContentSizeFitter>().SetLayoutVertical();
     }
     public void add_savedgame(string villagename,DateTime date,int duree,int id){
         GameObject newPrefab=Instantiate(prefab_saved,BoiteContent.transform);

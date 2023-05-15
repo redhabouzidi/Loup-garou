@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -192,7 +192,11 @@ public class NetworkManager : MonoBehaviour
         players = new WPlayer[idPlayers.Length];
         for (int i = 0; i < idPlayers.Length; i++)
         {
-            players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
+            if(idPlayers[i]==id){
+                players[i] = new WPlayer(playerNames[i], idPlayers[i],false);
+            }else{
+                players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
+            }
         }
     }
     //fonction qui ajoute un joueur au waiting screen
@@ -203,6 +207,7 @@ public class NetworkManager : MonoBehaviour
     //fonction qui remplis le tableau de parties
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name,int[] actualPlayers,List<int[]> roles)
     {
+        int id=gma.GetIdToggleGameOn();
         foreach (Transform child in gma.containerGame.transform)
         {
             GameObject.Destroy(child.gameObject);
@@ -211,7 +216,11 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < nbPlayers.Length; i++)
         {
             gma.AddGame(gameId[i], name[i], nbPlayers[i],actualPlayers[i],roles[i]);
-        }   
+        }
+        if(nbPlayers.Length == 0){
+            gma.setRightToggleSelector(-1);
+        }
+        gma.setRightToggleSelector(id);
     }
     //dans les fonction encode et decode le size[] represente un tableau d'une seule valeur qui represente l'index dans le tableau de byte a partir de lequel il faut mettre la valeur il sera ensuite incrementé poue ne pas se perdre par la suite
         //fonction qui met des bytes en entier
@@ -411,12 +420,14 @@ public class NetworkManager : MonoBehaviour
             case 5:
                 GameManager.turn = 1;
                 bool day = decodeBool(message, size);
-                GameManager.isNight = !day;
-                if (!day)
+                if (day)
                 {
                     GameManager.tour++;
+                    Debug.Log(GameManager.tour);
 
                 }
+                GameManager.isNight = !day;
+                
                 break;
                 //definit les amoureux
             case 6:
@@ -832,13 +843,8 @@ public class NetworkManager : MonoBehaviour
                 //quand un joueur quitte le lobby on le supprime
             case 106:
                 int idQuitter = decode(message, size);
-                if (idQuitter != id)
-                {
-                    ws.quitplayer(idQuitter);
-                    Debug.Log("le joueur quitte");
-
-                }
-                else
+                ws.quitplayer(idQuitter);
+                if (idQuitter == id)
                 {
                     wso.SetActive(false);
                     ho.SetActive(true);
@@ -993,6 +999,11 @@ public class NetworkManager : MonoBehaviour
                         chpwe.SetActive(false);
                         cpo.SetActive(true);
                         Debug.Log("on a réinitialiser avec succes 2");
+                    }
+                    else
+                    {
+                        chpass.SetActive(false);
+                        profile.SetActive(true);
                     }
                 }
                 break;
@@ -1157,7 +1168,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                         case 1:
                             gma.AfficheError("le compte au quel vous essayez d'acceder est en ligne");
-
+                        break;
+                        case 2:
+                            gma.AfficheError("Pseudo ou mot de passe invalide");
                         break;
                     }
                     break;

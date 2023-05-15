@@ -101,7 +101,7 @@ public class bdd
         Console.WriteLine("ca marche");
         Socket bdd = setupSocketServer();
         List<Socket> server = new List<Socket> { };
-        byte[] message = new byte[4096];
+        byte[] message = new byte[30000];
         while (true)
         {
 
