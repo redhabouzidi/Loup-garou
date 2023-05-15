@@ -503,14 +503,13 @@ public class GameManager : MonoBehaviour
                 electionMaire = false;
                 banderoleMaire.enabled = false;
             }
-            if(p.GetRoleId() == 7){
-                Debug.Log("c'est le 7 mec");
-            }
             switch (turn)
             {
 
                 case 1:
                     affiche_tour_role("It is village's turn...", turn);
+                    Debug.Log("tour du vilage");
+                    sceneNight=true;
                     break;
                 case 2:
                     affiche_tour_role("It is Cupido's turn...", turn);
