@@ -1164,7 +1164,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                         case 1:
                             gma.AfficheError("le compte au quel vous essayez d'acceder est en ligne");
-
+                        break;
+                        case 2:
+                            gma.AfficheError("Pseudo ou mot de passe invalide");
                         break;
                     }
                     break;
