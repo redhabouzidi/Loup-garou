@@ -3999,7 +3999,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.06, y: 0.05}
   m_AnchorMax: {x: 0.94, y: 0.8}
-  m_AnchoredPosition: {x: 0, y: -44}
+  m_AnchoredPosition: {x: 0, y: -43.99994}
   m_SizeDelta: {x: 0, y: -88}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &193765022
@@ -12330,8 +12330,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.59998, y: -212.47998}
-  m_SizeDelta: {x: 563.19995, y: 114.98665}
+  m_AnchoredPosition: {x: 281.59998, y: -239.03998}
+  m_SizeDelta: {x: 563.19995, y: 132.69331}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &504121138
 MonoBehaviour:
@@ -14350,8 +14350,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.59998, y: -367.4666}
-  m_SizeDelta: {x: 563.19995, y: 114.98665}
+  m_AnchoredPosition: {x: 281.59998, y: -411.73328}
+  m_SizeDelta: {x: 563.19995, y: 132.69331}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &575807546
 MonoBehaviour:
@@ -16212,8 +16212,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.59998, y: -57.493317}
-  m_SizeDelta: {x: 563.19995, y: 114.98665}
+  m_AnchoredPosition: {x: 281.59998, y: -66.34665}
+  m_SizeDelta: {x: 563.19995, y: 132.69331}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &633775630
 MonoBehaviour:
@@ -20379,7 +20379,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 95.35
+  m_fontSize: 100
   m_fontSizeBase: 100
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -21222,6 +21222,7 @@ MonoBehaviour:
   buttonSaveGames: {fileID: 306159190}
   buttonRank: {fileID: 342384095}
   buttonRank2: {fileID: 782834196}
+  buttonChangePasswd: {fileID: 1390509289}
   box_error: {fileID: 1245871327}
   loginPage: {fileID: 329998960}
   registrationPage: {fileID: 151734975}
@@ -21232,10 +21233,13 @@ MonoBehaviour:
   inputFRegPseudo: {fileID: 2085109791}
   inputFRegPassword: {fileID: 2131419800}
   inputFRegConfirmPassword: {fileID: 45111876}
-  inputEmailForgotPass: {fileID: 0}
+  inputEmailForgotPass: {fileID: 436201152}
   inputCodeForgotPass: {fileID: 2103082810}
   inputPassForgotPass: {fileID: 927430123}
   inputPassForgotPass2: {fileID: 119621590}
+  inputOldPass: {fileID: 633775630}
+  inputNewPass: {fileID: 504121138}
+  inputConfirmPasswd: {fileID: 575807546}
   containerGame: {fileID: 604870585}
   componentGame: {fileID: 6302987615987998730, guid: 2d15dd95e7a5d6547b79b4f4f7fef127, type: 3}
   toggleGroupGame: {fileID: 480461213}
@@ -21248,6 +21252,8 @@ MonoBehaviour:
   componentRequest: {fileID: 2237941835360150366, guid: c2b4b79c90837d741ac4be903ae497c9, type: 3}
   componentFriend: {fileID: 3622561982937576409, guid: f2b416b80c4acef43b00be35b54919e5, type: 3}
   componentNo: {fileID: 8831091367290923777, guid: 3c7de8377d220ed4290f015ebafb3b4e, type: 3}
+  music: {fileID: 2145210348}
+  effet: {fileID: 55740333}
   sLoup: {fileID: 21300000, guid: fc28b814d88877e4f9495d00dafd071d, type: 3}
   sVill: {fileID: 21300000, guid: b1e7c0c2d61f7184e8e867ae801e68a2, type: 3}
   sVoyante: {fileID: 21300000, guid: 20c71f7f400e5ce49b95b25d94f04000, type: 3}
@@ -21980,7 +21986,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.59998, y: -206.57774}
+  m_AnchoredPosition: {x: 281.59998, y: -206.57773}
   m_SizeDelta: {x: 563.19995, y: 114.38516}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &927430123
@@ -23209,7 +23215,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.5826111}
+  m_AnchoredPosition: {x: 0, y: 1.5826416}
   m_SizeDelta: {x: 0, y: 29}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &996131353
@@ -28278,6 +28284,8 @@ MonoBehaviour:
   muteToggle: {fileID: 179163284}
   audioSourceMenu: {fileID: 1339523992}
   audioSourceButton: {fileID: 1098230436}
+  textValue1: {fileID: 839609646}
+  textValue2: {fileID: 323901906}
 --- !u!1 &1237670237
 GameObject:
   m_ObjectHideFlags: 0
@@ -31551,6 +31559,17 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 6, y: 6}
   m_UseGraphicAlpha: 1
+--- !u!114 &1390509289 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7760908131397877855, guid: df3bda4dfd3632040a9af4a7ef41e6bb, type: 3}
+  m_PrefabInstance: {fileID: 1390509285}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390509287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1395537506
 GameObject:
   m_ObjectHideFlags: 0
@@ -43965,7 +43984,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 281.59998, y: -57.19258}
+  m_AnchoredPosition: {x: 281.59998, y: -57.192596}
   m_SizeDelta: {x: 563.19995, y: 114.38516}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2103082810

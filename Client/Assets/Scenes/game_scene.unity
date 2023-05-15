@@ -593,7 +593,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60.05
+  m_fontSize: 67.55
   m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4107,6 +4107,8 @@ MonoBehaviour:
   audioSourceMenu1: {fileID: 1682130573}
   audioSourceMenu2: {fileID: 1849091144}
   audioSourceButton: {fileID: 452679053}
+  textValue1: {fileID: 941754120}
+  textValue2: {fileID: 2110395698}
 --- !u!1 &580008047
 GameObject:
   m_ObjectHideFlags: 0
@@ -4203,8 +4205,8 @@ MonoBehaviour:
   choixAction: {fileID: 654278551535197614}
   settingPage: {fileID: 982028717}
   buttonLeaveGame: {fileID: 101511514}
-  soundManager_day: {fileID: 0}
-  soundManager_night: {fileID: 0}
+  soundManager_day: {fileID: 1682130573}
+  soundManager_night: {fileID: 1849091144}
 --- !u!4 &580008049
 Transform:
   m_ObjectHideFlags: 0
@@ -4651,7 +4653,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 95.5
+  m_fontSize: 108.6
   m_fontSizeBase: 120
   m_fontWeight: 400
   m_enableAutoSizing: 1

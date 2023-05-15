@@ -19,7 +19,7 @@ public class NetworkManager : MonoBehaviour
     public static int id, tour;
     public static string username;
     public static GameManager gm;
-    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpw;
+    public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe;
     public static Statistiques s;
     public static rank r;
     public static SavedGames sg;
@@ -33,28 +33,6 @@ public class NetworkManager : MonoBehaviour
     public static List<int> rolews = new List<int>(), nbRole;
     public static bool connected = false;
 
-    public class answer
-    {
-        public bool error;
-        public int errType;
-        public int code;
-        public byte[] message;
-        public answer()
-        {
-            this.error = false;
-            this.errType = 0;
-            this.code = 0;
-            this.message = null;
-        }
-        public answer(bool error, int errType, int code, byte[] message)
-        {
-            this.error = error;
-            this.errType = errType;
-            this.code = code;
-            this.message = message;
-
-        }
-    }
     //unity variables
     private void Awake()
     {
@@ -71,7 +49,7 @@ public class NetworkManager : MonoBehaviour
     {
 
     }
-
+    //fonction pour la demande de reinitialisation de mdp
     public static void reseau(string email)
     {
         if (!prog)
@@ -87,6 +65,10 @@ public class NetworkManager : MonoBehaviour
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(iep);
+                if(!client.Connected){
+                    Debug.Log("unable to connect to host");
+                    return;
+                }
                 Console.Write("Connected to the server\n");
                 Debug.Log("socket created");
                 rsa = Crypto.RecvCertificate(client);
@@ -103,8 +85,9 @@ public class NetworkManager : MonoBehaviour
         }
 
         ResetPasswReq(email);
+        recvMessage(NetworkManager.client);
     }
-
+    //fonction pour la demande d'inscription
     public static void reseau(string pseudo, string password, string email)
     {
         if (!prog)
@@ -135,9 +118,11 @@ public class NetworkManager : MonoBehaviour
             }
         }
         sendInscription(pseudo, password, email);
+        recvMessage(client);
     }
 
-
+    //fonction pour la demande de connection
+    
     public static void reseau(string email, string password)
     {
         if (!prog)
@@ -166,13 +151,15 @@ public class NetworkManager : MonoBehaviour
                 prog = false;
             }
         }
+        //on vide la sockeet de reception
         while (client.Available != 0)
         {
             client.Receive(new byte[4086]);
         }
+        //on envoie une demande de connexion
         login(email, password);
 
-
+        //tant que le programme tourne on recoit les messages
         while (prog)
         {
             recvMessage(client);
@@ -180,19 +167,14 @@ public class NetworkManager : MonoBehaviour
 
         client.Close();
     }
+    //permet d'interpreter les messages reçu
     public static void listener()
     {
         while (rep != null && rep.Count != 0)
         {
-            if (rep[0] == null)
-            {
-                rep.RemoveAt(0);
-                GameManagerApp.exitGame();
-            }
-            else
-            {
+            //on inteprete le message
                 treatMessage(rep[0]);
-            }
+            
 
 
         }
@@ -201,17 +183,9 @@ public class NetworkManager : MonoBehaviour
     {
         SceneManager.LoadScene(sceneName);
     }
+    
 
-    public static void addChatMessage(string message)
-    {
-        Console.WriteLine(message);
-    }
-
-    public static void vote(int vote, int player)
-    {
-        Console.WriteLine($"player {vote} votes for {player}");
-    }
-
+    //fonction qui set les parametres du waiting screen
     public static void setGameInfo(string name, int[] idPlayers, string[] playerNames,bool[] ready)
     {
         ws.name = name;
@@ -221,12 +195,12 @@ public class NetworkManager : MonoBehaviour
             players[i] = new WPlayer(playerNames[i], idPlayers[i],ready[i]);
         }
     }
-
+    //fonction qui ajoute un joueur au waiting screen
     public static void addGameInfo(int id, string username,bool ready)
     {
         ws.addplayer(username, id,ready);
     }
-
+    //fonction qui remplis le tableau de parties
     public static void SetCurrentGame(int[] nbPlayers, int[] gameId, string[] name,int[] actualPlayers,List<int[]> roles)
     {
         foreach (Transform child in gma.containerGame.transform)
@@ -239,19 +213,22 @@ public class NetworkManager : MonoBehaviour
             gma.AddGame(gameId[i], name[i], nbPlayers[i],actualPlayers[i],roles[i]);
         }   
     }
-
+    //dans les fonction encode et decode le size[] represente un tableau d'une seule valeur qui represente l'index dans le tableau de byte a partir de lequel il faut mettre la valeur il sera ensuite incrementé poue ne pas se perdre par la suite
+        //fonction qui met des bytes en entier
     public static int decode(byte[] message, int[] size)
     {
         int result = BitConverter.ToInt32(message, size[0]);
         size[0] += sizeof(int);
         return result;
     }
+    //fonction qui mets des bytes en double
     public static double decodeDouble(byte[] message, int[] size)
     {
         double result = BitConverter.ToDouble(message, size[0]);
         size[0] += sizeof(double);
         return result;
     }
+    //fonction qui mets des bytes en bool
 
     public static bool decodeBool(byte[] message, int[] size)
     {
@@ -259,6 +236,7 @@ public class NetworkManager : MonoBehaviour
         size[0] += sizeof(bool);
         return result;
     }
+    //fonction qui mets des bytes en string
 
     public static string decodeString(byte[] message, int[] size)
     {
@@ -269,27 +247,36 @@ public class NetworkManager : MonoBehaviour
 
         return name;
     }
+    //fonction qui mets des bytes en datetime
+
     public static DateTime decodeDate(byte[] message, int[] size)
     {
         DateTime date = DateTime.FromBinary(BitConverter.ToInt64(message, size[0]));
         size[0] += sizeof(long);
         return date;
     }
+
+    //dans les fonction encode et decode le size[] represente un tableau d'une seule valeur qui represente l'index dans le tableau de byte a partir de lequel il faut mettre la valeur il sera ensuite incrementé poue ne pas se perdre par la suite
+        //fonction qui met des entier en byte
     public static void encode(byte[] message, int val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(int));
         size[0] += sizeof(int);
+        //fonction qui met des double en byte
     }
     public static void encode(byte[] message, double val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(double));
         size[0] += sizeof(int);
     }
+        //fonction qui met des bool en byte
+
     public static void encode(byte[] message, bool val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val), 0, message, size[0], sizeof(bool));
         size[0] += sizeof(bool);
     }
+        //fonction qui met des string en byte
 
     public static void encode(byte[] message, string val, int[] size)
     {
@@ -298,22 +285,15 @@ public class NetworkManager : MonoBehaviour
         Array.Copy(Encoding.ASCII.GetBytes(val), 0, message, size[0], val.Length);
         size[0] += val.Length;
     }
+        //fonction qui met des dateTime en byte
+
     public static void encode(byte[] message, DateTime val, int[] size)
     {
         Array.Copy(BitConverter.GetBytes(val.Ticks), 0, message, size[0], sizeof(long));
         size[0] += sizeof(long);
     }
-    public static void encodeString(byte[] message, string val, int[] size)
-    {
-        string name = Encoding.ASCII.GetString(message, size[0], val.Length);
-        size[0] += val.Length;
-    }
 
-    public static void setInformationCompte(bool answer, int id, string username)
-    {
-        Console.WriteLine($"demande de connexion {answer} with id {id} and username{username}");
-    }
-
+    //parametrage de la socket serveur
     public static Socket LinkToServer()
     {
         var ia = "185.155.93.105";
@@ -322,7 +302,7 @@ public class NetworkManager : MonoBehaviour
         client.Connect(iep);
         return client;
     }
-
+    //envoie une demande de connexion
     public static int login(string username, string password)
     {
         int userSize = username.Length;
@@ -337,7 +317,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-
+    //envoie une demande de deconnexion
     public static int logout(Socket server)
     {
         try
@@ -351,39 +331,41 @@ public class NetworkManager : MonoBehaviour
             return -1;
         }
     }
+    //envoie une demande de quitter le lobby
     public static void sendQuitLobbyMessage()
     {
         byte[] message = new byte[] { 106 };
         SendMessageToServer(client, message);
     }
 
-
+    //fonction d'écoute du serveur 
     public static void recvMessage(Socket server)
     {
 
         byte[] message = new byte[5000];
         int recvSize;
-        List<Socket> read = new List<Socket>();
-        read.Add(server);
-        Socket.Select(read, null, null, 50000);
-        if (read.Count != 0)
-        {
-            if (server.Available == 0 || !server.Connected)
-            {
-                prog = false;
-                rep.Add(new byte[1] { 100 });
-                return;
-            }
-
+        bool read = server.Poll(50000,SelectMode.SelectRead);   
+        try{
+            //on recoit le message
             recvSize = server.Receive(message);
-
+            if(recvSize <=0){
+                throw new SocketException();
+            }
             Debug.Log("recv =" + message[0]);
+            //on decrypte le message
             Crypto.DecryptMessage(message, aes, recvSize);
-
+        }catch(SocketException e){
+            //si une erreur survient on ferme la socket ( usuellement la deconnexion du serveur )
+            Debug.Log(e.ToString());
+            prog = false;
+            rep.Add(new byte[1] { 100 });
+            return;
         }
+        
         return;
 
     }
+    //envoie le status prêt
     public static void sendReady()
     {
         int[] size = new int[1] { 1 };
@@ -393,6 +375,7 @@ public class NetworkManager : MonoBehaviour
         message[0] = 108;
         SendMessageToServer(client, message);
     }
+    //permet de traitre les messages
     public static void treatMessage(byte[] message)
     {
         Debug.Log(message == null);
@@ -402,19 +385,21 @@ public class NetworkManager : MonoBehaviour
         string[] playerNames, gameName;
         int dataSize, tableSize, idPlayer, idp, val, role, idP, win;
         string name, usernameP;
-        int[] size = new int[1] { 0 };
+        int[] size = new int[1] { 1 };
         Debug.Log(BitConverter.ToString(message));
         Debug.Log("code== "+message[0]);
         rep.RemoveAt(0);
 
 
-        switch (message[size[0]++])
+        switch (message[0])
         {
+            //chat 
             case 0:
                 Debug.Log("I'm here");
                 gm.SendMessageToChat(decodeString(message, size), Message.MsgType.player);
                 Debug.Log("I am over here");
                 break;
+                //vote
             case 1:
                 int vote = decode(message, size);
                 int voted = decode(message, size);
@@ -422,20 +407,18 @@ public class NetworkManager : MonoBehaviour
                 gm.listPlayer[indice].SetVote(voted);
                 gm.UpdateVote();
                 break;
+                //status du jeu
             case 5:
                 GameManager.turn = 1;
-                bool ra = decodeBool(message, size);
-                GameManager.isNight = !ra;
-
-                if (!ra)
+                bool day = decodeBool(message, size);
+                GameManager.isNight = !day;
+                if (!day)
                 {
                     GameManager.tour++;
 
                 }
-                else
-                {
-                }
                 break;
+                //definit les amoureux
             case 6:
                 idPlayer = decode(message, size);
                 idp = decode(message, size);
@@ -466,6 +449,7 @@ public class NetworkManager : MonoBehaviour
                 gm.updateImage(idPlayer, idp);
                 gm.MiseAJourAffichage();
                 break;
+                //fonction de revelation pour la voyante
             case 7:
                 idPlayer = decode(message, size);
                 role = decode(message, size);
@@ -473,12 +457,14 @@ public class NetworkManager : MonoBehaviour
                 gm.affiche_text_role(idPlayer, role);
 
                 break;
+                //tour de la sorciere pour recussiter
             case 8:
                 gm.GO_tourRoles.SetActive(false);
                 idPlayer = decode(message, size);
                 gm.ActionSorciere(idPlayer);
 
                 break;
+                //debut de la partie
             case 9:
                     val = decode(message, size);
                     ids = new int[val];
@@ -508,38 +494,25 @@ public class NetworkManager : MonoBehaviour
                     LoadScene("game_scene");
 
                     break;
+                    //mort d'un joueur
             case 10:
                  val = decode(message, size);
                     role = decode(message, size);
-                    foreach (Player p in gm.listPlayer)
-                    {
-                        if (p.GetId() == val)
-                        {
-                            if (p.GetId() == gm.p.GetId())
-                            {
-                                Debug.Log("mort");
-                                gm.p.SetIsAlive(false);
-                            }
-                            p.SetRole(role);
-                            p.SetIsAlive(false);
-                            gm.RemoveRoleRestant(role);
-                        }
-
-                        Debug.Log(p.GetIsAlive());
+                    if(GameManager.newDead==null){
+                        GameManager.newDead= new List<(int,int)>();
                     }
-                    gm.updateImage(val, role);
-                    if(!gm.p.GetIsMaire()){
-                        gm.LITTERALLYDIE();
-                    }
-                    gm.MiseAJourAffichage();
+                        GameManager.newDead.Add((val,role));
                     break;
+                    //fonction definissant le tour du joueur
             case 11:
                 GameManager.turn = decode(message, size);
                 break;
+                //fonction definissant le temps restant
             case 12:
 
                 time = decode(message, size);
                 break;
+                //fonction donnant le score
             case 15:
                 idPlayers = new int[decode(message, size)];
                 for (int i = 0; i < idPlayers.Length; i++)
@@ -553,6 +526,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 //afficher le score
                 break;
+                //fonction permetant d'afficher le message systeme
             case 16:
                 size[0] = 2;
                 usernameP = decodeString(message, size);
@@ -560,6 +534,7 @@ public class NetworkManager : MonoBehaviour
                 if (usernameP == username)
                     gm.sestPresente = true;
                 break;
+                //fonction definissant qui doit être choisis par le maire
             case 17://
                 size[0] = 1;
                 tableSize = decode(message, size);
@@ -573,6 +548,7 @@ public class NetworkManager : MonoBehaviour
                     gm.affiche_egalite(ids);
                 }
                 break;
+                //fonction definissant qui est le maire
             case 18:
                 size[0] = 1;
                 idp = decode(message, size);
@@ -607,6 +583,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 
                 break;
+                //fonction d'utilisation dobjet
                 case 19:
                     int item=decode(message,size);
                     if(item==0){
@@ -617,10 +594,12 @@ public class NetworkManager : MonoBehaviour
                         GameManager.useKill=true;
                     }
                     break;
+                    //chat loup
                 case 20:
                     //MESSAGES LOUP
                     gm.SendMessageToChatLG(decodeString(message, size), Message.MsgType.loup);
                     break;
+                    //fonction de deconnexion
                 case 100:
                     id = -1;
                     connected = false;
@@ -631,6 +610,7 @@ public class NetworkManager : MonoBehaviour
                     GameManagerApp.listWait.Clear();
                     LoadScene("Jeu");
                     break;
+                    //fonction d'initialisation de partie
                 case 101:
                     sp.SetActive(false);
                     wso.SetActive(true);
@@ -714,11 +694,13 @@ public class NetworkManager : MonoBehaviour
                     ws.add_role(rolews.ToArray(), nbRole.ToArray());
                     ws.newGame = true;
                     break;
+                    //fonction d'ajout d'un joueur
                 case 102:
                     idP = decode(message, size);
                     usernameP = decodeString(message, size);
                     addGameInfo(idP, usernameP,false);
                     break;
+                    //fonction qui recupere les partie disponible
                 case 103:
                     tableSize = decode(message, size);
                     nbPlayers = new int[tableSize];
@@ -753,10 +735,31 @@ public class NetworkManager : MonoBehaviour
                     lo.SetActive(true);
                     SetCurrentGame(nbPlayers, gameId, gameName,actualPlayers,rolesJoueurs);
                     break;
+                    //fonction d'inscription
                 case 104:
                 if (decodeBool(message, size) == false)
                 {
-                    gma.AfficheError("Inscription went wrong");
+                    int error=decode(message,size);
+                    Debug.Log(error);
+                    switch(error){
+                        case 1:
+                            gma.AfficheError("Mot de passe incorrecte");
+                        break;
+                        case 2:
+                            gma.AfficheError("Erreur serveur");
+                        break;
+                        case 3:
+                            gma.AfficheError("Email invalide");
+                        break;
+                        case 4:
+                            gma.AfficheError("Nom d'utilisateur déjà existant");
+                        break;
+                        case 5:
+                            gma.AfficheError("Nom d'utilisateur invalide");
+
+                        break;
+                    }
+                    
                 }
                 else
                 {
@@ -764,7 +767,7 @@ public class NetworkManager : MonoBehaviour
                     gma.registrationPage.SetActive(false);
                 }
                 break;
-
+                //fonction de connexion
             case 105:
                 Debug.Log("hey");
                 if (decodeBool(message, size))
@@ -820,13 +823,8 @@ public class NetworkManager : MonoBehaviour
                     }
                     gma.AfficheNoObject();
                 }
-                else
-                {
-                    prog = false;
-                    gma.AfficheError("Error: Email/Pseudo or password is invalide");
-                }
                 break;
-
+                //quand un joueur quitte le lobby on le supprime
             case 106:
                 int idQuitter = decode(message, size);
                 if (idQuitter != id)
@@ -842,6 +840,7 @@ public class NetworkManager : MonoBehaviour
                 }
 
                 break;
+                //changement de status d'un joueur
             case 107:
                 idPlayer = decode(message, size);
                 int idStatus = decode(message, size);
@@ -849,6 +848,7 @@ public class NetworkManager : MonoBehaviour
                 //CHANGER LE STATUS DU JOUEUR
                 gma.UpdateStatusFriend(idPlayer, idStatus);
                 break;
+                //changement de ready d'un joueur
             case 108:
                 idPlayer = decode(message, size);
                 ready = decodeBool(message, size);
@@ -856,6 +856,7 @@ public class NetworkManager : MonoBehaviour
 
                 //METTRE LE JOUEUR A PRET 
                 break;
+                //envoie de fin de partie
             case 110:
                 win = decode(message, size);
                 dataSize = decode(message, size);
@@ -891,6 +892,7 @@ public class NetworkManager : MonoBehaviour
                 gm.gameover = true;
 
                 break;
+                //ajout d'un joueur en ami
             case 153:
 
                 bool answer = decodeBool(message, size);
@@ -917,6 +919,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 //NOUVELLE DEMANDE D'AMIS
                 break;
+                //suppression d'un amis
             case 154:
                 answer = decodeBool(message, size);
                 idSender = decode(message, size);
@@ -938,6 +941,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 //SUPPRESSION D'UN AMIS
                 break;
+                //réponse d'un amis
             case 155:
                 answer = decodeBool(message, size);
                 idSender = decode(message, size);
@@ -959,12 +963,18 @@ public class NetworkManager : MonoBehaviour
                 }
                 //REPONSE DEMANDE D'AMIS
                 break;
+                //changement de mdp
             case 156:
                 if (!decodeBool(message, size))
                 {
                     gma.AfficheError("Il y a eu une erreur veuiller reesayer");
                 }
+                else
+                {
+
+                }
                 break;
+                //reinitialisation du mdp
             case 157:
                 if (decodeBool(message, size) == false)
                 {
@@ -975,12 +985,13 @@ public class NetworkManager : MonoBehaviour
                     if (!connected)
                     {
                         Debug.Log("on a réinitialiser avec succes");
-                        chpw.SetActive(false);
+                        chpwe.SetActive(false);
                         cpo.SetActive(true);
                         Debug.Log("on a réinitialiser avec succes 2");
                     }
                 }
                 break;
+                //recherche de joueurs
             case 158:
                 int idSize = decode(message, size);
                 idPlayers = new int[idSize];
@@ -1008,6 +1019,7 @@ public class NetworkManager : MonoBehaviour
                     Debug.Log("shouldn't happen");
                 }
                 break;
+                //demande de l'historique
             case 160:
                 //montre l'historique de quelqu'un
                 tableSize = decode(message, size);
@@ -1038,6 +1050,7 @@ public class NetworkManager : MonoBehaviour
                 }
                 sg.actualize(namesPartie, ids, dates, score);
                 break;
+                //demande d'information d'une partie
             case 161:
 
                 string action = decodeString(message, size);
@@ -1045,6 +1058,7 @@ public class NetworkManager : MonoBehaviour
                 sg.refresh_string(action);
                 sg.show_history();
                 break;
+                //demande de statistiques
             case 162:
                 tableSize = decode(message, size);
                 score = new int[tableSize];
@@ -1062,6 +1076,7 @@ public class NetworkManager : MonoBehaviour
                 r.refresh_fields(playerNames, score);
 
                 break;
+                //demande de rank
             case 163:
                 tableSize = decode(message, size);
                 playerNames = new string[tableSize];
@@ -1096,9 +1111,52 @@ public class NetworkManager : MonoBehaviour
                 }
                 s.refresh_fields_stat(playerNames, nbPartie, score, winrates);
                 break;
+                //messages d'erreurs
             case 255:
                 //faire les cas d'erreurs
-                size[0]++;
+                switch(message[1]){
+                    case 3:
+                        switch(message[2]){
+                        case 0:
+                            gma.AfficheError("pas assez de joueur demandé dans la partie");
+                        break;
+                        case 1:
+                            gma.AfficheError("Le joueur est déjà en jeu");
+                        break;
+                        
+
+                    }
+                    break;
+                    case 4:
+                    switch(message[2]){
+                        case 0:
+                            gma.AfficheError("la game est inexistante");
+                        break;
+                        case 1:
+                            gma.AfficheError("Le joueur n'est pas connecté");
+                        break;
+                        case 2:
+                            gma.AfficheError("la partie est complete");
+                        break;
+                        case 3:
+                            gma.AfficheError("la partie est déjà lancé");
+                        break;
+                        
+
+                    }
+                    break;
+                    case 105:
+                    switch(message[2]){
+                        case 0:
+                            gma.AfficheError("vous êtes déjà connecté a un compte");
+                        break;
+                        case 1:
+                            gma.AfficheError("le compte au quel vous essayez d'acceder est en ligne");
+
+                        break;
+                    }
+                    break;
+                }
                 break;
             default:
                 Debug.Log("problem message");
@@ -1111,6 +1169,7 @@ public class NetworkManager : MonoBehaviour
 
 
     }
+    //envoie un message au serveur
     public static int SendMessageToServer(Socket server, byte[] message)
     {
         Debug.Log(BitConverter.ToString(message));
@@ -1119,7 +1178,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("msgsize=" + message.Length);
         return server.Send(msg, msg.Length, SocketFlags.None);
     }
-
+    //envoie une demande d'inscription
     public static int sendInscription(string username, string password, string email)
     {
         int usernameSize = username.Length;
@@ -1136,6 +1195,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
+    //envoie une demande de parties
     public static void sendRequestGames()
     {
         Debug.Log(((IPEndPoint)(NetworkManager.client.RemoteEndPoint)).Address.ToString());
@@ -1144,6 +1204,7 @@ public class NetworkManager : MonoBehaviour
         message[0] = 103;
         SendMessageToServer(client, message);
     }
+    //permet de voter
     public static int Vote(int idUser, int idVote)
     {
         if (idVote == 0)
@@ -1158,6 +1219,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
+    //envoie une demande de rank
     public static void sendRankRequest()
     {
         byte[] message = new byte[1 + sizeof(int)];
@@ -1166,6 +1228,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, id, size);
         SendMessageToServer(client, message);
     }
+    //envoie une demande de statistiques
     public static void sendStatRequest(int trier)
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
@@ -1175,6 +1238,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, trier, size);
         SendMessageToServer(client, message);
     }
+    //envoie une demande d'historique
     public static void sendHistoryRequest()
     {
         byte[] message = new byte[1 + 2 * sizeof(int)];
@@ -1186,15 +1250,18 @@ public class NetworkManager : MonoBehaviour
 
         SendMessageToServer(client, message);
     }
+    //envoie une demande d'affichage de partie
     public static void sendMatchRequest(int idMatch)
     {
-        byte[] message = new byte[1 + 2 * sizeof(int)];
+        byte[] message = new byte[1 + 2 * sizeof(int)+sizeof(bool)];
         message[0] = 161;
         int[] size = new int[1] { 1 };
         encode(message, id, size);
         encode(message, idMatch, size);
+        encode(message,Traduction.fr,size);
         SendMessageToServer(client, message);
     }
+    //envoie une demande de kick
     public static int sendStartKickVote(int idPlayer, int voted)
     {
 
@@ -1206,6 +1273,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
+    //envoie un vote pour le kick
     public static int sendKickVote(int idPlayer, int voted)
     {
         byte[] message = new byte[1 + 2 * sizeof(int)];
@@ -1215,14 +1283,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, voted, size);
         return SendMessageToServer(client, message);
     }
-    public static int sendFetchGameRequest()
-    {
-        byte[] message = new byte[1];
-        message[0] = 2;
-
-        return SendMessageToServer(client, message);
-    }
-
+    //envoie un message dans le chat
     public static int sendchatMessage(string message)
     {
         byte[] msg = new byte[1 + sizeof(int) + message.Length];
@@ -1232,6 +1293,7 @@ public class NetworkManager : MonoBehaviour
         SendMessageToServer(client, msg);
         return 0;
     }
+    //envoie un message dans le chat loup
     public static int sendchatLGMessage(string message)
     {
         byte[] msg = new byte[1 + sizeof(int) + message.Length];
@@ -1241,6 +1303,7 @@ public class NetworkManager : MonoBehaviour
         SendMessageToServer(client, msg);
         return 0;
     }
+    //envoie une demande de presentation de maire
     public static void sendMayorPresentation()
     {
         byte[] message = new byte[1 + 1 + sizeof(int)];
@@ -1251,6 +1314,7 @@ public class NetworkManager : MonoBehaviour
 
         SendMessageToServer(client, message);
     }
+    //envoie une demande de creation de game
     public static int createGame(string username, string name, int nbPlayers, int nbLoups, bool sorciere, bool voyante, bool cupidon, bool hunter, bool guardian, bool dictator)
     {
         byte[] message = new byte[1 + sizeof(int) * 4 + sizeof(bool) * 6 + username.Length + name.Length];
@@ -1269,7 +1333,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-
+    //envoie une demande de join
     public static int join(int gameId)
     {
         byte[] message = new byte[1 + sizeof(int)];
@@ -1279,6 +1343,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
+    //envoie une demande de join un amis
     public static int joinFriend(int friendId)
     {
         byte[] message = new byte[1 + sizeof(int)];
@@ -1288,7 +1353,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-
+    //envoie une demande d'ajout d'un ami
     public static int ajoutAmi(int idUser, int id)
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
@@ -1299,7 +1364,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-
+    //envoie une demande de suppression d'ami
     public static int supprimerAmi(int idUser, int id)
     {
         byte[] message = new byte[1 + sizeof(int) * 2];
@@ -1310,7 +1375,7 @@ public class NetworkManager : MonoBehaviour
 
         return SendMessageToServer(client, message);
     }
-
+    //envoie une réponse pour un ami
     public static int reponseAmi(int idUser, int id, bool answer)
     {
         byte[] message = new byte[1 + sizeof(bool) + sizeof(int) * 2];
@@ -1321,7 +1386,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, id, size);
         return SendMessageToServer(client, message);
     }
-
+    //envoie le choix des amoureux
     public static int ChooseLovers(int id, int id1, int id2)
     {
         byte[] message = new byte[1 + 3 * sizeof(int)];
@@ -1332,7 +1397,7 @@ public class NetworkManager : MonoBehaviour
         encode(message, id2, index);
         return SendMessageToServer(client, message);
     }
-
+    //envoie une demande de reinitialisation
     public static int ResetPasswReq(string email)
     {
         byte[] message = new byte[1 + sizeof(int) + email.Length];
@@ -1341,16 +1406,18 @@ public class NetworkManager : MonoBehaviour
         encode(message, email, index);
         return SendMessageToServer(client, message);
     }
-    public static int ResetPassw(string email, string oldPassw, string newPassw)
+    //envoie une demande de changement de mdp
+    public static int ResetPassw(string pseudo, string oldPassw, string newPassw)
     {
-        byte[] message = new byte[1 + 3 * sizeof(int) + email.Length + newPassw.Length + oldPassw.Length];
+        byte[] message = new byte[1 + 3 * sizeof(int) + pseudo.Length + newPassw.Length + oldPassw.Length];
         message[0] = 157;
         int[] index = new int[1] { 1 };
-        encode(message, email, index);
+        encode(message, pseudo, index);
         encode(message, oldPassw, index);
         encode(message, newPassw, index);
         return SendMessageToServer(client, message);
     }
+    //envoie une deamnde de recherche de joueurs
     public static int sendSearchRequest(int id, string pseudo)
     {
         byte[] message = new byte[1 + sizeof(int) * 2 + pseudo.Length];
