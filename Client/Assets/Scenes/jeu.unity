@@ -16789,7 +16789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309e53620f2ded140b67dfa71d85356c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LocalizationKey: RegistrationPage.Panel-info.username
+  LocalizationKey: bullUsername
 --- !u!114 &625585225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33901,7 +33901,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1982775964}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.38074958
+  m_Size: 0.38074955
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

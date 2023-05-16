@@ -747,6 +747,7 @@ public class NetworkManager : MonoBehaviour
                         }
                         rolesJoueurs.Add(rolesTemp);
                     }
+                    
                     lo.SetActive(true);
                     SetCurrentGame(nbPlayers, gameId, gameName,actualPlayers,rolesJoueurs);
                     break;

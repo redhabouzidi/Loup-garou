@@ -125,7 +125,7 @@ public abstract class Role
                         {
                             if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4)||(idRole == 255 && message[0]==16))
                             {
-                                Messages.recvMessageGame(role, message, recvSize);
+                                Messages.recvMessageGame(role, message, message.Length);
                             }
                         }
                         }
@@ -135,7 +135,7 @@ public abstract class Role
                         foreach(byte[] message in messages){
                         if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
                         {
-                            Messages.recvMessageGame(role, message, recvSize);
+                            Messages.recvMessageGame(role, message, message.Length);
                         }
                         }
                         

@@ -163,6 +163,7 @@ public class GameManagerApp : MonoBehaviour
     **/
     public void onButtonClickQuitLobby()
     {
+        NetworkManager.ws.ChangeReady(NetworkManager.id,false);
         NetworkManager.sendQuitLobbyMessage();
     }
 
