@@ -459,12 +459,12 @@ public class GameManager : MonoBehaviour
     **/
     private void OnButtonClickSendMsgLG()
     {
-        if (inputChat.text != "")
+        if (inputChatLG.text != "")
         {
-            string msg = p.GetPseudo() + ": " + inputChat.text.ToString();
+            string msg = p.GetPseudo() + ": " + inputChatLG.text.ToString();
             NetworkManager.sendchatLGMessage(msg);
-            inputChat.text = "";
-            inputChat.ActivateInputField();
+            inputChatLG.text = "";
+            inputChatLG.ActivateInputField();
         }
     }
 
