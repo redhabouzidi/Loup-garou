@@ -81,6 +81,7 @@ public class GameManagerApp : MonoBehaviour
             listRequest = new List<Friend>();
         if (listWait == null)
             listWait = new List<Friend>();
+        
         Button buttonResearch = GO_add_research.transform.Find("Button-research").GetComponent<Button>();
 
 
@@ -476,25 +477,45 @@ public class GameManagerApp : MonoBehaviour
         {
             foreach (Friend f in listFriend)
             {
-                refreshFriend(f);
+                if(f.id!=-1){
+                    refreshFriend(f);
+
+                }else{
+                    listFriend.Remove(f);
+                    break;
+                }
             }
         }
         if (listRequest != null && listRequest.Count != 0)
         {
             foreach (Friend f in listRequest)
             {
+                if(f.id!=-1){
 
-                refreshFriendR(f);
+                    refreshFriendR(f);
+                }else{
+                    listRequest.Remove(f);
+                    break;
+                }
             }
+            Debug.Log(listRequest.Count);
         }
         if (listWait != null && listWait.Count != 0)
         {
             foreach (Friend f in listWait)
             {
+                if(f.id!=-1){
+                    refreshFriendW(f);
 
-                refreshFriendW(f);
+                }else{
+                    listWait.Remove(f);
+                    break;
+                }
             }
+            Debug.Log(listWait.Count);
         }
+        AfficheNoObject();
+
     }
 
     /**
@@ -716,6 +737,7 @@ public class GameManagerApp : MonoBehaviour
 
         TextMeshProUGUI textName = newObject.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>();
         textName.text = msg;
+        
 
         list.Add(new Friend(-1, newObject));
     }
@@ -828,18 +850,22 @@ public class GameManagerApp : MonoBehaviour
     {
         if (listRequest.Count == 0)
         {
+            Debug.Log("no friend");
             addNoFriend("No request", containerRequest, listRequest);
         }
         if (listWait.Count == 0)
         {
+            Debug.Log("no friend");
             addNoFriend("No request", containerWait, listWait);
         }
         if (listAdd.Count == 0)
         {
+            Debug.Log("no friend");
             addNoFriend("No result", containerAdd, listAdd);
         }
         if (listFriend.Count == 0)
         {
+            Debug.Log("no friend");
             addNoFriend("No friend", containerFriend, listFriend);
         }
     }

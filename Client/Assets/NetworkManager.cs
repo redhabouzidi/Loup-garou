@@ -826,6 +826,7 @@ public class NetworkManager : MonoBehaviour
                         {
                             break;
                         }
+                        Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
                         gma.addFriendWait(names[j], friends[j]);
                     }
                     j++;
@@ -835,6 +836,7 @@ public class NetworkManager : MonoBehaviour
                         {
                             break;
                         }
+                        Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
                         gma.addFriendRequest(names[j], friends[j]);
                     }
                     gma.AfficheNoObject();

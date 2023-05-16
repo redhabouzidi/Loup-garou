@@ -72,8 +72,11 @@ public abstract class Role
                 read.Add(socket);
             }
             Console.WriteLine("bah on attends alors");
-            Socket.Select(read, null, null, -1);
-            Console.WriteLine("ici c'est 3");
+            Socket.Select(read, null, null, 500000);
+            
+            if(read.Count==0){
+                return (-1,-1);
+            }
             if (read.Contains(reveille))
             {
                 Console.WriteLine("on va sortir");
