@@ -126,7 +126,6 @@ public class GameManagerApp : MonoBehaviour
     {
         NetworkManager.listener();
     }
-
     public static void exitGame()
     {
         NetworkManager.prog = false;

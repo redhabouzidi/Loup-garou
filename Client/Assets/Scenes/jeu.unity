@@ -3332,6 +3332,7 @@ GameObject:
   - component: {fileID: 151734976}
   - component: {fileID: 151734978}
   - component: {fileID: 151734977}
+  - component: {fileID: 151734979}
   m_Layer: 5
   m_Name: RegistrationPage
   m_TagString: Untagged
@@ -3408,6 +3409,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 151734975}
   m_CullTransparentMesh: 1
+--- !u!114 &151734979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 151734975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e98d3fd6d48d543b6eccb65d5c8fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetback: {fileID: 2085109791}
+  connection: {fileID: 1638590500}
 --- !u!1 &154949900
 GameObject:
   m_ObjectHideFlags: 0
@@ -8280,6 +8295,7 @@ GameObject:
   - component: {fileID: 329998963}
   - component: {fileID: 329998962}
   - component: {fileID: 329998964}
+  - component: {fileID: 329998965}
   m_Layer: 5
   m_Name: ConnectionPage
   m_TagString: Untagged
@@ -8368,6 +8384,20 @@ MonoBehaviour:
   see: {fileID: 859772159}
   hide: {fileID: 996507890}
   text_password: {fileID: 1463688880}
+--- !u!114 &329998965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 329998960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e98d3fd6d48d543b6eccb65d5c8fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetback: {fileID: 1050557688}
+  connection: {fileID: 1260499529}
 --- !u!1 &331355501
 GameObject:
   m_ObjectHideFlags: 0
