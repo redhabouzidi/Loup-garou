@@ -183,11 +183,11 @@ public class Cupidon : Role
                     if(recvSize<=0){
                         throw new SocketException();
                     }
-                    byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
-                    recvSize=message.Length;
+                    List<byte[]> messages = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize,sock);
 
                     if (role.Contains(sock))
                     {
+                        foreach(byte[] message in messages){
                             if (message[0] == 6)
                             {
 
@@ -203,17 +203,22 @@ public class Cupidon : Role
                         
                         else
                         {
+                            
                             if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
-				            Messages.recvMessageGame(sockets,message,recvSize);
-                            }
+                                
+				                    Messages.recvMessageGame(sockets,message,message.Length);
+                                }
+                        }
                         }
 
                     }
                     else
                     {
+                        foreach(byte[] message in messages){
 
                         if((message[0]==0&&(idRole==1||idRole==255))||(message[0]==20 && idRole == 4)){
-				            Messages.recvMessageGame(sockets,message,recvSize);
+				            Messages.recvMessageGame(sockets,message,message.Length);
+                        }
                         }
                     }
                     }catch(SocketException e){

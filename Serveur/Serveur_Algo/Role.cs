@@ -103,12 +103,12 @@ public abstract class Role
                         throw new SocketException();
                     }
                     
-                    byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
-                    recvSize = message.Length;
-                    Console.WriteLine("dans game vote message[0]== {0}", message[0]);
+                    List<byte[]> messages = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize,sock);
                     if (role.Contains(sock))
                     {
+                        foreach(byte[] message in messages){
 
+                        
                         if (message[0] == 1)
                         {
                             Console.WriteLine("ici c'est 5");
@@ -128,14 +128,17 @@ public abstract class Role
                                 Messages.recvMessageGame(role, message, recvSize);
                             }
                         }
-
+                        }
                     }
                     else
                     {
+                        foreach(byte[] message in messages){
                         if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
                         {
                             Messages.recvMessageGame(role, message, recvSize);
                         }
+                        }
+                        
                         Console.WriteLine("apres recv2");
                     }
                     }catch(SocketException e){
