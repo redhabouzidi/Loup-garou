@@ -16759,7 +16759,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309e53620f2ded140b67dfa71d85356c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LocalizationKey: RegistrationPage.Panel-info
+  LocalizationKey: RegistrationPage.Panel-info.username
 --- !u!114 &625585225
 MonoBehaviour:
   m_ObjectHideFlags: 0
