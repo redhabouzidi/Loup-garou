@@ -27,7 +27,7 @@ class Partie{
         return (village_name,datesauv);
     }
     public static string get_action(MySqlConnection conn,int id,int id_partie,bool fr){
-        string query="SELECT count(*) FROM SauvegardePartie WHERE idUsers=@idU AND idPartie=@idP";
+        string query="SELECT count(*) FROM SauvegardePartie WHERE idUsers=@idU AND idPartie=@idP ";
         int rowcount=conn.QueryFirstOrDefault<int>(query,new{idU=id,idP=id_partie});
         if(rowcount>0){
             if(fr){
@@ -44,7 +44,7 @@ class Partie{
         return null;
     }
     public static (int[],string[],DateTime[],int[]) get_partie(MySqlConnection conn,int idUser){
-        string query="SELECT SauvegardePartie.idPartie,Partie.nomPartie,Partie.Datesauvegarde,SauvegardePartie.scoregained FROM SauvegardePartie join Partie on SauvegardePartie.idPartie = Partie.idPartie WHERE idUsers=@id";
+        string query="SELECT SauvegardePartie.idPartie,Partie.nomPartie,Partie.Datesauvegarde,SauvegardePartie.scoregained FROM SauvegardePartie join Partie on SauvegardePartie.idPartie = Partie.idPartie WHERE idUsers=@id ORDER BY Datesauvegarde DESC";
         List<(int id,string names,DateTime date,int score)> data=conn.Query<(int,string,DateTime,int)>(query,new{id=idUser}).ToList();
         int[] identifiants = data.Select(r => r.id).ToArray();
         string[] names = data.Select(r => r.names).ToArray();
