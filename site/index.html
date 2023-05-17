@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Loup-Garou</title>
+  <link href="style/style.css" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Roboto Condensed' rel='stylesheet'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/x-icon" href="img/logo.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="banner">
+    <div id="logo">
+      <a href="#"><img src="img/logo-test.png" alt="Background of Werewolf"></a>
+    </div>
+    <div id="nav">
+      <img id="menu-button" src="img/menu.svg" alt="Icon menu">
+      <ul id="menu">
+        <li><a class="buttonNav" href="#">Accueil</a></li>
+        <li><a class="buttonNav" href="#roles">Rôles</a></li>
+        <li><a id="play-now" href="#download">Télécharger</a></li>
+        <!--
+          <li><a id="play-now" href="text.zip" download>Télécharger</a></li>
+        -->
+      </ul>
+    </div>
+  </div>
+
+  <div id="mid">
+    <div>
+      <h1>REJOIGNEZ L'AVENTURE !</h1>
+      <h3>Découvrez un jeu Loup-Garou unique.</h3>
+    </div>
+  </div>
+
+  
+  <div id="footerMainPage">
+    <div>
+      <h4>Disponible sur :</h4>
+      <ul id="os-icons">
+        <li><a href="downloads/JeuLoupGarou_WindowsEdition.zip" download><img src="img/windows-icon.png" alt="Windows"></a></li>
+        <li><a href="downloads/JeuLoupGarou_LinuxEdition.zip" download><img src="img/linux-icon.png" alt="Linux"></a></li>
+        <li><a href="downloads/JeuLoupGarou.apk" download><img src="img/android-icon.png" alt="Android"></a></li>
+      </ul>
+    </div>
+    <div>
+      <ul id="social-icons">
+        <li><a href="https://twitter.com/LoupGarouUnistr"><img src="img/twitter-icon.png" alt="Twitter"></a></li>
+        <li><a href="https://www.instagram.com/loup_garou_unistra/"><img src="img/instagram-icon.png" alt="Instagram"></a></li>
+        <li><a href="https://www.facebook.com/profile.php?id=100090454696589"><img src="img/facebook-icon.png" alt="Facebook"></a></li>
+        <li><a href="https://discord.gg/Fd6UhGeFFW"><img src="img/discord-icon.png" alt="Discord"></a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="roles">
+    <div id="container-caroussel">
+        <div class="items">
+          <h3>Villageois</h3>
+          <div class="item active">
+            <img src="img/villageois.png">
+          </div>
+          <div class="description descriptionActive">
+            <h4>Les Villageois doivent gagner avec le village</h4>
+            <p>Il n'a aucune compétence particulière. Ses seules armes sont la
+              capacité d'analyse des comportements pour identifier
+              les Loups-Garous, et la force de conviction pour
+              empêcher l'exécution de l'innocent qu'il est.</p>
+          </div>
+          <h3>Loup-Garou</h3>
+          <div class=" item next">
+            <img src="img/loup.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Les Loups-Garous doivent prendre le dessus sur le village</h4>
+            <p>Chaque nuit, ils dévorent
+              un Villageois. Le jour, ils essaient de masquer
+              leur identité nocturne pour échapper à la vindicte 
+              populaire. Leur nombre peut varier suivant
+              le nombre de joueurs. En aucun cas un loup-garou
+              ne peut dévorer un autre loup-garou.</p>
+          </div>
+          <h3>Sorcière</h3>
+          <div class="item">
+            <img src="img/sorciere.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>La Sorcière aide le village à vaincre les Loups-Garous</h4>
+            <p>Elle sait concocter 2 potions extrêmement
+              puissantes : Une potion de Guérison,
+              pour ressusciter le joueur dévoré par les
+              Loups-Garous Une potion d'Empoisonnement,
+              utilisé la nuit pour éliminer un joueur. La
+              Sorcière doit utiliser chaque potion une seul fois
+              dans la partie et elle ne peut pas se servir de ses deux
+              potions la même nuit. La Sorcière peut également
+              utiliser la potion de guérison à son profit, et donc
+              se guérir elle-même si elle vient d'être dévorée par
+              les Loups-Garous.</p>       
+          </div>
+          <h3>Garde</h3>
+          <div class="item">
+            <img src="img/garde.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Garde aide le village à vaincre les Loups-Garous</h4>
+            <p>Chaque nuit, il peut protéger un joueur différent contre une attaque des Loups-Garous. Il peut bien sûr assurer sa propre protection.. Le Garde doit aider les autres
+              Villageois et doit rester discret pour ne pas être
+              démasqué par les Loups-Garous.</p>       
+          </div>
+          <h3>Chasseur</h3>
+          <div class="item">
+            <img src="img/chasseur.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Chasseur aide le village à vaincre les Loups-Garous</h4>
+            <p>Lorsque le Chasseur meurt il a le pouvoir de tirer une dernière balle de son fusil afin d'amener un autre joueur avec lui dans sa tombe.</p>       
+          </div>
+          <h3>Dictateur</h3>
+          <div class="item">
+            <img src="img/dictateur.jpg">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Dictateur aide le village à vaincre les Loups-Garous</h4>
+            <p>Il peut s'emparer du pouvoir de vote du village une fois dans la partie. S'il exécute un Loup-Garou, il devient Maire, sinon, il meurt.</p>       
+          </div>
+          <h3>Voyante</h3>
+          <div class="item">
+            <img src="img/voyante.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>La Voyante aide le village à vaincre les Loups-Garous</h4>
+            <p>Chaque nuit, elle voit la carte
+              d'un joueur de son choix. Elle doit aider les autres
+              Villageois, mais rester discrète pour ne pas être
+              démasquée par les Loups-Garous.</p>
+          </div>
+          <h3>Cupidon</h3>
+          <div class="item prev">
+            <img src="img/cupidon.png">
+          </div>
+          <div class="description descriptionCache">
+            <h4>Le Cupidon aide le village à vaincre les Loups-Garous</h4>
+            <p>En décrochant ses célèbres flèches
+              magiques, Cupidon a le pouvoir de rendre 2
+              personnes amoureuses à jamais. La première nuit, il
+              désigne les 2 joueurs amoureux. Cupidon peut, s'il
+              le veut se désigner comme l'un des deux Amoureux.
+               Si l'un des Amoureux est éliminé, l'autre
+              meurt de chagrin immédiatement. Un Amoureux
+              ne doit jamais éliminer son aimé, ni lui porter aucun préjudice.</p>
+          </div>
+          <div class="button-container">
+            <div class="button"><i class="fas fa-angle-left"></i></div>
+            <div class="button"><i class="fas fa-angle-right"></i></div>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="download">
+    <h1>
+      Télécharger le jeu sur les différentes platformes !
+    </h1>
+    <div id="IconContainer">
+
+      <div class="downloadBtnTest">
+        <a href="downloads/JeuLoupGarou_WindowsEdition.zip" download>
+          <h2>
+            Windows
+          </h2>
+          <img src="img/windows-icon.png" alt="Windows" width="100" height="100">
+        </a>
+      </div>
+  
+      <div class="downloadBtnTest">
+        <a href="downloads/JeuLoupGarou_LinuxEdition.zip" download>
+          <h2>
+            Linux
+          </h2>
+          <img src="img/linux-icon.png" alt="Linux" width="100" height="100">
+        </a>
+      </div>
+  
+      <div class="downloadBtnTest">
+        <a href="downloads/JeuLoupGarou.apk" download>
+          <h2>
+            Android
+          </h2>
+          <img src="img/android-icon.png" alt="Android" width="100" height="100">
+        </a>
+      </div>
+      
+    </div>
+  </div>
+
+  <div id="APropos">
+    <div class="footer-container">
+      <p>Ce travail a été réalisé dans le cadre d'un projet scolaire de troisième année de licence informatique à l'UFR de mathématiques et d'informatique de Strasbourg par :</p>
+      <ul>
+        <li>Jennifer</li>
+        <li>Houssam</li>
+        <li>Kévin</li>
+        <li>Achraf</li>
+        <li>Redha</li>
+        <li>Sidy</li>
+        <li>Mohammed</li>
+        <li>Cenk</li>
+        <li>Wassim</li>
+      </ul>
+      <p>© Tous les travaux nous appartiennent et sont protégés par des droits d'auteur. ©</p>
+    </div>
+  </div>
+
+  <script src="script/script.js"></script>
+  <script src="https://kit.fontawesome.com/b56a723a53.js" crossorigin="anonymous"></script>
+</body>
+</html>
