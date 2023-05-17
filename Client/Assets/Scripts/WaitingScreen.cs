@@ -64,8 +64,8 @@ public class WaitingScreen : MonoBehaviour
         button_ready.onClick.AddListener(toggleReady);
         buten.onClick.AddListener(refresh_to_en);
         butfr.onClick.AddListener(refresh_to_fr);
-
         AfficheCard();
+        
     }
 
     // Update is called once per frame
@@ -455,14 +455,24 @@ public class WaitingScreen : MonoBehaviour
                         button_ready.transform.Find("check").GetComponent<Image>().enabled = true;
                         button_ready.GetComponent<Image>().color = colorGreen;
                         button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorGreen;
-                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+                        if(isfr){
+                            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Prêt!";
+                        }
+                        else{
+                            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "   Ready!";
+                        }
                     }
 
                     else {
                         button_ready.transform.Find("check").GetComponent<Image>().enabled = false;
                         button_ready.GetComponent<Image>().color = colorWhite;
                         button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().color = colorWhite;
-                        button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
+                        if(isfr){
+                            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Prêt?";
+                        }
+                        else{
+                            button_ready.transform.Find("Text (TMP)").GetComponent<TextMeshProUGUI>().text = "Ready?";
+                        }
                     }
                 }
                 // mettre le check

@@ -3332,6 +3332,7 @@ GameObject:
   - component: {fileID: 151734976}
   - component: {fileID: 151734978}
   - component: {fileID: 151734977}
+  - component: {fileID: 151734979}
   m_Layer: 5
   m_Name: RegistrationPage
   m_TagString: Untagged
@@ -3408,6 +3409,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 151734975}
   m_CullTransparentMesh: 1
+--- !u!114 &151734979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 151734975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e98d3fd6d48d543b6eccb65d5c8fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetback: {fileID: 2085109791}
+  connection: {fileID: 1638590500}
 --- !u!1 &154949900
 GameObject:
   m_ObjectHideFlags: 0
@@ -7275,7 +7290,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -345.13007, y: -160.78}
+  m_AnchoredPosition: {x: -345.13007, y: -160.78003}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &308172226
@@ -8280,6 +8295,7 @@ GameObject:
   - component: {fileID: 329998963}
   - component: {fileID: 329998962}
   - component: {fileID: 329998964}
+  - component: {fileID: 329998965}
   m_Layer: 5
   m_Name: ConnectionPage
   m_TagString: Untagged
@@ -8368,6 +8384,20 @@ MonoBehaviour:
   see: {fileID: 859772159}
   hide: {fileID: 996507890}
   text_password: {fileID: 1463688880}
+--- !u!114 &329998965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 329998960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e98d3fd6d48d543b6eccb65d5c8fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objetback: {fileID: 1050557688}
+  connection: {fileID: 1260499529}
 --- !u!1 &331355501
 GameObject:
   m_ObjectHideFlags: 0
@@ -9338,7 +9368,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Email
+  m_text: Username
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11454,9 +11484,9 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 436201150}
-  m_TextViewport: {fileID: 1502568395}
-  m_TextComponent: {fileID: 86233673}
-  m_Placeholder: {fileID: 329507493}
+  m_TextViewport: {fileID: 1021855795}
+  m_TextComponent: {fileID: 2053671471}
+  m_Placeholder: {fileID: 358288688}
   m_VerticalScrollbar: {fileID: 0}
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
@@ -16759,7 +16789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309e53620f2ded140b67dfa71d85356c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LocalizationKey: RegistrationPage.Panel-info
+  LocalizationKey: bullUsername
 --- !u!114 &625585225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31991,7 +32021,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 125.00006, y: 90.00003}
+  m_AnchoredPosition: {x: 125.00006, y: 90}
   m_SizeDelta: {x: 150, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1374130588
@@ -33871,7 +33901,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1982775964}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.38074958
+  m_Size: 0.38074955
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -38580,7 +38610,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -208.74, y: -157.20001}
+  m_AnchoredPosition: {x: -208.74, y: -157.19995}
   m_SizeDelta: {x: 1290.4, y: 98.755}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1768177244
@@ -38866,7 +38896,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 87}
-  m_SizeDelta: {x: 700, y: 84}
+  m_SizeDelta: {x: 900, y: 84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1778871806
 MonoBehaviour:
@@ -38888,7 +38918,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Enter your Email to receive a code :'
+  m_text: 'Enter your username to receive a code :'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c244580d404d3a94b8f8e78134cf1a37, type: 2}
   m_sharedMaterial: {fileID: 20556866517400120, guid: c244580d404d3a94b8f8e78134cf1a37, type: 2}
@@ -39264,7 +39294,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -345.13007, y: -160.78}
+  m_AnchoredPosition: {x: -345.13007, y: -160.78003}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1841522034
@@ -41042,7 +41072,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -345.13007, y: -160.78}
+  m_AnchoredPosition: {x: -345.13007, y: -160.78003}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1926830949
@@ -43231,7 +43261,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -345.13007, y: -160.78}
+  m_AnchoredPosition: {x: -345.13007, y: -160.78003}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2034253558
@@ -43501,7 +43531,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -45247,7 +45277,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -86.45001, y: 231.03}
+  m_AnchoredPosition: {x: -86.45001, y: 231.03003}
   m_SizeDelta: {x: 437.1, y: 642.39}
   m_Pivot: {x: 1, y: 0.0000000027939677}
 --- !u!114 &2106783441

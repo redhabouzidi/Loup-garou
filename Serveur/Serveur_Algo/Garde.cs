@@ -74,6 +74,7 @@ public class Garde : Role
                     {
                         firstTime = false;
                         LaunchThread2 = true;
+                        sendTime(listJoueurs, GetDelaiAlarme() / 4,game);
                         Task.Run(() =>
                         {
                             Thread.Sleep(GetDelaiAlarme() * 250);

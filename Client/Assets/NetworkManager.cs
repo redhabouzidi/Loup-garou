@@ -383,6 +383,7 @@ public class NetworkManager : MonoBehaviour
         //ajouter le code du packet
         message[0] = 108;
         SendMessageToServer(client, message);
+        
     }
     //permet de traitre les messages
     public static void treatMessage(byte[] message)
@@ -395,8 +396,6 @@ public class NetworkManager : MonoBehaviour
         int dataSize, tableSize, idPlayer, idp, val, role, idP, win;
         string name, usernameP;
         int[] size = new int[1] { 1 };
-        Debug.Log(BitConverter.ToString(message));
-        Debug.Log("code== "+message[0]);
         rep.RemoveAt(0);
 
 
@@ -748,6 +747,7 @@ public class NetworkManager : MonoBehaviour
                         }
                         rolesJoueurs.Add(rolesTemp);
                     }
+                    
                     lo.SetActive(true);
                     SetCurrentGame(nbPlayers, gameId, gameName,actualPlayers,rolesJoueurs);
                     break;
@@ -826,6 +826,7 @@ public class NetworkManager : MonoBehaviour
                         {
                             break;
                         }
+                        Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
                         gma.addFriendWait(names[j], friends[j]);
                     }
                     j++;
@@ -835,6 +836,7 @@ public class NetworkManager : MonoBehaviour
                         {
                             break;
                         }
+                        Debug.Log("id = " + j + " real id = " + friends[j] + " name = " + names[j] + " status = " + status[j]);
                         gma.addFriendRequest(names[j], friends[j]);
                     }
                     gma.AfficheNoObject();
@@ -1348,7 +1350,6 @@ public class NetworkManager : MonoBehaviour
         encode(message, hunter, size);
         encode(message, guardian, size);
         encode(message, dictator, size);
-
         return SendMessageToServer(client, message);
     }
     //envoie une demande de join

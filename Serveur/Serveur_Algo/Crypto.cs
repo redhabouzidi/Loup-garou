@@ -24,8 +24,6 @@ namespace Server
             byte[] certBytes = cert.Export(X509ContentType.Cert);
             byte[] certLength = BitConverter.GetBytes(certBytes.Length);
             byte[] message = certLength.Concat(certBytes).ToArray();
-            Console.WriteLine("cryptolen="+ message.Length+"msg = ");
-            Console.WriteLine(BitConverter.ToString(message));
 
             return (client.Send(message, message.Length, SocketFlags.None));
         }
@@ -50,17 +48,56 @@ namespace Server
             return (EncryptMessage(msg, aes));
         }
 
-        public static byte[] DecryptMessage(byte[] message, Aes aes, int tabSize)
+        public static List<byte[]> DecryptMessage(byte[] message, Aes aes, int tabSize,Socket client)
         {
+            bool read=true;
+            List<byte[]> messages=new List<byte[]>();
+            int[] size=new int[]{0};
+            while(size[0]<tabSize){
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.ISO10126;
-            Console.WriteLine("iv received");
             ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-            Console.WriteLine("iv received");
+            int taille=0;
+            if((size[0]+sizeof(int))>tabSize){
+                byte[] temp=new byte[sizeof(int)];
+                Array.Copy(message, size[0], temp, 0, tabSize-size[0]);
+                int newsize=client.Receive(message);
+                Array.Copy(message, 0, temp, tabSize-size[0], sizeof(int)-(tabSize-size[0]));
+                int[] newint=new int[1]{0};
+                taille=Messages.decodeInt(temp,newint);
+                tabSize=newsize;
+                size[0]=sizeof(int)-(tabSize-size[0]);
+
+            }else{
+
+            }
+            taille=Messages.decodeInt(message,size);
+            
+            byte[] defragmentedMessage=new byte[taille];
+            Array.Copy(message, size[0], defragmentedMessage, 0, taille);
+            
+            
             // Decrypt data
-            byte[] decryptedBytes = decryptor.TransformFinalBlock(message, 0, tabSize);
-            Console.WriteLine("iv received");
-            return decryptedBytes;
+            if((size[0]+taille)>tabSize){
+                int newsize=client.Receive(message);
+                int diff=tabSize-size[0];
+                Array.Copy(message, 0, defragmentedMessage, diff, taille-diff);
+                tabSize=newsize;
+                byte[] decryptedBytes = decryptor.TransformFinalBlock(defragmentedMessage, 0, taille);
+                messages.Add(decryptedBytes);
+                size[0]=taille-diff;
+
+
+            }else{
+                
+                byte[] decryptedBytes = decryptor.TransformFinalBlock(defragmentedMessage, 0, taille);
+                messages.Add(decryptedBytes);
+                size[0]+=taille;
+            }
+            
+            
+            }
+            return messages;
 
         }
 

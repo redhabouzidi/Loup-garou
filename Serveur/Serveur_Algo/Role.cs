@@ -72,9 +72,11 @@ public abstract class Role
                 read.Add(socket);
             }
             Console.WriteLine("bah on attends alors");
-            Socket.Select(read, null, null, -1);
+            Socket.Select(read, null, null, 500000);
             
-            Console.WriteLine("ici c'est 3");
+            if(read.Count==0){
+                return (-1,-1);
+            }
             if (read.Contains(reveille))
             {
                 Console.WriteLine("on va sortir");
@@ -101,12 +103,12 @@ public abstract class Role
                         throw new SocketException();
                     }
                     
-                    byte[] message = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize);
-                    recvSize = message.Length;
-                    Console.WriteLine("dans game vote message[0]== {0}", message[0]);
+                    List<byte[]> messages = Crypto.DecryptMessage(encryptedMessage, Messages.client_keys[sock], recvSize,sock);
                     if (role.Contains(sock))
                     {
+                        foreach(byte[] message in messages){
 
+                        
                         if (message[0] == 1)
                         {
                             Console.WriteLine("ici c'est 5");
@@ -123,17 +125,20 @@ public abstract class Role
                         {
                             if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4)||(idRole == 255 && message[0]==16))
                             {
-                                Messages.recvMessageGame(role, message, recvSize);
+                                Messages.recvMessageGame(role, message, message.Length);
                             }
                         }
-
+                        }
                     }
                     else
                     {
+                        foreach(byte[] message in messages){
                         if ((message[0] == 0 && (idRole == 1 || idRole == 255)) || (message[0] == 20 && idRole == 4))
                         {
-                            Messages.recvMessageGame(role, message, recvSize);
+                            Messages.recvMessageGame(role, message, message.Length);
                         }
+                        }
+                        
                         Console.WriteLine("apres recv2");
                     }
                     }catch(SocketException e){

@@ -8,7 +8,7 @@ using MySql.Data.MySqlClient;
 
 public class bdd
 {
-    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='';Pooling=true;charset='utf8'");
+    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='werewolf2023';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
         return client.Send(message, message.Length, SocketFlags.None);

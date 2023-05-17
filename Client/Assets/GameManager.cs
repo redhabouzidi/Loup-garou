@@ -558,6 +558,7 @@ public class GameManager : MonoBehaviour
                     break;
                 case 253:
                     affiche_tour_role("Mayor must select his new successor ...", turn);
+                    isNight=false;
                     if(p.GetIsMaire()){
                         GO_dead_bg.SetActive(false);
                     }

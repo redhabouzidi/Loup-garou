@@ -42,7 +42,7 @@ public class Crypto : MonoBehaviour
     }
     public static void DecryptMessage(byte[] message, Aes aes, int tabSize)
     {
-        
+        Console.WriteLine(BitConverter.ToString(message));
         int[] size = new int[1] { 0 };
         
         byte[] decryptedBytes = new byte[0];
@@ -71,7 +71,11 @@ public class Crypto : MonoBehaviour
         aes.Padding = PaddingMode.ISO10126;
         var encryptor = aes.CreateEncryptor();
         byte[] data = encryptor.TransformFinalBlock(message, 0, message.Length);
-
-        return data;
+        byte[] toSend = new byte[data.Length + sizeof(int)];
+        int[] size = new int[1] { 0 };
+        NetworkManager.encode(toSend, data.Length, size);
+        Array.Copy(data, 0, toSend, size[0], data.Length);
+        Debug.Log(BitConverter.ToString(toSend));
+        return toSend;
     }
 }

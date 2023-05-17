@@ -190,7 +190,7 @@ namespace Server
                     fds.Remove(wakeUpMain);
                 }
                 }
-                catch(SocketException e){
+                catch(Exception e){
                     
                 }
                 //on écoute toutes les sockets restant comme des joueurs
@@ -229,7 +229,7 @@ namespace Server
 
                     }
                     }
-                    catch (SocketException e)
+                    catch (Exception e)
                     {
                         disconnectPlayer(list, fd);
                         Console.WriteLine(e.ToString());
@@ -315,7 +315,6 @@ namespace Server
                     Console.WriteLine("la taille du message crypté est de {0} et la taille normale {1}", cryptedMessage.Length, message.Length);
                     Console.WriteLine("Le premier byte crypté est {0}", cryptedMessage[4]);
                     Console.WriteLine("\non va envoyer un message au client ", client.RemoteEndPoint.ToString());
-                    Console.WriteLine(BitConverter.ToString(cryptedMessage));
                     client.Send(cryptedMessage, cryptedMessage.Length, SocketFlags.None);
                 }
                 else
@@ -1049,36 +1048,40 @@ namespace Server
         {
             int[] size = new int[1];
             int id;
-            byte[] message;
+            byte[] msg;
+            List <byte[]> messages=new List<byte[]>();
             //si le joueur n'as pas de clef
             if (!client_keys.ContainsKey(client))
             {
                 //on receptionne le message
-                message = new byte[2048];
-                int receivedBytes = client.Receive(message);
+                msg = new byte[10000];
+                int receivedBytes = client.Receive(msg);
+                messages.Add(msg);
                 //si le message n'est pas valide on deconnecte le joueur
                 if (receivedBytes <= 0)
                 {
                     throw new SocketException();
                     return;
                 }
-                Console.WriteLine("le message dont la socket n'est pas dans le dictionnaire est " + message[0] + " received bytes =" + receivedBytes);
             }
             //sinon on decode sont message
             else
             {
-                byte[] encryptedMessage = new byte[2048];
+                byte[] encryptedMessage = new byte[10000];
                 int receivedBytes = client.Receive(encryptedMessage);
                 if (receivedBytes <= 0)
                 {
                     throw new SocketException();
                     return;
                 }
-                message = Crypto.DecryptMessage(encryptedMessage, client_keys[client], receivedBytes);
-                receivedBytes = message.Length;
+                Console.WriteLine("encmsg="+encryptedMessage+"\n");
+                messages = Crypto.DecryptMessage(encryptedMessage, client_keys[client], receivedBytes,client);
             }
             string username;
             int idj;
+            foreach(byte[] message in messages){
+            Console.WriteLine(BitConverter.ToString(message));
+            
             switch (message[0])
             {
                 //rejoin la partie d'un amis
@@ -1408,9 +1411,10 @@ namespace Server
                     break;
                 //recoit un message d'erreur 
                 case 255:
-                    return;
+
                 default:
                     break;
+            }
             }
         }
         //envoie les personens qui doivent être choisis pour être tué
