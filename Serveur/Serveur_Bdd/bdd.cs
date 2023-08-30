@@ -90,15 +90,29 @@ public class bdd
         size[0] += val.Length;
 
     }
-
+    public static string ipadd;
+    public static int serverport;
     public static void Main(string[] args)
     {
 
 
 
+        if(args.Length ==2){
+                try{
 
+                ipadd= args[0];
+                serverport=int.Parse(args[1]);
+                }catch(Exception e){
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+            }else{
+                Console.WriteLine("Arguments aren't right , you must do :\n dotnet run 'ip address' 'port of use'");
+                return;
+            }
+        Console.WriteLine("Connexion to the database ...");
         conn.Open();
-        Console.WriteLine("ca marche");
+        Console.WriteLine("Connected to the database");
         Socket bdd = setupSocketServer();
         List<Socket> server = new List<Socket> { };
         byte[] message = new byte[30000];
@@ -167,9 +181,9 @@ public class bdd
 
     public static Socket setupSocketServer()
     {
-        string ia = "192.168.100.116";
-        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10001);
+        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ipadd), serverport);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Console.WriteLine("Connexion to server ...");
         client.Connect(iep);
         Console.WriteLine("Conenxion to server achieved");
 

@@ -12,12 +12,12 @@ using System.Security.Cryptography;
 public class NetworkManager : MonoBehaviour
 {
 
-    public static int nbplayeres, time;
+    public static int nbplayeres, time,port = 3000;
     public static bool prog = false, ready, inGame;
     public static List<byte[]> rep;
     public static Socket client;
     public static int id, tour;
-    public static string username;
+    public static string username,ipadd="127.0.0.1";
     public static GameManager gm;
     public static GameObject sp, ho, canvas, gmo, wso, cpo, lo, gmao, sgo, ro, so, chpwe,chpass,profile,fpo;
     public static Statistiques s;
@@ -58,8 +58,7 @@ public class NetworkManager : MonoBehaviour
             try
             {
                 connected=false;
-                int port = 18000;
-                string ia = "185.155.93.105";
+                string ia = ipadd;
                 // int port = 10000;
                 // string ia = "127.0.0.1";
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
@@ -96,8 +95,7 @@ public class NetworkManager : MonoBehaviour
             try
             {
                 connected=false;
-                int port = 18000;
-                string ia = "185.155.93.105";
+                string ia = ipadd;
                 // int port = 10000;
                 // string ia = "127.0.0.1";
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
@@ -131,8 +129,7 @@ public class NetworkManager : MonoBehaviour
             try
             {
                 connected=false;
-                int port = 18000;
-                string ia = "185.155.93.105";
+                string ia = ipadd;
                 // int port = 10000;
                 // string ia = "127.0.0.1";
                 IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), port);
@@ -305,7 +302,7 @@ public class NetworkManager : MonoBehaviour
     //parametrage de la socket serveur
     public static Socket LinkToServer()
     {
-        var ia = "185.155.93.105";
+        var ia = ipadd;
         IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10000);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         client.Connect(iep);
