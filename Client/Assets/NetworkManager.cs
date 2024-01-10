@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 public class NetworkManager : MonoBehaviour
 {
 
-    public static int nbplayeres, time,port = 3000;
+    public static int nbplayeres, time,port = 4000;
     public static bool prog = false, ready, inGame;
     public static List<byte[]> rep;
     public static Socket client;
