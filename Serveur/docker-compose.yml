@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+
+  server:
+    build:
+      context: ./Serveur_algo
+    ports:
+      - "$SERVER_PORT:$SERVER_PORT"
+    env_file:
+      - .env
+    depends_on:
+      - database
+  database_server:
+    build:
+      context: ./Serveur_Bdd
+    ports:
+      - "$DB_SERVER_PORT:$DB_SERVER_PORT"
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - database
+      - server
+  
+  database:
+    image: ${DATABASE}:latest
+    environment:
+      - MYSQL_USER=$DB_USER
+      - MYSQL_PASSWORD=$DB_PASSWORD
+      - MYSQL_ROOT_PASSWORD=$DB_PASSWORD
+      - MYSQL_DATABASE=$DB_NAME
+    ports:
+      - "$DB_PORT:$DB_PORT"
+    command: ["--port=$DB_PORT"]
+    volumes:
+      - db-data:/var/lib/mysql/
+
+volumes:
+  db-data:

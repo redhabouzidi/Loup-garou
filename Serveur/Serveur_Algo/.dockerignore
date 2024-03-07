@@ -1,0 +1,13 @@
+bin/
+obj/
+.vscode/
+.vs/
+*.suo
+*.user
+*.bak
+*.log
+.DS_Store
+.dockerignore
+.dockerfile
+docker-compose.yml
+docker-compose.override.yml

@@ -120,18 +120,30 @@ namespace Server
         public static Socket? wakeUpMain, bdd;
         //Sauvegarde les utilisateurs dont on attends la clef
         public static List<Socket> waitingKeys = new List<Socket>();
-
+        public static string ipadd,
+        bddipadd=Environment.GetEnvironmentVariable("DB_SERVER_HOST") ?? "127.0.0.1",
+        dbhost=Environment.GetEnvironmentVariable("DB_HOST") ?? "127.0.0.1",
+        dbport=Environment.GetEnvironmentVariable("DB_PORT") ?? "3307",
+        srvhost=Environment.GetEnvironmentVariable("DB_SERVER_HOST") ?? "localhost";
+        public static int bddport= int.TryParse(Environment.GetEnvironmentVariable("DB_SERVER_PORT"), out int parsedPort) ? parsedPort : 5000,
+        serverport = int.TryParse(Environment.GetEnvironmentVariable("SERVER_PORT"), out int parsedDbPort) ? parsedDbPort : 5432;
         //écoute principale du serveur , ne marche que aprés la connexion de la base de données
         public static void Main(string[] args)
         {
-            int port = 10000;
+            ipadd="127.0.0.1";
+            
+
             bool a = true;
             //Parametrage des sockets
-            Socket server = setupSocketClient(port), serverbdd = setupSocketBdd(10001);
+            Socket server, serverbdd;
+            server = setupSocketClient(serverport);
+            serverbdd = setupSocketBdd(bddport);
 
             byte[] message = new byte[1024];
             //Attente de la connexion de la bdd
+            Console.WriteLine("Looking for the database ...");
             bdd = serverbdd.Accept();
+            Console.WriteLine("Database found");
 
             List<Socket> list = new List<Socket> { server, bdd };
             List<Socket> fds = new List<Socket>();
@@ -139,7 +151,7 @@ namespace Server
             wakeUpMain = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             if (server.LocalEndPoint != null)
             {
-                wakeUpMain.Connect(server.LocalEndPoint);
+                wakeUpMain.Connect(IPAddress.Parse(ipadd),serverport);
             }
             else
             {
@@ -267,25 +279,28 @@ namespace Server
         {
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, port);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Console.WriteLine("Connecting to the server ...");
             server.Bind(iep);
             server.Listen(10);
-            Console.WriteLine("Starting to listen to clients");
+            Console.WriteLine("Connected to the server");
             return server;
         }
         //fontion qui cree le socket qui va ecouter sur la bdd
         public static Socket setupSocketBdd(int port)
         {
+
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, port);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Console.WriteLine("Connecting to the database ...");
             server.Bind(iep);
-            server.Listen(1);
-            Console.WriteLine("Starting to listen to dataBase");
+            server.Listen(10);
+            Console.WriteLine("Connected to the database");
             return server;
         }
         //setup les Sockets utilisé pour avoir une notion de timer dans le jeu
         public static Socket setupSocketGame()
         {
-            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, 2000);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Loopback, serverport);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             server.Bind(iep);
             server.Listen(100);

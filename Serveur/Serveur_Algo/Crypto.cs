@@ -14,9 +14,9 @@ namespace Server
         public Crypto()
         {
             this.rsa = RSA.Create();
-            string privateKeyBytes = File.ReadAllText("/home/ubuntu/certificat/private.key");
+            string privateKeyBytes = File.ReadAllText("private.key");
             rsa.ImportFromPem(privateKeyBytes);
-            this.cert = new X509Certificate2("/home/ubuntu/certificat/certificate.crt");
+            this.cert = new X509Certificate2("certificate.crt");
         }
 
         public int SendCertificateToClient(Socket client)

@@ -8,7 +8,6 @@ using MySql.Data.MySqlClient;
 
 public class bdd
 {
-    public static MySqlConnection conn = new MySqlConnection("Server='127.0.0.1';port=3306;DATABASE='lg_db';user ID='root';password='werewolf2023';Pooling=true;charset='utf8'");
     public static int sendMessage(Socket client, byte[] message)
     {
         return client.Send(message, message.Length, SocketFlags.None);
@@ -90,16 +89,48 @@ public class bdd
         size[0] += val.Length;
 
     }
+    public static string ipadd,
+    dbadd,
+    dbname=Environment.GetEnvironmentVariable("DB_NAME") ?? "werewolf",
+    dbhost=Environment.GetEnvironmentVariable("DB_HOST") ?? "127.0.0.1",
+    dbport=Environment.GetEnvironmentVariable("DB_PORT") ?? "3307",
+    dbuser=Environment.GetEnvironmentVariable("DB_USER") ?? "admin",
+    dbpassword=Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "password";
+    public static MySqlConnection conn;
 
+    public static int srvdbport;
     public static void Main(string[] args)
     {
+        
+        
+        IPAddress[] ipa= Dns.GetHostAddresses(Environment.GetEnvironmentVariable("SERVER_HOST") ?? "localhost");
+        IPAddress[] ipbdd= Dns.GetHostAddresses(Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost");
+        if(ipa.Length!=1){
+            Console.WriteLine("Too much ip addresses found");
+            ipadd = "127.0.0.1";
+        }else{
 
+            ipadd = ipa[0].ToString();
+        }
+        if(ipbdd.Length!=1){
+            
+        }else{
+            IPAddress[] dbadd= Dns.GetHostAddresses(Environment.GetEnvironmentVariable("SERVER_HOST") ?? "localhost");
+        }
+        conn= new MySqlConnection("Server='"+dbhost+"';port="+dbport+";DATABASE='"+dbname+"';user ID='"+dbuser+"';password='"+dbpassword+"';Pooling=true;charset='utf8'");
 
-
-
+        Console.WriteLine("Connexion to the database ...");
         conn.Open();
-        Console.WriteLine("ca marche");
+        Console.WriteLine("Connected to the database");
+        if(args.Length==1 && args[0]=="migrate"){
+            Console.WriteLine("Initiate migration");
+            dbMigration.initMigration();
+            Console.WriteLine("Migration done");
+        }
+
+        srvdbport = int.TryParse(Environment.GetEnvironmentVariable("DB_SERVER_PORT"), out int parsedPort) ? parsedPort : 5000;
         Socket bdd = setupSocketServer();
+        
         List<Socket> server = new List<Socket> { };
         byte[] message = new byte[30000];
         while (true)
@@ -167,9 +198,10 @@ public class bdd
 
     public static Socket setupSocketServer()
     {
-        string ia = "192.168.100.116";
-        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ia), 10001);
+        Console.WriteLine(ipadd);
+        IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ipadd), srvdbport);
         Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Console.WriteLine("Connexion to server ..."+ipadd+" and port "+srvdbport);
         client.Connect(iep);
         Console.WriteLine("Conenxion to server achieved");
 
