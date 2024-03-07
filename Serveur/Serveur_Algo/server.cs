@@ -120,26 +120,19 @@ namespace Server
         public static Socket? wakeUpMain, bdd;
         //Sauvegarde les utilisateurs dont on attends la clef
         public static List<Socket> waitingKeys = new List<Socket>();
-        public static string ipadd;
-        public static int serverport,bddport;
+        public static string ipadd,
+        bddipadd=Environment.GetEnvironmentVariable("DB_SERVER_HOST") ?? "127.0.0.1",
+        dbhost=Environment.GetEnvironmentVariable("DB_HOST") ?? "127.0.0.1",
+        dbport=Environment.GetEnvironmentVariable("DB_PORT") ?? "3307",
+        srvhost=Environment.GetEnvironmentVariable("DB_SERVER_HOST") ?? "localhost";
+        public static int bddport= int.TryParse(Environment.GetEnvironmentVariable("DB_SERVER_PORT"), out int parsedPort) ? parsedPort : 5000,
+        serverport = int.TryParse(Environment.GetEnvironmentVariable("SERVER_PORT"), out int parsedDbPort) ? parsedDbPort : 5432;
         //écoute principale du serveur , ne marche que aprés la connexion de la base de données
         public static void Main(string[] args)
         {
-            if(args.Length ==3){
-                try{
+            ipadd="127.0.0.1";
+            
 
-                ipadd= args[0];
-                serverport=int.Parse(args[1]);
-                bddport=int.Parse(args[2]);
-                }catch(Exception e){
-                    
-                    Console.WriteLine(e.Message);
-                    return;
-                }
-            }else{
-                Console.WriteLine("Arguments aren't right , you must do :\n dotnet run 'ip address' 'port of use' 'bdd's port'");
-                return;
-            }
             bool a = true;
             //Parametrage des sockets
             Socket server, serverbdd;
@@ -295,11 +288,12 @@ namespace Server
         //fontion qui cree le socket qui va ecouter sur la bdd
         public static Socket setupSocketBdd(int port)
         {
+
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, port);
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Console.WriteLine("Connecting to the database ...");
             server.Bind(iep);
-            server.Listen(1);
+            server.Listen(10);
             Console.WriteLine("Connected to the database");
             return server;
         }

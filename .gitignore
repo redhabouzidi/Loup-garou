@@ -48,3 +48,4 @@ bin
 obj
 *.csproj
 *.pem
+.env
