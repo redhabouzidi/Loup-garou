@@ -10,4 +10,4 @@ COPY . ./
 RUN dotnet build -c Release -o out
 
 
-ENTRYPOINT ["dotnet","run"]
+ENTRYPOINT ["dotnet","run","migrate"]
